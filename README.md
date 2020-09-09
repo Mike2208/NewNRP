@@ -2,7 +2,7 @@
 
 ## Dependency Installation
 
-    sudo apt install g++ gazebo gazebo-dev lib-nlohmann-json-dev lib-boost-dev
+    sudo apt install g++-10 gazebo gazebo-dev lib-nlohmann-json-dev lib-boost-dev
     
  - CAN ONLY BE INSTALLED ON UBUNTU 20+ AT THE MOMENT
  - gazebo: For GazeboEngine
