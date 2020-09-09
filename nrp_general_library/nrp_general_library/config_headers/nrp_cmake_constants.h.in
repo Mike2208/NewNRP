@@ -1,0 +1,39 @@
+#ifndef NRP_CMAKE_CONSTANTS_H
+#define NRP_CMAKE_CONSTANTS_H
+
+/* Automatically created by cmake configure file from nrp_general_library/config_headers/nrp_cmake_constants.h.in
+*  DO NOT EDIT DIRECTLY!
+*/
+
+/*!
+ * \brief Name of python module library
+ */
+#define PYTHON_MODULE_NAME @PYTHON_MODULE_NAME@
+
+/*!
+ * \brief Name of python module library as string
+ */
+#define PYTHON_MODULE_NAME_STR "@PYTHON_MODULE_NAME@"
+
+/*!
+ * \brief Install Location
+ */
+#define NRP_INSTALL_DIR "@CMAKE_INSTALL_PREFIX@"
+
+
+/*!
+ *	\brief Library Install location
+ */
+#define NRP_LIB_INSTALL_DIR "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@"
+
+/*!
+ *	\brief NRP Plugin install directory
+ */
+#define NRP_PLUGIN_INSTALL_DIR "@NRP_PLUGIN_INSTALL_DIR@"
+
+/*!
+ *	\brief Bash cmd to set environment before starting engine
+ */
+#define NRP_ENGINE_SET_ENV_CMD "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_BINDIR@/set_env_exec.sh"
+
+#endif // NRP_CMAKE_CONSTANTS_H

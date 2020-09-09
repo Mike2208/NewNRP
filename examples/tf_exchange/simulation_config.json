@@ -1,0 +1,24 @@
+{
+	"SimulationName": "tf_exchange",
+	"SimulationTimeout": 10,
+	"EngineConfigs": 
+	[
+		{
+			"EngineType": "python_json",
+			"EngineName": "python_1",
+			"PythonFileName": "engine_1.py"
+		},
+		{
+			"EngineType": "python_json",
+			"EngineName": "python_2",
+			"PythonFileName": "engine_2.py"
+		}
+	],
+	"TransceiverFunctions":
+	[
+		{
+			"Name": "tf_1",
+			"FileName": "tf_1.py"
+		}
+	]
+}

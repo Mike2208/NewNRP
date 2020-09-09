@@ -1,0 +1,30 @@
+#ifndef NRP_PYTHON_CMAKE_CONSTANTS_H
+#define NRP_PYTHON_CMAKE_CONSTANTS_H
+
+/*!
+ * \file nrp_python_constants.h
+ * \brief Contains constants exported from cmake. Used to set parameters dependent upon the build and installation process.
+ * DO NOT EDIT THIS HEADER FILE! The code is automatically generated via cmake from @PYTHON_CMAKE_HEADER_CONFIG_FILE@
+ */
+
+/*!
+ * \brief Python executable
+ */
+#define PYTHON_EXECUTABLE "@Python3_EXECUTABLE@"
+
+/*!
+ * \brief Name of python module
+ */
+#define NRP_PYTHON_ENGINE_MODULE @PYTHON_MODULE_NAME@
+
+/*!
+ * \brief Name of python module (as string)
+ */
+#define NRP_PYTHON_ENGINE_MODULE_STR "@PYTHON_MODULE_NAME@"
+
+/*!
+ * \brief Name of NRP Python server Executable
+ */
+#define NRP_PYTHON_EXECUTABLE_PATH "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_BINDIR@/@NRP_PYTHON_EXECUTABLE@"
+
+#endif // NRP_PYTHON_CMAKE_CONSTANTS_H

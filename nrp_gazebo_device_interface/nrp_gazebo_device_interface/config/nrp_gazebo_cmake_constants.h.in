@@ -1,0 +1,44 @@
+#ifndef NRP_GAZEBO_CMAKE_CONSTANTS_H
+#define NRP_GAZEBO_CMAKE_CONSTANTS_H
+
+/* Automatically created by cmake configure file from nrp_gazebo_device_interface/config_headers/nrp_cmake_constants.h.in
+*  DO NOT EDIT DIRECTLY!
+*/
+
+/*!
+ * \brief Name of python module library
+ */
+#define GAZEBO_PYTHON_MODULE_NAME @PYTHON_MODULE_NAME@
+
+/*!
+ * \brief Name of python module library as string
+ */
+#define GAZEBO_PYTHON_MODULE_NAME_STR "@PYTHON_MODULE_NAME@"
+
+
+/*!
+ *	\brief Path to NRP gazebo plugins
+ */
+#define NRP_GAZEBO_PLUGINS_DIR "@NRP_GAZEBO_PLUGINS_INSTALL_DIR_ABSOLUTE@"
+
+/*!
+ *	\brief Gazebo Communication Plugin Library Name
+ */
+#define NRP_GAZEBO_COMMUNICATION_PLUGIN "@NRP_GAZEBO_COMMUNICATION_PLUGIN@.so"
+
+/*!
+ *	\brief Path to default gazebo plugins
+ */
+#define DEFAULT_GAZEBO_PLUGIN_DIR "@GAZEBO_PLUGIN_PATH@"
+
+/*!
+ *	\brief Path to default gazebo models
+ */
+#define DEFAULT_GAZEBO_MODEL_DIR "@GAZEBO_MODEL_PATH@"
+
+/*!
+ *	\brief Path to default gazebo libraries
+ */
+#define DEFAULT_GAZEBO_LIB_DIRS "@DEFAULT_GAZEBO_LIB_DIRS@"
+
+#endif // NRP_GAZEBO_CMAKE_CONSTANTS_H

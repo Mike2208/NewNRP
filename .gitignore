@@ -1,0 +1,10 @@
+build
+build_clang
+CMakeLists.txt.*
+*.autosave
+/compile_commands.json
+/Project.ede
+__pycache__
+*.pyc
+.stignore
+/uninstall.sh

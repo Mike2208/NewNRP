@@ -1,0 +1,14 @@
+{
+	"SimulationName": "test_sim",
+	"EngineConfigs": [
+		{
+			"EngineType": "gazebo_json",
+			"EngineName": "gazebo",
+			"GazeboWorldFile": "/home/mike/Projects/NewNRP/nrp_simulation/tests/test_files/empty_world.sdf"
+		},
+		{
+			"EngineType": "nest_json",
+			"EngineName": "nest"
+		}
+	]
+}

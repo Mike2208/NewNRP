@@ -1,0 +1,68 @@
+#include "nrp_gazebo_device_interface/devices/json_physics_joint.h"
+
+PhysicsJointConst::FloatNan::FloatNan(float val)
+    : _val(val)
+{}
+
+PhysicsJoint::PhysicsJoint(const std::string &name)
+    : PhysicsJoint(DeviceIdentifier(name, TypeName.data(), ""))
+{}
+
+PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id)
+    : JSONDeviceInterface(id, NAN, NAN, NAN)
+{}
+
+PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id, const nlohmann::json &data)
+    : JSONDeviceInterface(id, data, NAN, NAN, NAN)
+{}
+
+float PhysicsJoint::position() const
+{
+	return this->getPropertyByName<Position>();
+}
+
+void PhysicsJoint::setPosition(float position)
+{
+	this->getPropertyByName<Position>() = position;
+}
+
+float PhysicsJoint::velocity() const
+{
+	return this->getPropertyByName<Velocity>();
+}
+
+void PhysicsJoint::setVelocity(float velocity)
+{
+	this->getPropertyByName<Velocity>() = velocity;
+}
+
+float PhysicsJoint::effort() const
+{
+	return this->getPropertyByName<Effort>();
+}
+
+void PhysicsJoint::setEffort(float effort)
+{
+	this->getPropertyByName<Effort>() = effort;
+}
+
+template<>
+nlohmann::json ObjectPropertySerializerMethods<nlohmann::json>::serializeSingleProperty(const PhysicsJointConst::FloatNan &property)
+{
+	return nlohmann::json(static_cast<float>(property));
+}
+
+template<>
+PhysicsJointConst::FloatNan ObjectPropertySerializerMethods<nlohmann::json>::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name)
+{
+	const auto dataIterator(data.find(name.data()));
+	if(dataIterator != data.end())
+	{
+		if(dataIterator->is_number())
+			return dataIterator->get<float>();
+		else
+			return NAN;
+	}
+	else
+		throw std::out_of_range(std::string("Couldn't find JSON attribute ") + name.data() + " during deserialization");
+}

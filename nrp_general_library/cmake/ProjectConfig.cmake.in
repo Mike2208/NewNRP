@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+find_package(Pistache REQUIRED)
+find_package(nlohmann_json REQUIRED)
+
+set(NRP_GEN_LIB_TARGET @NRP_GEN_LIB_TARGET@)
+set(NRP_PLUGIN_INSTALL_DIR @NRP_PLUGIN_INSTALL_DIR@)
+
+include(${CMAKE_CURRENT_LIST_DIR}/@LIB_EXPORT_NAME@.cmake)
+
