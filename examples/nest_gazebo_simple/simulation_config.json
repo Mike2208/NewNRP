@@ -1,0 +1,16 @@
+{
+	"SimulationName": "test_sim",
+	"SimDescription": "This launches both Gazebo and Nest simultaneously. However, there are no TFs and no communication between them. Note that both are running faster than real-time",
+	"SimulationTimeout": 10,
+	"EngineConfigs": [
+		{
+			"EngineType": "gazebo_json",
+			"EngineName": "gazebo",
+			"GazeboWorldFile": "empty_world.sdf"
+		},
+		{
+			"EngineType": "nest_json",
+			"EngineName": "nest"
+		}
+	]
+}

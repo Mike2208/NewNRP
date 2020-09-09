@@ -13,7 +13,6 @@ class Script(EngineScript):
     def runLoop(self, timestep):
         """Receive device1 at every timestep"""
         dev1 = self._getDevice("rec_device1")
-        print("Engine 2 at time " + str(self._time))
         print("Engine 2 received data is " + str(dev1))
 
     def shutdown():

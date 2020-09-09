@@ -13,7 +13,6 @@ class Script(EngineScript):
     def runLoop(self, timestep):
         """Update device1 at every timestep"""
         self._setDevice("device1", { "time" : self._time, "timestep": timestep })
-        print("Engine 1 at time " + str(self._time))
         print("Device 1 data is " + str(self._getDevice("device1")))
 
     def shutdown():
