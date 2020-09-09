@@ -4,13 +4,17 @@
 
     # Pistache REST Server
     sudo add-apt-repository ppa:pistache+team/unstable
-
+    
     # Gazebo
     sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
     wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-
+    
     sudo apt update
-    sudo apt install cmake libpistache-dev g++-10 libboost-python-dev libboost-filesystem-dev libcurl4-openssl-dev nlohmann-json3-dev libzip-dev libgazebo11-dev gazebo11 gazebo11-plugin-base cython3
+    sudo apt install cmake libpistache-dev g++-10 libboost-python-dev libboost-filesystem-dev libcurl4-openssl-dev nlohmann-json3-dev libzip-dev libgazebo11-dev gazebo11 gazebo11-plugin-base cython3 python3-numpy
+    
+    # Fix deprecated type in OGRE (std::allocator<void>::const_pointer has been deprecated with glibc-10). Until the upstream libs are updated, use this workaround. It changes nothing, the types are the same
+    sudo sed -i "s/typename std::allocator<void>::const_pointer/const void*/g" /usr/include/OGRE/OgreMemorySTLAllocator.h
+
     
  - CAN ONLY BE INSTALLED ON UBUNTU 20+ AT THE MOMENT
  - gazebo: For GazeboEngine
@@ -32,12 +36,12 @@
  3. `mkdir build`
  4. `cd build`
  5. `export C=/usr/bin/gcc-10; export CXX=/usr/bin/g++-10`
- 5. `cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/nrp`
- 6. `make -j8`
-     Note that the installation process might take some time, as it downloads and compiles Nest as well
+ 6. `cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/nrp`
  7. `sudo mkdir -p /usr/local/nrp`
  8. `sudo chown <USER> /usr/local/nrp`
- 9. `make install`
+ 9. `make -j8`
+     Note that the installation process might take some time, as it downloads and compiles Nest as well
+ 10. `make install`
 
 ## Running the simulation
 
