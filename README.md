@@ -2,7 +2,15 @@
 
 ## Dependency Installation
 
-    sudo apt install g++-10 gazebo gazebo-dev lib-nlohmann-json-dev lib-boost-dev
+    # Pistache REST Server
+    sudo add-apt-repository ppa:pistache+team/unstable
+
+    # Gazebo
+    sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+    wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+
+    sudo apt update
+    sudo apt install cmake libpistache-dev g++-10 libboost-python-dev libboost-filesystem-dev libcurl4-openssl-dev nlohmann-json3-dev libzip-dev libgazebo11-dev gazebo11 gazebo11-plugin-base cython3
     
  - CAN ONLY BE INSTALLED ON UBUNTU 20+ AT THE MOMENT
  - gazebo: For GazeboEngine
@@ -15,6 +23,7 @@
  - Boost-Python: Easier Python handling
  - GTest: Testing Suite
  - spdlog: Logging functions
+ - Cython3: Required by Nest
 
 ## Installation
 
@@ -22,6 +31,7 @@
  2. `cd NewNRP`
  3. `mkdir build`
  4. `cd build`
+ 5. `export C=/usr/bin/gcc-10; export CXX=/usr/bin/g++-10`
  5. `cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/nrp`
  6. `make -j8`
      Note that the installation process might take some time, as it downloads and compiles Nest as well
