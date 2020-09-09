@@ -24,6 +24,7 @@
  4. `cd build`
  5. `cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/nrp`
  6. `make -j8`
+     Note that the installation process might take some time, as it downloads and compiles Nest as well
  7. `sudo mkdir -p /usr/local/nrp`
  8. `sudo chown <USER> /usr/local/nrp`
  9. `make install`
@@ -120,6 +121,16 @@ Additional engines can be defined in a similar manner.
 	 - nrp_python_device_interface: Python Engine
 	 - nrp_simulation: Contains the SimulationLoop and -Manager. Creates the NRPSimulation executable
  - Each of these folders also contains a 'tests' folder with basic integration testing capabilities. To run the tests, look for generated executables inside the build folder. Before running the tests, setup the environment as described above in **Running the simulation**
+ - All libraries generate a python module. This can be used to interface with the devices from the TFs. After installation, they will be located inside `/usr/local/nrp/lib/python3.8/site-packages`
  - Both nrp_nest_device_interface and nrp_python_device_interface create executables that can be started as child processes of the main NRP
 
+## Examples
+
+ - Examples are located in the examples subfolder:
+	 - To run them, first set the environment as described in **Running the simulation**. Then:
+
+			cd examples/<EXAMPLE_NAME>
+			NRPSimulation -c <SIMULATION_CONFIG> -p "NRPPythonDeviceInterface.so"
+			
+	 - If gazebo is running in the experiment, you can use `gzclient` to view what's happening
 
