@@ -40,7 +40,7 @@
  7. `sudo mkdir -p /usr/local/nrp`
  8. `sudo chown <USER> /usr/local/nrp`
  9. `make -j8`
-     Note that the installation process might take some time, as it downloads and compiles Nest as well
+     Note that the installation process might take some time, as it downloads and compiles Nest as well. Also, Ubuntu has an outdated version of nlohman_json. CMake will download a newer version, which takes time as well
  10. `make install`
 
 ## Running the simulation
