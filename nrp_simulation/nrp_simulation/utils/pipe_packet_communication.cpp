@@ -12,7 +12,7 @@ PipeCommPacket PipeCommPacket::readPipePacket(PipePacketCommunication &comm, uin
 	PipeCommPacket packet;
 
 	// Read header and data size
-	if(const auto readBytes = comm.readP(&packet, PipeCommPacket::HeaderSize, numTries, waitTime) < PipeCommPacket::HeaderSize)
+	if(const auto readBytes = comm.readP(&packet, PipeCommPacket::HeaderSize, numTries, waitTime) < (ssize_t)PipeCommPacket::HeaderSize)
 	{
 		if(readBytes > 0)
 		{
@@ -26,7 +26,7 @@ PipeCommPacket PipeCommPacket::readPipePacket(PipePacketCommunication &comm, uin
 	// Read header command
 	packet.Command.resize(packet.CommandLength);
 
-	if(const auto readBytes = comm.readP(packet.Command.data(), packet.CommandLength, numTries, waitTime) < packet.CommandLength)
+	if(const auto readBytes = comm.readP(packet.Command.data(), packet.CommandLength, numTries, waitTime) < (ssize_t)packet.CommandLength)
 	{
 		if(readBytes > 0)
 		{
@@ -40,7 +40,7 @@ PipeCommPacket PipeCommPacket::readPipePacket(PipePacketCommunication &comm, uin
 	// Read data
 	packet.Data.resize(packet.DataLength);
 
-	if(const auto readBytes = comm.readP(packet.Data.data(), packet.Data.size(), numTries, waitTime) < packet.Data.size())
+	if(const auto readBytes = comm.readP(packet.Data.data(), packet.Data.size(), numTries, waitTime) < (ssize_t)packet.Data.size())
 	{
 		if(readBytes > 0)
 		{
@@ -59,19 +59,19 @@ bool PipeCommPacket::writePipePacket(PipePacketCommunication &comm, PipeCommPack
 	packet.CommandLength = packet.Command.size()+1;
 	packet.DataLength = packet.Data.size();
 
-	if(comm.writeP(&packet, PipeCommPacket::HeaderSize, numTries, waitTime) < PipeCommPacket::HeaderSize)
+	if(comm.writeP(&packet, PipeCommPacket::HeaderSize, numTries, waitTime) < (ssize_t)PipeCommPacket::HeaderSize)
 	{
 		std::cerr << "Failed to write packet header with ID " << packet.ID << std::endl;
 		return false;
 	}
 
-	if(comm.writeP(packet.Command.data(), packet.CommandLength, numTries, waitTime) < packet.CommandLength)
+	if(comm.writeP(packet.Command.data(), packet.CommandLength, numTries, waitTime) < (ssize_t)packet.CommandLength)
 	{
 		std::cerr << "Failed to write packet command \"" << packet.Command << "\"\n";
 		return false;
 	}
 
-	if(comm.writeP(packet.Data.data(), packet.DataLength, numTries, waitTime) < packet.DataLength)
+	if(comm.writeP(packet.Data.data(), packet.DataLength, numTries, waitTime) < (ssize_t)packet.DataLength)
 	{
 		std::cerr << "Failed to write packet data" << std::endl;
 		return false;

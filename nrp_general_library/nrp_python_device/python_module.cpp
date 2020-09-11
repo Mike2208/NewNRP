@@ -6,8 +6,9 @@
 
 #include "nrp_general_library/transceiver_function/transceiver_function.h"
 #include "nrp_general_library/transceiver_function/transceiver_device_interface.h"
-
 #include "nrp_general_library/transceiver_function/single_transceiver_device.h"
+
+#include "nrp_general_library/device_interface/python_device.h"
 
 #include <boost/python.hpp>
 

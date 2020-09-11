@@ -39,9 +39,7 @@ struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator,
 	static constexpr bool IsDeserializable = std::is_invocable_v<decltype(deserialize<JSON_DEVICE>), const nlohmann::json::const_iterator&>;
 
 	static nlohmann::json serializeID(const DeviceIdentifier &id)
-	{
-		return nlohmann::json({{ id.Name, {{ JSONTypeID.data(), id.Type }, { JSONEngineNameID.data(), id.EngineName }} }});
-	}
+	{	return nlohmann::json({{ id.Name, {{ JSONTypeID.data(), id.Type }, { JSONEngineNameID.data(), id.EngineName }} }});	}
 
 	static DeviceIdentifier getID(const nlohmann::json::const_iterator &data)
 	{
@@ -61,6 +59,5 @@ struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator,
 
 template<JSON_DEVICE_C ...JSON_DEVICES>
 using JSONDeviceConversionMechanism = DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator, JSON_DEVICES...>;
-
 
 #endif // JSON_DEVICE_CONVERSION_MECHANISM_H

@@ -4,7 +4,7 @@
 #include "nrp_general_library/device_interface/device_interface.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 
-#include <type_traits>
+#include <concepts>
 
 /*!
  *	\brief Concept for Device Conversion Mechanism Types.
@@ -20,12 +20,12 @@
  */
 template<class T, class SERIALIZATION_TYPE, class DESERIALIZATION_TYPE, class ...DEVICES>
 concept DEVICE_CONVERSION_MECHANISM_C =
-	(DEVICE_C<DEVICES> && ...) &&
-	(std::is_invocable_r_v<const SERIALIZATION_TYPE &, decltype(std::declval<T>().serialize), DEVICES&> && ...) &&
-    (std::is_invocable_r_v<const DEVICES&, decltype(std::declval<T>().deserialize), DESERIALIZATION_TYPE &> && ...) &&
-    std::is_invocable_r_v<const DeviceIdentifier &, std::declval<T>().getID, const DESERIALIZATION_TYPE &> &&
-    std::is_invocable_v<std::declval<T>().init, const EngineInterface &> &&
-	std::is_invocable_v<std::declval<T>().shutdown>;
+        (DEVICE_C<DEVICES> && ...) &&
+        (std::is_invocable_r_v<const SERIALIZATION_TYPE &, decltype(std::declval<T>().serialize), DEVICES&> && ...) &&
+        (std::is_invocable_r_v<const DEVICES&, decltype(std::declval<T>().deserialize), DESERIALIZATION_TYPE &> && ...) &&
+        std::is_invocable_r_v<const DeviceIdentifier &, std::declval<T>().getID, const DESERIALIZATION_TYPE &> &&
+        std::is_invocable_v<std::declval<T>().init, const EngineInterface &> &&
+        std::is_invocable_v<std::declval<T>().shutdown>;
 
 /*!
  *	\brief Example DeviceConversionMechanism

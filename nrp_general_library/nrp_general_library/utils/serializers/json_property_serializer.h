@@ -20,9 +20,7 @@ class ObjectPropertySerializerMethods<nlohmann::json>
 
 		template<class PROPERTY>
 		static nlohmann::json serializeSingleProperty(const PROPERTY &property)
-		{
-			return nlohmann::json(property);
-		}
+		{	return nlohmann::json(property);	}
 
 		template<class PROPERTY>
 		static PROPERTY deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name)

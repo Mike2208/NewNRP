@@ -130,68 +130,6 @@ void SimulationLoop::runLoop(float runTime)
 	this->_simTime = loopStopTime;
 }
 
-//void SimulationLoop::runLoopStep(float timeStep)
-//{
-//	// Run loop on each engine
-//	for(const auto &engine : this->_engines)
-//	{
-//		if(engine->runLoopStep(timeStep) != EngineInterface::SUCCESS)
-//		{
-//			// TODO: Handle loop start failure
-//		}
-//	}
-
-//	// Wait for engines to complete execution
-//	for(const auto &engine : this->_engines)
-//	{
-//		if(engine->waitForStepCompletion(engine->engineConfigGeneral()->engineRunStepTimeout()) != EngineInterface::SUCCESS)
-//		{
-//			// TODO: Handle loop completion failure
-//		}
-//	}
-
-//	// Retrive devices from engines
-//	const auto requestedDeviceIDs = this->_tfManager.updateRequestedDeviceIDs();
-//	std::vector<EngineInterface::device_outputs_t> outputDevices(this->_engines.size());
-//	size_t numDevices = 0;
-//	try
-//	{
-//		for(auto &engine : this->_engines)
-//		{
-//			outputDevices.push_back(engine->getOutputDevices(requestedDeviceIDs));
-//			numDevices += outputDevices.back().size();
-//		}
-//	}
-//	catch(const std::exception &)
-//	{
-//		// TODO: Handle failure on output device retrieval
-//		throw;
-//	}
-
-//	EngineInterface::device_outputs_t engineOutputs(numDevices);
-//	for(auto &output : outputDevices)
-//	{
-//		engineOutputs.insert(engineOutputs.end(), output.begin(), output.end());
-//	}
-
-//	// Move all engine output to the TFs
-//	this->_tfManager.setOutputDeviceData(std::move(engineOutputs));
-
-//	// Execute all TFs, and sort results according to interface
-//	TransceiverFunctionSortedResults results = TransceiverFunctionSortedResults::sortResults(this->_tfManager.executeActiveTFs());
-
-//	// Send engine inputs to corresponding interfaces
-//	for(const auto &engine : this->_engines)
-//	{
-//		if(this->handleInputDevices(engine, results) != EngineInterface::SUCCESS)
-//		{
-//			// TODO: Handle physics and/or brain TF error
-//		}
-//	}
-
-//	this->_simTime += timeStep;
-//}
-
 TransceiverFunctionManager SimulationLoop::initTFManager(const SimulationConfigSharedPtr &simConfig)
 {
 	TransceiverFunctionManager newManager;

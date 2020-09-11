@@ -42,7 +42,7 @@ struct SimulationStatusConst
 
 	using SPropNames = PropNames<Status, Time, Config>;
 
-	using json_property_template_t = JSONPropertySerializerTemplate<SimulationStatus, SPropNames, SIM_STATE, float, SimulationConfig>;
+	using json_property_template_t = JSONConfigProperties<SimulationStatus, SPropNames, SIM_STATE, float, SimulationConfig>;
 };
 
 /*!
