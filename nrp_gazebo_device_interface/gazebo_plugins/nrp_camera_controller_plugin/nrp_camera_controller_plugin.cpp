@@ -3,7 +3,7 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
 gazebo::CameraDeviceController::CameraDeviceController(const rendering::CameraPtr &camera)
-    : EngineJSONDeviceController(DeviceIdentifier(camera->ScopedName(), JSONPhysicsCamera::TypeName.data(), "")),
+    : EngineJSONDeviceController(DeviceIdentifier(camera->ScopedName(), PhysicsCamera::TypeName.data(), "")),
       _camera(camera),
       _data(camera->ScopedName())
 {}
@@ -28,7 +28,7 @@ nlohmann::json gazebo::CameraDeviceController::getDeviceInformation(const nlohma
 	memcpy(this->_data.imageData().data(), this->_camera->ImageData(), imageSize);
 
 	// Save image data directly, prevents copying
-	nlohmann::json retVal = this->_data.serializeProperties(nlohmann::json());
+	nlohmann::json retVal = JSONPropertySerializer<PhysicsCamera::property_template_t>::serializeProperties(this->_data, nlohmann::json());
 
 	// Save image data
 //	const unsigned char *img_data = this->_camera->ImageData();
@@ -39,7 +39,7 @@ nlohmann::json gazebo::CameraDeviceController::getDeviceInformation(const nlohma
 //		img.push_back(*img_data);
 //	}
 
-//	retVal[JSONPhysicsCamera::ImageData.m_data] = std::move(img);
+//	retVal[PhysicsCamera::ImageData.m_data] = std::move(img);
 
 	return retVal;
 }

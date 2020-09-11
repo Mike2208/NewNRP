@@ -2,9 +2,9 @@
 
 #include "nrp_gazebo_device_interface/config/gazebo_config.h"
 #include "nrp_gazebo_device_interface/config/nrp_gazebo_cmake_constants.h"
-#include "nrp_gazebo_device_interface/devices/json_physics_camera.h"
-#include "nrp_gazebo_device_interface/devices/json_physics_joint.h"
-#include "nrp_gazebo_device_interface/devices/json_physics_link.h"
+#include "nrp_gazebo_device_interface/devices/physics_camera.h"
+#include "nrp_gazebo_device_interface/devices/physics_joint.h"
+#include "nrp_gazebo_device_interface/devices/physics_link.h"
 #include "nrp_gazebo_device_interface/nrp_client/gazebo_engine_json_nrp_client.h"
 #include "nrp_general_library/process_launchers/process_launcher_basic.h"
 
@@ -16,6 +16,8 @@ TEST(TestGazeboEngine, Start)
 {
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
+	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+
 	GazeboConfig conf(confHolder);
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_EMPTY_WORLD_FILE;
@@ -41,6 +43,8 @@ TEST(TestGazeboEngine, WorldPlugin)
 {
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
+	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+
 	GazeboConfig conf(confHolder);
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_WORLD_PLUGIN_FILE;
@@ -67,6 +71,8 @@ TEST(TestGazeboEngine, CameraPlugin)
 {
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
+	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+
 	GazeboConfig conf(confHolder);
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_CAMERA_PLUGIN_FILE;
@@ -89,10 +95,10 @@ TEST(TestGazeboEngine, CameraPlugin)
 	//ASSERT_EQ(engine->runLoopStep(1.0f), EngineInterface::RESULT::SUCCESS);
 	//ASSERT_EQ(engine->waitForStepCompletion(5.0f), EngineInterface::RESULT::SUCCESS);
 
-	auto devices = engine->getOutputDevices({DeviceIdentifier("nrp_camera::camera", JSONPhysicsCamera::TypeName.data(), conf.engineName())});
+	auto devices = engine->getOutputDevices({DeviceIdentifier("nrp_camera::camera", PhysicsCamera::TypeName.data(), conf.engineName())});
 	ASSERT_EQ(devices.size(), 1);
 
-	const JSONPhysicsCamera &camDat = dynamic_cast<const JSONPhysicsCamera&>(*(devices[0]));
+	const PhysicsCamera &camDat = dynamic_cast<const PhysicsCamera&>(*(devices[0]));
 //	std::cout << "Image Height:" << camDat.imageHeight() << std::endl;
 //	std::cout << "Image Width:" << camDat.imageWidth() << std::endl;
 //	std::cout << "Image Pixel Size:" << std::to_string(camDat.imagePixelSize()) << std::endl;
@@ -119,6 +125,8 @@ TEST(TestGazeboEngine, JointPlugin)
 {
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
+	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+
 	GazeboConfig conf(confHolder);
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_JOINT_PLUGIN_FILE;
@@ -163,6 +171,8 @@ TEST(TestGazeboEngine, LinkPlugin)
 {
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
+	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+
 	GazeboConfig conf(confHolder);
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_LINK_PLUGIN_FILE;
@@ -189,7 +199,7 @@ TEST(TestGazeboEngine, LinkPlugin)
 	auto devices = engine->getOutputDevices({DeviceIdentifier("link_youbot::base_footprint", PhysicsJoint::TypeName.data(), conf.engineName())});
 	ASSERT_EQ(devices.size(), 1);
 
-	const JSONPhysicsLink *pLinkDev = dynamic_cast<const JSONPhysicsLink*>(devices[0].get());
+	const PhysicsLink *pLinkDev = dynamic_cast<const PhysicsLink*>(devices[0].get());
 	ASSERT_NE(pLinkDev, nullptr);
 
 	// TODO: Check that link state is correct

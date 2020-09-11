@@ -1,8 +1,10 @@
-#ifndef JSON_PHYSICS_JOINT_H
-#define JSON_PHYSICS_JOINT_H
+#ifndef PHYSICS_JOINT_H
+#define PHYSICS_JOINT_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_interface.h"
+#include "nrp_general_library/device_interface/device_interface.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
+
+class PhysicsJoint;
 
 struct PhysicsJointConst
 {
@@ -28,6 +30,7 @@ struct PhysicsJointConst
 	static constexpr std::string_view TypeName = "p_joint";
 
 	using JPropNames = PropNames<Position, Velocity, Effort>;
+	using JProps = PropertyTemplate<PhysicsJoint, PhysicsJointConst::JPropNames, PhysicsJointConst::FloatNan, PhysicsJointConst::FloatNan, PhysicsJointConst::FloatNan>;
 };
 
 /*!
@@ -35,7 +38,8 @@ struct PhysicsJointConst
  */
 class PhysicsJoint
         : public PhysicsJointConst,
-          public JSONDeviceInterface<PhysicsJoint, PhysicsJointConst::JPropNames, PhysicsJointConst::FloatNan, PhysicsJointConst::FloatNan, PhysicsJointConst::FloatNan>
+          public DeviceInterface,
+          public PhysicsJointConst::JProps
 {
 	public:
 		PhysicsJoint(const std::string &name);
@@ -59,4 +63,4 @@ template<>
 PhysicsJointConst::FloatNan ObjectPropertySerializerMethods<nlohmann::json>::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name);
 
 
-#endif // JSON_PHYSICS_JOINT_H
+#endif // PHYSICS_JOINT_H

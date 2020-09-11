@@ -5,7 +5,7 @@
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/plugin_system/plugin.h"
 
-#include "nrp_nest_device_interface/devices/nest_json_device_interface.h"
+#include "nrp_nest_device_interface/devices/nest_device_interface.h"
 
 #include "nrp_nest_device_interface/config/nest_config.h"
 

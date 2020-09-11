@@ -1,7 +1,10 @@
-#ifndef JSON_PHYSICS_LINK_H
-#define JSON_PHYSICS_LINK_H
+#ifndef PHYSICS_LINK_H
+#define PHYSICS_LINK_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_interface.h"
+#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/utils/serializers/json_property_serializer.h"
+
+class PhysicsLink;
 
 struct JSONPhysicsLinkConst
 {
@@ -23,17 +26,21 @@ struct JSONPhysicsLinkConst
 		static constexpr std::string_view TypeName = "p_link";
 
 		using JPropNames = PropNames<Position, Rotation, LinearVelocity, AngularVelocity>;
+		using JProps = PropertyTemplate<PhysicsLink, JSONPhysicsLinkConst::JPropNames,
+		                                std::array<float, 3>, std::array<float, 4>, std::array<float, 3>, std::array<float, 3> >;
 };
 
-class JSONPhysicsLink
-        : public JSONDeviceInterface<JSONPhysicsLink, JSONPhysicsLinkConst::JPropNames,
-                                     std::array<float, 3>, std::array<float, 4>, std::array<float, 3>, std::array<float, 3> >,
-          public JSONPhysicsLinkConst
+class PhysicsLink
+        : public JSONPhysicsLinkConst,
+          public DeviceInterface,
+          public JSONPhysicsLinkConst::JProps
 {
+		using json_property_serializer_t = JSONPropertySerializer<JProps>;
+
 	public:
-		JSONPhysicsLink(const std::string &name);
-		JSONPhysicsLink(const DeviceIdentifier &id);
-		JSONPhysicsLink(const DeviceIdentifier &id, const nlohmann::json &data);
+		PhysicsLink(const std::string &name);
+		PhysicsLink(const DeviceIdentifier &id);
+		PhysicsLink(const DeviceIdentifier &id, const nlohmann::json &data);
 
 		const vec3_t &position() const;
 		void setPosition(const vec3_t &position);

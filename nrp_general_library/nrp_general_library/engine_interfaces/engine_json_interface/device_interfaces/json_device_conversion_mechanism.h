@@ -2,14 +2,13 @@
 #define JSON_DEVICE_CONVERSION_MECHANISM_H
 
 #include "nrp_general_library/device_interface/device_conversion_mechanism.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_interface.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-template<JSON_DEVICE_C ...JSON_DEVICES>
-struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator, JSON_DEVICES...>
+template<DEVICE_C ...DEVICES>
+struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator, DEVICES...>
 {
 	static constexpr std::string_view JSONTypeID = "type";
 	static constexpr std::string_view JSONEngineNameID = "engine_name";
@@ -20,23 +19,23 @@ struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator,
 	static void shutdown()
 	{}
 
-	template<JSON_DEVICE_C JSON_DEVICE>
-	static nlohmann::json serialize(const JSON_DEVICE &device)
+	template<DEVICE_C DEVICE>
+	static nlohmann::json serialize(const DEVICE &device)
 	{
 		nlohmann::json data = serializeID(device.id());
-		data.front() = JSONPropertySerializer<JSON_DEVICE>::serializeProperties(device, std::move(data.front()));
+		data.front() = JSONPropertySerializer<DEVICE>::serializeProperties(device, std::move(data.front()));
 		return data;
 	}
 
-	template<JSON_DEVICE_C JSON_DEVICE>
-	static constexpr bool IsSerializable = std::is_invocable_v<decltype(serialize<JSON_DEVICE>), const JSON_DEVICE&>;
+	template<DEVICE_C DEVICE>
+	static constexpr bool IsSerializable = std::is_invocable_v<decltype(serialize<DEVICE>), const DEVICE&>;
 
-	template<JSON_DEVICE_C JSON_DEVICE>
-	static JSON_DEVICE deserialize(const nlohmann::json::const_iterator &data)
-	{	return JSON_DEVICE(static_cast<const DeviceIdentifier&>(getID(data)), static_cast<const nlohmann::json&>(data.value()));	}
+	template<DEVICE_C DEVICE>
+	static DEVICE deserialize(const nlohmann::json::const_iterator &data)
+	{	return DEVICE(static_cast<const DeviceIdentifier&>(getID(data)), static_cast<const nlohmann::json&>(data.value()));	}
 
-	template<JSON_DEVICE_C JSON_DEVICE>
-	static constexpr bool IsDeserializable = std::is_invocable_v<decltype(deserialize<JSON_DEVICE>), const nlohmann::json::const_iterator&>;
+	template<DEVICE_C DEVICE>
+	static constexpr bool IsDeserializable = std::is_invocable_v<decltype(deserialize<DEVICE>), const nlohmann::json::const_iterator&>;
 
 	static nlohmann::json serializeID(const DeviceIdentifier &id)
 	{	return nlohmann::json({{ id.Name, {{ JSONTypeID.data(), id.Type }, { JSONEngineNameID.data(), id.EngineName }} }});	}
@@ -57,7 +56,7 @@ struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator,
 	}
 };
 
-template<JSON_DEVICE_C ...JSON_DEVICES>
-using JSONDeviceConversionMechanism = DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator, JSON_DEVICES...>;
+template<DEVICE_C ...DEVICES>
+using JSONDeviceConversionMechanism = DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator, DEVICES...>;
 
 #endif // JSON_DEVICE_CONVERSION_MECHANISM_H

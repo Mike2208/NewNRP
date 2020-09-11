@@ -3,7 +3,7 @@
 
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
 
-#include "nrp_gazebo_device_interface/devices/json_physics_camera.h"
+#include "nrp_gazebo_device_interface/devices/physics_camera.h"
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/sensors/CameraSensor.hh>
@@ -24,7 +24,7 @@ namespace gazebo
 		private:
 			rendering::CameraPtr _camera;
 
-			JSONPhysicsCamera _data;
+			PhysicsCamera _data;
 	};
 
 	class NRPCameraController

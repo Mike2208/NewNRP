@@ -51,13 +51,4 @@ class ObjectPropertySerializerMethods<nlohmann::json>
 template<PROPERTY_TEMPLATE_C PROPERTY_TEMPLATE>
 using JSONPropertySerializer = PropertySerializer<nlohmann::json, PROPERTY_TEMPLATE>;
 
-/*!
- *	\brief PropertyTemplate with JSON object de/-serialization functions
- *	\tparam CLASS Final class derived from JSONPropertySerializerTemplate
- *	\tparam PROP_NAMES Template class of type PropNames<...>, containing all property names
- *	\tparam PROPERTIES Property classes
- */
-template<class CLASS, class PROP_NAMES = PropNames<>, class ...PROPERTIES>
-using JSONPropertySerializerTemplate = PropertySerializerTemplate<nlohmann::json, CLASS, PROP_NAMES, PROPERTIES...>;
-
 #endif // JSON_PROPERTY_SERIALIZER_H

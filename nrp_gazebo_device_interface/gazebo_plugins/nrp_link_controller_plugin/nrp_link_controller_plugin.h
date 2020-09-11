@@ -2,7 +2,7 @@
 #define NRP_LINK_CONTROLLER_PLUGIN_H
 
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
-#include "nrp_gazebo_device_interface/devices/json_physics_link.h"
+#include "nrp_gazebo_device_interface/devices/physics_link.h"
 
 #include <gazebo/gazebo.hh>
 
@@ -30,7 +30,7 @@ namespace gazebo
 			/*!
 			 * \brief Link Data
 			 */
-			JSONPhysicsLink _data;
+			PhysicsLink _data;
 
 			/*!
 			 * \brief Pointer to link

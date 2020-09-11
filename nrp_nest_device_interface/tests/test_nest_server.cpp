@@ -44,13 +44,14 @@ TEST(TestNestJSONServer, TestFunc)
 	// Test getDevice REST call EngineServerGetDevicesRoute
 	server.startServerAsync();
 
-	pyState.endAllowThreads();
 	req = nlohmann::json({{"voltmeter", 0}});
 	auto resp = RestClient::post(cfg.engineServerAddress() + "/" + EngineJSONConfigConst::EngineServerGetDevicesRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), req.dump());
 	respParse = nlohmann::json::parse(resp.body);
 
 	const std::string jsonDat = respParse["voltmeter"][PythonObjectDeviceInterfaceConst::Object.m_data]["element_type"].get<std::string>();
 	ASSERT_STREQ(jsonDat.data(), "recorder");
+
+	pyState.endAllowThreads();
 
 	// Test Nest Device data deserialization
 	NestJSONDeviceInterface dev = JSONDeviceConversionMechanism<>::deserialize<NestJSONDeviceInterface>(respParse.begin());
@@ -62,7 +63,6 @@ TEST(TestNestJSONServer, TestFunc)
 	ASSERT_EQ(respParse["voltmeter"][PythonObjectDeviceInterfaceConst::Object.m_data].size(), python::len(dev.data()));
 	ASSERT_EQ(jsonDat, std::string(python::extract<std::string>(dev.data()["element_type"])));
 
-	pyState.endAllowThreads();
 	server.shutdownServer();
 }
 

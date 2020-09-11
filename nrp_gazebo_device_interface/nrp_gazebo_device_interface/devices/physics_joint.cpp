@@ -1,4 +1,4 @@
-#include "nrp_gazebo_device_interface/devices/json_physics_joint.h"
+#include "nrp_gazebo_device_interface/devices/physics_joint.h"
 
 PhysicsJointConst::FloatNan::FloatNan(float val)
     : _val(val)
@@ -9,11 +9,13 @@ PhysicsJoint::PhysicsJoint(const std::string &name)
 {}
 
 PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id)
-    : JSONDeviceInterface(id, NAN, NAN, NAN)
+    : DeviceInterface(id),
+      PropertyTemplate(NAN, NAN, NAN)
 {}
 
 PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id, const nlohmann::json &data)
-    : JSONDeviceInterface(id, data, NAN, NAN, NAN)
+    : DeviceInterface(id),
+      PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, NAN, NAN, NAN))
 {}
 
 float PhysicsJoint::position() const

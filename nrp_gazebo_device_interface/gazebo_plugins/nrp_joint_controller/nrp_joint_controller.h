@@ -2,7 +2,7 @@
 #define NRP_JOINT_CONTROLLER_H
 
 #include "nrp_gazebo_device_interface/config/nrp_gazebo_cmake_constants.h"
-#include "nrp_gazebo_device_interface/devices/json_physics_joint.h"
+#include "nrp_gazebo_device_interface/devices/physics_joint.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
 
 #include <gazebo/gazebo.hh>

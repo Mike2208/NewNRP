@@ -22,9 +22,9 @@ set(LIB_SRC_FILES
 	nrp_gazebo_device_interface/config/gazebo_config.cpp
 	nrp_gazebo_device_interface/engine_server/gazebo_step_controller.cpp
 	nrp_gazebo_device_interface/nrp_client/gazebo_engine_json_nrp_client.cpp
-	nrp_gazebo_device_interface/devices/json_physics_camera.cpp
-	nrp_gazebo_device_interface/devices/json_physics_joint.cpp
-	nrp_gazebo_device_interface/devices/json_physics_link.cpp
+	nrp_gazebo_device_interface/devices/physics_camera.cpp
+	nrp_gazebo_device_interface/devices/physics_joint.cpp
+	nrp_gazebo_device_interface/devices/physics_link.cpp
 )
 
 # List of python module build files

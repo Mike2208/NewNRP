@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_interface.h"
+#include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
 using namespace testing;
 
@@ -9,15 +9,19 @@ using dcm_t = DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_it
 using std::string_view_literals::operator""sv;
 
 struct TestJSONDeviceInterface
-        : public JSONDeviceInterface<TestJSONDeviceInterface, PropNames<"int", "string">, int, std::string>
+        : public DeviceInterface,
+          public PropertyTemplate<TestJSONDeviceInterface, PropNames<"int", "string">, int, std::string>
 {
 	template<class ...T>
-	TestJSONDeviceInterface(T &&...properties)
-	    : JSONDeviceInterface(std::forward<T>(properties)...)
+	TestJSONDeviceInterface(const DeviceIdentifier &id, const nlohmann::json &data, T &&...properties)
+	    : DeviceInterface(id),
+	      PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, std::forward<T>(properties)...))
 	{}
 
-	TestJSONDeviceInterface(const DeviceIdentifier &id, const nlohmann::json &data)
-	    : JSONDeviceInterface(id, data)
+	template<class ...T>
+	TestJSONDeviceInterface(const DeviceIdentifier &id, T &&...properties)
+	    : DeviceInterface(id),
+	      PropertyTemplate(std::forward<T>(properties)...)
 	{}
 };
 
@@ -26,7 +30,7 @@ TEST(JSONDeviceMethodsTest, IDFunctions)
 	nlohmann::json data;
 	data["int"] = 6;
 	data["string"] = "otherData";
-	TestJSONDeviceInterface dev1(DeviceIdentifier("dev2", "type2", "engine"), data);
+	TestJSONDeviceInterface dev1(DeviceIdentifier("dev2", "type2", "engine"), (const nlohmann::json&) data);
 
 	// Test serialization
 	const nlohmann::json serializedData = dcm_t::serializeID(dev1.id());
@@ -51,7 +55,7 @@ TEST(JSONDeviceMethodsTest, ConversionFunctions)
 	nlohmann::json data;
 	data["int"] = 6;
 	data["string"] = "otherData";
-	TestJSONDeviceInterface dev1(DeviceIdentifier("dev2", "type2", "engine"), data);
+	TestJSONDeviceInterface dev1(DeviceIdentifier("dev2", "type2", "engine"), (const nlohmann::json&) data);
 
 	// Test serialization
 	const nlohmann::json serializedData = dcm_t::serialize(dev1);

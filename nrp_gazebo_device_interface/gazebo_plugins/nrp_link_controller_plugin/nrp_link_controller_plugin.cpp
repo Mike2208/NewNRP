@@ -14,7 +14,7 @@ inline float ToFloat(const T &val)
 }
 
 gazebo::LinkDeviceController::LinkDeviceController(const std::string &linkName, const gazebo::physics::LinkPtr &link)
-    : EngineJSONDeviceController(DeviceIdentifier(linkName, JSONPhysicsLink::TypeName.data(), "")),
+    : EngineJSONDeviceController(DeviceIdentifier(linkName, PhysicsLink::TypeName.data(), "")),
       _data(linkName),
       _link(link)
 {}
@@ -33,7 +33,7 @@ json gazebo::LinkDeviceController::getDeviceInformation(const json::const_iterat
 	const auto &angVel = this->_link->WorldAngularVel();
 	this->_data.setAngVel({ ToFloat(angVel.X()), ToFloat(angVel.Y()), ToFloat(angVel.Z())	});
 
-	return this->_data.serializeProperties(nlohmann::json());
+	return JSONPropertySerializer<PhysicsLink::property_template_t>::serializeProperties(this->_data, nlohmann::json());
 }
 
 json gazebo::LinkDeviceController::handleDeviceData(const json &)

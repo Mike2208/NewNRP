@@ -2,7 +2,6 @@
 #define NEST_JSON_DEVICE_INTERFACE_H
 
 #include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_interface.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 #include "nrp_general_library/utils/serializers/python_dict_property_serializer.h"
 

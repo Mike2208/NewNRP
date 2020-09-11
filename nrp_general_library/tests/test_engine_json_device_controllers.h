@@ -1,21 +1,23 @@
 #ifndef TEST_ENGINGE_JSON_DEVICE_INTERFACE_H
 #define TEST_ENGINGE_JSON_DEVICE_INTERFACE_H
 
-#include "nrp_general_library/utils/serializers/json_property_serializer.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_general_library/device_interface/device_interface.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_interface.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
 using dcm_t = DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator>;
 
 struct TestJSONDeviceInterface1
-    : public JSONDeviceInterface<TestJSONDeviceInterface1, PropNames<"data">, int>,
+    : public DeviceInterface,
+      public PropertyTemplate<TestJSONDeviceInterface1, PropNames<"data">, int>,
       public EngineJSONDeviceController
 {
 	static constexpr std::string_view TypeName = "test_type1";
 
 	TestJSONDeviceInterface1(const DeviceIdentifier &devID, const nlohmann::json &data)
-	    : json_device_interface_t(devID, data, 0),
+	    : DeviceInterface(devID),
+	      PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, 0)),
 	      EngineJSONDeviceController(devID)
 	{}
 
@@ -54,7 +56,7 @@ struct TestJSONDeviceInterface1
 	static nlohmann::json convertDeviceToJSON(const TestJSONDeviceInterface1 &device)
 	{
 		auto json = dcm_t::serializeID(device);
-		json.front() = device.serializeProperties(std::move(json.front()));
+		json.front() = JSONPropertySerializer<PropertyTemplate>::serializeProperties(device, std::move(json.front()));
 
 		return json;
 	}
@@ -67,13 +69,15 @@ struct TestJSONDeviceInterface1
 };
 
 struct TestJSONDeviceInterface2
-    : public JSONDeviceInterface<TestJSONDeviceInterface2, PropNames<"data">, int>,
+    : public DeviceInterface,
+      public PropertyTemplate<TestJSONDeviceInterface2, PropNames<"data">, int>,
       public EngineJSONDeviceController
 {
 	static constexpr std::string_view TypeName = "test_type2";
 
 	TestJSONDeviceInterface2(const DeviceIdentifier &devID, const nlohmann::json &data)
-	    : json_device_interface_t(devID, data, 0),
+	    : DeviceInterface(devID),
+	      PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, 0)),
 	      EngineJSONDeviceController(devID)
 	{}
 
@@ -112,7 +116,7 @@ struct TestJSONDeviceInterface2
 	static nlohmann::json convertDeviceToJSON(const TestJSONDeviceInterface2 &device)
 	{
 		auto json = dcm_t::serializeID(device);
-		json.front() = device.serializeProperties(std::move(json.front()));
+		json.front() = JSONPropertySerializer<PropertyTemplate>::serializeProperties(device, std::move(json.front()));
 
 		return json;
 	}
@@ -126,13 +130,15 @@ struct TestJSONDeviceInterface2
 };
 
 struct TestJSONDeviceInterfaceThrow
-    : public JSONDeviceInterface<TestJSONDeviceInterfaceThrow, PropNames<"data">, int>,
+    : public DeviceInterface,
+      public PropertyTemplate<TestJSONDeviceInterfaceThrow, PropNames<"data">, int>,
       public EngineJSONDeviceController
 {
 	static constexpr std::string_view TypeName = "test_type_throw";
 
 	TestJSONDeviceInterfaceThrow(const DeviceIdentifier &devID, const nlohmann::json &data)
-	    : json_device_interface_t(devID, data, 0),
+	    : DeviceInterface(devID),
+	      PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, 0)),
 	      EngineJSONDeviceController(devID)
 	{}
 
@@ -155,7 +161,7 @@ struct TestJSONDeviceInterfaceThrow
 	static nlohmann::json convertDeviceToJSON(const TestJSONDeviceInterfaceThrow &device)
 	{
 		auto json = dcm_t::serializeID(device);
-		json.front() = device.serializeProperties(std::move(json.front()));
+		json.front() = JSONPropertySerializer<PropertyTemplate>::serializeProperties(device, std::move(json.front()));
 
 		return json;
 	}

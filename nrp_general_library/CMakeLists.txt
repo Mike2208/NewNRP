@@ -32,7 +32,6 @@ set(LIB_SRC_FILES
 	nrp_general_library/engine_interfaces/engine_interface.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.cpp
-	nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_interface.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_opts_parser.cpp
@@ -84,7 +83,6 @@ set(TEST_SRC_FILES
 	tests/engine_json_server.cpp
 	tests/engine_json_nrp_client.cpp
 	tests/engine_launcher_manager.cpp
-	tests/json_device_interface.cpp
 	tests/json_device_methods.cpp
 	tests/json_property_serializer.cpp
 	tests/plugin_manager.cpp

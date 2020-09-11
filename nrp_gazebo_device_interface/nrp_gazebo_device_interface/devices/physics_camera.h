@@ -1,7 +1,13 @@
-#ifndef JSON_PHYSICS_CAMERA_H
-#define JSON_PHYSICS_CAMERA_H
+#ifndef PHYSICS_CAMERA_H
+#define PHYSICS_CAMERA_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_interface.h"
+#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/utils/property_template.h"
+#include "nrp_general_library/utils/serializers/json_property_serializer.h"
+
+#include <vector>
+
+class PhysicsCamera;
 
 struct JSONPhysicsCameraConst
 {
@@ -28,19 +34,23 @@ struct JSONPhysicsCameraConst
 	static constexpr std::string_view TypeName = "p_camera";
 
 	using JPropNames = PropNames<ImageHeight, ImageWidth, ImagePixelSize, ImageData>;
+	using JProps = PropertyTemplate<PhysicsCamera, JSONPhysicsCameraConst::JPropNames, uint32_t, uint32_t, uint8_t, std::vector<unsigned char> >;
 };
 
 /*!
  * \brief Physics Camera Image
  */
-class JSONPhysicsCamera
+class PhysicsCamera
         : public JSONPhysicsCameraConst,
-          public JSONDeviceInterface<JSONPhysicsCamera, JSONPhysicsCameraConst::JPropNames, uint32_t, uint32_t, uint8_t, std::vector<unsigned char> >
+          public DeviceInterface,
+          public JSONPhysicsCameraConst::JProps
 {
 	public:
-		JSONPhysicsCamera(const std::string &name);
-		JSONPhysicsCamera(const DeviceIdentifier &id);
-		JSONPhysicsCamera(const DeviceIdentifier &id, const nlohmann::json &data);
+		using json_property_serializer_t = JSONPropertySerializer<property_template_t>;
+
+		PhysicsCamera(const std::string &name);
+		PhysicsCamera(const DeviceIdentifier &id);
+		PhysicsCamera(const DeviceIdentifier &id, const nlohmann::json &data);
 
 		uint32_t imageHeight() const;
 		uint32_t &imageHeight();
@@ -59,4 +69,4 @@ class JSONPhysicsCamera
 		void setImageData(std::vector<unsigned char> &imageData);
 };
 
-#endif // JSON_PHYSICS_CAMERA_H
+#endif // PHYSICS_CAMERA_H

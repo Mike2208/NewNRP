@@ -5,9 +5,9 @@
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/plugin_system/plugin.h"
 
-#include "nrp_gazebo_device_interface/devices/json_physics_camera.h"
-#include "nrp_gazebo_device_interface/devices/json_physics_joint.h"
-#include "nrp_gazebo_device_interface/devices/json_physics_link.h"
+#include "nrp_gazebo_device_interface/devices/physics_camera.h"
+#include "nrp_gazebo_device_interface/devices/physics_joint.h"
+#include "nrp_gazebo_device_interface/devices/physics_link.h"
 
 #include "nrp_gazebo_device_interface/config/gazebo_config.h"
 
@@ -17,7 +17,7 @@
  * \brief NRP - Gazebo Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
  */
 class GazeboEngineJSONNRPClient
-        : public EngineJSONNRPClient<GazeboEngineJSONNRPClient, GazeboConfig, JSONPhysicsCamera, PhysicsJoint, JSONPhysicsLink>
+        : public EngineJSONNRPClient<GazeboEngineJSONNRPClient, GazeboConfig, PhysicsCamera, PhysicsJoint, PhysicsLink>
 {
 	public:
 		static constexpr FixedString DefEngineName = "gazebo_json";

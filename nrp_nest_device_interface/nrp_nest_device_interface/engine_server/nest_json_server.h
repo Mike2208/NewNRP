@@ -3,11 +3,11 @@
 
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
-#include "nrp_nest_device_interface/engine_server/nest_engine_json_device_controller.h"
+#include "nrp_nest_device_interface/engine_server/nest_engine_device_controller.h"
 
 #include "nrp_nest_device_interface/config/nest_config.h"
 
-#include "nrp_nest_device_interface/devices/nest_json_device_interface.h"
+#include "nrp_nest_device_interface/devices/nest_device_interface.h"
 
 #include "nrp_nest_device_interface/python/create_device_class.h"
 

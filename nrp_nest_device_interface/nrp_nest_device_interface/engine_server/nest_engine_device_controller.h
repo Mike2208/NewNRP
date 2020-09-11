@@ -1,7 +1,7 @@
-#ifndef NEST_ENGINE_JSON_DEVICE_CONTROLLER_H
-#define NEST_ENGINE_JSON_DEVICE_CONTROLLER_H
+#ifndef NEST_ENGINE_DEVICE_CONTROLLER_H
+#define NEST_ENGINE_DEVICE_CONTROLLER_H
 
-#include "nrp_nest_device_interface/devices/nest_json_device_interface.h"
+#include "nrp_nest_device_interface/devices/nest_device_interface.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 #include "nrp_general_library/utils/serializers/python_dict_property_serializer.h"
@@ -69,4 +69,4 @@ class NestEngineJSONDeviceController<NestJSONDeviceInterface>
 		static boost::python::dict getStatusFromNest(boost::python::dict &nest, const boost::python::object &nodeCollection);
 };
 
-#endif // NEST_ENGINE_JSON_DEVICE_CONTROLLER_H
+#endif // NEST_ENGINE_DEVICE_CONTROLLER_H
