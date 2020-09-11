@@ -110,7 +110,7 @@ find_package(Pistache REQUIRED)
 # nlohmann_json: JSON library
 find_package(nlohmann_json 3.9.1)
 if(NOT ${nlohmann_json_FOUND})
-	message("Please wait. Downloading and compiling a newer version of nlohmann_json")
+	message("Please wait. Downloading and compiling a newer version of nlohmann_json...")
 	include(FetchContent)
 	FetchContent_Declare(json
 		GIT_REPOSITORY https://github.com/nlohmann/json.git
