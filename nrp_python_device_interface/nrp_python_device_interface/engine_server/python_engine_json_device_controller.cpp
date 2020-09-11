@@ -15,7 +15,7 @@ nlohmann::json PythonEngineJSONDeviceController<PythonObjectDeviceInterface>::ge
 nlohmann::json PythonEngineJSONDeviceController<PythonObjectDeviceInterface>::handleDeviceData(const nlohmann::json &data)
 {
 	// Update properties from data
-	PropertySerializer<nlohmann::json, typename PythonObjectDeviceInterface::property_template_t>::readProperties(this->_deviceData, data);
+	PropertySerializer<nlohmann::json, typename PythonObjectDeviceInterface::property_template_t>::updateProperties(this->_deviceData, data);
 
 	return nlohmann::json();
 }

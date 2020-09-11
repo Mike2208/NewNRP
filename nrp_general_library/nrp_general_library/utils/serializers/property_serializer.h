@@ -65,7 +65,7 @@ struct PropertySerializer
 		 *	\param data OBJECT containing property data
 		 */
 		template<PROPERTY_SERIALIZER_OBJECT_C<OBJECT> OBJECT_T>
-		static void readProperties(PROPERTY_TEMPLATE &properties, OBJECT_T &&data)
+		static void updateProperties(PROPERTY_TEMPLATE &properties, OBJECT_T &&data)
 		{	PropertySerializerGeneral::template updateProperties<OBJECT, PROPERTY_TEMPLATE, OBJECT_T>(properties, std::forward<OBJECT_T>(data));	}
 
 		/*!
@@ -163,8 +163,8 @@ class PropertySerializerTemplate
 		 *	\param properties Properties data that should be updated. For each property, data is checked for the property name and, if found, updated.
 		 */
 		template<PROPERTY_SERIALIZER_OBJECT_C<OBJECT> OBJECT_T>
-		static void readProperties(PropertyTemplate<CLASS, PROP_NAMES, PROPERTIES...> &properties, OBJECT_T &&data)
-		{	property_serializer_t::readProperties(properties, std::forward<OBJECT_T>(data));	}
+		static void updateProperties(PropertyTemplate<CLASS, PROP_NAMES, PROPERTIES...> &properties, OBJECT_T &&data)
+		{	property_serializer_t::updateProperties(properties, std::forward<OBJECT_T>(data));	}
 
 		/*!
 		 *	\brief Read properties from the given OBJECT

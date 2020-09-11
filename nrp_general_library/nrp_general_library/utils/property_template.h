@@ -433,7 +433,7 @@ class PropertyTemplateGeneral
 
 			private:
 				/*!
-				 *	\brief Uses a PropertySerializerTemplate to extract the property stored under name. Should this throw an exception, the defaultValue is used instead
+				 *	\brief Uses a PropertySerializer to extract the property stored under name. Should this throw an exception, the defaultValue is used instead
 				 *	\tparam PROPERTY_SERIALIZER_T Serializer Type
 				 *	\tparam PROPERTY_T Type convertible to PROPERTY
 				 *	\param serializer Object used to extract property stored under name

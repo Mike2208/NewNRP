@@ -5,14 +5,21 @@
 using namespace testing;
 
 using std::string_view_literals::operator""sv;
-using namespace boost;
+namespace python = boost::python;
 
 struct TestPythonDictPropertySerializer
-        : public PythonDictPropertySerializerTemplate<TestPythonDictPropertySerializer, PropNames<"string", "int">, std::string, int>
+        : public PropertyTemplate<TestPythonDictPropertySerializer, PropNames<"string", "int">, std::string, int>
 {
+	using property_template_t = PropertyTemplate<TestPythonDictPropertySerializer, PropNames<"string", "int">, std::string, int>;
+
+	template<class ...T>
+	TestPythonDictPropertySerializer(boost::python::dict data, T &&...properties)
+	    : PropertyTemplate(PythonDictPropertySerializer<PropertyTemplate>::readProperties(data, std::forward<T>(properties)...))
+	{}
+
 	template<class ...T>
 	TestPythonDictPropertySerializer(T &&...properties)
-	    : PythonDictPropertySerializerTemplate<TestPythonDictPropertySerializer, PropNames<"string", "int">, std::string, int>(std::forward<T>(properties)...)
+	    : PropertyTemplate(std::forward<T>(properties)...)
 	{}
 };
 
@@ -27,7 +34,7 @@ TEST(PythonDictPropertySerializerTest, Serialization)
 	TestPythonDictPropertySerializer props(testStr, testInt);
 
 	// Test serialization
-	boost::python::dict serializedData(props.serializeProperties(python::dict()));
+	boost::python::dict serializedData = PythonDictPropertySerializer<TestPythonDictPropertySerializer>::serializeProperties(props, python::dict());
 	boost::python::incref(serializedData.ptr());
 	ASSERT_EQ(python::extract<int>(serializedData[intName.m_data]), testInt);
 	const std::string testSerializedStr = python::extract<std::string>(serializedData[stringName.m_data]);

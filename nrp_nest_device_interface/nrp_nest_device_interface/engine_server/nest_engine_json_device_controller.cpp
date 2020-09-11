@@ -33,10 +33,10 @@ nlohmann::json NestEngineJSONDeviceController<NestJSONDeviceInterface>::getDevic
 nlohmann::json NestEngineJSONDeviceController<NestJSONDeviceInterface>::handleDeviceData(const nlohmann::json &data)
 {
 	// Update properties from data
-	PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::readProperties(this->_deviceData, data);
+	PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::updateProperties(this->_deviceData, data);
 
 	// Convert to python dict object
-	//this->_deviceData.readProperties(this->_deviceData, data);
+	//this->_deviceData.updateProperties(this->_deviceData, data);
 
 	// Update Nest status
 	this->_nest["SetStatus"](this->_nodeCollection, this->_deviceData.data());

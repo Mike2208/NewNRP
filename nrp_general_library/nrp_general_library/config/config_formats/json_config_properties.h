@@ -18,8 +18,8 @@ class JSONConfigProperties
         : public BaseConfig<nlohmann::json>,
           public PropertyTemplate<CONFIG, PROP_NAMES, PROPERTIES...>
 {
-		using json_property_serializer_t = JSONPropertySerializerTemplate<CONFIG, PROP_NAMES, PROPERTIES...>;
 		using property_template_t = PropertyTemplate<CONFIG, PROP_NAMES, PROPERTIES...>;
+		using json_property_serializer_t = JSONPropertySerializer<property_template_t>;
 
 	public:
 		/*!
@@ -41,8 +41,8 @@ class JSONConfigProperties
 		 *	\param defaultProperties Will be used if no corresponding value was found in config
 		 */
 		template<class ...T>
-		void updateConfig(const nlohmann::json &config, T&&... defaultProperties)
-		{	json_property_serializer_t::readProperties(*this, config, std::forward<T>(defaultProperties)...);	}
+		void updateConfig(const nlohmann::json &config)
+		{	json_property_serializer_t::updateProperties(static_cast<property_template_t&>(*this), config);	}
 
 		/*!
 		 *	\brief Read configuration from the given JSON object
@@ -63,7 +63,7 @@ class JSONConfigProperties
 		{	return json_property_serializer_t::serializeProperties(configProperties, nlohmann::json());	}
 
 		nlohmann::json writeConfig() const override
-		{	return JSONConfigProperties::writeConfig(*this);	}
+		{	return JSONConfigProperties::writeConfig(static_cast<const property_template_t&>(*this));	}
 };
 
 #endif //JSON_CONFIG_PROPERTIES_H

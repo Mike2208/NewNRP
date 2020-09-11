@@ -46,12 +46,11 @@ class ObjectPropertySerializerMethods<boost::python::dict>
 };
 
 /*!
- *	\brief PropertyTemplate with python dict object de/-serialization functions
- *	\tparam CLASS Final class derived from PythonDictPropertySerializerTemplate
- *	\tparam PROP_NAMES Template class of type PropNames<...>, containing all property names
- *	\tparam PROPERTIES Property classes
+ *	\brief python::dict object de/-serialization functions
+ *	\tparam PROPERTY_TEMPLATE PropertyTemplate to de/-serialize
  */
-template<class CLASS, class PROP_NAMES, class ...PROPERTIES>
-using PythonDictPropertySerializerTemplate = PropertySerializerTemplate<boost::python::dict, CLASS, PROP_NAMES, PROPERTIES...>;
+template<PROPERTY_TEMPLATE_C PROPERTY_TEMPLATE>
+using PythonDictPropertySerializer = PropertySerializer<boost::python::dict, PROPERTY_TEMPLATE>;
+
 
 #endif // PYTHON_DICT_PROPERTY_SERIALIZER_H
