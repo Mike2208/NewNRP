@@ -46,7 +46,7 @@ class TransceiverDeviceInterface
 			assert(registryPtr != nullptr);
 
 			*registryPtr = thisPtr;
-			return std::move(thisPtr);
+			return thisPtr;
 		}
 
 		/*!

@@ -44,6 +44,8 @@ class ObjectPropertySerializerMethods<nlohmann::json>
 		}
 };
 
+using JSONPropertySerializerMethods = ObjectPropertySerializerMethods<nlohmann::json>;
+
 /*!
  *	\brief JSON object de/-serialization functions
  *	\tparam PROPERTY_TEMPLATE PropertyTemplate to de/-serialize

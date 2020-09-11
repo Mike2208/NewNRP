@@ -49,13 +49,13 @@ void PhysicsJoint::setEffort(float effort)
 }
 
 template<>
-nlohmann::json ObjectPropertySerializerMethods<nlohmann::json>::serializeSingleProperty(const PhysicsJointConst::FloatNan &property)
+nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PhysicsJointConst::FloatNan &property)
 {
 	return nlohmann::json(static_cast<float>(property));
 }
 
 template<>
-PhysicsJointConst::FloatNan ObjectPropertySerializerMethods<nlohmann::json>::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name)
+PhysicsJointConst::FloatNan JSONPropertySerializerMethods::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name)
 {
 	const auto dataIterator(data.find(name.data()));
 	if(dataIterator != data.end())

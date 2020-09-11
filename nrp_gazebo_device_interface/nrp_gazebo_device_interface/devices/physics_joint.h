@@ -57,10 +57,10 @@ class PhysicsJoint
 };
 
 template<>
-nlohmann::json ObjectPropertySerializerMethods<nlohmann::json>::serializeSingleProperty(const PhysicsJointConst::FloatNan &property);
+nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PhysicsJointConst::FloatNan &property);
 
 template<>
-PhysicsJointConst::FloatNan ObjectPropertySerializerMethods<nlohmann::json>::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name);
+PhysicsJointConst::FloatNan JSONPropertySerializerMethods::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name);
 
 
 #endif // PHYSICS_JOINT_H

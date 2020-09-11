@@ -63,9 +63,9 @@ class PythonObjectDeviceInterface
 };
 
 template<>
-nlohmann::json ObjectPropertySerializerMethods<nlohmann::json>::serializeSingleProperty(const PythonObjectDeviceInterfaceConst::PyObjData &property);
+nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PythonObjectDeviceInterfaceConst::PyObjData &property);
 
 template<>
-PythonObjectDeviceInterfaceConst::PyObjData ObjectPropertySerializerMethods<nlohmann::json>::deserializeSingleProperty<PythonObjectDeviceInterfaceConst::PyObjData>(const nlohmann::json &data, const std::string_view &name);
+PythonObjectDeviceInterfaceConst::PyObjData JSONPropertySerializerMethods::deserializeSingleProperty<PythonObjectDeviceInterfaceConst::PyObjData>(const nlohmann::json &data, const std::string_view &name);
 
 #endif // PYTHON_OBJECT_DEVICE_INTERFACE_H

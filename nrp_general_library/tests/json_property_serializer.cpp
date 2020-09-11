@@ -35,7 +35,6 @@ struct TestJSONPropertySerializerDefaults
 };
 
 
-
 TEST(JSONPropertySerializerTest, Serialization)
 {
 	static constexpr FixedString intName = "int";
