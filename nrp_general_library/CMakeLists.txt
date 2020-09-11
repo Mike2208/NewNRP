@@ -28,6 +28,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/device_interface/device_conversion_mechanism.cpp
 	nrp_general_library/device_interface/device_interface.cpp
 	nrp_general_library/device_interface/devices/python_object_device_interface.cpp
+	nrp_general_library/device_interface/python_device.cpp
 	nrp_general_library/engine_interfaces/engine_interface.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.cpp
@@ -108,13 +109,13 @@ add_library(restclient-cpp::restclient-cpp ALIAS restclient-cpp)
 find_package(Pistache REQUIRED)
 
 # nlohmann_json: JSON library
-find_package(nlohmann_json 3.9.1)
+find_package(nlohmann_json 3.9.0)
 if(NOT ${nlohmann_json_FOUND})
 	message("Please wait. Downloading and compiling a newer version of nlohmann_json...")
 	include(FetchContent)
 	FetchContent_Declare(json
 		GIT_REPOSITORY https://github.com/nlohmann/json.git
-	      	GIT_TAG v3.9.1)
+		    GIT_TAG v3.9.0)
 
 	FetchContent_GetProperties(json)
 	if(NOT json_POPULATED)
