@@ -10,14 +10,16 @@ class ObjectDeserializerGeneral
 {};
 
 /*!
- * \brief Serialization class for PropertyTemplates
+ * \brief De-/Serialization class for PropertyTemplates.
+ * Contains helper functions for PropertySerializer to use. To create de-/serializtion methods for a new OBJECT type,
+ * implement a new ObjectPropertySerializerMethods<OBJECT>. The methods can then be accessed using PropertySerializer<OBJECT>
  */
 class PropertySerializerGeneral
 {
 	protected:
 		/*!
-		 *	\brief Deserialization Structure. Used for conversion from SINGLE_OBJECT_T to arbitrary PROPERTY
-		 *	\tparam SINGLE_OBJECT_T Data type of objects that should be deserialized
+		 * \brief Deserialization Structure. Used for conversion from SINGLE_OBJECT_T to arbitrary PROPERTY
+		 * \tparam SINGLE_OBJECT_T Data type of objects that should be deserialized
 		 */
 		template<class SINGLE_OBJECT_T>
 		struct SinglePropertyDeserializer
@@ -36,7 +38,7 @@ class PropertySerializerGeneral
 			{}
 
 			/*!
-			 *	\brief Conversion function. Used to convert from SINGLE_OBJECT_T to PROPERTY
+			 * \brief Conversion function. Used to convert from SINGLE_OBJECT_T to PROPERTY
 			 */
 			template<class PROPERTY>
 			inline operator PROPERTY()
@@ -47,8 +49,8 @@ class PropertySerializerGeneral
 		};
 
 		/*!
-		 *	\brief Class that will be passed to PropertyTemplate constructor for deserialization.
-		 *	Stores a reference to data to be deserialized during construction
+		 * \brief Class that will be passed to PropertyTemplate constructor for deserialization.
+		 * Stores a reference to data to be deserialized during construction
 		 */
 		template<class OBJECT>
 		class ObjectDeserializer
@@ -70,13 +72,13 @@ class PropertySerializerGeneral
 
 	public:
 		/*!
-		 *	\brief Serialization function. Calls internal method that iterates over all properties
-		 *	\tparam OBJECT Type to serialize PropertyTemplate to
-		 *	\tparam PROPERTY_TEMPLATE PropertyTemplate<...> to serialize
-		 *	\tparam OBJECT_T Type to serialize to. Used for std::forward
-		 *	\param Properties Properties to serialize
-		 *	\param data Serialization target
-		 *	\return Returns serialized data
+		 * \brief Serialization function. Calls internal method that iterates over all properties
+		 * \tparam OBJECT Type to serialize PropertyTemplate to
+		 * \tparam PROPERTY_TEMPLATE PropertyTemplate<...> to serialize
+		 * \tparam OBJECT_T Type to serialize to. Used for std::forward
+		 * \param Properties Properties to serialize
+		 * \param data Serialization target
+		 * \return Returns serialized data
 		 */
 		template<class OBJECT, class PROPERTY_TEMPLATE, class OBJECT_T>
 		static OBJECT serializeObject(const PROPERTY_TEMPLATE &properties, OBJECT_T &&data = OBJECT())
@@ -85,19 +87,19 @@ class PropertySerializerGeneral
 		}
 
 		/*!
-		 *	\brief Serialize a single object
-		 *	\tparam OBJECT Type to serialize PropertyTemplate to
-		 *	\tparam PROPERTY_TEMPLATE PropertyTemplate<...> to serialize
-		 *	\param property Property to serialize
-		 *	\return Returns serialized data
+		 * \brief Serialize a single object
+		 * \tparam OBJECT Type to serialize PropertyTemplate to
+		 * \tparam PROPERTY_TEMPLATE PropertyTemplate<...> to serialize
+		 * \param property Property to serialize
+		 * \return Returns serialized data of a single object.
+		 * Must be in a type that ObjectPropertySerializerMethods<OBJECT>::emplaceSingleObject() can handle
 		 */
 		template<class OBJECT, class PROPERTY>
-		static typename ObjectPropertySerializerMethods<OBJECT>::single_object_t serializeSingleProperty(const PROPERTY &property)
+		static auto serializeSingleProperty(const PROPERTY &property)
 		{
 			if constexpr (std::is_base_of_v<PropertyTemplateGeneral, PROPERTY>)
 			{
 				// If this is Property is itself a PropertyTemplate, run serialization on it
-				static_assert(std::is_convertible_v<OBJECT, typename ObjectPropertySerializerMethods<OBJECT>::single_object_t >, "Can't serialize sub-PropertyTemplate if there is no conversion from OBJECT to single_object_t");
 				return PropertySerializerGeneral::serializeObject<OBJECT, PROPERTY>(property, OBJECT());
 			}
 			else
@@ -109,12 +111,12 @@ class PropertySerializerGeneral
 		}
 
 		/*!
-		 *	\brief Update a PropertyTemplate with new data
-		 *	\tparam OBJECT Deserialization type
-		 *	\tparam PROPERTY_TEMPLATE PropertyTemplate<...>
-		 *	\tparam OBJECT_T Deserialization type. Used for std::forward
-		 *	\param properties PropertyTemplate to update
-		 *	\param data Data with which to update properties
+		 * \brief Update a PropertyTemplate with new data
+		 * \tparam OBJECT Deserialization type
+		 * \tparam PROPERTY_TEMPLATE PropertyTemplate<...>
+		 * \tparam OBJECT_T Deserialization type. Used for std::forward
+		 * \param properties PropertyTemplate to update
+		 * \param data Data with which to update properties
 		 */
 		template<class OBJECT, class PROPERTY_TEMPLATE, class OBJECT_T>
 		static void updateProperties(PROPERTY_TEMPLATE &properties, OBJECT_T &&data)
@@ -123,14 +125,14 @@ class PropertySerializerGeneral
 		}
 
 		/*!
-		 *	\brief Read out data from an OBJECT class into a PROPERTY_TEMPLATE class
-		 *	\tparam OBJECT Deserialization type
-		 *	\tparam PROPERTY_TEMPLATE PropertyTemplate<...>
-		 *	\tparam OBJECT_T Deserialization type. Used for std::forward
-		 *	\tparam DEFAULT_PROPERTIES_T Type for default Properties
-		 *	\param data Data to read
-		 *	\param defaultProperties Default Properties to use if no data could be read to a given Property
-		 *	\return Returns a PROPERTY_TEMPLATE instance
+		 * \brief Read out data from an OBJECT class into a PROPERTY_TEMPLATE class
+		 * \tparam OBJECT Deserialization type
+		 * \tparam PROPERTY_TEMPLATE PropertyTemplate<...>
+		 * \tparam OBJECT_T Deserialization type. Used for std::forward
+		 * \tparam DEFAULT_PROPERTIES_T Type for default Properties
+		 * \param data Data to read
+		 * \param defaultProperties Default Properties to use if no data could be read to a given Property
+		 * \return Returns a PROPERTY_TEMPLATE instance
 		 */
 		template<class OBJECT, class PROPERTY_TEMPLATE, class OBJECT_T, class ...DEFAULT_PROPERTIES_T>
 		static PROPERTY_TEMPLATE deserializeObject(OBJECT_T &&data, DEFAULT_PROPERTIES_T &&...defaultProperties)
@@ -138,13 +140,13 @@ class PropertySerializerGeneral
 
 	private:
 		/*!
-		 *	\brief Write a single property. Continue until end of PropertyTemplate has been reached
-		 *	\tparam OBJECT Type to serialize PropertyTemplate to
-		 *	\tparam PROPERTY_TEMPLATE PropertyTemplate<...> to serialize
-		 *	\tparam ID ID of property to write
-		 *	\param data Data structure to write to
-		 *	\param properties PropertyTemplate from which to read data
-		 *	\return Returns modified data
+		 * \brief Write a single property. Continue until end of PropertyTemplate has been reached
+		 * \tparam OBJECT Type to serialize PropertyTemplate to
+		 * \tparam PROPERTY_TEMPLATE PropertyTemplate<...> to serialize
+		 * \tparam ID ID of property to write
+		 * \param data Data structure to write to
+		 * \param properties PropertyTemplate from which to read data
+		 * \return Returns data, with property appended to it
 		 */
 		template<class OBJECT, class PROPERTY_TEMPLATE, int ID>
 		static OBJECT serializeSingleProperty(OBJECT &&data, const PROPERTY_TEMPLATE &properties)
@@ -155,7 +157,7 @@ class PropertySerializerGeneral
 				// Check if default value should be serialized
 				if constexpr (PROPERTY_TEMPLATE::template isDefaultWritable<ID>())
 				{
-					ObjectPropertySerializerMethods<OBJECT>::emplaceSingleObject(data, properties.template getName<ID>(), PropertySerializerGeneral::serializeSingleProperty<OBJECT>(properties.template getProperty<ID, property_t>()));
+					ObjectPropertySerializerMethods<OBJECT>::emplaceSingleObject(data, properties.template getName<ID>(), PropertySerializerGeneral::serializeSingleProperty<OBJECT>(properties.template getProperty<ID>()));
 				}
 				else
 				{
@@ -178,12 +180,12 @@ class PropertySerializerGeneral
 		}
 
 		/*!
-		 *	\brief Update a given PropertyTemplate
-		 *	\tparam OBJECT Deserialization type
-		 *	\tparam PROPERTY_TEMPLATE PropertyTemplate<...>
-		 *	\tparam OBJECT_T Deserialization type. Used for std::forward
-		 *	\param properties Property Structure to update
-		 *	\param data Data to read from
+		 * \brief Update a given PropertyTemplate
+		 * \tparam OBJECT Deserialization type
+		 * \tparam PROPERTY_TEMPLATE PropertyTemplate<...>
+		 * \tparam OBJECT_T Deserialization type. Used for std::forward
+		 * \param properties Property Structure to update
+		 * \param data Data to read from
 		 */
 		template<class OBJECT, class PROPERTY_TEMPLATE, int ID, class OBJECT_T>
 		static void updateProperties(PROPERTY_TEMPLATE &properties, OBJECT_T &&data)

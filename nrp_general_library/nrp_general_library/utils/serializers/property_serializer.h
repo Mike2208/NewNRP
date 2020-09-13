@@ -54,7 +54,9 @@ template<class T, class OBJECT>
 concept PROPERTY_SERIALIZER_OBJECT_C = std::is_same_v<OBJECT, std::remove_cv_t<std::decay_t<T> > >;
 
 /*!
- *	\brief De-/Serialization Methods. This class collects ObjectPropertySerializerMethods
+ * \brief De-/Serialization Methods. This class can be used to convert PropertyTemplates to OBJECT type.
+ * To create de-/serializtion methods for a new OBJECT type, do NOT modify PropertySerializer<OBJECT, ...>.
+ * Instead, implement a new ObjectPropertySerializerMethods<OBJECT>. This will automatically adjust PropertySerializer<OBJECT, ...>
  */
 template<class OBJECT, PROPERTY_TEMPLATE_C PROPERTY_TEMPLATE>
 struct PropertySerializer
