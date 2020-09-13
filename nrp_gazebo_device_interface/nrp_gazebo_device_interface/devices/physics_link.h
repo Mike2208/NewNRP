@@ -6,7 +6,7 @@
 
 class PhysicsLink;
 
-struct JSONPhysicsLinkConst
+struct PhysicsLinkConst
 {
 		using vec3_t = std::array<float, 3>;
 		using quat_t = std::array<float, 4>;
@@ -26,14 +26,14 @@ struct JSONPhysicsLinkConst
 		static constexpr std::string_view TypeName = "p_link";
 
 		using JPropNames = PropNames<Position, Rotation, LinearVelocity, AngularVelocity>;
-		using JProps = PropertyTemplate<PhysicsLink, JSONPhysicsLinkConst::JPropNames,
+		using JProps = PropertyTemplate<PhysicsLink, PhysicsLinkConst::JPropNames,
 		                                std::array<float, 3>, std::array<float, 4>, std::array<float, 3>, std::array<float, 3> >;
 };
 
 class PhysicsLink
-        : public JSONPhysicsLinkConst,
+        : public PhysicsLinkConst,
           public DeviceInterface,
-          public JSONPhysicsLinkConst::JProps
+          public PhysicsLinkConst::JProps
 {
 		using json_property_serializer_t = JSONPropertySerializer<JProps>;
 
