@@ -4,10 +4,8 @@
 #include <iostream>
 
 NestJSONDeviceInterface::NestJSONDeviceInterface(const DeviceIdentifier &devID, const nlohmann::json &json)
-    : PythonObjectDeviceInterface(devID, readProperties(json, boost::python::dict()))//json, boost::python::dict())
-{
-	this->PythonObjectDeviceInterface::data().JsonEncoder = boost::python::import(NRP_NEST_PYTHON_MODULE_STR).attr("NumpyEncoder");
-}
+    : PythonObjectDeviceInterface(devID, JSONPropertySerializer<NestJSONDeviceInterface>::readProperties(json, boost::python::dict()))
+{	this->PythonObjectDeviceInterface::data().JsonEncoder = boost::python::import(NRP_NEST_PYTHON_MODULE_STR).attr("NumpyEncoder");	}
 
 NestJSONDeviceInterface::NestJSONDeviceInterface(const DeviceIdentifier &devID, const boost::python::dict &data)
     : PythonObjectDeviceInterface(devID, data)

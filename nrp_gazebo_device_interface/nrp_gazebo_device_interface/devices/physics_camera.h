@@ -9,7 +9,7 @@
 
 class PhysicsCamera;
 
-struct JSONPhysicsCameraConst
+struct PhysicsCameraConst
 {
 	/*!
 	 * \brief Image Height
@@ -34,20 +34,18 @@ struct JSONPhysicsCameraConst
 	static constexpr std::string_view TypeName = "p_camera";
 
 	using JPropNames = PropNames<ImageHeight, ImageWidth, ImagePixelSize, ImageData>;
-	using JProps = PropertyTemplate<PhysicsCamera, JSONPhysicsCameraConst::JPropNames, uint32_t, uint32_t, uint8_t, std::vector<unsigned char> >;
+	using JProps = PropertyTemplate<PhysicsCamera, PhysicsCameraConst::JPropNames, uint32_t, uint32_t, uint8_t, std::vector<unsigned char> >;
 };
 
 /*!
  * \brief Physics Camera Image
  */
 class PhysicsCamera
-        : public JSONPhysicsCameraConst,
+        : public PhysicsCameraConst,
           public DeviceInterface,
-          public JSONPhysicsCameraConst::JProps
+          public PhysicsCameraConst::JProps
 {
 	public:
-		using json_property_serializer_t = JSONPropertySerializer<property_template_t>;
-
 		PhysicsCamera(const std::string &name);
 		PhysicsCamera(const DeviceIdentifier &id);
 		PhysicsCamera(const DeviceIdentifier &id, const nlohmann::json &data);

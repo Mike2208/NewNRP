@@ -45,7 +45,7 @@ TEST(JSONPropertySerializerTest, Serialization)
 	TestJSONPropertySerializer props(testStr, testInt);
 
 	// Test serialization
-	const nlohmann::json serializedData = JSONPropertySerializer<TestJSONPropertySerializer::property_template_t>::serializeProperties(props, nlohmann::json());
+	const nlohmann::json serializedData = JSONPropertySerializer<TestJSONPropertySerializer>::serializeProperties(props, nlohmann::json());
 	ASSERT_EQ(serializedData[intName.m_data].get<int>(), testInt);
 	ASSERT_STREQ(serializedData[stringName.m_data].get<std::string>().data(), testStr.data());
 
@@ -93,7 +93,7 @@ TEST(JSONPropertySerializerTest, NoSerializeDefaults)
 	TestJSONPropertySerializerDefaults props(testStr, testInt);
 
 	// Test serialization
-	const nlohmann::json serializedData = JSONPropertySerializer<TestJSONPropertySerializerDefaults::property_template_t>::serializeProperties(props, nlohmann::json());
+	const nlohmann::json serializedData = JSONPropertySerializer<TestJSONPropertySerializerDefaults>::serializeProperties(props, nlohmann::json());
 	ASSERT_EQ(serializedData[intName.m_data].get<int>(), testInt);
 	ASSERT_EQ(serializedData.find(stringName.m_data), serializedData.end());
 

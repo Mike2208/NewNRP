@@ -12,10 +12,8 @@
  *	\tparam DEVICE Final Derived class
  */
 class NestJSONDeviceInterface
-        : public PythonObjectDeviceInterface,
-          public JSONPropertySerializer<PythonObjectDeviceInterface::property_template_t>
+        : public PythonObjectDeviceInterface
 {
-		using json_property_serializer_t = JSONPropertySerializer<PythonObjectDeviceInterface::property_template_t>;
 	public:		
 		/*!
 		 *	\brief Constructor

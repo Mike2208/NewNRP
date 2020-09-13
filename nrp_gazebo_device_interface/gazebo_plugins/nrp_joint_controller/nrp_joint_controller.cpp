@@ -26,14 +26,14 @@ json gazebo::JointDeviceController::getDeviceInformation(const json::const_itera
 	this->_jointData.setVelocity(this->_joint->GetVelocity(0));
 	this->_jointData.setEffort(this->_joint->GetForce(0));
 
-	return JSONPropertySerializer<PhysicsJoint::property_template_t>::serializeProperties(this->_jointData, nlohmann::json());
+	return JSONPropertySerializer<PhysicsJoint>::serializeProperties(this->_jointData, nlohmann::json());
 }
 
 json gazebo::JointDeviceController::handleDeviceData(const json &data)
 {
 	bool success = true;
 
-	JSONPropertySerializer<PhysicsJoint::property_template_t>::updateProperties(this->_jointData, data);
+	JSONPropertySerializer<PhysicsJoint>::updateProperties(this->_jointData, data);
 
 //	std::cout << std::to_string(this->_jointData.position()) << std::endl;
 //	std::cout << std::to_string(this->_jointData.velocity()) << std::endl;

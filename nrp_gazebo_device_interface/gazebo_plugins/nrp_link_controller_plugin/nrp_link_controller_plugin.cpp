@@ -33,7 +33,7 @@ json gazebo::LinkDeviceController::getDeviceInformation(const json::const_iterat
 	const auto &angVel = this->_link->WorldAngularVel();
 	this->_data.setAngVel({ ToFloat(angVel.X()), ToFloat(angVel.Y()), ToFloat(angVel.Z())	});
 
-	return JSONPropertySerializer<PhysicsLink::property_template_t>::serializeProperties(this->_data, nlohmann::json());
+	return JSONPropertySerializer<PhysicsLink>::serializeProperties(this->_data, nlohmann::json());
 }
 
 json gazebo::LinkDeviceController::handleDeviceData(const json &)

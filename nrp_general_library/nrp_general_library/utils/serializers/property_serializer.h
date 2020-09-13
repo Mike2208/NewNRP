@@ -59,14 +59,16 @@ concept PROPERTY_SERIALIZER_OBJECT_C = std::is_same_v<OBJECT, std::remove_cv_t<s
 template<class OBJECT, PROPERTY_TEMPLATE_C PROPERTY_TEMPLATE>
 struct PropertySerializer
 {
+		using property_template_t = typename PROPERTY_TEMPLATE::property_template_t;
+
 		/*!
 		 *	\brief Update Properties by reading the given OBJECT. Will go through all existing properties and try to update them
 		 *	\tparam OBJECT Data type to be deserialized
 		 *	\param data OBJECT containing property data
 		 */
 		template<PROPERTY_SERIALIZER_OBJECT_C<OBJECT> OBJECT_T>
-		static void updateProperties(PROPERTY_TEMPLATE &properties, OBJECT_T &&data)
-		{	PropertySerializerGeneral::template updateProperties<OBJECT, PROPERTY_TEMPLATE, OBJECT_T>(properties, std::forward<OBJECT_T>(data));	}
+		static void updateProperties(property_template_t &properties, OBJECT_T &&data)
+		{	PropertySerializerGeneral::template updateProperties<OBJECT, property_template_t, OBJECT_T>(properties, std::forward<OBJECT_T>(data));	}
 
 		/*!
 		 *	\brief Read properties from the given OBJECT
@@ -76,8 +78,8 @@ struct PropertySerializer
 		 *	\param defaultProperties Will be used if no corresponding value was found in config
 		 */
 		template<PROPERTY_SERIALIZER_OBJECT_C<OBJECT> OBJECT_T, class ...T>
-		static PROPERTY_TEMPLATE readProperties(OBJECT_T &&data, T &&... defaultProperties)
-		{	return PropertySerializerGeneral::template deserializeObject<OBJECT, PROPERTY_TEMPLATE, OBJECT_T, T...>(std::forward<OBJECT_T>(data), std::forward<T>(defaultProperties)...);	}
+		static property_template_t readProperties(OBJECT_T &&data, T &&... defaultProperties)
+		{	return PropertySerializerGeneral::template deserializeObject<OBJECT, property_template_t, OBJECT_T, T...>(std::forward<OBJECT_T>(data), std::forward<T>(defaultProperties)...);	}
 
 		/*!
 		 *	\brief Serializes properties into OBJECT
@@ -86,8 +88,8 @@ struct PropertySerializer
 		 *	\param data OBJECT into which to insert the serialized data
 		 *	\return Returns an OBJECT. For each property, the value will be stored under its given name
 		 */
-		static OBJECT serializeProperties(const PROPERTY_TEMPLATE &properties, OBJECT &&data = OBJECT())
-		{	return PropertySerializerGeneral::template serializeObject<OBJECT, PROPERTY_TEMPLATE>(properties, std::move(data));	}
+		static OBJECT serializeProperties(const property_template_t &properties, OBJECT &&data = OBJECT())
+		{	return PropertySerializerGeneral::template serializeObject<OBJECT, property_template_t>(properties, std::move(data));	}
 };
 
 #endif // PROPERTY_SERIALIZER_H

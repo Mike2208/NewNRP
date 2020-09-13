@@ -28,7 +28,7 @@ nlohmann::json gazebo::CameraDeviceController::getDeviceInformation(const nlohma
 	memcpy(this->_data.imageData().data(), this->_camera->ImageData(), imageSize);
 
 	// Save image data directly, prevents copying
-	nlohmann::json retVal = JSONPropertySerializer<PhysicsCamera::property_template_t>::serializeProperties(this->_data, nlohmann::json());
+	nlohmann::json retVal = JSONPropertySerializer<PhysicsCamera>::serializeProperties(this->_data, nlohmann::json());
 
 	// Save image data
 //	const unsigned char *img_data = this->_camera->ImageData();
