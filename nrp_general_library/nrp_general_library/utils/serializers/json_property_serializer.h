@@ -15,7 +15,6 @@ class ObjectPropertySerializerMethods<nlohmann::json>
         : public PropertySerializerGeneral
 {
 	public:
-		using single_object_t = nlohmann::json;
 		using ObjectDeserializer = typename PropertySerializerGeneral::ObjectDeserializer<nlohmann::json>;
 
 		template<class PROPERTY>

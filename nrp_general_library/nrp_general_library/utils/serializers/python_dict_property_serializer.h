@@ -12,10 +12,9 @@ class ObjectPropertySerializerMethods<boost::python::dict>
 {
 	public:
 		using ObjectDeserializer = PropertySerializerGeneral::ObjectDeserializer<boost::python::dict>;
-		using single_object_t = boost::python::object;
 
 		template<class PROPERTY>
-		static single_object_t serializeSingleProperty(const PROPERTY &property)
+		static boost::python::object serializeSingleProperty(const PROPERTY &property)
 		{
 			return boost::python::object(property);
 		}
@@ -34,12 +33,12 @@ class ObjectPropertySerializerMethods<boost::python::dict>
 			}
 		}
 
-		static SinglePropertyDeserializer<single_object_t> deserializeSingleProperty(const boost::python::dict &data, const std::string_view &name)
+		static SinglePropertyDeserializer<boost::python::object> deserializeSingleProperty(const boost::python::dict &data, const std::string_view &name)
 		{
-			return SinglePropertyDeserializer<single_object_t>(data.get(name.data()));
+			return SinglePropertyDeserializer<boost::python::object>(data.get(name.data()));
 		}
 
-		static void emplaceSingleObject(boost::python::dict &data, const std::string_view &name, single_object_t &&singleObject)
+		static void emplaceSingleObject(boost::python::dict &data, const std::string_view &name, boost::python::object &&singleObject)
 		{
 			data[name.data()] = std::move(singleObject);
 		}

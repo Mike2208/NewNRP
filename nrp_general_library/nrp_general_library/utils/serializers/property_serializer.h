@@ -12,8 +12,6 @@ class ObjectPropertySerializerMethods
         : public PropertySerializerGeneral
 {
 	public:
-		using single_object_t = int;
-
 		/*!
 		 *	\brief Serialize a single property
 		 *	\tparam PROPERTY Property Type
@@ -21,7 +19,7 @@ class ObjectPropertySerializerMethods
 		 *	\return Returns serialized type
 		 */
 		template<class PROPERTY>
-		static single_object_t serializeSingleProperty(const PROPERTY &property);
+		static OBJECT serializeSingleProperty(const PROPERTY &property);
 
 		/*!
 		 * \brief Add a serialized property to an object
@@ -29,7 +27,7 @@ class ObjectPropertySerializerMethods
 		 * \param name Name under which to store singleObject
 		 * \param singleObject Serialized Proerty data
 		 */
-		static void emplaceSingleObject(OBJECT &data, const std::string_view &name, single_object_t &&singleObject);
+		static void emplaceSingleObject(OBJECT &data, const std::string_view &name, OBJECT &&singleObject);
 
 		/*!
 		 * \brief Deserialize a single property
@@ -47,7 +45,7 @@ class ObjectPropertySerializerMethods
 		 * \param name Name under which the property to deserialize is stored
 		 * \return Returns property deserializer. Can be used to convert the property to a chosen type later on
 		 */
-		static SinglePropertyDeserializer<single_object_t> deserializeSingleProperty(const OBJECT &data, const std::string_view &name);
+		static SinglePropertyDeserializer<OBJECT> deserializeSingleProperty(const OBJECT &data, const std::string_view &name);
 };
 
 template<class T, class OBJECT>
