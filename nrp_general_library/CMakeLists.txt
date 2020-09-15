@@ -53,6 +53,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/utils/ptr_templates.cpp
 	nrp_general_library/utils/restclient_setup.cpp
 	nrp_general_library/utils/serializers/json_property_serializer.cpp
+	nrp_general_library/utils/serializers/mpi_serializer.cpp
 	nrp_general_library/utils/serializers/property_serializer.cpp
 	nrp_general_library/utils/serializers/property_serializer_general.cpp
 	nrp_general_library/utils/serializers/python_dict_property_serializer.cpp
@@ -122,6 +123,9 @@ if(NOT ${nlohmann_json_FOUND})
 	endif()
 endif()
 
+# MPI: Communication library
+find_package(MPI REQUIRED)
+
 # libzip: ZIP Manipulation
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LibZip REQUIRED IMPORTED_TARGET libzip)
@@ -151,6 +155,7 @@ target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
 	    ${BOOST_PYTHON}
 		cxxopts::cxxopts
+		MPI::MPI_CXX
 		nlohmann_json::nlohmann_json
 		pistache
 		PkgConfig::LibZip
