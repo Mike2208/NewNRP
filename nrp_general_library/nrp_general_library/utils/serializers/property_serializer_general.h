@@ -82,9 +82,7 @@ class PropertySerializerGeneral
 		 */
 		template<class OBJECT, class PROPERTY_TEMPLATE, class OBJECT_T>
 		static OBJECT serializeObject(const PROPERTY_TEMPLATE &properties, OBJECT_T &&data = OBJECT())
-		{
-			return PropertySerializerGeneral::serializeSingleProperty<OBJECT, PROPERTY_TEMPLATE, 0>(std::forward<OBJECT_T>(data), properties);
-		}
+		{	return PropertySerializerGeneral::serializeSingleProperty<OBJECT, PROPERTY_TEMPLATE, 0>(std::forward<OBJECT_T>(data), properties);	}
 
 		/*!
 		 * \brief Serialize a single object
@@ -120,9 +118,7 @@ class PropertySerializerGeneral
 		 */
 		template<class OBJECT, class PROPERTY_TEMPLATE, class OBJECT_T>
 		static void updateProperties(PROPERTY_TEMPLATE &properties, OBJECT_T &&data)
-		{
-			return PropertySerializerGeneral::updateProperties<OBJECT, PROPERTY_TEMPLATE, 0>(properties, std::forward<OBJECT_T>(data));
-		}
+		{	return PropertySerializerGeneral::updateProperties<OBJECT, PROPERTY_TEMPLATE, 0>(properties, std::forward<OBJECT_T>(data));	}
 
 		/*!
 		 * \brief Read out data from an OBJECT class into a PROPERTY_TEMPLATE class
