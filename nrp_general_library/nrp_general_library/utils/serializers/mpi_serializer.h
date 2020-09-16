@@ -15,12 +15,6 @@ template<>
 class ObjectPropertySerializerMethods<MPIPropertyData>
         : public PropertySerializerGeneral
 {
-		/*!
-		 * \brief Describes how to serialize singular single property using a basic MPI Datatypes
-		 * Note that this datatype must reference absolute address of a single Property's data
-		 */
-		using mpi_basic_data_t = MPI_Datatype;
-
 	public:
 		/*!
 		 * \brief Contains all information to later on use MPI_Type_struct to create a datatype for all Properties of a PropertyTemplate
@@ -109,10 +103,6 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 
 			return retVal;
 		}
-
-//		static SinglePropertyDeserializer<nlohmann::json> deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name)
-//		{
-//		}
 
 	private:
 
@@ -360,12 +350,6 @@ auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType(std::array
 		return std::tuple(MPIDerivedDatatype(vecT), getMPIAddr(vec.data()), N);
 	}
 }
-
-ObjectPropertySerializerMethods<MPIPropertyData>::MPIDerivedDatatype::operator MPI_Datatype() const
-{	return this->_datatype;	}
-
-ObjectPropertySerializerMethods<MPIPropertyData>::MPIDerivedDatatype::operator MPI_Datatype&()
-{	return this->_datatype;	}
 
 template<bool SEND, class VECTOR>
 void ObjectPropertySerializerMethods<MPIPropertyData>::handleVectorFcn(MPI_Comm comm, VECTOR &vec)

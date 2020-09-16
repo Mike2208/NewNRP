@@ -18,37 +18,6 @@ class PropertySerializerGeneral
 {
 	protected:
 		/*!
-		 * \brief Deserialization Structure. Used for conversion from SINGLE_OBJECT_T to arbitrary PROPERTY
-		 * \tparam SINGLE_OBJECT_T Data type of objects that should be deserialized
-		 */
-		template<class SINGLE_OBJECT_T>
-		struct SinglePropertyDeserializer
-		{
-			/*!
-			 * \brief Data to be deserialized
-			 */
-			const SINGLE_OBJECT_T &Data;
-
-			/*!
-			 * \brief Constructor. Used for inline conversion from SINGLE_OBJECT_T to PROPERTY
-			 * \param _data Data to convert to PROPERTY
-			 */
-			inline SinglePropertyDeserializer(const SINGLE_OBJECT_T &_data)
-			    : Data(_data)
-			{}
-
-			/*!
-			 * \brief Conversion function. Used to convert from SINGLE_OBJECT_T to PROPERTY
-			 */
-			template<class PROPERTY>
-			inline operator PROPERTY()
-			{
-				static_assert(std::is_convertible_v<SINGLE_OBJECT_T, PROPERTY>, "No conversion from this single object to property possible");
-				return this->Data;
-			}
-		};
-
-		/*!
 		 * \brief Class that will be passed to PropertyTemplate constructor for deserialization.
 		 * Stores a reference to data to be deserialized during construction
 		 */
@@ -75,14 +44,15 @@ class PropertySerializerGeneral
 		 * \brief Serialization function. Calls internal method that iterates over all properties
 		 * \tparam OBJECT Type to serialize PropertyTemplate to
 		 * \tparam PROPERTY_TEMPLATE PropertyTemplate<...> to serialize
+		 * \tparam PROPERTY_TEMPLATE_T PropertyTemplate<...> to serialize. Used for std::forward
 		 * \tparam OBJECT_T Type to serialize to. Used for std::forward
 		 * \param Properties Properties to serialize
 		 * \param data Serialization target
 		 * \return Returns serialized data
 		 */
-		template<class OBJECT, class PROPERTY_TEMPLATE, class OBJECT_T>
-		static OBJECT serializeObject(const PROPERTY_TEMPLATE &properties, OBJECT_T &&data = OBJECT())
-		{	return PropertySerializerGeneral::serializeSingleProperty<OBJECT, PROPERTY_TEMPLATE, 0>(std::forward<OBJECT_T>(data), properties);	}
+		template<class OBJECT, class PROPERTY_TEMPLATE, class PROPERTY_TEMPLATE_T, class OBJECT_T>
+		static OBJECT serializeObject(PROPERTY_TEMPLATE_T &&properties, OBJECT_T &&data = OBJECT())
+		{	return PropertySerializerGeneral::serializeSingleProperty<OBJECT, PROPERTY_TEMPLATE, 0>(std::forward<OBJECT_T>(data), std::forward<PROPERTY_TEMPLATE_T>(properties));	}
 
 		/*!
 		 * \brief Update a PropertyTemplate with new data
@@ -119,19 +89,19 @@ class PropertySerializerGeneral
 		 * \return Returns serialized data of a single object.
 		 * Must be in a type that ObjectPropertySerializerMethods<OBJECT>::emplaceSingleObject() can handle
 		 */
-		template<class OBJECT, class PROPERTY>
-		static auto serializeSingleProperty(const PROPERTY &property)
+		template<class OBJECT, class PROPERTY, class PROPERTY_T>
+		static auto serializeSingleProperty(PROPERTY_T &&property)
 		{
 			if constexpr (std::is_base_of_v<PropertyTemplateGeneral, PROPERTY>)
 			{
 				// If this is Property is itself a PropertyTemplate, run serialization on it
-				return PropertySerializerGeneral::serializeObject<OBJECT, PROPERTY>(property, OBJECT());
+				return PropertySerializerGeneral::serializeObject<OBJECT, PROPERTY>(std::forward<PROPERTY_T>(property), OBJECT());
 			}
 			else
 			{
 				// Call Property Serializer associated with this object
-				static_assert (std::is_invocable_v<decltype(ObjectPropertySerializerMethods<OBJECT>::template serializeSingleProperty<PROPERTY>), const PROPERTY&>, "No ObjectPropertySerializerMethods found for this object type");
-				return ObjectPropertySerializerMethods<OBJECT>::serializeSingleProperty(property);
+				static_assert (std::is_invocable_v<decltype(ObjectPropertySerializerMethods<OBJECT>::template serializeSingleProperty<PROPERTY>), PROPERTY&&>, "No ObjectPropertySerializerMethods found for this object type");
+				return ObjectPropertySerializerMethods<OBJECT>::serializeSingleProperty(std::forward<PROPERTY_T>(property));
 			}
 		}
 
@@ -145,8 +115,8 @@ class PropertySerializerGeneral
 		 * \param properties PropertyTemplate from which to read data
 		 * \return Returns data, with property appended to it
 		 */
-		template<class OBJECT, class PROPERTY_TEMPLATE, int ID>
-		static OBJECT serializeSingleProperty(OBJECT &&data, const PROPERTY_TEMPLATE &properties)
+		template<class OBJECT, class PROPERTY_TEMPLATE, int ID, class PROPERTY_TEMPLATE_T>
+		static OBJECT serializeSingleProperty(OBJECT &&data, PROPERTY_TEMPLATE_T &&properties)
 		{
 			using property_t = typename PROPERTY_TEMPLATE::template property_t<ID>;
 			if constexpr (ID < PROPERTY_TEMPLATE::NumProperties)
@@ -154,7 +124,7 @@ class PropertySerializerGeneral
 				// Check if default value should be serialized
 				if constexpr (PROPERTY_TEMPLATE::template isDefaultWritable<ID>())
 				{
-					ObjectPropertySerializerMethods<OBJECT>::emplaceSingleObject(data, properties.template getName<ID>(), PropertySerializerGeneral::serializeSingleProperty<OBJECT>(properties.template getProperty<ID>()));
+					ObjectPropertySerializerMethods<OBJECT>::emplaceSingleObject(data, properties.template getName<ID>(), PropertySerializerGeneral::serializeSingleProperty<OBJECT, typename PROPERTY_TEMPLATE::template property_t<ID> >(properties.template getProperty<ID>()));
 				}
 				else
 				{
@@ -162,11 +132,11 @@ class PropertySerializerGeneral
 					const auto &defValue = properties.template getDefaultValue<ID>();
 					const auto &value = properties.template getProperty<ID, property_t>();
 					if(value != defValue)
-						ObjectPropertySerializerMethods<OBJECT>::emplaceSingleObject(data, properties.template getName<ID>(), PropertySerializerGeneral::serializeSingleProperty<OBJECT>(value));
+						ObjectPropertySerializerMethods<OBJECT>::emplaceSingleObject(data, properties.template getName<ID>(), PropertySerializerGeneral::serializeSingleProperty<OBJECT, typename PROPERTY_TEMPLATE::template property_t<ID> >(value));
 				}
 
 				// Continue with next property
-				return PropertySerializerGeneral::template serializeSingleProperty<OBJECT, PROPERTY_TEMPLATE, ID+1>(std::move(data), properties);
+				return PropertySerializerGeneral::template serializeSingleProperty<OBJECT, PROPERTY_TEMPLATE, ID+1>(std::move(data), std::forward<PROPERTY_TEMPLATE_T>(properties));
 			}
 			else
 			{

@@ -38,14 +38,6 @@ class ObjectPropertySerializerMethods
 		 */
 		template<class PROPERTY>
 		static PROPERTY deserializeSingleProperty(const OBJECT &data, const std::string_view &name);
-
-		/*!
-		 * \brief Deserialize a single property
-		 * \param data All serialized data
-		 * \param name Name under which the property to deserialize is stored
-		 * \return Returns property deserializer. Can be used to convert the property to a chosen type later on
-		 */
-		static SinglePropertyDeserializer<OBJECT> deserializeSingleProperty(const OBJECT &data, const std::string_view &name);
 };
 
 template<class T, class OBJECT>

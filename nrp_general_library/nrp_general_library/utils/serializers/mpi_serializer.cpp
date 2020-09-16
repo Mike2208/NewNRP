@@ -32,6 +32,12 @@ ObjectPropertySerializerMethods<MPIPropertyData>::MPIDerivedDatatype &ObjectProp
 	return *this;
 }
 
+ObjectPropertySerializerMethods<MPIPropertyData>::MPIDerivedDatatype::operator MPI_Datatype() const
+{	return this->_datatype;	}
+
+ObjectPropertySerializerMethods<MPIPropertyData>::MPIDerivedDatatype::operator MPI_Datatype&()
+{	return this->_datatype;	}
+
 MPI_Aint ObjectPropertySerializerMethods<MPIPropertyData>::getMPIAddr(const void *loc)
 {
 	MPI_Aint mpiLoc;

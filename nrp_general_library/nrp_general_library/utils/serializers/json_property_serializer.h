@@ -31,11 +31,6 @@ class ObjectPropertySerializerMethods<nlohmann::json>
 				throw std::out_of_range(std::string("Couldn't find JSON attribute ") + name.data() + " during deserialization");
 		}
 
-		static SinglePropertyDeserializer<nlohmann::json> deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name)
-		{
-			return SinglePropertyDeserializer<nlohmann::json>(data[name.data()]);
-		}
-
 		static void emplaceSingleObject(nlohmann::json &data, const std::string_view &name, nlohmann::json &&singleObject)
 		{
 			data.emplace(name.data(), std::move(singleObject));
