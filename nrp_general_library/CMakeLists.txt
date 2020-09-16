@@ -130,6 +130,9 @@ find_package(MPI REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LibZip REQUIRED IMPORTED_TARGET libzip)
 
+# MPI4Py
+include("cmake/CompileMPI4Py.cmake")
+
 
 ##########################################
 ## Header configuration
@@ -164,6 +167,7 @@ target_link_libraries(${LIBRARY_NAME}
 		spdlog::spdlog
 
 	PRIVATE
+	    MPI4Py::API
 )
 
 target_include_directories(${LIBRARY_NAME}
