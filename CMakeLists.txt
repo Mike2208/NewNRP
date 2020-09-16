@@ -57,7 +57,7 @@ function(add_doxygen_source directory)
 	list(SUBLIST ARGV 1 ${NUM_SOURCES} ADD_SOURCES)
 	get_property(tmp GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
 	foreach(arg ${ADD_SOURCES})
-		set(tmp ${tmp} ${arg})
+		set(tmp ${tmp} "${directory}/${arg}")
 	endforeach()
 	set_property(GLOBAL PROPERTY DOXYGEN_SOURCE_LIST "${tmp}")
 endfunction(add_doxygen_source)
@@ -98,6 +98,7 @@ add_subdirectory(nrp_simulation)
 ##########################################
 ## Doxygen
 get_property(DOXYGEN_SOURCES GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
+message("FILES: ${DOXYGEN_SOURCES}")
 doxygen_add_docs(doxygen
 	${DOXYGEN_SOURCES}
 	COMMENT "Generating documentation")
