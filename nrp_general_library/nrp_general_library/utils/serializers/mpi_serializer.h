@@ -111,6 +111,12 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 		 */
 		std::map<std::string_view, MPIDerivedDatatype> _propDataTypes;
 
+		/*!
+		 * \brief Resize prop if it's
+		 * \param prop Property to resize
+		 * \param dat MPI Data. Contains size information for prop if it needs to be resized
+		 * \return Returns modified prop
+		 */
 		template<class PROPERTY>
 		static PROPERTY resizeIfVariableSize(PROPERTY &&prop, const MPIPropertyData &)
 		{	return prop;	}
@@ -269,6 +275,9 @@ struct MPIPropertyData
 		std::vector<int> PropCounts;
 		std::vector<MPI_Aint> PropAddresses;
 };
+
+template<PROPERTY_TEMPLATE_C PROPERTY_TEMPLATE>
+using MPIPropertySerializer = PropertySerializer<MPIPropertyData, PROPERTY_TEMPLATE>;
 
 template<class PROP_DATA>
 void ObjectPropertySerializerMethods<MPIPropertyData>::emplaceSingleObject(MPIPropertyData &data, const std::string_view &, PROP_DATA &&singlePropData)
