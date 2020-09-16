@@ -144,6 +144,11 @@ target_link_libraries(NRPGazeboCameraControllerPlugin
 )
 
 
+##########################################
+## Append Doxygen files
+add_doxygen_source("${CMAKE_CURRENT_SOURCE_DIR}" "")
+
+
 ########################################
 ## Configure targets
 set(PLUGIN_TARGETS ${NRP_GAZEBO_COMMUNICATION_PLUGIN} NRPGazeboWorldPlugin

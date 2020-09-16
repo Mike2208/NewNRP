@@ -119,6 +119,11 @@ endif()
 
 
 ##########################################
+## Append Doxygen files
+add_doxygen_source("${CMAKE_CURRENT_SOURCE_DIR}" ${EXEC_SRC_FILES} ${LIB_SRC_FILES} ${PYTHON_MODULE_SRC_FILES} ${HEADER_DIRECTORY})
+
+
+##########################################
 ## Gazebo plugins
 set(NRP_GAZEBO_LIB_TARGET "${NAMESPACE_NAME}::${LIBRARY_NAME}")
 add_subdirectory(gazebo_plugins)

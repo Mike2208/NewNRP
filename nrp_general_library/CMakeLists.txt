@@ -1,5 +1,5 @@
 set(PROJECT_NAME "NRPGeneralLibrary")
-set(HEADER_DIRECTORY "nrp_general_device_interface")
+set(HEADER_DIRECTORY "nrp_general_library")
 
 set(NAMESPACE_NAME "${PROJECT_NAME}")
 
@@ -207,6 +207,11 @@ if(NOT "${EXEC_SRC_FILES}" STREQUAL "")
 	add_executable(${EXECUTABLE_NAME} ${EXEC_SRC_FILES})
 	target_link_libraries(${EXECUTABLE_NAME} ${LIBRARY_NAME})
 endif()
+
+
+##########################################
+## Append Doxygen files
+add_doxygen_source("${CMAKE_CURRENT_SOURCE_DIR}" ${EXEC_SRC_FILES} ${LIB_SRC_FILES} ${PYTHON_MODULE_SRC_FILES} "${HEADER_DIRECTORY}")
 
 
 ##########################################

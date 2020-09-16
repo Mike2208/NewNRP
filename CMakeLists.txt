@@ -49,6 +49,21 @@ add_subdirectory(depends/spdlog)
 
 
 ##########################################
+## Doxygen
+find_package(Doxygen REQUIRED)
+set_property(GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
+function(add_doxygen_source directory)
+	set(NUM_SOURCES ${ARGC}-1)
+	list(SUBLIST ARGV 1 ${NUM_SOURCES} ADD_SOURCES)
+	get_property(tmp GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
+	foreach(arg ${ADD_SOURCES})
+		set(tmp ${tmp} "${directory}/${arg}")
+	endforeach()
+	set_property(GLOBAL PROPERTY DOXYGEN_SOURCE_LIST "${tmp}")
+endfunction(add_doxygen_source)
+
+
+##########################################
 ## General NRP library
 ## Includes components to create new devices and engines
 add_subdirectory(nrp_general_library)
@@ -79,3 +94,11 @@ add_subdirectory(nrp_simulation)
 ## NRP Client
 #add_subdirectory(nrp_client)
 
+
+##########################################
+## Doxygen
+get_property(DOXYGEN_SOURCES GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
+message("FILES: ${DOXYGEN_SOURCES}")
+doxygen_add_docs(doxygen
+	${DOXYGEN_SOURCES}
+	COMMENT "Generating documentation")
