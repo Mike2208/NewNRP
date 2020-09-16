@@ -1,5 +1,7 @@
 #include "nrp_general_library/utils/serializers/mpi_serializer.h"
 
+#include "mpi4py/mpi4py.MPI_api.h"
+
 #include <assert.h>
 #include <boost/python.hpp>
 #include <Python.h>
@@ -30,62 +32,27 @@ ObjectPropertySerializerMethods<MPIPropertyData>::MPIDerivedDatatype &ObjectProp
 	return *this;
 }
 
+MPI_Aint ObjectPropertySerializerMethods<MPIPropertyData>::getMPIAddr(const void *loc)
+{
+	MPI_Aint mpiLoc;
+	MPI_Get_address(loc, &mpiLoc);
 
-ObjectPropertySerializerMethods<MPIPropertyData>::MPIDerivedDatatype::operator MPI_Datatype() const
-{	return this->_datatype;	}
-
-ObjectPropertySerializerMethods<MPIPropertyData>::MPIDerivedDatatype::operator MPI_Datatype&()
-{	return this->_datatype;	}
-
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<char>(const char &)
-{	return MPI_CHAR;	}
+	return mpiLoc;
+}
 
 template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<double>(const double &)
-{	return MPI_DOUBLE;	}
-
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<float>(const float &)
-{	return MPI_FLOAT;	}
-
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<int>(const int &)
-{	return MPI_INT;	}
-
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<long>(const long &)
-{	return MPI_LONG;	}
-
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<long double>(const long double &)
-{	return MPI_LONG_DOUBLE;	}
-
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<short>(const short &)
-{	return MPI_SHORT;	}
-
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<unsigned char>(const unsigned char &)
-{	return MPI_UNSIGNED_CHAR;	}
-
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<unsigned short>(const unsigned short &)
-{	return MPI_UNSIGNED_SHORT;	}
-
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<unsigned long>(const unsigned long &)
-{	return MPI_UNSIGNED_LONG;	}
-
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<boost::python::object>(const boost::python::object &data)
+auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<true, boost::python::object>(boost::python::object &data)
 {
 	namespace python = boost::python;
-	return [data](MPI_Comm)
+	return [data](MPI_Comm comm)
 	{
-		PyStruct
-		if()
-		 python::import("mpi4py").attr("MPI").attr("Comm").attr("Get_parent")();
+		python::object mpi4py = python::import("mpi4py.MPI");
+
+		assert(PyMPIComm_New != nullptr);
+		python::object pyComm(python::handle<>(python::borrowed(PyMPIComm_New(comm))));
+		python::object intercomm = mpi4py.attr("Intercomm")(pyComm);
+
+		intercomm.attr("");
 	};
 }
 
@@ -113,9 +80,9 @@ void MPIPropertyData::addPropDatatype(MPIPropertyData::mpi_comm_fcn_t &&dat)
 	this->ExchangeFunctions.push_back(std::move(dat));
 }
 
-void MPIPropertyData::addPropDatatype(MPIPropertyData::mpi_data_t type, MPI_Aint address, int count)
+void MPIPropertyData::addPropDatatype(MPIPropertyData::mpi_data_t &&type, MPI_Aint address, int count)
 {
-	this->PropDerivedDatatypes.push_back(type);
+	this->PropDerivedDatatypes.push_back(std::move(type));
 
 	this->addPropDatatype((MPI_Datatype)this->PropDerivedDatatypes.back(), address, count);
 }

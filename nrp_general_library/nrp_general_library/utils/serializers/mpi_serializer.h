@@ -28,9 +28,6 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 		template<class PROP_DATATYPE>
 		using mpi_prop_datatype_t = std::tuple<PROP_DATATYPE, MPI_Aint, int>;
 
-		template<class PROP_DATATYPE>
-		using mpi_var_prop_datatype_t = std::tuple<PROP_DATATYPE, MPI_Aint, int>;
-
 		/*!
 		 * \brief Function to perform more complex MPI Send/Receive tasks
 		 */
@@ -84,8 +81,8 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 		template<class PROPERTY>
 		auto serializeSingleProperty(const PROPERTY &property)
 		{
-			static_assert(std::is_invocable_v<decltype(getMPIDataType<PROPERTY>)>, "No MPI Datatype found for this type");
-			return getMPIDataType<PROPERTY>(property);
+			static_assert(std::is_invocable_v<decltype(getMPIDataType<true, PROPERTY>)>, "No MPI Datatype found for this type");
+			return getMPIDataType<true, PROPERTY>(property);
 		}
 
 		/*!
@@ -108,7 +105,7 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 		{
 			auto retVal = resizeIfVariableSize(PROPERTY(), data);
 
-			emplaceSingleObject(data, name, getMPIDataType(retVal));
+			emplaceSingleObject(data, name, getMPIDataType<false>(retVal));
 
 			return retVal;
 		}
@@ -132,36 +129,76 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 		static PROPERTY resizeIfVariableSize(std::vector<PROPERTY> &&prop, MPIPropertyData &dat);
 
 		/*!
+		 * \brief Get address of loc in a format usable by MPI
+		 * \param loc Memory location
+		 * \return Returns address of loc in MPI_Aint format
+		 */
+		static MPI_Aint getMPIAddr(const void *loc);
+
+		/*!
 		 * \brief Get MPI_Datatype associated with a PROPERTY type
+		 * \tparam SEND Is datatype used for send or receive? Mainly used for function creation
+		 * \tparam PROPERTY Property type. MPI_Datatype will reflect this
 		 * \return Returns tuple of either MPIDerivedDatatype
 		 */
-		template<class PROPERTY>
-		static auto getMPIDataType(const PROPERTY &);
+		template<bool SEND, class PROPERTY>
+		static auto getMPIDataType(PROPERTY &);
 
-		template<class PROPERTY>
-		static auto getMPIDataType(const std::vector<PROPERTY> &vec)
-		{
-			auto elementT = getMPIDataType<PROPERTY>(vec.front());
-			MPI_Datatype vecT;
-			MPI_Type_contiguous(vec.size(), elementT, &vecT);
+		template<bool SEND>
+		auto getMPIDataType(char &dat)
+		{	return std::tuple(MPI_CHAR, getMPIAddr(&dat), 1);	}
 
-			MPI_Aint loc;
-			MPI_Get_address(vec.data(), &loc);
+		template<bool SEND>
+		auto getMPIDataType(double &dat)
+		{	return std::tuple(MPI_DOUBLE, getMPIAddr(&dat), 1);	}
 
-			MPI_Type_commit(&vecT);
-			return std::tuple(MPIDerivedDatatype(vecT), loc, vec.size());
-		}
+		template<bool SEND>
+		auto getMPIDataType(float &dat)
+		{	return std::tuple(MPI_FLOAT, getMPIAddr(&dat), 1);	}
 
-		template<class PROPERTY, auto N>
-		static auto getMPIDataType(const std::array<PROPERTY, N> &vec)
-		{
-			auto elementT = getMPIDataType<PROPERTY>(vec.front());
-			MPI_Datatype vecT;
-			MPI_Type_contiguous(vec.size(), elementT, &vecT);
+		template<bool SEND>
+		auto getMPIDataType(int &dat)
+		{	return std::tuple(MPI_INT, getMPIAddr(&dat), 1);	}
 
-			MPI_Type_commit(&vecT);
-			return std::tuple(MPIDerivedDatatype(vecT), MPI_Get_address(vec.data(), MPI_BOTTOM));
-		}
+		template<bool SEND>
+		auto getMPIDataType(long &dat)
+		{	return std::tuple(MPI_LONG, getMPIAddr(&dat), 1);	}
+
+		template<bool SEND>
+		auto getMPIDataType(long double &dat)
+		{	return std::tuple(MPI_LONG_DOUBLE, getMPIAddr(&dat), 1);	}
+
+		template<bool SEND>
+		auto getMPIDataType(short &dat)
+		{	return std::tuple(MPI_SHORT, getMPIAddr(&dat), 1);	}
+
+		template<bool SEND>
+		auto getMPIDataType(unsigned char &dat)
+		{	return std::tuple(MPI_UNSIGNED_CHAR, getMPIAddr(&dat), 1);	}
+
+		template<bool SEND>
+		auto getMPIDataType(unsigned short &dat)
+		{	return std::tuple(MPI_UNSIGNED_SHORT, getMPIAddr(&dat), 1);	}
+
+		template<bool SEND>
+		auto getMPIDataType(unsigned long &dat)
+		{	return std::tuple(MPI_UNSIGNED_LONG, getMPIAddr(&dat), 1);	}
+
+		template<bool SEND, class PROPERTY>
+		static auto getMPIDataType(std::vector<PROPERTY> &vec);
+
+		template<bool SEND, class PROPERTY, auto N>
+		static auto getMPIDataType(std::array<PROPERTY, N> &vec);
+
+		/*!
+		 * \brief Handles vector send/receive if elements requires special MPI functions
+		 * \tparam SEND Is this a Send or Receive operation?
+		 * \tparam VECTOR Vector type
+		 * \param comm MPI Communication
+		 * \param vec Vector to handle
+		 */
+		template<bool SEND, class VECTOR>
+		static void handleVectorFcn(MPI_Comm comm, VECTOR &vec);
 };
 
 /*!
@@ -218,7 +255,7 @@ struct MPIPropertyData
 	 * \param address Property Address (absolute)
 	 * \param count Number of elements stored, usually 1
 	 */
-	void addPropDatatype(mpi_data_t type, MPI_Aint address, int count);
+	void addPropDatatype(mpi_data_t &&type, MPI_Aint address, int count);
 
 	/*!
 	 * \brief Add property data to relevant vectors
@@ -256,6 +293,96 @@ PROPERTY ObjectPropertySerializerMethods<MPIPropertyData>::resizeIfVariableSize(
 	prop.resize(*(dat.CurVarLIt++));
 
 	return std::move(prop);
+}
+
+template<bool SEND, class PROPERTY>
+auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType(std::vector<PROPERTY> &vec)
+{
+	// Check if vector elements must be initialized via function
+	static constexpr auto (*pSubFcnType)(PROPERTY&) = getMPIDataType<SEND>;
+	if constexpr (std::is_same_v<*pSubFcnType, mpi_comm_fcn_t>)
+	{
+		return [&vec](MPI_Comm comm)
+		{
+			MPIPropertyData vecData;
+			for(auto &cEl : vec)
+			{
+				if constexpr (SEND)
+				{	emplaceSingleObject(vecData, "", getMPIDataType<SEND>(cEl));	}
+				else
+				{	cEl = deserializeSingleProperty<PROPERTY>(vecData, "");	}
+
+				assert(!vecData.ExchangeFunctions.empty());
+				vecData.ExchangeFunctions.front()(comm);
+
+				vecData.ExchangeFunctions.clear();
+			}
+		};
+	}
+	else
+	{
+		auto elementT = getMPIDataType<SEND>(vec.front());
+		MPI_Datatype vecT;
+		MPI_Type_contiguous(vec.size(), elementT, &vecT);
+
+		MPI_Type_commit(&vecT);
+		return std::tuple(MPIDerivedDatatype(vecT), getMPIAddr(vec.data()), vec.size());
+	}
+}
+
+template<bool SEND, class PROPERTY, auto N>
+auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType(std::array<PROPERTY, N> &vec)
+{
+	static constexpr auto (*pSubFcnType)(PROPERTY&) = getMPIDataType<SEND>;
+	if constexpr (std::is_same_v<*pSubFcnType, mpi_comm_fcn_t>)
+	{
+		return [&vec](MPI_Comm comm)
+		{
+			MPIPropertyData vecData;
+			for(auto &cEl : vec)
+			{
+				cEl = deserializeSingleProperty<PROPERTY>(vecData, "");
+
+				assert(!vecData.ExchangeFunctions.empty());
+				vecData.ExchangeFunctions.front()(comm);
+
+				vecData.ExchangeFunctions.clear();
+			}
+		};
+	}
+	else
+	{
+		auto elementT = getMPIDataType<SEND>(vec.front());
+		MPI_Datatype vecT;
+		MPI_Type_contiguous(vec.size(), elementT, &vecT);
+
+		MPI_Type_commit(&vecT);
+		return std::tuple(MPIDerivedDatatype(vecT), getMPIAddr(vec.data()), N);
+	}
+}
+
+ObjectPropertySerializerMethods<MPIPropertyData>::MPIDerivedDatatype::operator MPI_Datatype() const
+{	return this->_datatype;	}
+
+ObjectPropertySerializerMethods<MPIPropertyData>::MPIDerivedDatatype::operator MPI_Datatype&()
+{	return this->_datatype;	}
+
+template<bool SEND, class VECTOR>
+void ObjectPropertySerializerMethods<MPIPropertyData>::handleVectorFcn(MPI_Comm comm, VECTOR &vec)
+{
+	MPIPropertyData vecData;
+	for(auto &cEl : vec)
+	{
+		if constexpr (SEND)
+		{	emplaceSingleObject(vecData, "", getMPIDataType<SEND>(cEl));	}
+		else
+		{	cEl = deserializeSingleProperty<VECTOR::value_type>(vecData, "");	}
+
+		assert(!vecData.ExchangeFunctions.empty());
+		vecData.ExchangeFunctions.front()(comm);
+
+		vecData.ExchangeFunctions.clear();
+	}
 }
 
 #endif
