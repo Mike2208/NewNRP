@@ -75,4 +75,14 @@ concept DEVICE_C = requires {
         (std::is_base_of_v<DeviceInterface, T>);
 };
 
+/*! \page devices Devices
+
+Devices are data structures used for communicating with Engines. Their base class is DeviceInterface, which contains a DeviceIdentifier to identify the corresponding engine.
+All devices must be de-/serializable in a manner that makes communication with an Engine possible. Usually, a PropertyTemplate can be used to Device data in a manner that is
+easily serializable.
+
+All currently documented Devices can be found \ref device "here".
+
+ */
+
 #endif // DEVICE_INTERFACE_H

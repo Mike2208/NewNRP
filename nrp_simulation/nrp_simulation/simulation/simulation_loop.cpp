@@ -153,3 +153,19 @@ EngineInterface::RESULT SimulationLoop::handleInputDevices(const EngineInterface
 	// If no inputs are available, have interface handle empty device input list
 	return engine->handleInputDevices(typename EngineInterface::device_inputs_t());
 }
+
+/*! \page simulation_loop Simulation Loop
+The SimulationLoop is the class responsible for managing the execution of a simulation.
+
+On initialization, it creates a TransceiverFunctionManager to manage all user-generated TransceiverFunctions. Additionally, it runs the initialization routines of all engines
+
+During the simulation, several components are managed by the SimulationLoop:
+- The timestep of each engine is checked, and execution is staggered accordingly
+- Devices are sent to/received from engines via their respective server/client architecture
+- Devices are stored inside a buffer of TransceiverFunctionManager. Updates are linked to engine timesteps
+- Once an engine finishes execution, all TransceiverFunctions linked to said engine will be executed. Newly acquired devices are stored inside TransceiverFunctionManager's buffer
+- The NRPClient can communicate with the SimulationLoop and request updates/changes to the simulation
+- Once a timeout has occured or the NRPClient requests a shutdown, the SimulationLoop is stopped
+
+On shutdown, each engine is issued a shutdown command to close gracefully
+ */

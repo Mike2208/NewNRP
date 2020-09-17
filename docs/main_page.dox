@@ -1,0 +1,24 @@
+/*! \mainpage New Neurorobotics Platform
+
+The NewNRP documentation is divided into the following concepts:
+- \subpage nrp_simulation "NRPSimulation". Main executable
+- \subpage simulation_loop "Simulation Loop". Manages execution of engines and transfer functions
+- \subpage transceiver_function "Transceiver Function". User-defined python functions. Enable data exchange between engines
+- \subpage engines "Engines". User-defined external processes. Execute components of simulation
+- \subpage devices "Devices". User-defined data structures. Used to exchange data between engine server/clients
+
+Currently, the software supports the following engine types:
+- \ref json_engine "REST JSON Engine". An engine which relies on an HTTP REST server for communication. Serializes devices into JSON format
+
+The software supports the following engines:
+- \ref gazebo_json_engine "Gazebo JSON Engine": Gazebo physics simulator
+- \ref nest_json_engine "NEST JSON Engine": NEST neuron simulator
+- \ref python_json_engine "Gazebo JSON Engine": Python-based simulator. Executes a user-defined python script
+
+The NewNRP relies on several components to run:
+- \ref property_template "PropertyTemplate". Used to create C++ structures that can be de-/serialized for Engine server/client communication
+- \ref property_serializers "PropertySerializer". Used to de-/serialize PropertyTemplate structs. Can handle multiple types of data
+- \ref device_conversion_mechanism "Device Conversion Mechanism". Used to prepare Devices for sending/receiving
+- \ref config "Configuration Files". Used to read/write configuration files
+- \ref plugin_system "Plugin System". Used to dynamically load Engines during NRPSimulation startup
+*/

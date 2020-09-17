@@ -13,8 +13,12 @@
 
 #include <unistd.h>
 
-/*!
- * \brief NRP - Gazebo Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
+/*! \defgroup gazebo_json_engine "Gazebo REST JSON Engine"
+Gazebo Engine based on the \ref json_engine.
+ */
+
+/*! \addtogroup gazebo_json_engine
+ *  \brief NRP - Gazebo Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
  */
 class GazeboEngineJSONNRPClient
         : public EngineJSONNRPClient<GazeboEngineJSONNRPClient, GazeboConfig, PhysicsCamera, PhysicsJoint, PhysicsLink>

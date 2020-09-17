@@ -82,10 +82,10 @@ struct EngineJSONConfigConst
 		using EJCfgNames = PropNames<EngineServerAddress, EngineRegistrationServerAddress>;
 };
 
-/*!
- *	\brief Configuration for engine communication via JSON REST server
- *	\tparam CONFIG Final Class derived from this EngineJSONConfig Class
- *	\tparam PROPERTIES Additional Engine Properties
+/*! \addtogroup json_engine
+ *  \brief Configuration for engine communication via JSON REST server
+ *  \tparam CONFIG Final Class derived from this EngineJSONConfig Class
+ *  \tparam PROPERTIES Additional Engine Properties
  */
 template<class CONFIG, PROP_NAMES_C PROP_NAMES, class ...PROPERTIES>
 class EngineJSONConfig

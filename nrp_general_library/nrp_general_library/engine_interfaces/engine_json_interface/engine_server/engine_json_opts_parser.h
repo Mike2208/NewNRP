@@ -5,6 +5,9 @@
 
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
 
+/*! \addtogroup json_engine
+ *  \brief Engine JSON Executable parameter parser
+ */
 class EngineJSONOptsParser
 {
 	public:
