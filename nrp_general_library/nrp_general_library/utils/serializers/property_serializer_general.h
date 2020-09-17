@@ -100,7 +100,7 @@ class PropertySerializerGeneral
 			else
 			{
 				// Call Property Serializer associated with this object
-				static_assert (std::is_invocable_v<decltype(ObjectPropertySerializerMethods<OBJECT>::template serializeSingleProperty<PROPERTY>), PROPERTY&&>, "No ObjectPropertySerializerMethods found for this object type");
+				//static_assert (std::is_invocable_v<decltype(ObjectPropertySerializerMethods<OBJECT>::template serializeSingleProperty<PROPERTY>), decltype((property))>, "No ObjectPropertySerializerMethods found for this object type");
 				return ObjectPropertySerializerMethods<OBJECT>::serializeSingleProperty(std::forward<PROPERTY_T>(property));
 			}
 		}

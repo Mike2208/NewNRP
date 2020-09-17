@@ -80,8 +80,9 @@ struct PropertySerializer
 		 *	\param data OBJECT into which to insert the serialized data
 		 *	\return Returns an OBJECT. For each property, the value will be stored under its given name
 		 */
-		static OBJECT serializeProperties(const property_template_t &properties, OBJECT &&data = OBJECT())
-		{	return PropertySerializerGeneral::template serializeObject<OBJECT, property_template_t>(properties, std::move(data));	}
+		template<class PROPERTY_TEMPLATE_T>
+		static OBJECT serializeProperties(PROPERTY_TEMPLATE_T &&properties, OBJECT &&data = OBJECT())
+		{	return PropertySerializerGeneral::template serializeObject<OBJECT, property_template_t>(std::forward<PROPERTY_TEMPLATE_T>(properties), std::move(data));	}
 };
 
 #endif // PROPERTY_SERIALIZER_H
