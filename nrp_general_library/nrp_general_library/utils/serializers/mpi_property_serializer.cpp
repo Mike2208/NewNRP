@@ -79,26 +79,37 @@ MPIPropertyData::MPIPropertyData(unsigned int count, const int *dataCounts, cons
 	this->generateDatatype(count, dataCounts, dataAddresses, datatypes);
 }
 
-MPI_Aint ObjectPropertySerializerMethods<MPIPropertyData>::getMPIAddr(const void *loc)
+MPI_Aint MPIPropertyData::getMPIAddr(void *loc)
 {
-	MPI_Aint mpiLoc;
-	MPI_Get_address(loc, &mpiLoc);
+	MPI_Aint addr;
+	MPI_Get_address(loc, &addr);
 
-	return mpiLoc;
+	return addr;
 }
 
-template<>
-auto ObjectPropertySerializerMethods<MPIPropertyData>::getMPIDataType<true, boost::python::object>(boost::python::object &data)
+void MPISinglePropertySerializer<std::string>::resize(MPIPropertyData &dat, std::string &prop)
 {
+	assert(dat.CurVarLIt != dat.VariableLengths.end());
+	prop.resize(*(dat.CurVarLIt++));
+}
+
+void MPISinglePropertySerializer<std::string>::saveSize(MPIPropertyData &dat, std::string &prop)
+{	dat.VariableLengths.push_back(prop.size()+1);	}
+
+auto MPISinglePropertySerializer<std::string>::baseMPIDatatype(std::string &prop) -> mpi_prop_datatype_t<MPI_Datatype>
+{
+	auto retVal = MPISinglePropertySerializer<char>::baseMPIDatatype(*prop.data());
+	std::get<2>(retVal) = prop.capacity();
+	return retVal;
+}
+
+boost::python::object MPISinglePropertySerializer<boost::python::object>::pyMPIComm(MPI_Comm comm)
+{
+	assert(PyMPIComm_New != nullptr);
+
 	namespace python = boost::python;
-	return [data](MPI_Comm comm)
-	{
-		python::object mpi4py = python::import("mpi4py.MPI");
-
-		assert(PyMPIComm_New != nullptr);
-		python::object pyComm(python::handle<>(python::borrowed(PyMPIComm_New(comm))));
-		python::object intercomm = mpi4py.attr("Intercomm")(pyComm);
-
-		intercomm.attr("");
-	};
+	return python::object(python::handle<>(python::borrowed((*PyMPIComm_New)(comm))));
 }
+
+constexpr int MPISinglePropertySerializer<std::string>::getVarSizes()
+{	return 1;	}

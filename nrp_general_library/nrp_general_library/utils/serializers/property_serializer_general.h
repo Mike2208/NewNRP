@@ -81,6 +81,7 @@ class PropertySerializerGeneral
 		{	return PROPERTY_TEMPLATE(typename ObjectPropertySerializerMethods<OBJECT>::ObjectDeserializer(std::forward<OBJECT_T>(data)), std::forward<DEFAULT_PROPERTIES_T>(defaultProperties)...);	}
 
 	protected:
+
 		/*!
 		 * \brief Serialize a single property. If PROPERTY is a PropertyTemplate, serialize it entirely
 		 * \tparam OBJECT Type to serialize PropertyTemplate to
