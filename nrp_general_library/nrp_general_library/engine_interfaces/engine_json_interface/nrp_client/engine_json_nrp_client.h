@@ -17,10 +17,10 @@
 #include <iostream>
 #include <restclient-cpp/restclient.h>
 
-/*!
- * \brief NRP - Gazebo Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
- * \tparam ENGINE_INTERFACE Class derived from GeneralInterface. Currently either PhysicsInterface or BrainInterface
- * \tparam DEVICES Classes derived from DeviceInterface that should be communicated to/from the engine. Each of these classes must be convertible via a DeviceConversionMechanism.
+/*! \addtogroup json_engine
+ *  \brief NRP - Gazebo Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
+ *  \tparam ENGINE_INTERFACE Class derived from GeneralInterface. Currently either PhysicsInterface or BrainInterface
+ *  \tparam DEVICES Classes derived from DeviceInterface that should be communicated to/from the engine. Each of these classes must be convertible via a DeviceConversionMechanism.
  */
 template<class ENGINE, ENGINE_CONFIG_C ENGINE_CONFIG, DEVICE_C ...DEVICES>
 class EngineJSONNRPClient
@@ -89,7 +89,7 @@ class EngineJSONNRPClient
 			// Post request to Engine JSON server
 			const auto resp(EngineJSONNRPClient::sendRequest(this->_serverAddress + "/" + EngineJSONConfigConst::EngineServerGetDevicesRoute.data(),
 			                                                 EngineJSONConfigConst::EngineServerContentType.data(), request.dump(),
-			                                                 "Engine server failed during device retrieval"));
+			                                                 "Engine server \"" + this->engineName() + "\" failed during device retrieval"));
 
 			return this->getDeviceInterfacesFromJSON(resp);
 		}
@@ -107,7 +107,7 @@ class EngineJSONNRPClient
 			// Send updated devices to Engine JSON server
 			EngineJSONNRPClient::sendRequest(this->_serverAddress + "/" + EngineJSONConfigConst::EngineServerSetDevicesRoute.data(),
 			                                 EngineJSONConfigConst::EngineServerContentType.data(), request.dump(),
-			                                 "Engine server failed during device handling");
+			                                 "Engine server \"" + this->engineName() + "\" failed during device handling");
 
 			// TODO: Check if engine has processed all sent devices
 			return EngineInterface::SUCCESS;
@@ -152,7 +152,7 @@ class EngineJSONNRPClient
 			// Post init request to Engine JSON server
 			return sendRequest(this->_serverAddress + "/" + EngineJSONConfigConst::EngineServerInitializeRoute.data(),
 			                   EngineJSONConfigConst::EngineServerContentType.data(), data.dump(),
-			                   "Engine Server failed during initialization");
+			                   "Engine server \"" + this->engineName() + "\" failed during initialization");
 		}
 
 		/*!
@@ -165,7 +165,7 @@ class EngineJSONNRPClient
 			// Post init request to Engine JSON server
 			return sendRequest(this->_serverAddress + "/" + EngineJSONConfigConst::EngineServerShutdownRoute.data(),
 			                   EngineJSONConfigConst::EngineServerContentType.data(), data.dump(),
-			                   "Engine Server failed during shutdown");
+			                   "Engine server \"" + this->engineName() + "\" failed during shutdown");
 		}
 
 		/*!

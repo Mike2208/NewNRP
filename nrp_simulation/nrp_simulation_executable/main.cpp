@@ -96,3 +96,19 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
+/*! \page nrp_simulation NRPSimulation
+This is the main execution function. Here a simulation is configured, and a SimulationLoop is initialized. The process is divided into the following steps:
+- Parse input parameters
+  - If a '-h' or '--help' is added to the simulation, only print the help text, then exit
+- Initialize the python interpreter for TransceiverFunctions
+- Setup the process launchers. Later on, the ServerConfig file will determine the correct launcher to use to start engine processes
+- Load engines
+  - Start the PluginManager.
+  - It will load all engines defined as default on compilation.
+  - Additionally, it will read the input parameters and determine whether the user requested additional engine libraries to be loaded
+  - Store all engines in an EngineLauncherManager
+- Use input parameters to generate a new instance of SimulationManager. This will also launch all engine processes defined in the SimulationConfig passed to NRPSimulation
+- If a SimulationConfig file was given as an input parameter, initialize a SimulationLoop and run until timeout
+- TODO: If no SimulationConfig was given, wait for communication from the NRPServer
+ */

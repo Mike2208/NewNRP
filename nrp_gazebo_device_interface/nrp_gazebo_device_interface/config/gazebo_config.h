@@ -44,8 +44,8 @@ struct GazeboConfigConst
 	using GPropNames = PropNames<GazeboPlugins, GazeboRNGSeed, MaxWorldLoadTime, GazeboWorldFile>;
 };
 
-/*!
- * \brief Configuration for gazebo physics engine
+/*! \addtogroup gazebo_json_engine
+ *  \brief Configuration for gazebo physics engine
  */
 class GazeboConfig
         : public EngineJSONConfig<GazeboConfig, GazeboConfigConst::GPropNames,

@@ -229,4 +229,22 @@ class Engine
 		{	return static_cast<const std::shared_ptr<ENGINE_CONFIG> &>(*this);	}
 };
 
+/*! \page engines "Engines"
+Engines are the core aspect of NRP Simulation. They run the actual simulation software, with the SimulationLoop and TransceiverFunctions merely being a way to synchronize and
+exchange data between them. An Engine can run any type of software, from physics engines to brain simulators.
+
+From the NRP's perspective, the core component of the engine is its communication interface, which allows it to communicate with the SimulationLoop. Different engine types can
+have different communication protocols. Nevertheless, all protocols are envisioned as a server-client architecture, with the Engine server running as a separate process, and a
+client running inside the NRPSimulation. As such, all Engines must at least support the following functionality:
+
+- LaunchEngine: A function to launch the engine process. This will usually in some way use the ProcessLauncherInterface
+- Initialize: A function that initializes the engine after launch
+- RunLoopStep: A function that will advance the engine for a given timestep
+- GetOutputDevices: A function to retrieve Device data from the Engine
+- HandleInputDevices: A function to handle incoming Device data
+- Shutdown: A function that gracefully stops the Engine
+
+The \ref index "Main Page" has a list of currently supported Engines.
+ */
+
 #endif // ENGINE_INTERFACE_H

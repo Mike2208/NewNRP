@@ -11,16 +11,28 @@ boost::python::object CreateDeviceClass::pyCreateDevice(boost::python::tuple arg
 	return self.createAndRegisterDevice(args, kwargs);
 }
 
+boost::python::object CreateDeviceClass::pyRegisterDevice(boost::python::tuple args, boost::python::dict)
+{
+	CreateDeviceClass &self = boost::python::extract<CreateDeviceClass&>(args[0]);
+	self.registerDevice(boost::python::str(args[1]), args[2]);
+
+	return boost::python::object();
+}
+
 boost::python::api::object CreateDeviceClass::createAndRegisterDevice(boost::python::tuple args, boost::python::dict kwargs)
 {
 	// Call Nest's Create function with all arguments except for first one (that is the label)
 	boost::python::object deviceID = this->_nest["Create"](*(args.slice(1, boost::python::len(args))), **kwargs);
 
 	// Save created device's ID
-	//boost::python::str label = static_cast<boost::python::str>(args[0]);
-	this->_devMap[args[0]] = deviceID;
+	this->registerDevice(boost::python::str(args[0]), deviceID);
 
 	return deviceID;
+}
+
+void CreateDeviceClass::registerDevice(boost::python::str devName, boost::python::api::object nodeCollection)
+{
+	this->_devMap[devName] = nodeCollection;
 }
 
 boost::python::dict CreateDeviceClass::pyDevMap()

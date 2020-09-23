@@ -18,12 +18,19 @@ class CreateDeviceClass
 		CreateDeviceClass(boost::python::dict nest, boost::python::dict devMap);
 
 		/*!
-		 * \brief Python Call function
-		 * \param args Python Args
-		 * \param kwargs Python Keyword Args
+		 * \brief Python function to create device and register it in _devMap
+		 * \param args Python Args. args[0] is CreateDeviceClass, args[1] is the NRP device name. The remaining args will be passed to nest.Create(...)
+		 * \param kwargs Python Keyword Args. Will be passed to nest.Create(...)
 		 * \return Returns either Nest NodeCollection (Nest 3.x) or python::tuple of nest GIDs (Nest 2.x)
 		 */
 		static boost::python::object pyCreateDevice(boost::python::tuple args, boost::python::dict kwargs);
+
+		/*!
+		 * \brief pyRegisterDevice
+		 * \param args Python Args. args[0] is CreateDeviceClass, args[1] is the NRP device name, args[2] is a NodeCollection object
+		 * \param kwargs Python Kwargs. Not used
+		 */
+		static boost::python::object pyRegisterDevice(boost::python::tuple args, boost::python::dict kwargs);
 
 		/*!
 		 * \brief Create new Nest device and add it to devMap
@@ -32,6 +39,13 @@ class CreateDeviceClass
 		 * \return Returns either Nest NodeCollection (Nest 3.x) or python::tuple of nest GIDs (Nest 2.x)
 		 */
 		boost::python::object createAndRegisterDevice(boost::python::tuple args, boost::python::dict kwargs);
+
+		/*!
+		 * \brief Register an existing device
+		 * \param devName NRP Device name
+		 * \param nodeCollection NodeCollection of device data
+		 */
+		void registerDevice(boost::python::str devName, boost::python::object nodeCollection);
 
 		/*!
 		 * \brief Python Call Function to get NRP device mapping

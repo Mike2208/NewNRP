@@ -35,9 +35,9 @@ void SimulationLoop::initLoop()
 	}
 }
 
-void SimulationLoop::runLoop(float runTime)
+void SimulationLoop::runLoop(float runLoopTime)
 {
-	const auto loopStopTime = this->_simTime + runTime;
+	const auto loopStopTime = this->_simTime + runLoopTime;
 	if(this->_engineQueue.empty())
 	{
 		this->_simTime = loopStopTime;
@@ -103,23 +103,26 @@ void SimulationLoop::runLoop(float runTime)
 		// Restart engines loops
 		for(auto &engine : processedEngines)
 		{
-			const auto runTime = this->_simTime - engine->getEngineTime() + engine->getEngineTimestep();
+			const auto trueRunTime = this->_simTime - engine->getEngineTime() + engine->getEngineTimestep();
 
-			if(runTime >= 0.0f)
+			if(trueRunTime >= 0.0f)
 			{
-				if(engine->runLoopStep(runTime) != EngineInterface::SUCCESS)
+				if(engine->runLoopStep(trueRunTime) != EngineInterface::SUCCESS)
 				{
 					// TODO: Handle loop start failure
 				}
+
+				// Reinsert engines into queue
+				this->_engineQueue.emplace(this->_simTime + engine->getEngineTimestep(), engine);
 			}
 			else
 			{
 				std::cout << "Warning: Engine \"" + engine->engineName() + "\" is ahead of simulation time by "
 				             + std::to_string(engine->getEngineTime() - this->_simTime) + "s\n";
-			}
 
-			// Reinsert engines into queue
-			this->_engineQueue.emplace(this->_simTime + runTime, engine);
+				// Wait for rest of simulation to catch up to engine
+				this->_engineQueue.emplace(engine->getEngineTime(), engine);
+			}
 
 			engine = nullptr;
 		}
@@ -153,3 +156,19 @@ EngineInterface::RESULT SimulationLoop::handleInputDevices(const EngineInterface
 	// If no inputs are available, have interface handle empty device input list
 	return engine->handleInputDevices(typename EngineInterface::device_inputs_t());
 }
+
+/*! \page simulation_loop Simulation Loop
+The SimulationLoop is the class responsible for managing the execution of a simulation.
+
+On initialization, it creates a TransceiverFunctionManager to manage all user-generated TransceiverFunctions. Additionally, it runs the initialization routines of all engines
+
+During the simulation, several components are managed by the SimulationLoop:
+- The timestep of each engine is checked, and execution is staggered accordingly
+- Devices are sent to/received from engines via their respective server/client architecture
+- Devices are stored inside a buffer of TransceiverFunctionManager. Updates are linked to engine timesteps
+- Once an engine finishes execution, all TransceiverFunctions linked to said engine will be executed. Newly acquired devices are stored inside TransceiverFunctionManager's buffer
+- The NRPClient can communicate with the SimulationLoop and request updates/changes to the simulation
+- Once a timeout has occured or the NRPClient requests a shutdown, the SimulationLoop is stopped
+
+On shutdown, each engine is issued a shutdown command to close gracefully
+ */

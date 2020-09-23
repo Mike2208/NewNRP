@@ -98,7 +98,6 @@ add_subdirectory(nrp_simulation)
 ##########################################
 ## Doxygen
 get_property(DOXYGEN_SOURCES GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
-message("FILES: ${DOXYGEN_SOURCES}")
 doxygen_add_docs(doxygen
-	${DOXYGEN_SOURCES}
+	${DOXYGEN_SOURCES} "docs/main_page.dox"
 	COMMENT "Generating documentation")

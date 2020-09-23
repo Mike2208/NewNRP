@@ -6,8 +6,8 @@
 #include <pistache/router.h>
 #include <pistache/endpoint.h>
 
-/*!
- * \brief Singleton. Creates an HTTP REST server to register newly created EngineJSONServers and store their addresses
+/*! \addtogroup json_engine
+ *  \brief Singleton. Creates an HTTP REST server to register newly created EngineJSONServers and store their addresses
  */
 class EngineJSONRegistrationServer
 {

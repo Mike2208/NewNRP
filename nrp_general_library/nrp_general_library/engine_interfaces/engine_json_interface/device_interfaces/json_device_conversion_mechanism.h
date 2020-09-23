@@ -7,6 +7,9 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
+/*! \addtogroup json_engine
+ *  \brief Converts Devices to/from the JSON format
+ */
 template<DEVICE_C ...DEVICES>
 struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator, DEVICES...>
 {

@@ -10,8 +10,13 @@
 #include <pistache/router.h>
 #include <pistache/endpoint.h>
 
-/*!
- * \brief Manages communication with the NRP. Uses a REST server to send/receive data. Singleton class.
+/*! \defgroup json_engine REST JSON Engine
+The REST JSON engine uses an HTTP REST Server as the base for the Engine server. The client can then use REST calls to communicate.
+All communication will be de-/serialized using JSON
+ */
+
+/*! \addtogroup json_engine
+ *  \brief Manages communication with the NRP. Uses a REST server to send/receive data. Singleton class.
  */
 class EngineJSONServer
 {

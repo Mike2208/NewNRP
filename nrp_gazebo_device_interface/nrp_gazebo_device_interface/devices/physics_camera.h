@@ -33,8 +33,10 @@ struct PhysicsCameraConst
 
 	static constexpr std::string_view TypeName = "p_camera";
 
+	using cam_data_t = std::vector<unsigned char>;
+
 	using JPropNames = PropNames<ImageHeight, ImageWidth, ImagePixelSize, ImageData>;
-	using JProps = PropertyTemplate<PhysicsCamera, PhysicsCameraConst::JPropNames, uint32_t, uint32_t, uint8_t, std::vector<unsigned char> >;
+	using JProps = PropertyTemplate<PhysicsCamera, PhysicsCameraConst::JPropNames, uint32_t, uint32_t, uint8_t, cam_data_t >;
 };
 
 /*!
@@ -62,9 +64,9 @@ class PhysicsCamera
 		uint8_t &imagePixelSize();
 		void setImagePixelSize(uint8_t pixel_size);
 
-		const std::vector<unsigned char> &imageData() const;
-		std::vector<unsigned char> &imageData();
-		void setImageData(std::vector<unsigned char> &imageData);
+		const cam_data_t &imageData() const;
+		cam_data_t &imageData();
+		void setImageData(const cam_data_t &imageData);
 };
 
 #endif // PHYSICS_CAMERA_H

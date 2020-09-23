@@ -15,7 +15,7 @@
  * \brief NRP - Nest Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
  */
 class NestEngineJSONNRPClient
-        : public EngineJSONNRPClient<NestEngineJSONNRPClient, NestConfig, NestJSONDeviceInterface>
+        : public EngineJSONNRPClient<NestEngineJSONNRPClient, NestConfig, NestDeviceInterface>
 {
 		/*!
 		 * \brief Number of seconds to wait for Nest to exit cleanly after first SIGTERM signal. Afterwards, send a SIGKILL
