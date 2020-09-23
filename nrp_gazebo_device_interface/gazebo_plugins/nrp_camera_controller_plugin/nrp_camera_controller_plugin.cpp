@@ -2,9 +2,10 @@
 
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
-gazebo::CameraDeviceController::CameraDeviceController(const rendering::CameraPtr &camera)
-    : EngineJSONDeviceController(DeviceIdentifier(camera->ScopedName(), PhysicsCamera::TypeName.data(), "")),
+gazebo::CameraDeviceController::CameraDeviceController(const std::string &devName, const rendering::CameraPtr &camera, const sensors::SensorPtr &parent)
+    : EngineJSONDeviceController(DeviceIdentifier(devName, PhysicsCamera::TypeName.data(), "")),
       _camera(camera),
+      _parentSensor(parent),
       _data(camera->ScopedName())
 {}
 
@@ -13,22 +14,18 @@ gazebo::CameraDeviceController::~CameraDeviceController() = default;
 nlohmann::json gazebo::CameraDeviceController::getDeviceInformation(const nlohmann::json::const_iterator&)
 {
 	// Render image
-	this->_camera->Render(true);
+//	try{this->_camera->Render(false);}
+//	catch(std::exception &e)
+//	{
+//		std::cerr << "Error during camera rendering:\n" << e.what() << "\n";
+//		std::cerr << "Last recorded image at: " << this->_camera->LastRenderWallTime() << "\n";
+//		//throw;
 
-	// Set headers
-	const auto imageHeight = this->_camera->ImageHeight();
-	const auto imageWidth = this->_camera->ImageWidth();
-	const auto imageDepth = this->_camera->ImageDepth();
-	this->_data.setImageHeight(imageHeight);
-	this->_data.setImageWidth(imageWidth);
-	this->_data.setImagePixelSize(imageDepth);
+//		return JSONPropertySerializer<PhysicsCamera>::serializeProperties(this->_data, nlohmann::json());
+//	}
 
-	const auto imageSize = this->_camera->ImageByteSize();
-	this->_data.imageData().resize(imageSize);
-	memcpy(this->_data.imageData().data(), this->_camera->ImageData(), imageSize);
-
-	// Save image data directly, prevents copying
-	nlohmann::json retVal = JSONPropertySerializer<PhysicsCamera>::serializeProperties(this->_data, nlohmann::json());
+	// Data updated via updateCamData()
+	return JSONPropertySerializer<PhysicsCamera>::serializeProperties(this->_data, nlohmann::json());
 
 	// Save image data
 //	const unsigned char *img_data = this->_camera->ImageData();
@@ -40,13 +37,31 @@ nlohmann::json gazebo::CameraDeviceController::getDeviceInformation(const nlohma
 //	}
 
 //	retVal[PhysicsCamera::ImageData.m_data] = std::move(img);
-
-	return retVal;
 }
 
 nlohmann::json gazebo::CameraDeviceController::handleDeviceData(const nlohmann::json &data)
 {
 	return nlohmann::json();
+}
+
+void gazebo::CameraDeviceController::updateCamData(const unsigned char *image, unsigned int width, unsigned int height, unsigned int depth)
+{
+	const common::Time sensorUpdateTime = this->_parentSensor->LastMeasurementTime();
+
+	if(sensorUpdateTime > this->_lastSensorUpdateTime)
+	{
+		std::cout << "Updating camera data\n";
+		this->_lastSensorUpdateTime = sensorUpdateTime;
+
+		// Set headers
+		this->_data.setImageHeight(height);
+		this->_data.setImageWidth(width);
+		this->_data.setImagePixelSize(depth);
+
+		const auto imageSize = width*height*depth;
+		this->_data.imageData().resize(imageSize);
+		memcpy(this->_data.imageData().data(), image, imageSize);
+	}
 }
 
 gazebo::NRPCameraController::~NRPCameraController() = default;
@@ -60,6 +75,9 @@ void gazebo::NRPCameraController::Load(gazebo::sensors::SensorPtr sensor, sdf::E
 	std::cout << "NRPCameraController: Registering new controller \"" << devName << "\"\n";
 
 	// Create camera device and register it
-	this->_cameraInterface.reset(new CameraDeviceController(this->camera));
+	this->_cameraInterface.reset(new CameraDeviceController(devName, this->camera, sensor));
 	NRPCommunicationController::getInstance().registerDevice(devName, this->_cameraInterface.get());
 }
+
+void gazebo::NRPCameraController::OnNewFrame(const unsigned char *image, unsigned int width, unsigned int height, unsigned int depth, const std::string &)
+{	this->_cameraInterface->updateCamData(image, width, height, depth);	}
