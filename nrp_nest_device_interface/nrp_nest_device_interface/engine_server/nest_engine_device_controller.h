@@ -20,7 +20,7 @@ template<NEST_JSON_DEVICE_C DEVICE>
 class NestEngineJSONDeviceController;
 
 template<>
-class NestEngineJSONDeviceController<NestJSONDeviceInterface>
+class NestEngineJSONDeviceController<NestDeviceInterface>
         : public EngineJSONDeviceController
 {
 	public:
@@ -52,7 +52,7 @@ class NestEngineJSONDeviceController<NestJSONDeviceInterface>
 		/*!
 		 * \brief Device Data. Used to convert to/from JSON and python dict
 		 */
-		NestJSONDeviceInterface _deviceData;
+		NestDeviceInterface _deviceData;
 
 		/*!
 		 * \brief Retrieves device status from Nest

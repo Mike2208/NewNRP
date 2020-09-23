@@ -8,30 +8,32 @@
 #include <boost/python.hpp>
 
 /*!
- *	\brief NEST JSON Device
- *	\tparam DEVICE Final Derived class
+ *	\brief NEST Device
  */
-class NestJSONDeviceInterface
+class NestDeviceInterface
         : public PythonObjectDeviceInterface
 {
-	public:		
+	public:
+		static constexpr std::string_view TypeName = "nest_dev";
+
 		/*!
 		 *	\brief Constructor
 		 *	\param devID Device ID
 		 *	\param json Device Data, in JSON format
 		 */
-		NestJSONDeviceInterface(const DeviceIdentifier &devID, const nlohmann::json &json);
+		NestDeviceInterface(const DeviceIdentifier &devID, const nlohmann::json &json);
 
 		/*!
 		 *	\brief Constructor
 		 *	\param devID Device ID
 		 *	\param data Device Data, as python dict
 		 */
-		NestJSONDeviceInterface(const DeviceIdentifier &devID, const boost::python::dict &data);
+		NestDeviceInterface(const DeviceIdentifier &devID, const boost::python::object &data = boost::python::object());
 
-		virtual ~NestJSONDeviceInterface() override = default;
+		virtual ~NestDeviceInterface() override = default;
 
-		boost::python::dict data() const;
+		const boost::python::object &data() const;
+		boost::python::object &data();
 
 	private:
 };
