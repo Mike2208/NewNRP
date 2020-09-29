@@ -10,32 +10,24 @@ add_custom_target(MPI4PyModule ALL
 	WORKING_DIRECTORY ${MPI_SOURCE_DIR}
 	VERBATIM)
 
-# Touch file for MPI4PyAPI. This will usually only be
-#file(TOUCH "${MPI_SOURCE_DIR}/src/mpi4py.MPI.c")
-
-add_library(MPI4PyAPI STATIC ${MPI_API_SOURCE_FILES})
+add_library(MPI4PyAPI INTERFACE)
 add_dependencies(MPI4PyAPI MPI4PyModule)
 
 target_include_directories(MPI4PyAPI
-	PUBLIC
-	    #$<INSTALL_INTERFACE:include>
+	INTERFACE
+	    $<INSTALL_INTERFACE:${PYTHON_INSTALL_DIR_REL}/mpi4py/include>
 		$<BUILD_INTERFACE:${MPI_SOURCE_DIR}/src/mpi4py/include>
 		${PYTHON_INCLUDE_DIR}
-
-	PRIVATE
 )
 
 target_link_libraries(MPI4PyAPI
-	PUBLIC
+	INTERFACE
 	    MPI::MPI_CXX
 		${PYTHON_LIBRARIES}
-
-	PRIVATE
 )
 
-add_library(MPI4Py::API ALIAS MPI4PyAPI)
+add_library(MPI4Py::MPI4Py ALIAS MPI4PyAPI)
 
 install(CODE 
 	"execute_process(COMMAND ${PYTHON} ${PY_BUILD_CMD_ARGS} install --prefix ${CMAKE_INSTALL_PREFIX}
 	                 WORKING_DIRECTORY ${MPI_SOURCE_DIR})")
-

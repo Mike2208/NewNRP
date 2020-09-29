@@ -26,7 +26,7 @@ struct MPIPropertyData
 	/*!
 	 * \brief Function to perform more complex MPI Send/Receive tasks
 	 */
-	using mpi_comm_fcn_t = std::function<void(MPI_Comm)>;
+	using mpi_comm_fcn_t = std::function<void(MPI_Comm,int)>;
 
 	/*!
 	 * \brief Describes how to serialize singular single property using a derived MPI Datatypes
@@ -78,12 +78,12 @@ struct MPIPropertyData
 	 * \brief Additional size data. If a PropertyTemplate contains properties with a variable size,
 	 * this vector will contain the lengths
 	 */
-	std::vector<unsigned int> VariableLengths;
+	std::vector<int> VariableLengths;
 
 	/*!
 	 * \brief Iterator to current length in VariableLengths (Deserializeproperties will iterate over VariableLengths)
 	 */
-	std::vector<unsigned int>::const_iterator CurVarLIt = VariableLengths.begin();
+	std::vector<int>::const_iterator CurVarLIt = VariableLengths.begin();
 
 	/*!
 	 * \brief Generate the datatype from this class's PropDatatypes and PropDataAddresses
@@ -95,27 +95,10 @@ struct MPIPropertyData
 	 */
 	void generateDatatype(unsigned int count, const int *dataCounts, const MPI_Aint *dataAddresses, const MPI_Datatype *datatypes);
 
-	template<class PROP_DATA>
-	void addPropDatatype(mpi_prop_datatype_t<PROP_DATA> dat)
-	{	this->addPropDatatype(std::get<0>(dat), std::get<1>(dat), std::get<2>(dat));	}
+	void addPropDatatype(mpi_prop_datatype_t<MPI_Datatype> &&dat);
+	void addPropDatatype(mpi_prop_datatype_t<MPIDerivedDatatype> &&dat);
 
 	void addPropDatatype(mpi_comm_fcn_t &&dat);
-
-	/*!
-	 * \brief Add property data to relevant vectors
-	 * \param type Property Type
-	 * \param address Property Address (absolute)
-	 * \param count Number of elements stored, usually 1
-	 */
-	void addPropDatatype(MPIDerivedDatatype &&type, MPI_Aint address, int count);
-
-	/*!
-	 * \brief Add property data to relevant vectors
-	 * \param type Property Type
-	 * \param address Property Address (absolute)
-	 * \param count Number of elements stored, usually 1
-	 */
-	void addPropDatatype(MPI_Datatype type, MPI_Aint address, int count);
 
 	MPIPropertyData() = default;
 	MPIPropertyData(unsigned int count, const int *dataCounts, const MPI_Aint *dataAddresses, const MPI_Datatype *datatypes);
@@ -143,6 +126,9 @@ struct MPISinglePropertySerializerGeneral
 	using mpi_prop_datatype_t = MPIPropertyData::mpi_prop_datatype_t<PROP_DATATYPE>;
 	using MPIDerivedDatatype = MPIPropertyData::MPIDerivedDatatype;
 	using mpi_comm_fcn_t = MPIPropertyData::mpi_comm_fcn_t;
+
+	static inline MPI_Aint getMPIAddr(void *loc)
+	{	return MPIPropertyData::getMPIAddr(loc);	}
 };
 
 /*!
@@ -163,10 +149,11 @@ struct MPISinglePropertySerializer
  * \return Returns tuple conttaining (MPIDerivedDatatype, Address of property, Count(usually 1, unless PROPERTY is an array))
  */
 
-/*! \fn template<bool SEND> static void serializationFcn(MPI_Comm comm, PROPERTY &prop)
+/*! \fn template<bool SEND> static void serializationFcn(MPI_Comm comm, int tag, PROPERTY &prop)
  * \brief If a PROPERTY type cannot be sent/received normally, a function can be defined to perform the sending/recevingin
  * \tparam SEND Should this function send (SEND=true) or receveive (SEND=false) data
  * \param comm MPI Communicator to use for sending/receiving
+ * \param tag MPI Message tag to send/receive
  * \param prop Property data to send
  */
 
@@ -208,7 +195,7 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 
 		template<class PROPERTY_TEMPLATE>
 		static constexpr int getNumVariableProperties()
-		{	return getNumVariableProperties<PROPERTY_TEMPLATE, 0>;	}
+		{	return getNumVariableProperties<PROPERTY_TEMPLATE, 0>();	}
 
 		/*!
 		 * \brief Only passes along property. Does nothing more
@@ -249,7 +236,7 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 			else
 			{
 				static_assert(serMethod == MPI_PROP_SERIALIZATION_FCN, "Unknown serialization method specified");
-				data.addPropDatatype(std::bind(&MPISinglePropertySerializer<PROPERTY>::template serializationFcn<SEND>, std::placeholders::_1, *property));
+				data.addPropDatatype(std::bind(&MPISinglePropertySerializer<PROPERTY>::template serializationFcn<SEND>, std::placeholders::_1, std::placeholders::_2, *property));
 			}
 		}
 
@@ -287,7 +274,7 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 		template<class PROPERTY_TEMPLATE, int ID>
 		static constexpr int getNumVariableProperties()
 		{
-			if constexpr (ID < PROPERTY_TEMPLATE::NumProps)
+			if constexpr (ID < PROPERTY_TEMPLATE::NumProperties)
 			{
 				using property_t = typename PROPERTY_TEMPLATE::template property_t<ID>;
 				constexpr bool isVariable = requires ()
@@ -407,7 +394,7 @@ struct MPISinglePropertySerializer<std::vector<PROPERTY> >
     {	dat.VariableLengths.push_back(prop.size());	}
 
     template<bool SEND>
-    static void serializationFcn(MPI_Comm comm, std::vector<PROPERTY> &prop)
+    static void serializationFcn(MPI_Comm comm, int tag, std::vector<PROPERTY> &prop)
     {
         using mpi_serializer_t = ObjectPropertySerializerMethods<MPIPropertyData>;
 
@@ -417,7 +404,7 @@ struct MPISinglePropertySerializer<std::vector<PROPERTY> >
             mpi_serializer_t::template emplaceSingleObject<PROPERTY, SEND>(dat, "", mpi_serializer_t::serializeSingleProperty(cDat));
 
             assert(!dat.ExchangeFunctions.empty());
-            dat.ExchangeFunctions.front()(comm);
+            dat.ExchangeFunctions.front()(comm, tag);
             dat.ExchangeFunctions.clear();
         }
     }
@@ -447,8 +434,8 @@ struct MPISinglePropertySerializer<std::vector<PROPERTY> >
         {
             auto elDatatype = MPISinglePropertySerializer<PROPERTY>::baseMPIDatatype(prop.front());
 
-            MPI_Datatype datatype;
-            MPI_Type_contiguous(prop.size(), datatype, &datatype);
+            MPI_Datatype datatype = MPI_DATATYPE_NULL;
+            MPI_Type_contiguous(prop.size(), std::get<0>(elDatatype), &datatype);
             MPI_Type_commit(&datatype);
 
             return std::tuple(MPIDerivedDatatype(datatype), MPIPropertyData::getMPIAddr(prop.data()), 1);
@@ -458,8 +445,8 @@ struct MPISinglePropertySerializer<std::vector<PROPERTY> >
             static_assert (type == ObjectPropertySerializerMethods<MPIPropertyData>::MPI_PROP_SERIALIZATION_DERIVED, "Unknown serialization type");
             auto elDatatype = MPISinglePropertySerializer<PROPERTY>::derivedMPIDatatype(prop.front());
 
-            MPI_Datatype datatype;
-            MPI_Type_contiguous(prop.size(), datatype, &datatype);
+            MPI_Datatype datatype = MPI_DATATYPE_NULL;
+            MPI_Type_contiguous(prop.size(), std::get<0>(elDatatype), &datatype);
             MPI_Type_commit(&datatype);
 
             return std::tuple(MPIDerivedDatatype(datatype), MPIPropertyData::getMPIAddr(prop.data()), 1);
@@ -493,7 +480,7 @@ template<>
 struct MPISinglePropertySerializer<boost::python::object> : public MPISinglePropertySerializerGeneral
 {
 	template<bool SEND>
-	static void serializationFcn(MPI_Comm comm, boost::python::object &prop)
+	static void serializationFcn(MPI_Comm comm, int tag, boost::python::object &prop)
 	{
 		namespace python = boost::python;
 
@@ -507,10 +494,17 @@ struct MPISinglePropertySerializer<boost::python::object> : public MPISingleProp
 				python::tuple args(prop);
 				python::dict kwargs;
 				kwargs["dest"] = 0;
+				kwargs["tag"] = tag;
 				interComm.attr("send")(*args, **kwargs);
 			}
 			else
-			{	prop = interComm.attr("recv")();	}
+			{
+				python::tuple args;
+				python::dict kwargs;
+				kwargs["tag"] = tag;
+
+				prop = interComm.attr("recv")(*args, **kwargs);
+			}
 		}
 		catch(python::error_already_set&)
 		{
@@ -531,18 +525,14 @@ using MPIPropertySerializer = PropertySerializer<MPIPropertyData, PROPERTY_TEMPL
 template<class PROPERTY>
 constexpr ObjectPropertySerializerMethods<MPIPropertyData>::MPI_PROP_SERIALIZATION_METHOD ObjectPropertySerializerMethods<MPIPropertyData>::serializationMethod()
 {
-	constexpr bool has_serialize_fcn = requires (MPI_Comm comm, PROPERTY &prop)
-	{	MPISinglePropertySerializer<PROPERTY>::template serializationFcn<true>(comm, prop);	};
+	constexpr bool has_serialize_fcn = requires (MPI_Comm comm, int tag, PROPERTY &prop)
+	{	MPISinglePropertySerializer<PROPERTY>::template serializationFcn<true>(comm, tag, prop);	};
 
 	constexpr bool has_base_type = requires (PROPERTY &prop)
 	{	MPISinglePropertySerializer<PROPERTY>::baseMPIDatatype(prop);	};
 
 	if constexpr (has_serialize_fcn)
-	{
-		//static_assert(std::invocable<decltype(&(MPISinglePropertySerializer<PROPERTY>::template serializationFcn<false, PROPERTY>)), MPI_Comm, PROPERTY&>,
-		//        "Only found MPI serialization function for PROPERTY type, not deserialization fcn");
-		return MPI_PROP_SERIALIZATION_FCN;
-	}
+	{	return MPI_PROP_SERIALIZATION_FCN;	}
 	else if constexpr (has_base_type)
 	{	return MPI_PROP_SERIALIZATION_BASE;	}
 	else

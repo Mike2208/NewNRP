@@ -38,7 +38,8 @@ endif()
 find_package(Boost REQUIRED COMPONENTS ${BOOST_PYTHON_COMPONENT} filesystem)
 set(BOOST_PYTHON "Boost::${BOOST_PYTHON_COMPONENT}")
 
-set(PYTHON_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages" CACHE PATH "Install location for python libraries")
+set(PYTHON_INSTALL_DIR_REL "python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages" CACHE INTERNAL "Relative install location for python libraries")
+set(PYTHON_INSTALL_DIR_ABS "${CMAKE_INSTALL_LIBDIR}/${PYTHON_INSTALL_DIR_REL}" CACHE INTERNAL "Absoulte install location for python libraries")
 
 
 ##########################################

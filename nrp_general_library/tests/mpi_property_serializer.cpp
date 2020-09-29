@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include "nrp_general_library/utils/mpi_setup.h"
+#include "nrp_general_library/utils/python_interpreter_state.h"
 #include "nrp_general_library/utils/serializers/mpi_property_serializer.h"
 
 class TestProperty
@@ -40,11 +42,16 @@ class TestProperty
 
 TEST(MPI_Serializer, TestSerialization)
 {
+	const char *pMPIArgv = "TestProg";
+	PythonInterpreterState(1, const_cast<char**>(&pMPIArgv));
+	MPISetup::initializeOnce(1, const_cast<char**>(&pMPIArgv));
+
 	using mpi_serializer_t = MPIPropertySerializer<TestProperty>;
 	TestProperty prop(1, "2", {3}, boost::python::dict());
 
 	MPIPropertyData data = mpi_serializer_t::serializeProperties(prop);
 
+	data.generateDatatype();
 	ASSERT_NE(data.Datatype, MPI_DATATYPE_NULL);
 	ASSERT_EQ(data.VariableLengths.size(), 2);
 	ASSERT_EQ(data.VariableLengths.at(0), prop.strDat().length()+1);
@@ -54,13 +61,20 @@ TEST(MPI_Serializer, TestSerialization)
 
 TEST(MPI_Serializer, TestDeserialization)
 {
+	const char *pMPIArgv = "TestProg";
+	PythonInterpreterState(1, const_cast<char**>(&pMPIArgv));
+	MPISetup::initializeOnce(1, const_cast<char**>(&pMPIArgv));
+
 	using mpi_serializer_t = MPIPropertySerializer<TestProperty>;
 	TestProperty prop(1, "2", {3}, boost::python::dict());
 
-	MPIPropertyData data;
+	MPIPropertyData data = mpi_serializer_t::serializeProperties(prop);
+	data.ExchangeFunctions.clear();
 
+	data.CurVarLIt = data.VariableLengths.begin();
 	mpi_serializer_t::updateProperties(prop, data);
 
+	data.generateDatatype();
 	ASSERT_NE(data.Datatype, MPI_DATATYPE_NULL);
 	ASSERT_EQ(data.ExchangeFunctions.size(), 1);
 }

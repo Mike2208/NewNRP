@@ -37,7 +37,11 @@ set(LIB_SRC_FILES
 	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_opts_parser.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_nrp_client.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_registration_server.cpp
+	nrp_general_library/engine_interfaces/engine_mpi_interface/config/engine_mpi_config.cpp
 	nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.cpp
+	nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_device_controller.cpp
+	nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_server.cpp
+	nrp_general_library/engine_interfaces/engine_mpi_interface/nrp_client/nrp_mpi_client.cpp
 	nrp_general_library/engine_interfaces/engine_launcher_manager.cpp
 	nrp_general_library/plugin_system/plugin.cpp
 	nrp_general_library/plugin_system/plugin_manager.cpp
@@ -60,6 +64,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/utils/serializers/python_dict_property_serializer.cpp
 	nrp_general_library/utils/file_finder.cpp
 	nrp_general_library/utils/fixed_string.cpp
+	nrp_general_library/utils/mpi_setup.cpp
 	nrp_general_library/utils/pipe_communication.cpp
 	nrp_general_library/utils/python_error_handler.cpp
 	nrp_general_library/utils/python_interpreter_state.cpp
@@ -99,6 +104,8 @@ set(TEST_SRC_FILES
 ##########################################
 ## Dependencies
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # cxxopts: Start Parameter Processing
 add_subdirectory(depends/cxxopts)
 
@@ -132,8 +139,11 @@ find_package(MPI REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LibZip REQUIRED IMPORTED_TARGET libzip)
 
-# MPI4Py
-include("cmake/CompileMPI4Py.cmake")
+# MPI4Py: Send Python objects over MPI
+find_package(MPI4Py)
+if(NOT ${MPI4Py_FOUND})
+	include("cmake/CompileMPI4Py.cmake")
+endif()
 
 
 ##########################################
@@ -169,7 +179,7 @@ target_link_libraries(${LIBRARY_NAME}
 		spdlog::spdlog
 
 	PRIVATE
-	    MPI4Py::API
+	    MPI4Py::MPI4Py
 )
 
 target_include_directories(${LIBRARY_NAME}
@@ -300,10 +310,10 @@ install(DIRECTORY ${HEADER_DIRECTORY}
 # Install python module
 if(TARGET ${PYTHON_MODULE_NAME})
 	install(TARGETS ${PYTHON_MODULE_NAME}
-		DESTINATION "${PYTHON_INSTALL_DIR}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
 
 	install(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py"
-		DESTINATION "${PYTHON_INSTALL_DIR}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
 endif()
 
 # Install executable files
