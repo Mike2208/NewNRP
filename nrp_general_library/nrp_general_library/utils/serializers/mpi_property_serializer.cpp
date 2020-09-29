@@ -1,11 +1,15 @@
 #include "nrp_general_library/utils/serializers/mpi_property_serializer.h"
 
-#include "mpi4py/mpi4py.MPI_api.h"
 #include "nrp_general_library/utils/mpi_setup.h"
 
 #include <assert.h>
 #include <boost/python.hpp>
+#include <mpi.h>
+#include <mpi4py/mpi4py.MPI_api.h>
 #include <Python.h>
+
+// Silence warning regarding unused fcn. (import_mpi4py__MPI is called via MPISetup)
+constexpr auto imp_fcn = import_mpi4py__MPI;
 
 MPIPropertyData::MPIDerivedDatatype::MPIDerivedDatatype(MPI_Datatype datatype)
     : _datatype(datatype)

@@ -2,7 +2,7 @@
 
 // Include mpi before mpi4py
 #include <mpi.h>
-#include "mpi4py/mpi4py.MPI_api.h"
+#include <mpi4py/mpi4py.MPI_api.h>
 
 std::unique_ptr<MPISetup> MPISetup::_instance = nullptr;
 
