@@ -73,7 +73,7 @@ add_subdirectory(nrp_general_library)
 ## NRP Engines
 
 ## Gazebo Engine
-add_subdirectory(nrp_gazebo_device_interface)
+add_subdirectory(nrp_gazebo_json_engine)
 
 ## Nest Engine
 add_subdirectory(nrp_nest_device_interface)
@@ -83,7 +83,7 @@ add_subdirectory(nrp_python_device_interface)
 
 ##########################################
 ## NRP Simulation
-set(NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS "NRPGazeboDeviceInterface.so;NRPNestDeviceInterface.so"
+set(NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS "NRPGazeboJSONEngine.so;NRPNestDeviceInterface.so"
 	CACHE STRING "Default engines which will always be available in the NRP server")
 add_subdirectory(nrp_simulation)
 

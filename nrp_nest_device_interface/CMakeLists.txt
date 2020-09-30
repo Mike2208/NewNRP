@@ -57,6 +57,9 @@ ExternalProject_Add(nest-simulator
 	GIT_TAG master
 	GIT_PROGRESS true
 
+	PREFIX ${CMAKE_CURRENT_BINARY_DIR}/nest-simulator
+	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${NRP_NEST_INSTALL_PREFIX} -Dwith-mpi=ON -Dwith-python=ON
 
 	UPDATE_COMMAND ""
