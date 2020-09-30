@@ -24,7 +24,7 @@
 /*!
  *	\brief Gazebo Communication Plugin Library Name
  */
-#define NRP_GAZEBO_COMMUNICATION_PLUGIN "NRPGazeboCommunicationPlugin.so"
+#define NRP_GAZEBO_COMMUNICATION_PLUGIN "NRPGazeboJSONCommunicationPlugin.so"
 
 /*!
  *	\brief Path to default gazebo plugins

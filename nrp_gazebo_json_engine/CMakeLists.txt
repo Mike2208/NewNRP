@@ -51,7 +51,7 @@ find_package(gazebo REQUIRED)
 ## Header configuration
 set(NRP_GAZEBO_PLUGINS_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/nrp_gazebo_plugins" CACHE PATH "Install location of gazebo plugins")
 
-set(NRP_GAZEBO_COMMUNICATION_PLUGIN NRPGazeboCommunicationPlugin)
+set(NRP_GAZEBO_COMMUNICATION_PLUGIN NRPGazeboJSONCommunicationPlugin)
 
 set(NRP_GAZEBO_PLUGINS_INSTALL_DIR_ABSOLUTE ${NRP_GAZEBO_PLUGINS_INSTALL_DIR})
 if(NOT IS_ABSOLUTE ${NRP_GAZEBO_PLUGINS_INSTALL_DIR})
@@ -126,7 +126,7 @@ add_doxygen_source("${CMAKE_CURRENT_SOURCE_DIR}" ${EXEC_SRC_FILES} ${LIB_SRC_FIL
 ##########################################
 ## Gazebo plugins
 set(NRP_GAZEBO_LIB_TARGET "${NAMESPACE_NAME}::${LIBRARY_NAME}")
-add_subdirectory(gazebo_plugins)
+add_subdirectory(gazebo_json_plugins)
 
 
 ##########################################
@@ -144,11 +144,11 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
 		GTest::GTest
 		GTest::GTestMain
-		NRPGazeboPlugins::NRPGazeboJointControllerPlugin
-		NRPGazeboPlugins::NRPGazeboLinkControllerPlugin
-		NRPGazeboPlugins::NRPGazeboCameraControllerPlugin
-		NRPGazeboPlugins::NRPGazeboWorldPlugin
-		NRPGazeboPlugins::NRPGazeboCommunicationPlugin)
+		NRPGazeboJSONPlugins::NRPGazeboJSONJointControllerPlugin
+		NRPGazeboJSONPlugins::NRPGazeboJSONLinkControllerPlugin
+		NRPGazeboJSONPlugins::NRPGazeboJSONCameraControllerPlugin
+		NRPGazeboJSONPlugins::NRPGazeboJSONWorldPlugin
+		NRPGazeboJSONPlugins::NRPGazeboJSONCommunicationPlugin)
 
 	gtest_discover_tests(${TEST_NAME}
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/tests"
