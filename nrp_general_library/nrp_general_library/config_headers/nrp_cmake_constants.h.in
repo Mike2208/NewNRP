@@ -20,7 +20,6 @@
  */
 #define NRP_INSTALL_DIR "@CMAKE_INSTALL_PREFIX@"
 
-
 /*!
  *	\brief Library Install location
  */
@@ -34,6 +33,12 @@
 /*!
  *	\brief Bash cmd to set environment before starting engine
  */
-#define NRP_ENGINE_SET_ENV_CMD "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_BINDIR@/set_env_exec.sh"
+#define NRP_ENGINE_SET_ENV_CMD "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_SBINDIR@/set_env_exec.sh"
+
+/*!
+ * \brief Parameter to pass to NRP_ENGINE_SET_ENV_CMD if child env variables should be sanitized before executing.
+ * This will clear the entire environment, so essential variables such as PATH, LD_LIBRARY_PATH, PYTHON_PATH must be set manually
+ */
+#define NRP_CLEAR_ENV "@NRP_CLEAR_ENV@"
 
 #endif // NRP_CMAKE_CONSTANTS_H

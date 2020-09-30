@@ -2,6 +2,7 @@
 #define PROCESS_LAUNCHER_H
 
 #include "nrp_general_library/config/engine_config.h"
+#include "nrp_general_library/process_launchers/launch_commands/launch_command.h"
 #include "nrp_general_library/utils/fixed_string.h"
 #include "nrp_general_library/utils/ptr_templates.h"
 
@@ -39,9 +40,14 @@ class ProcessLauncherInterface
 		/*!
 		 * \brief Stop a running engine process
 		 * \param killWait Time (in seconds) to wait for process to quit by itself before force killing it. 0 means it will wait indefinetly
-		 * \return Returns 0 on sucess, negative value on error
+		 * \return Returns child PID on sucess, negative value on error
 		 */
 		virtual pid_t stopEngineProcess(unsigned int killWait) = 0;
+
+		/*!
+		 * \brief Get Launch Command. If launchEngineProcess has not yet been called, return nullptr
+		 */
+		LaunchCommandInterface *launchCommand() const;
 
 	protected:
 		/*!
@@ -57,6 +63,11 @@ class ProcessLauncherInterface
 		 * \return Returns tuple. First value is VAR_NAME, second one is VAR_VALUE. If envVar has an invalid form, returns an empty string for both values
 		 */
 		static std::tuple<std::string,std::string> splitEnvVar(const std::string &envVar);
+
+		/*!
+		 * \brief Launch Command
+		 */
+		LaunchCommandInterface::unique_ptr _launchCmd = nullptr;
 };
 
 template<class T>
@@ -70,7 +81,7 @@ concept PROCESS_LAUNCHER_C = requires {
  *	\tparam PROCESS_LAUNCHER Final class derived from ProcessLauncher
  *	\tparam LAUNCHER_TYPE Launcher Type as string
  */
-template<class PROCESS_LAUNCHER, FixedString LAUNCHER_TYPE>
+template<class PROCESS_LAUNCHER, FixedString LAUNCHER_TYPE, LAUNCH_COMMAND_C ...LAUNCHER_COMMANDS>
 class ProcessLauncher
         : public ProcessLauncherInterface
 {
@@ -84,6 +95,37 @@ class ProcessLauncher
 
 		std::string launcherName() const override final
 		{	return std::string(LauncherType);	}
+
+		pid_t launchEngineProcess(const EngineConfigGeneral &engineConfig, const EngineConfigConst::string_vector_t &additionalEnvParams,
+		                                  const EngineConfigConst::string_vector_t &additionalStartParams, bool appendParentEnv = true) override final
+		{
+			if constexpr (sizeof...(LAUNCHER_COMMANDS) == 0)
+			{	throw noLauncherFound(engineConfig.engineLaunchCmd());	}
+
+			this->_launchCmd = ProcessLauncher::findLauncher<LAUNCHER_COMMANDS...>(engineConfig.engineLaunchCmd());
+			return this->_launchCmd->launchEngineProcess(engineConfig, additionalEnvParams, additionalStartParams,appendParentEnv);
+		}
+
+		pid_t stopEngineProcess(unsigned int killWait) override final
+		{	return this->_launchCmd->stopEngineProcess(killWait);	}
+
+	private:
+		template<class LAUNCH_CMD, class ...REST>
+		inline LaunchCommandInterface::unique_ptr findLauncher(const std::string &launchCmd)
+		{
+			if(std::string(LAUNCH_CMD::LaunchType) == launchCmd)
+				return LaunchCommandInterface::unique_ptr(new LAUNCH_CMD());
+			else
+			{
+				if constexpr (sizeof...(REST) > 0)
+				{	return findLauncher<REST...>(launchCmd);	}
+				else
+				{	throw noLauncherFound(launchCmd);	}
+			}
+		}
+
+		static inline std::runtime_error noLauncherFound(const std::string &launchCmd)
+		{	return std::runtime_error("Unable to find launcher with name \"" + launchCmd + "\"");	}
 };
 
 #endif // PROCESS_LAUNCHER_H

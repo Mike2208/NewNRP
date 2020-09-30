@@ -6,6 +6,9 @@ const EngineConfigConst::string_vector_t EngineConfigConst::DefEngineProcStartPa
 std::string &EngineConfigGeneral::engineName()
 {	return const_cast<std::string&>(const_cast<const EngineConfigGeneral*>(this)->engineName());	}
 
+std::string &EngineConfigGeneral::engineLaunchCmd()
+{	return const_cast<std::string&>(const_cast<const EngineConfigGeneral*>(this)->engineLaunchCmd());	}
+
 float &EngineConfigGeneral::engineTimestep()
 {	return const_cast<float&>(const_cast<const EngineConfigGeneral*>(this)->engineTimestep());	}
 

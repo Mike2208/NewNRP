@@ -45,6 +45,9 @@ set(LIB_SRC_FILES
 	nrp_general_library/engine_interfaces/engine_launcher_manager.cpp
 	nrp_general_library/plugin_system/plugin.cpp
 	nrp_general_library/plugin_system/plugin_manager.cpp
+	nrp_general_library/process_launchers/launch_commands/basic_fork.cpp
+	nrp_general_library/process_launchers/launch_commands/launch_command.cpp
+	nrp_general_library/process_launchers/launch_commands/mpi_spawn.cpp
 	nrp_general_library/process_launchers/process_launcher.cpp
 	nrp_general_library/process_launchers/process_launcher_basic.cpp
 	nrp_general_library/process_launchers/process_launcher_manager.cpp
@@ -149,11 +152,16 @@ endif()
 ##########################################
 ## Header configuration
 
+set(NRP_CLEAR_ENV "NRP_CLEAR_ENV")
+
 # General Header defines
 configure_file("nrp_general_library/config_headers/nrp_cmake_constants.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/nrp_general_library/config_headers/nrp_cmake_constants.h" @ONLY)
 
 # Python Module defines
 configure_file("nrp_python_device/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
+
+# Process startup script
+configure_file("cmake/set_env_exec.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/set_env_exec.sh" @ONLY)
 
 
 ##########################################
@@ -344,5 +352,5 @@ install(
 )
 
 # Install env set script
-install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/set_env_exec.sh"
-	DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/set_env_exec.sh"
+	DESTINATION ${CMAKE_INSTALL_SBINDIR})

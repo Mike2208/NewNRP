@@ -1,6 +1,9 @@
 #include "nrp_general_library/process_launchers/process_launcher.h"
 
 
+LaunchCommandInterface *ProcessLauncherInterface::launchCommand() const
+{	return this->_launchCmd.get();	}
+
 bool ProcessLauncherInterface::checkEnvVar(const std::string &envVar)
 {	return (envVar.find("=", 1) != envVar.npos);	}
 
