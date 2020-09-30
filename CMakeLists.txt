@@ -72,8 +72,11 @@ add_subdirectory(nrp_general_library)
 ##########################################
 ## NRP Engines
 
-## Gazebo Engine
+## Gazebo JSON Engine
 add_subdirectory(nrp_gazebo_json_engine)
+
+## Gazebo JSON Engine
+add_subdirectory(nrp_gazebo_mpi_engine)
 
 ## Nest Engine
 add_subdirectory(nrp_nest_device_interface)
