@@ -26,10 +26,15 @@ class NRPMPIClient
 
 		EngineInterface::RESULT initialize() override
 		{
+			this->_comm = this->getComm();
+
 			EngineMPIControl initCmd(EngineMPIControl::INITIALIZE, this->engineConfig()->writeConfig().dump());
 			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, initCmd);
 
-			return EngineInterface::SUCCESS;
+			EngineInterface::RESULT res;
+			MPICommunication::recvMPI(&res, sizeof(res), MPI_BYTE, MPI_ANY_SOURCE, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
+
+			return res;
 		}
 
 		EngineInterface::RESULT shutdown() override
@@ -37,7 +42,10 @@ class NRPMPIClient
 			EngineMPIControl shutdownCmd(EngineMPIControl::SHUTDOWN, std::string());
 			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, shutdownCmd);
 
-			return EngineInterface::SUCCESS;
+			EngineInterface::RESULT res;
+			MPICommunication::recvMPI(&res, sizeof(res), MPI_BYTE, MPI_ANY_SOURCE, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
+
+			return res;
 		}
 
 		float getEngineTime() const override
@@ -54,13 +62,17 @@ class NRPMPIClient
 			if(this->_runLoopThread.wait_for(std::chrono_literals::operator""ms(timeOut)) != std::future_status::ready)
 				return EngineInterface::ERROR;
 
+			const auto retEngineTime = this->_runLoopThread.get();
+			if(retEngineTime < 0)
+				return EngineInterface::ERROR;
+
 			this->_engineTime += this->_runLoopThread.get();
 			return EngineInterface::SUCCESS;
 		}
 
 		EngineInterface::device_outputs_t getOutputDevices(const EngineInterface::device_identifiers_t &deviceIdentifiers) override
 		{
-			EngineMPIControl devCmd(EngineMPIControl::GET_DEVICES, deviceIdentifiers.size());
+			EngineMPIControl devCmd(EngineMPIControl::GET_DEVICES, (int)deviceIdentifiers.size());
 			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, devCmd);
 
 			std::vector<MPIDeviceData> mpiDeserializers;
@@ -82,14 +94,16 @@ class NRPMPIClient
 			retVal.reserve(mpiDeserializers.size());
 
 			for(auto &deserializer : mpiDeserializers)
-			{	retVal.emplace_back(MPICommunication::recvDeviceByType<DEVICES..., false>(this->_comm, EngineMPIControlConst::DEVICE_TAG, deserializer));	}
+			{
+				retVal.emplace_back(MPICommunication::template recvDeviceByType<false, DEVICES...>(this->_comm, (int)EngineMPIControlConst::DEVICE_TAG, deserializer));
+			}
 
 			return retVal;
 		}
 
 		EngineInterface::RESULT handleInputDevices(const EngineInterface::device_inputs_t &inputDevices) override
 		{
-			EngineMPIControl devCmd(EngineMPIControl::SEND_DEVICES, inputDevices.size());
+			EngineMPIControl devCmd(EngineMPIControl::SEND_DEVICES, (int)inputDevices.size());
 			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, devCmd);
 
 			// Send device data with IDs
@@ -97,29 +111,65 @@ class NRPMPIClient
 			{
 				if(inDev->engineName() == this->engineName())
 				{
-					MPICommunication::sendDeviceByType<DEVICES..., true>(*inDev);
+					MPICommunication::template sendDeviceByType<true, DEVICES...>(this->_comm, EngineMPIControlConst::DEVICE_TAG, *inDev);
 				}
 			}
 
-			return EngineInterface::SUCCESS;
+			EngineInterface::RESULT res;
+			MPICommunication::recvMPI(&res, sizeof(res), MPI_BYTE, MPI_ANY_SOURCE, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
+
+			return res;
 		}
 
+	protected:
+		/*!
+		 * \brief Communicator with Engine
+		 */
+		MPI_Comm _comm = MPI_COMM_NULL;
+
+		/*!
+		 * \brief Extract communicator from LaunchCommand
+		 */
+		MPI_Comm getComm() const
+		{
+			if(this->_process->launchCommand()->launchType() != MPISpawn::LaunchType.data())
+			{
+				const auto errMsg = "Gazebo engine \"" + this->engineConfigGeneral()->engineName() + "\" was not created by an MPISpawn. Unable to get MPI Intercomm";
+				std::cerr << errMsg << "\n";
+				throw std::runtime_error(errMsg);
+			}
+
+			return dynamic_cast<const MPISpawn*>(this->_process->launchCommand())->getIntercomm();
+		}
+
+
 	private:
-		MPI_Comm _comm;
+		/*!
+		 * \brief Engine Simulation Time
+		 */
+		float _engineTime = 0;
 
-		float _engineTime;
-
+		/*!
+		 * \brief Simulation run thread. Waits for completion message from Engine
+		 */
 		std::future<float> _runLoopThread;
 
-		static EngineInterface::step_result_t loopThread(float timestep, MPI_Comm comm)
+		/*!
+		 * \brief Sends simulation run command to engine.
+		 * \param timestep Timestep to run engine for
+		 * \param comm Engine MPI Communicator
+		 * \return Returns engine time after loop completion, or negative value on error
+		 */
+		static float loopThread(float timestep, MPI_Comm comm)
 		{
 			EngineMPIControl runCmd(EngineMPIControl::RUN_STEP, timestep);
 			MPICommunication::sendPropertyTemplate(comm, EngineMPIControlConst::GENERAL_COMM_TAG, runCmd);
 
 			// Block until a response has been received, indicating the loop has completed
-			MPICommunication::recvMPI(nullptr, 0, MPI_DATATYPE_NULL, MPI_ANY_SOURCE, EngineMPIControlConst::WAIT_LOOP_COMM_TAG, comm);
+			float engineTime;
+			MPICommunication::recvMPI(&engineTime, 1, MPI_FLOAT, MPI_ANY_SOURCE, EngineMPIControlConst::WAIT_LOOP_COMM_TAG, comm);
 
-			return EngineInterface::SUCCESS;
+			return engineTime;
 		}
 };
 

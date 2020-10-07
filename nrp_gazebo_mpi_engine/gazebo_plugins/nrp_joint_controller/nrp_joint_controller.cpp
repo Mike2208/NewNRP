@@ -14,30 +14,26 @@
 using namespace nlohmann;
 
 gazebo::JointDeviceController::JointDeviceController(const physics::JointPtr &joint, const gazebo::physics::JointControllerPtr &jointController, const std::string &jointName)
-    : EngineJSONDeviceController(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), "")),
+    : EngineMPIDeviceController(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), "")),
       _joint(joint),
       _jointController(jointController),
-      _jointData(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), ""))
+      _jointData(static_cast<const DeviceIdentifier&>(*this))
 {}
 
-json gazebo::JointDeviceController::getDeviceInformation(const json::const_iterator &)
+MPIPropertyData gazebo::JointDeviceController::getDeviceOutput()
 {
 	this->_jointData.setPosition(this->_joint->Position(0));
 	this->_jointData.setVelocity(this->_joint->GetVelocity(0));
 	this->_jointData.setEffort(this->_joint->GetForce(0));
 
-	return JSONPropertySerializer<PhysicsJoint>::serializeProperties(this->_jointData, nlohmann::json());
+	return MPIPropertySerializer<PhysicsJoint>::serializeProperties(this->_jointData);
 }
 
-json gazebo::JointDeviceController::handleDeviceData(const json &data)
+EngineInterface::RESULT gazebo::JointDeviceController::handleDeviceInput(PhysicsJoint &data)
 {
-	bool success = true;
+	bool success = 1;
 
-	JSONPropertySerializer<PhysicsJoint>::updateProperties(this->_jointData, data);
-
-//	std::cout << std::to_string(this->_jointData.position()) << std::endl;
-//	std::cout << std::to_string(this->_jointData.velocity()) << std::endl;
-//	std::cout << std::to_string(this->_jointData.effort()) << std::endl;
+	this->_jointData = data;
 
 	const auto &jointName = this->_jointData.name();
 	if(!std::isnan(this->_jointData.position()))
@@ -49,7 +45,8 @@ json gazebo::JointDeviceController::handleDeviceData(const json &data)
 	if(!std::isnan(this->_jointData.effort()))
 		this->_joint->SetForce(0, this->_jointData.effort());
 
-	return json(success);
+	return success ? EngineInterface::SUCCESS : EngineInterface::ERROR;
+
 }
 
 gazebo::NRPJointController::PIDConfig::PIDConfig(PID _pid, gazebo::NRPJointController::PIDConfig::PID_TYPE _type)
@@ -145,6 +142,6 @@ void gazebo::NRPJointController::Load(gazebo::physics::ModelPtr model, sdf::Elem
 
 		std::cout << "Registering joint controller for joint \"" << jointName << "\"\n";
 		this->_jointDeviceControllers.push_back(JointDeviceController(joint, jointControllerPtr, jointName));
-		NRPCommunicationController::getInstance().registerDevice(deviceName, &(this->_jointDeviceControllers.back()));
+		NRPCommunicationController::getInstance().registerDeviceController(&(this->_jointDeviceControllers.back()));
 	}
 }

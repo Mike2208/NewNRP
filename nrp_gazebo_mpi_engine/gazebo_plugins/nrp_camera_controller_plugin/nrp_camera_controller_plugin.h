@@ -1,7 +1,7 @@
 #ifndef NRP_CAMERA_CONTROLLER_PLUGIN_H
 #define NRP_CAMERA_CONTROLLER_PLUGIN_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_device_controller.h"
 
 #include "nrp_gazebo_mpi_engine/devices/physics_camera.h"
 
@@ -12,14 +12,14 @@
 namespace gazebo
 {
 	class CameraDeviceController
-	        : public EngineJSONDeviceController
+	        : public EngineMPIDeviceController<PhysicsCamera>
 	{
 		public:
 			CameraDeviceController(const std::string &devName, const rendering::CameraPtr &camera, const sensors::SensorPtr &parent);
 			virtual ~CameraDeviceController() override;
 
-			virtual nlohmann::json getDeviceInformation(const nlohmann::json::const_iterator &data) override;
-			virtual nlohmann::json handleDeviceData(const nlohmann::json &data) override;
+			MPIPropertyData getDeviceOutput() override;
+			EngineInterface::RESULT handleDeviceInput(PhysicsCamera &data) override;
 
 			void updateCamData(const unsigned char *image, unsigned int width, unsigned int height, unsigned int depth);
 

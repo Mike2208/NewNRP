@@ -3,7 +3,7 @@
 
 #include "nrp_gazebo_mpi_engine/config/nrp_gazebo_cmake_constants.h"
 #include "nrp_gazebo_mpi_engine/devices/physics_joint.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_device_controller.h"
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/JointController.hh>
@@ -15,7 +15,7 @@ namespace gazebo
 	 * \brief Interface for a single joint
 	 */
 	class JointDeviceController
-	        : public EngineJSONDeviceController
+	        : public EngineMPIDeviceController<PhysicsJoint>
 	{
 			using fcn_ptr_t = void(physics::JointPtr, double, int);
 
@@ -23,8 +23,8 @@ namespace gazebo
 			JointDeviceController(const physics::JointPtr &joint, const physics::JointControllerPtr &jointController, const std::string &jointName);
 			virtual ~JointDeviceController() override = default;
 
-			virtual nlohmann::json getDeviceInformation(const nlohmann::json::const_iterator &data) override;
-			virtual nlohmann::json handleDeviceData(const nlohmann::json &data) override;
+			MPIPropertyData getDeviceOutput() override;
+			EngineInterface::RESULT handleDeviceInput(PhysicsJoint &data) override;
 
 		private:
 			/*!

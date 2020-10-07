@@ -23,10 +23,6 @@ namespace gazebo
 			virtual void Reset();
 
 		private:
-			/*!
-			 * \brief Server URL, read from program opts
-			 */
-			std::string _serverAddress;
 	};
 
 	GZ_REGISTER_SYSTEM_PLUGIN(NRPCommunicationPlugin)

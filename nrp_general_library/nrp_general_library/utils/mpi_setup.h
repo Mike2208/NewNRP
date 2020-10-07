@@ -2,6 +2,7 @@
 #define MPI_SETUP_H
 
 #include <memory>
+#include <mpi.h>
 
 /*!
  * \brief Singleton to setup MPI and MPI4Py before first use
@@ -26,8 +27,10 @@ class MPISetup
 		 * \brief Initialize MPI if not yet done
 		 * \param argc MPI_Init argument
 		 * \param argv MPI_Init argument
+		 * \param sendParentPID Should the parent PID be sent after running MPI_INIT?
+		 * This is only required in an engine spawned via the launch command "MPI"
 		 */
-		static MPISetup *initializeOnce(int argc, char **argv);
+		static MPISetup *initializeOnce(int argc, char **argv, bool sendParentPID = false);
 
 		/*!
 		 * \brief Get error string for an MPI Error Code
@@ -35,6 +38,12 @@ class MPISetup
 		 * \return Returns string
 		 */
 		static std::string getErrorString(int MPIErrorCode);
+
+		/*!
+		 * \brief Get MPI Communicator to interacti with parent process
+		 * \return If this process does not have an MPI-ready parent, return MPI_COMM_NULL
+		 */
+		static MPI_Comm getParentComm();
 
 		/*!
 		 * \brief Finalizes MPI

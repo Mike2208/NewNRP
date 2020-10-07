@@ -5,8 +5,7 @@
 #include <gazebo/physics/Model.hh>
 #include <gazebo/physics/Link.hh>
 
-using namespace nlohmann;
-
+// Convert val to float. Only used to prevent compiler warnings when converting an Eigen array to PhysicsLink
 template<class T>
 inline float ToFloat(const T &val)
 {
@@ -14,14 +13,14 @@ inline float ToFloat(const T &val)
 }
 
 gazebo::LinkDeviceController::LinkDeviceController(const std::string &linkName, const gazebo::physics::LinkPtr &link)
-    : EngineJSONDeviceController(DeviceIdentifier(linkName, PhysicsLink::TypeName.data(), "")),
+    : EngineMPIDeviceController(DeviceIdentifier(linkName, PhysicsLink::TypeName.data(), "")),
       _data(linkName),
       _link(link)
 {}
 
 gazebo::LinkDeviceController::~LinkDeviceController() = default;
 
-json gazebo::LinkDeviceController::getDeviceInformation(const json::const_iterator &)
+MPIPropertyData gazebo::LinkDeviceController::getDeviceOutput()
 {
 	const auto &pose = this->_link->WorldCoGPose();
 	this->_data.setPosition({ ToFloat(pose.Pos().X()), ToFloat(pose.Pos().Y()), ToFloat(pose.Pos().Z())	});
@@ -33,12 +32,12 @@ json gazebo::LinkDeviceController::getDeviceInformation(const json::const_iterat
 	const auto &angVel = this->_link->WorldAngularVel();
 	this->_data.setAngVel({ ToFloat(angVel.X()), ToFloat(angVel.Y()), ToFloat(angVel.Z())	});
 
-	return JSONPropertySerializer<PhysicsLink>::serializeProperties(this->_data, nlohmann::json());
+	return MPIPropertySerializer<PhysicsLink>::serializeProperties(this->_data);
 }
 
-json gazebo::LinkDeviceController::handleDeviceData(const json &)
+EngineInterface::RESULT gazebo::LinkDeviceController::handleDeviceInput(PhysicsLink &data)
 {
-	return json();
+	return EngineInterface::SUCCESS;
 }
 
 gazebo::NRPLinkControllerPlugin::~NRPLinkControllerPlugin() = default;
@@ -56,6 +55,6 @@ void gazebo::NRPLinkControllerPlugin::Load(gazebo::physics::ModelPtr model, sdf:
 		std::cout << "Registering link controller for link \"" << deviceName << "\"\n";
 
 		this->_linkInterfaces.push_back(LinkDeviceController(deviceName, link));
-		commControl.registerDevice(deviceName, &(this->_linkInterfaces.back()));
+		commControl.registerDeviceController(&(this->_linkInterfaces.back()));
 	}
 }

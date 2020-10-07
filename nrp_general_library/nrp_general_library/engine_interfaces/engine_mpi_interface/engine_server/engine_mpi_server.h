@@ -6,6 +6,7 @@
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_device_controller.h"
 #include "nrp_general_library/utils/serializers/mpi_property_serializer.h"
 
+#include <mutex>
 #include <variant>
 
 struct EngineMPIControlConst
@@ -90,7 +91,7 @@ class EngineMPIServer
 		 * Uses MPI_Comm_get_parent()
 		 * \exception Throws std::runtime_error if no communicator with parent can be found
 		 */
-		static MPI_Comm getComm();
+		static MPI_Comm getNRPComm();
 
 		/*!
 		 * \brief Constructor
@@ -98,7 +99,18 @@ class EngineMPIServer
 		 */
 		EngineMPIServer(MPI_Comm comm);
 
+		/*!
+		 * \brief Constructor.
+		 * Will initialize _comm with MPI_Comm_get_parent()
+		 */
 		EngineMPIServer();
+
+		// Delete copy operations, server can only be moved
+		EngineMPIServer(const EngineMPIServer&) = delete;
+		EngineMPIServer(EngineMPIServer&&) = default;
+
+		EngineMPIServer &operator=(const EngineMPIServer&) = delete;
+		EngineMPIServer &operator=(EngineMPIServer&&) = delete;
 
 		/*!
 		 * \brief Get command from client. Blocks until command was received
@@ -157,6 +169,25 @@ class EngineMPIServer
 		 * or any exception handleInputDevices() generates
 		 */
 		EngineInterface::RESULT handleInputDevicesHandler(const int numDevices);
+
+		/*!
+		 * \brief Register a new device controller for incoming/outgoing device data
+		 * \param devCtrl Device Controller to register
+		 * \return Returns result of operation
+		 */
+		EngineInterface::RESULT registerDeviceController(EngineMPIDeviceControllerInterface *devCtrl);
+
+		/*!
+		 * \brief Remove an already registered device controller
+		 * \param devName Name of device whose DeviceController should be removed
+		 * \return Returns result of operation
+		 */
+		EngineInterface::RESULT removeDeviceController(const std::string &devName);
+
+		/*!
+		 * \brief Remove all device controllers
+		 */
+		void removeAllDeviceControllers();
 
 	protected:
 		/*!
@@ -222,13 +253,21 @@ class EngineMPIServer
 		/*!
 		 * \brief Device Controllers for individual engines. Mapped from device name to controller
 		 */
-		std::map<std::string, EngineMPIDeviceControllerInterface::shared_ptr> _deviceControllers;
+		std::map<std::string, EngineMPIDeviceControllerInterface*> _deviceControllers;
 
 	private:
 		/*!
 		 * \brief MPI Communicator to NRP Client
 		 */
 		MPI_Comm _comm;
+
+		using mutex_t = std::mutex;
+		using lock_t = std::unique_lock<mutex_t>;
+
+		/*!
+		 * \brief Mutex to prevent multiple threads from accessing _deviceControllers
+		 */
+		mutex_t _devCtrlLock;
 };
 
 

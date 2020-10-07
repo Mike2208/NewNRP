@@ -43,7 +43,7 @@ class PhysicsJoint
 	public:
 		PhysicsJoint(const std::string &name);
 		PhysicsJoint(const DeviceIdentifier &id);
-		PhysicsJoint(const DeviceIdentifier &id, const nlohmann::json &data);
+		PhysicsJoint() = default;
 
 		float position() const;
 		void setPosition(float position);

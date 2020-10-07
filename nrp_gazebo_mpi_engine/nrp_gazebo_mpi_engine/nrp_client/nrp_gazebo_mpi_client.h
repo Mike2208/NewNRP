@@ -20,21 +20,27 @@ Gazebo Engine based on the \ref json_engine.
 /*! \addtogroup gazebo_json_engine
  *  \brief NRP - Gazebo Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
  */
-class GazeboEngineJSONNRPClient
-        : public NRPMPIClient<GazeboEngineJSONNRPClient, GazeboConfig, PhysicsCamera, PhysicsJoint, PhysicsLink>
+class NRPGazeboMPIClient
+        : public NRPMPIClient<NRPGazeboMPIClient, GazeboConfig, PhysicsCamera, PhysicsJoint, PhysicsLink>
 {
 	public:
 		static constexpr FixedString DefEngineName = "gazebo_mpi";
 
-		GazeboEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
-		virtual ~GazeboEngineJSONNRPClient() override = default;
+		NRPGazeboMPIClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
+		virtual ~NRPGazeboMPIClient() override = default;
 
-		virtual RESULT initialize() override;
+		virtual EngineInterface::RESULT initialize() override;
 
-		virtual RESULT shutdown() override;
+		virtual EngineInterface::RESULT shutdown() override;
+
+	private:
+		/*!
+		 * \brief Pointer to Engine Intercomm. Extracted during the initialize step from the launcher
+		 */
+		MPI_Comm *_pComm = nullptr;
 };
 
-using GazeboEngineJSONLauncher = GazeboEngineJSONNRPClient::EngineLauncher<GazeboEngineJSONNRPClient::DefEngineName>;
+using GazeboEngineJSONLauncher = NRPGazeboMPIClient::EngineLauncher<NRPGazeboMPIClient::DefEngineName>;
 
 CREATE_NRP_ENGINE_LAUNCHER(GazeboEngineJSONLauncher);
 

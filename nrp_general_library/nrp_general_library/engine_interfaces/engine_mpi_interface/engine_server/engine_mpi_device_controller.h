@@ -18,7 +18,7 @@ class EngineMPIDeviceControllerInterface
 		 * \brief Constructor
 		 * \param id ID of device that this controller handles
 		 */
-		EngineMPIDeviceControllerInterface(DeviceIdentifier &id);
+		EngineMPIDeviceControllerInterface(const DeviceIdentifier &id);
 		virtual ~EngineMPIDeviceControllerInterface() = default;
 
 		/*!
@@ -45,7 +45,7 @@ class EngineMPIDeviceController
         : public EngineMPIDeviceControllerInterface
 {
 	public:
-		EngineMPIDeviceController(DeviceIdentifier &id)
+		EngineMPIDeviceController(const DeviceIdentifier &id)
 		    : EngineMPIDeviceControllerInterface(id)
 		{}
 
@@ -53,18 +53,19 @@ class EngineMPIDeviceController
 
 		MPIPropertyData getDeviceOutput() override = 0;
 
-		EngineInterface::RESULT handleMPIDeviceInput(MPI_Comm comm, int tag) override final
-		{
-			DEVICE dev = EngineMPIDeviceController::recvMPIDevice(comm, tag);
-			return this->handleDeviceInput(dev);
-		}
-
 		/*!
 		 * \brief Processes device data received from the CLE
 		 * \param data Device data
 		 * \return Returns SUCCESS or ERROR
 		 */
 		virtual EngineInterface::RESULT handleDeviceInput(DEVICE &data) = 0;
+
+		EngineInterface::RESULT handleMPIDeviceInput(MPI_Comm comm, int tag) override final
+		{
+			DEVICE dev = EngineMPIDeviceController::recvMPIDevice(comm, tag);
+			return this->handleDeviceInput(dev);
+		}
+
 
 	private:
 		/*!
@@ -76,14 +77,18 @@ class EngineMPIDeviceController
 		 */
 		static inline DEVICE recvMPIDevice(MPI_Comm comm, int tag)
 		{
+			DEVICE retVal;
+
 			try
-			{	return MPICommunication::recvDevice<DEVICE, false>(comm, tag);	}
+			{	MPICommunication::recvDevice<DEVICE, false>(comm, tag, retVal);	}
 			catch(std::exception &e)
 			{
-				const auto errMsg = std::string("Failed to retrieved device data: ") + e.what();
+				const auto errMsg = std::string("Failed to retrieve device data: ") + e.what();
 				std::cerr << errMsg << "\n";
 				throw std::runtime_error(errMsg);
 			}
+
+			return retVal;
 		}
 };
 

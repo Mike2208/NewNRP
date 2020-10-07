@@ -16,61 +16,38 @@ NRPCommunicationController &NRPCommunicationController::getInstance()
 	return *(NRPCommunicationController::_instance.get());
 }
 
-NRPCommunicationController &NRPCommunicationController::resetInstance(const std::string &serverURL)
+NRPCommunicationController &NRPCommunicationController::resetInstance(MPI_Comm nrpComm)
 {
 	// Remove old server, start new one with given server URL
-	NRPCommunicationController::_instance.reset(new NRPCommunicationController(serverURL));
+	NRPCommunicationController::_instance.reset(new NRPCommunicationController(nrpComm));
 	return NRPCommunicationController::getInstance();
-}
-
-NRPCommunicationController &NRPCommunicationController::resetInstance(const std::string &serverURL, const std::string &engineName, const std::string &registrationURL)
-{
-	NRPCommunicationController::_instance.reset(new NRPCommunicationController(serverURL, engineName, registrationURL));
-	return NRPCommunicationController::getInstance();
-
 }
 
 void NRPCommunicationController::registerStepController(GazeboStepController *stepController)
 {
-	EngineJSONServer::lock_t lock(this->_deviceLock);
 	this->_stepController = stepController;
 }
 
-float NRPCommunicationController::runLoopStep(float timeStep)
+EngineInterface::RESULT NRPCommunicationController::initialize(const std::string &initData)
 {
-	if(this->_stepController == nullptr)
-	{
-		auto err = std::out_of_range("Tried to run loop while the controller has not yet been initialized");
-		std::cerr << err.what();
-
-		throw err;
-	}
+	ConfigStorage confDat;
 
 	try
 	{
-		// Execute loop step (Note: The _deviceLock mutex has already been set by EngineJSONServer::runLoopStepHandler, so no calls to reading/writing from/to devices is possible at this moment)
-		return this->_stepController->runLoopStep(static_cast<double>(timeStep));
+		confDat.Data = nlohmann::json::parse(initData);
 	}
-	catch(const std::exception &e)
+	catch(std::exception &e)
 	{
-		std::cerr << "Error during Gazebo stepping\n";
-		std::cerr << e.what();
-
-		throw;
+		const auto errMsg = std::string("Unable to parse initialization data: ") + e.what();
+		std::cerr << errMsg << std::endl;
+		return EngineInterface::ERROR;
 	}
-}
 
-json NRPCommunicationController::initialize(const json &data, EngineJSONServer::lock_t &lock)
-{
-	ConfigStorage confDat(data);
 	GazeboConfig conf(confDat);
 
 	double waitTime = conf.maxWorldLoadTime();
 	if(conf.maxWorldLoadTime() <= 0)
 		waitTime = std::numeric_limits<double>::max();
-
-	// Allow devices to register
-	lock.unlock();
 
 	// Wait until world plugin loads and forces a load of all other plugins
 	while(this->_stepController == nullptr ? 1 : !this->_stepController->finishWorldLoading())
@@ -80,26 +57,56 @@ json NRPCommunicationController::initialize(const json &data, EngineJSONServer::
 		usleep(100*1000);
 
 		if(waitTime <= 0)
-		{
-			lock.lock();
-			return nlohmann::json({false});
-		}
+			return EngineInterface::ERROR;
 	}
 
-	lock.lock();
-
-	return nlohmann::json({true});
+	return EngineInterface::SUCCESS;
 }
 
-json NRPCommunicationController::shutdown(const json&)
+EngineInterface::RESULT NRPCommunicationController::shutdown(const std::string &shutdownData)
 {
-	return nlohmann::json();
+	return EngineInterface::SUCCESS;
 }
 
-NRPCommunicationController::NRPCommunicationController(const std::string &address)
-    : EngineJSONServer(address)
-{}
+EngineInterface::step_result_t NRPCommunicationController::runLoopStep(float timeStep)
+{
+	if(this->_stepController == nullptr)
+	{
+		const auto err = std::out_of_range("Tried to run loop while the controller has not yet been initialized");
+		std::cerr << err.what() << std::endl;
 
-NRPCommunicationController::NRPCommunicationController(const std::string &serverURL, const std::string &engineName, const std::string &registrationURL)
-    : EngineJSONServer(serverURL, engineName, registrationURL)
+		throw err;
+	}
+
+	try
+	{
+		// Execute loop step (Note: The _deviceLock mutex has already been set by EngineJSONServer::runLoopStepHandler, so no calls to reading/writing from/to devices is possible at this moment)
+		this->_stepController->runLoopStep(static_cast<double>(timeStep));
+	}
+	catch(const std::exception &e)
+	{
+		const auto errMsg = std::string("Error during Gazebo stepping: ") + e.what();
+		std::cerr << errMsg << std::endl;
+
+		throw std::runtime_error(e.what());
+	}
+
+	return EngineInterface::SUCCESS;
+}
+
+float NRPCommunicationController::getSimTime() const
+{
+	if(this->_stepController == nullptr)
+	{
+		const auto err = std::out_of_range("Tried to run loop while the controller has not yet been initialized");
+		std::cerr << err.what() << std::endl;
+
+		throw err;
+	}
+
+	return this->_stepController->getSimTime();
+}
+
+NRPCommunicationController::NRPCommunicationController(MPI_Comm nrpComm)
+    : EngineMPIServer(nrpComm)
 {}

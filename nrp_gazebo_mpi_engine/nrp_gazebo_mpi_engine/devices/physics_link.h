@@ -34,12 +34,10 @@ class PhysicsLink
           public DeviceInterface,
           public PhysicsLinkConst::JProps
 {
-		using json_property_serializer_t = JSONPropertySerializer<JProps>;
-
 	public:
+		PhysicsLink() = default;
 		PhysicsLink(const std::string &name);
 		PhysicsLink(const DeviceIdentifier &id);
-		PhysicsLink(const DeviceIdentifier &id, const nlohmann::json &data);
 
 		const vec3_t &position() const;
 		void setPosition(const vec3_t &position);

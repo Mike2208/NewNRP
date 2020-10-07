@@ -1,5 +1,7 @@
 #include "nrp_gazebo_mpi_engine/nrp_client/nrp_gazebo_mpi_client.h"
 
+#include "nrp_general_library/process_launchers/launch_commands/mpi_spawn.h"
+
 #include <signal.h>
 #include <sys/prctl.h>
 #include <sys/types.h>
@@ -7,24 +9,19 @@
 
 #include <chrono>
 
-GazeboEngineJSONNRPClient::GazeboEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
-    : EngineJSONNRPClient(config, std::move(launcher))
+NRPGazeboMPIClient::NRPGazeboMPIClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
+    : NRPMPIClient(config, std::move(launcher))
 {}
 
-GazeboEngineJSONNRPClient::RESULT GazeboEngineJSONNRPClient::initialize()
+EngineInterface::RESULT NRPGazeboMPIClient::initialize()
 {
-	// Wait for Gazebo to load world
 	auto confDat = this->engineConfig()->writeConfig();
-	const nlohmann::json initRes = this->sendInitCommand(confDat);
-	if(!initRes[0].get<bool>())
-		return GazeboEngineJSONNRPClient::ERROR;
+	MPICommunication::sendString(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, confDat.dump());
 
-	return GazeboEngineJSONNRPClient::SUCCESS;
+	return EngineInterface::SUCCESS;
 }
 
-EngineInterface::RESULT GazeboEngineJSONNRPClient::shutdown()
+EngineInterface::RESULT NRPGazeboMPIClient::shutdown()
 {
-	this->sendShutdownCommand(nlohmann::json());
-
-	return GazeboEngineJSONNRPClient::SUCCESS;
+	return EngineInterface::SUCCESS;
 }

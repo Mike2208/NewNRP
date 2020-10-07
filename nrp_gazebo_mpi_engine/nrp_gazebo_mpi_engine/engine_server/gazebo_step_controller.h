@@ -11,6 +11,7 @@ class GazeboStepController
 		virtual ~GazeboStepController();
 
 		virtual double runLoopStep(double timeStep) = 0;
+		virtual float getSimTime() const = 0;
 
 		virtual bool finishWorldLoading() = 0;
 };

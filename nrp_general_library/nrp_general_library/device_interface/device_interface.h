@@ -31,6 +31,7 @@ struct DeviceIdentifier
 	std::string EngineName;
 
 	DeviceIdentifier(const std::string &_name, const std::string &_type, const std::string &_engineName);
+	DeviceIdentifier() = default;
 
 	bool operator==(const DeviceIdentifier &other) const;
 	bool operator<(const DeviceIdentifier &other) const;
@@ -46,6 +47,7 @@ class DeviceInterface
 		enum RESULT
 		{ SUCCESS, ERROR };
 
+		DeviceInterface() = default;
 		DeviceInterface(const DeviceIdentifier &id);
 		DeviceInterface(const std::string &name, const std::string &type, const std::string &engineName);
 		virtual ~DeviceInterface() = default;

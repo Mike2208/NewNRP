@@ -41,7 +41,7 @@ class ObjectPropertySerializerMethods
 };
 
 template<class T, class OBJECT>
-concept PROPERTY_SERIALIZER_OBJECT_C = std::is_same_v<OBJECT, std::remove_cv_t<std::decay_t<T> > >;
+concept PROPERTY_SERIALIZER_OBJECT_C = std::same_as<OBJECT, std::remove_cv_t<std::decay_t<T> > >;
 
 /*!
  * \brief De-/Serialization Methods. This class can be used to convert PropertyTemplates to OBJECT type.

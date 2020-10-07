@@ -1,7 +1,7 @@
 #ifndef NRP_LINK_CONTROLLER_PLUGIN_H
 #define NRP_LINK_CONTROLLER_PLUGIN_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_device_controller.h"
 #include "nrp_gazebo_mpi_engine/devices/physics_link.h"
 
 #include <gazebo/gazebo.hh>
@@ -12,19 +12,14 @@ namespace gazebo
 	 * \brief Interface for links
 	 */
 	class LinkDeviceController
-	        : public EngineJSONDeviceController
+	        : public EngineMPIDeviceController<PhysicsLink>
 	{
 		public:
 			LinkDeviceController(const std::string &linkName, const physics::LinkPtr &link);
 			virtual ~LinkDeviceController() override;
 
-			/*!
-			 * \brief Gets link device information, namely link pose and velocity
-			 * \param data Not used
-			 * \return Returns link information as JSON
-			 */
-			virtual nlohmann::json getDeviceInformation(const nlohmann::json::const_iterator &data) override;
-			virtual nlohmann::json handleDeviceData(const nlohmann::json &data) override;
+			MPIPropertyData getDeviceOutput() override;
+			EngineInterface::RESULT handleDeviceInput(PhysicsLink &data) override;
 
 		private:
 			/*!

@@ -54,6 +54,11 @@ double gazebo::NRPWorldPlugin::runLoopStep(double timeStep)
 	return this->_world->SimTime().Double();
 }
 
+float gazebo::NRPWorldPlugin::getSimTime() const
+{
+	return this->_world->SimTime().Double();
+}
+
 bool gazebo::NRPWorldPlugin::finishWorldLoading()
 {
 	//std::cout << "Finalizing gazebo loading... Time:" <<  this->_world->SimTime().Double() << "\n";

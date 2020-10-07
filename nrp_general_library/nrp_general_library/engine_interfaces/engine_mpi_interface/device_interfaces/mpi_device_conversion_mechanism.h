@@ -15,10 +15,13 @@ struct MPIDeviceData
 class MPICommunication
 {
 	public:
+		static void sendString(MPI_Comm comm, int tag, const std::string &str);
+		static std::string recvString(MPI_Comm comm, int tag);
+
 		static void sendMPIPropertyData(MPI_Comm comm, int tag, MPIPropertyData &dat)
 		{
 			if(dat.VariableLengths.size() > 0)
-			{	sendMPI(dat.VariableLengths.data(), dat.VariableLengths.size(), MPI_INT, 0, MPI_ANY_TAG, comm);	}
+			{	sendMPI(dat.VariableLengths.data(), dat.VariableLengths.size(), MPI_INT, 0, tag, comm);	}
 
 			sendMPI(MPI_BOTTOM, 1, dat.Datatype, 0, tag, comm);
 
@@ -56,14 +59,17 @@ class MPICommunication
 			if constexpr (SEND_ID)
 			{	sendDeviceID(comm, tag, dev.id());	}
 
-			MPIPropertyData dat;
-			MPIPropertySerializer<DEVICE>::serializeProperties(dev, dat);
-
-			sendPropertyTemplate<DEVICE>(comm, tag, dat);
+			MPICommunication::sendPropertyTemplate<DEVICE>(comm, tag, dev);
 		}
 
-		template<DEVICE_C DEVICE, DEVICE_C ...REM_DEVICES, bool SEND_ID = true>
-		static inline void sendDeviceByType(MPI_Comm comm, int tag, DeviceInterface &devInterface);
+		template<bool SEND_ID, DEVICE_C ...DEVICES>
+		static void sendDeviceByType(MPI_Comm comm, int tag, DeviceInterface &devInterface)
+		{
+			if constexpr (sizeof... (DEVICES) == 0)
+			{	throwNoDevError(devInterface.id());	}
+			else
+			{	return sendDeviceByTypeInternal<SEND_ID, DEVICES...>(comm, tag, devInterface);	}
+		}
 
 		template<DEVICE_C DEVICE, bool RECV_ID = true>
 		static void recvDevice(MPI_Comm comm, int tag, DEVICE &dev)
@@ -71,43 +77,40 @@ class MPICommunication
 			if constexpr (RECV_ID)
 			{	dev.id() = recvDeviceID(comm, tag);	}
 
-			recvPropertyTemplate<DEVICE>(comm, tag, dynamic_cast<DEVICE&>(dev));
+			MPICommunication::recvPropertyTemplate<DEVICE>(comm, tag, dynamic_cast<DEVICE&>(dev));
 		}
 
-		template<DEVICE_C DEVICE, DEVICE_C ...REM_DEVICES, bool RECV_ID = true>
-		static inline DeviceInterface::unique_ptr recvDeviceByType(MPI_Comm comm, int tag, const DeviceIdentifier &devID)
+		template<bool RECV_ID, DEVICE_C ...DEVICES>
+		static DeviceInterface::unique_ptr recvDeviceByType(MPI_Comm comm, int tag, const DeviceIdentifier &devID)
 		{
 			MPIDeviceData dat(devID);
-			return recvDeviceByType<DEVICE, REM_DEVICES..., RECV_ID>(comm, tag, dat);
+			return recvDeviceByType<RECV_ID, DEVICES...>(comm, tag, dat);
 		}
 
-		template<DEVICE_C DEVICE, DEVICE_C ...REM_DEVICES, bool RECV_ID = true>
-		static inline DeviceInterface::unique_ptr recvDeviceByType(MPI_Comm comm, int tag, MPIDeviceData &devID);
+		template<bool RECV_ID, DEVICE_C ...DEVICES>
+		static DeviceInterface::unique_ptr recvDeviceByType(MPI_Comm comm, int tag, MPIDeviceData &devData)
+		{
+			if constexpr (sizeof... (DEVICES) == 0)
+			{	throwNoDevError(devData.DeviceID);	}
+			else
+			{	return recvDeviceByTypeInternal<RECV_ID, DEVICES...>(comm, tag, devData);	}
+		}
 
 		static void sendDeviceID(MPI_Comm comm, int tag, const DeviceIdentifier &id);
 		static DeviceIdentifier recvDeviceID(MPI_Comm comm, int tag);
 
-		static inline void sendMPI(const void *buff, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
-		{
-			try{MPI_Send(buff, count, datatype, dest, tag, comm);}
-			catch(std::exception &e)
-			{
-				const auto errMsg = std::string("Error while sending MPI data: \n") + e.what();
-				std::cerr << errMsg << std::endl;
-				throw std::runtime_error(errMsg);
-			}
-		}
+		static void sendMPI(const void *buff, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm);
+		static void recvMPI(void *buff, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm);
 
-		static inline void recvMPI(void *buff, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm)
-		{
-			try{MPI_Recv(buff, count, datatype, source, tag, comm, nullptr);}
-			catch(std::exception &e)
-			{
-				const auto errMsg = std::string("Error while receving MPI data: \n") + e.what();
-				std::cerr << errMsg << std::endl;
-				throw std::runtime_error(errMsg);
-			}
-		}
+	private:
+		template<bool SEND_ID, DEVICE_C DEVICE, class ...REM_DEVICES>
+		static inline void sendDeviceByTypeInternal(MPI_Comm comm, int tag, DeviceInterface &devInterface);
+
+		template<bool RECV_ID, DEVICE_C DEVICE, class ...REM_DEVICES>
+		static inline DeviceInterface::unique_ptr recvDeviceByTypeInternal(MPI_Comm comm, int tag, MPIDeviceData &devData);
+
+		static inline void throwNoDevError(const DeviceIdentifier &devID)
+		{	throw std::domain_error("No device available for type \"" + devID.Type + "\"");	}
 };
 
 template<DEVICE_C ...DEVICES>
@@ -133,7 +136,7 @@ struct DeviceConversionMechanism<MPIPropertyData, MPIDeviceData, DEVICES...> : p
 	static typename PtrTemplates<DEVICE>::unique_ptr deserialize(MPIDeviceData &data)
 	{
 		typename PtrTemplates<DEVICE>::unique_ptr retVal(new DEVICE(data.DeviceID));
-		MPIPropertySerializer<DEVICE>::updateProperties(*retVal, data);
+		MPIPropertySerializer<DEVICE>::updateProperties(*retVal, static_cast<MPIPropertyData&>(data));
 
 		return retVal;
 	}
@@ -176,35 +179,37 @@ struct DeviceConversionMechanism<MPIPropertyData, MPIDeviceData, DEVICES...> : p
 template<DEVICE_C ...DEVICES>
 using MPIDeviceConversionMechanism = DeviceConversionMechanism<MPIPropertyData, MPIDeviceData, DEVICES...>;
 
-template<DEVICE_C DEVICE, DEVICE_C ...REM_DEVICES, bool SEND_ID>
-inline void MPICommunication::sendDeviceByType(MPI_Comm comm, int tag, DeviceInterface &devInterface)
+template<bool SEND_ID, DEVICE_C DEVICE, class ...REM_DEVICES>
+void MPICommunication::sendDeviceByTypeInternal(MPI_Comm comm, int tag, DeviceInterface &devInterface)
 {
 	if(devInterface.type() == DEVICE::TypeName)
-	{	MPICommunication::sendDevice<DEVICE, SEND_ID>(comm, tag, devInterface);	}
+	{	MPICommunication::sendDevice<DEVICE, SEND_ID>(comm, tag, dynamic_cast<DEVICE&>(devInterface));	}
 
 	if constexpr (sizeof...(REM_DEVICES) > 0)
-	{	return sendDeviceByType<REM_DEVICES..., SEND_ID>(comm, tag, devInterface);	}
+	{	return sendDeviceByTypeInternal<SEND_ID, REM_DEVICES...>(comm, tag, devInterface);	}
 	else
-	{	throw std::domain_error("No device available for type \"" + devInterface.type() + "\"");	}
+	{	throwNoDevError(devInterface.id());	}
 }
 
-template<DEVICE_C DEVICE, DEVICE_C ...REM_DEVICES, bool RECV_ID>
-DeviceInterface::unique_ptr MPICommunication::recvDeviceByType(MPI_Comm comm, int tag, MPIDeviceData &devID)
+template<bool RECV_ID, DEVICE_C DEVICE, class ...REM_DEVICES>
+inline DeviceInterface::unique_ptr MPICommunication::recvDeviceByTypeInternal(MPI_Comm comm, int tag, MPIDeviceData &devData)
 {
-	if(devID.DeviceID.Type == DEVICE::TypeName)
+	if(devData.DeviceID.Type == DEVICE::TypeName)
 	{
-		auto retVal = MPIDeviceConversionMechanism<>::deserialize<DEVICE>(devID);
+		auto retVal = MPIDeviceConversionMechanism<>::deserialize<DEVICE>(devData);
 
-		MPICommunication::recvDevice<DEVICE, RECV_ID>(comm, tag, devID);
+		MPICommunication::recvDevice<DEVICE, RECV_ID>(comm, tag, *retVal);
 
 		return retVal;
 	}
 
 	if constexpr (sizeof... (REM_DEVICES) > 0)
-	{	return recvDeviceByType<REM_DEVICES..., RECV_ID>(comm, tag, devID.DeviceID.Type);	}
+	{	return recvDeviceByTypeInternal<RECV_ID, REM_DEVICES...>(comm, tag, devData);	}
 	else
-	{	throw std::domain_error("No device available for type \"" + devID.DeviceID.Type + "\"");	}
+	{
+		throwNoDevError(devData.DeviceID);
+		return nullptr;		// Silence compiler no-return warning
+	}
 }
-
 
 #endif // MPI_DEVICE_CONVERSION_MECHANISM_H

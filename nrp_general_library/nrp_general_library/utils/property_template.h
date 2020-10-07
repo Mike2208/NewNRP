@@ -230,6 +230,8 @@ class PropertyTemplateGeneral
 			template<class ...T>
 			PropertyTemplateInternal(T &&...)
 			{}
+
+			PropertyTemplateInternal() = default;
 		};
 
 		/*!
@@ -400,25 +402,7 @@ class PropertyTemplateGeneral
 				{}
 
 				/*!
-				 * \brief Constructor. Takes function to retrieve property variable, as well as a set of names and default values for each PROPERTIES class
-				 * \tparam FUNC Function class. Should be of the form PROPERTY(const std::string_view &)
-				 * \tparam PROPERTY_T Property Class. Should be convertible to PROPERTY
-				 * \tparam T Remaining classes for REMAINING_PROPERTIES. Should be alternating STRING_T and PROPERTY_T for each REMAINING_PROPERTIES
-				 * \param _func Function (PROPERTY()(const std::string_view&)) to retrieve value under given name. If function fails, use the defaultValue
-				 * \param _name Name of property
-				 * \param _defaultValue Default Value for Property. Is used if _func call fails
-				 * \param _other Set of names and default values for REMAINING_PROPERTIES
-				 */
-				template<class FUNC, PROPERTY_CONSTRUCTIBLE_C<PROPERTY> PROPERTY_T, class ...T>
-				requires (std::is_invocable_v<FUNC, const std::string_view&>)
-				PropertyTemplateInternal(FUNC &&_func, PROPERTY_T &&_defaultValue, T &&..._other)
-				    : property_config_t(std::forward<PROPERTY_T>(_defaultValue)),
-				      base_property_internal_t(std::forward<FUNC>(_func), std::forward<T>(_other)...),
-				      Property(getFuncValOrDefault(std::forward<FUNC>(_func), std::forward<PROPERTY_T>(_defaultValue)))
-				{}
-
-				/*!
-				 * \brief Constructor. Takes name and property value for each PROPERTIES class
+				 * \brief Constructor. Takes property value for current PROPERTIES class, passes rest on
 				 * \tparam STRING_T Name class. Should be convertible to std::string_view
 				 * \tparam PROPERTY_T Property Class. Should be convertible to PROPERTY
 				 * \param _property Property value
@@ -430,6 +414,8 @@ class PropertyTemplateGeneral
 				      base_property_internal_t(std::forward<T>(_other)...),
 				      Property(std::forward<PROPERTY_T>(_property))
 				{}
+
+				PropertyTemplateInternal() = default;
 
 			private:
 				/*!
@@ -542,19 +528,6 @@ class PropertyTemplate
 		template<FixedString NAME>
 		using property_name_t = typename property_internal_t<PROP_NAMES::template getID<NAME>()>::property_value_t;
 
-
-		/*!
-		 * \brief Constructor. Takes function to retrieve property variable, as well as a set of names and default values for each PROPERTIES class
-		 * \tparam FUNC Function class. Should be of the form PROPERTY(const std::string_view &)
-		 * \tparam STRINGS_PROPERTIES_T String and Property Class. Should be a set of classes, convertible to string_view and PROPERTY
-		 * \param func Function (PROPERTY()(const std::string_view&)) to retrieve value under given name. If function fails, use the defaultValue
-		 * \param properties Set of names and default values for REMAINING_PROPERTIES
-		 */
-//		template<class FUNC, class ...STRINGS_PROPERTIES_T>
-//		PropertyTemplate(FUNC &&func, STRINGS_PROPERTIES_T &&...properties)
-//		    : PropertyTemplateInternal<CLASS, 0, PROPERTIES...>(std::forward<FUNC>(func), std::forward<STRINGS_PROPERTIES_T>(properties)...)
-//		{}
-
 		/*!
 		 * \brief Constructor. Takes name and property value for each PROPERTIES class
 		 * \tparam STRINGS_PROPERTIES_T String and Property Class. Should be a set of classes, convertible to string_view and PROPERTY
@@ -564,6 +537,8 @@ class PropertyTemplate
 		PropertyTemplate(STRINGS_PROPERTIES_T &&...properties)
 		    : property_internal_t<0>(std::forward<STRINGS_PROPERTIES_T>(properties)...)
 		{}
+
+		PropertyTemplate() = default;
 
 		/*!
 		 *	\brief Gets Property with ID _ID

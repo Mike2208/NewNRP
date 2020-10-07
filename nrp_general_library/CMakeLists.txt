@@ -62,6 +62,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/utils/restclient_setup.cpp
 	nrp_general_library/utils/serializers/json_property_serializer.cpp
 	nrp_general_library/utils/serializers/mpi_property_serializer.cpp
+	nrp_general_library/utils/serializers/mpi_property_serializer_methods.cpp
 	nrp_general_library/utils/serializers/property_serializer.cpp
 	nrp_general_library/utils/serializers/property_serializer_general.cpp
 	nrp_general_library/utils/serializers/python_dict_property_serializer.cpp

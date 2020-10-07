@@ -1,5 +1,6 @@
 #include "nrp_general_library/process_launchers/launch_commands/mpi_spawn.h"
 
+#include "nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.h"
 #include "nrp_general_library/utils/mpi_setup.h"
 
 #include <chrono>
@@ -70,10 +71,10 @@ pid_t MPISpawn::launchEngineProcess(const EngineConfigGeneral &engineConfig, con
 	}
 
 	// Get child pid
-	errc = MPI_Recv(&this->_enginePID, sizeof(this->_enginePID), MPI_BYTE, MPI_ANY_SOURCE, MPI_ANY_TAG, this->_intercomm, MPI_STATUS_IGNORE);
-	if(errc != MPI_SUCCESS)
+	try{	MPICommunication::recvMPI(&this->_enginePID, sizeof(this->_enginePID), MPI_BYTE, MPI_ANY_SOURCE, MPI_ANY_TAG, this->_intercomm);	}
+	catch(std::exception &e)
 	{
-		const auto errMsg = "Failed to communicate with engine \"" + engineConfig.engineName() + "\" after launch: " + MPISetup::getErrorString(errc);
+		const auto errMsg = "Failed to communicate with engine \"" + engineConfig.engineName() + "\" after launch: " + e.what();
 		std::cerr << errMsg << "\n";
 		throw std::runtime_error(errMsg);
 	}

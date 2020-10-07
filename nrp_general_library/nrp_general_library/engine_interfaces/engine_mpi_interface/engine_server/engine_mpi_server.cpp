@@ -1,6 +1,7 @@
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_server.h"
 
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.h"
+#include "nrp_general_library/utils/mpi_setup.h"
 
 EngineMPIControl::EngineMPIControl(const PropertyTemplate &props)
     : PropertyTemplate(props)
@@ -47,12 +48,12 @@ const EngineMPIControl::CommandData::info_t &EngineMPIControl::info() const
 	return this->getPropertyByName<"cmd">().info;
 }
 
-MPI_Comm EngineMPIServer::getComm()
+MPI_Comm EngineMPIServer::getNRPComm()
 {
-	MPI_Comm retVal;
-	if(MPI_Comm_get_parent(&retVal) != 0)
+	MPI_Comm retVal = MPISetup::getParentComm();
+	if(retVal == MPI_COMM_NULL)
 	{
-		const auto errMsg = "Unable to fing MPI communicator with NRP Client";
+		const auto errMsg = "Unable to find MPI communicator with NRP Client";
 		std::cerr << errMsg << "\n";
 		throw std::runtime_error(errMsg);
 	}
@@ -65,7 +66,7 @@ EngineMPIServer::EngineMPIServer(MPI_Comm comm)
 {}
 
 EngineMPIServer::EngineMPIServer()
-    : EngineMPIServer(EngineMPIServer::getComm())
+    : EngineMPIServer(EngineMPIServer::getNRPComm())
 {}
 
 void EngineMPIServer::getClientCmd(EngineMPIControl &cmd)
@@ -109,20 +110,25 @@ EngineInterface::RESULT EngineMPIServer::initializeHandler(const std::string &in
 	const auto retVal = this->initialize(initData);
 	this->_state = PAUSED;
 
+	MPICommunication::sendMPI(&retVal, sizeof(retVal), MPI_BYTE, 0, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
+
 	return retVal;
 }
 
 EngineInterface::RESULT EngineMPIServer::shutdownHandler(const std::string &shutdownData)
 {
-	if(this->_state == STOPPED)
+	if(this->_state == STOPPED || this->_state == STOPPING)
 	{
 		const auto errMsg = "Shutdown request was sent to stopped MPI engine. Aborting...";
 		std::cerr << errMsg << "\n";
 		throw std::runtime_error(errMsg);
 	}
 
+	this->_state = STOPPING;
 	const auto retVal = this->shutdown(shutdownData);
 	this->_state = STOPPED;
+
+	MPICommunication::sendMPI(&retVal, sizeof(retVal), MPI_BYTE, 0, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
 
 	return retVal;
 }
@@ -139,6 +145,15 @@ EngineInterface::RESULT EngineMPIServer::runLoopStepHandler(float timeStep)
 	this->_state = RUNNING;
 	const auto retVal = this->runLoopStep(timeStep);
 	this->_state = PAUSED;
+
+	float engineTime;
+	if(retVal != EngineInterface::SUCCESS)
+		engineTime = -1;
+	else
+		engineTime = this->getSimTime();
+
+	// Inform client that loop has completed
+	MPICommunication::sendMPI(&engineTime, 1, MPI_FLOAT, 0, EngineMPIControlConst::WAIT_LOOP_COMM_TAG, this->_comm);
 
 	return retVal;
 }
@@ -169,6 +184,8 @@ EngineInterface::RESULT EngineMPIServer::getOutputDevicesHandler(const int numDe
 			throw std::runtime_error(errMsg);
 		}
 	}
+
+	EngineMPIServer::lock_t lock(this->_devCtrlLock);
 
 	// Retrieve device data from controllers
 	MPIPropertyData mpiDevDat;
@@ -203,6 +220,8 @@ EngineInterface::RESULT EngineMPIServer::handleInputDevicesHandler(const int num
 	std::vector<DeviceIdentifier> devIDs;
 	devIDs.reserve(numDevices);
 
+	EngineMPIServer::lock_t lock(this->_devCtrlLock);
+
 	// Read device data
 	DeviceIdentifier devID("", "", "");
 	for(int i=0; i<numDevices; ++i)
@@ -221,7 +240,43 @@ EngineInterface::RESULT EngineMPIServer::handleInputDevicesHandler(const int num
 		this->handleDeviceInput(devID);
 	}
 
+	const auto retVal = EngineInterface::SUCCESS;
+	MPICommunication::sendMPI(&retVal, sizeof(retVal), MPI_BYTE, 0, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
+
+	return retVal;
+}
+
+EngineInterface::RESULT EngineMPIServer::registerDeviceController(EngineMPIDeviceControllerInterface *devCtrl)
+{
+	EngineMPIServer::lock_t lock(this->_devCtrlLock);
+
+	const auto devCtrlIt = this->_deviceControllers.find(devCtrl->Name);
+	if(devCtrlIt != this->_deviceControllers.end())
+	{
+		std::cerr << "Warning: DeviceController already registered for \"" << devCtrl->Name << "\". Overriding...\n";
+		devCtrlIt->second = devCtrl;
+	}
+	else
+		this->_deviceControllers.emplace(devCtrl->Name, devCtrl);
+
 	return EngineInterface::SUCCESS;
+}
+
+EngineInterface::RESULT EngineMPIServer::removeDeviceController(const std::string &devName)
+{
+	EngineMPIServer::lock_t lock(this->_devCtrlLock);
+
+	const auto devCtrlIt = this->_deviceControllers.find(devName);
+	if(devCtrlIt != this->_deviceControllers.end())
+		this->_deviceControllers.erase(devCtrlIt);
+
+	return EngineInterface::SUCCESS;
+}
+
+void EngineMPIServer::removeAllDeviceControllers()
+{
+	EngineMPIServer::lock_t lock(this->_devCtrlLock);
+	this->_deviceControllers.clear();
 }
 
 EngineInterface::RESULT EngineMPIServer::initialize(const std::string &)

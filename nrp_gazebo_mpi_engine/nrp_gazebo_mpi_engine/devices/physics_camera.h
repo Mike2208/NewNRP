@@ -47,9 +47,9 @@ class PhysicsCamera
           public PhysicsCameraConst::JProps
 {
 	public:
+		PhysicsCamera() = default;
 		PhysicsCamera(const std::string &name);
 		PhysicsCamera(const DeviceIdentifier &id);
-		PhysicsCamera(const DeviceIdentifier &id, const nlohmann::json &data);
 
 		uint32_t imageHeight() const;
 		uint32_t &imageHeight();

@@ -31,7 +31,7 @@ TEST(TestGazeboEngine, Start)
 
 	// Launch gazebo server
 	GazeboEngineJSONLauncher launcher;
-	PtrTemplates<GazeboEngineJSONNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineJSONNRPClient>(
+	PtrTemplates<NRPGazeboMPIClient>::shared_ptr engine = std::dynamic_pointer_cast<NRPGazeboMPIClient>(
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);
@@ -55,7 +55,7 @@ TEST(TestGazeboEngine, WorldPlugin)
 
 	// Launch gazebo server
 	GazeboEngineJSONLauncher launcher;
-	PtrTemplates<GazeboEngineJSONNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineJSONNRPClient>(
+	PtrTemplates<NRPGazeboMPIClient>::shared_ptr engine = std::dynamic_pointer_cast<NRPGazeboMPIClient>(
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);
@@ -85,7 +85,7 @@ TEST(TestGazeboEngine, CameraPlugin)
 
 	// Launch gazebo server
 	GazeboEngineJSONLauncher launcher;
-	PtrTemplates<GazeboEngineJSONNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineJSONNRPClient>(
+	PtrTemplates<NRPGazeboMPIClient>::shared_ptr engine = std::dynamic_pointer_cast<NRPGazeboMPIClient>(
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);
@@ -139,7 +139,7 @@ TEST(TestGazeboEngine, JointPlugin)
 
 	// Launch gazebo server
 	GazeboEngineJSONLauncher launcher;
-	PtrTemplates<GazeboEngineJSONNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineJSONNRPClient>(
+	PtrTemplates<NRPGazeboMPIClient>::shared_ptr engine = std::dynamic_pointer_cast<NRPGazeboMPIClient>(
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);
@@ -185,7 +185,7 @@ TEST(TestGazeboEngine, LinkPlugin)
 
 	// Launch gazebo server
 	GazeboEngineJSONLauncher launcher;
-	PtrTemplates<GazeboEngineJSONNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineJSONNRPClient>(
+	PtrTemplates<NRPGazeboMPIClient>::shared_ptr engine = std::dynamic_pointer_cast<NRPGazeboMPIClient>(
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);

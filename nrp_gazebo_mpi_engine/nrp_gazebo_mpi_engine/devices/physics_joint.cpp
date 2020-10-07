@@ -1,5 +1,7 @@
 #include "nrp_gazebo_mpi_engine/devices/physics_joint.h"
 
+#include <type_traits>
+
 PhysicsJointConst::FloatNan::FloatNan(float val)
     : _val(val)
 {}
@@ -10,12 +12,7 @@ PhysicsJoint::PhysicsJoint(const std::string &name)
 
 PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id)
     : DeviceInterface(id),
-      PropertyTemplate(NAN, NAN, NAN)
-{}
-
-PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id, const nlohmann::json &data)
-    : DeviceInterface(id),
-      PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, NAN, NAN, NAN))
+      PropertyTemplate(std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN())
 {}
 
 float PhysicsJoint::position() const
@@ -46,25 +43,4 @@ float PhysicsJoint::effort() const
 void PhysicsJoint::setEffort(float effort)
 {
 	this->getPropertyByName<Effort>() = effort;
-}
-
-template<>
-nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PhysicsJointConst::FloatNan &property)
-{
-	return nlohmann::json(static_cast<float>(property));
-}
-
-template<>
-PhysicsJointConst::FloatNan JSONPropertySerializerMethods::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name)
-{
-	const auto dataIterator(data.find(name.data()));
-	if(dataIterator != data.end())
-	{
-		if(dataIterator->is_number())
-			return dataIterator->get<float>();
-		else
-			return NAN;
-	}
-	else
-		throw std::out_of_range(std::string("Couldn't find JSON attribute ") + name.data() + " during deserialization");
 }

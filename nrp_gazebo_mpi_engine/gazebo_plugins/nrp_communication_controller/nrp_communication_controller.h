@@ -1,11 +1,10 @@
 #ifndef NRP_COMMUNICATION_CONTROLLER_H
 #define NRP_COMMUNICATION_CONTROLLER_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
-
 #include "nrp_gazebo_mpi_engine/config/gazebo_config.h"
 #include "nrp_gazebo_mpi_engine/engine_server/gazebo_step_controller.h"
+#include "nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_server.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
 
 #include <pistache/router.h>
 #include <pistache/endpoint.h>
@@ -18,10 +17,10 @@
  * \brief Manages communication with the NRP. Uses a REST server to send/receive data. Singleton class.
  */
 class NRPCommunicationController
-        : public EngineJSONServer
+        : public EngineMPIServer
 {
 	public:
-		~NRPCommunicationController() override;
+		~NRPCommunicationController();
 
 		/*! \brief Delete for singleton */
 		NRPCommunicationController(const NRPCommunicationController &other) = delete;
@@ -43,20 +42,10 @@ class NRPCommunicationController
 
 		/*!
 		 * \brief Reset server with the given server URL
-		 * \param serverURL URL used by server
+		 * \param nrpComm MPI Communicator to interact with server
 		 * \return Returns reference to server instance
 		 */
-		static NRPCommunicationController& resetInstance(const std::string &serverURL);
-
-		/*!
-		 * \brief Reset server with the given server URL
-		 * \param serverURL URL used by server
-		 * \param engineName Name of this engine
-		 * \param registrationURL URL used to register this engine server's URL
-		 * \return Returns reference to server instance
-		 */
-		static NRPCommunicationController& resetInstance(const std::string &serverURL, const std::string &engineName, const std::string &registrationURL);
-
+		static NRPCommunicationController& resetInstance(MPI_Comm nrpComm = EngineMPIServer::getNRPComm());
 
 		/*!
 		 * \brief Register a step controller
@@ -76,7 +65,6 @@ class NRPCommunicationController
 		{	return plugin.GetHandle() + "::" + objectName;	}
 
 	private:
-
 		/*!
 		 * \brief Singleton instance of this class
 		 */
@@ -87,31 +75,17 @@ class NRPCommunicationController
 		 */
 		GazeboStepController *_stepController = nullptr;
 
-		virtual float runLoopStep(float timeStep) override;
+		EngineInterface::RESULT initialize(const std::string &initData) override;
+		EngineInterface::RESULT shutdown(const std::string &shutdownData) override;
 
-		virtual nlohmann::json initialize(const nlohmann::json &data, EngineJSONServer::lock_t &lock) override;
-
-		virtual nlohmann::json shutdown(const nlohmann::json &data) override;
-
-		/*!
-		 * \brief Make private for singleton
-		 */
-		NRPCommunicationController() = default;
+		EngineInterface::step_result_t runLoopStep(float timeStep) override;
+		float getSimTime() const override;
 
 		/*!
 		 * \brief Constructor. Private for singleton
-		 * \param address Server Address
+		 * \param parentComm MPI Communicator to NRP
 		 */
-		NRPCommunicationController(const std::string &address);
-
-		/*!
-		 * \brief Constructor. Private for singleton
-		 * \param serverURL URL used by server
-		 * \param engineName Name of this engine
-		 * \param registrationURL URL used to register this engine server's URL
-		 * \return Returns reference to server instance
-		 */
-		NRPCommunicationController(const std::string &serverURL, const std::string &engineName, const std::string &registrationURL);
+		explicit NRPCommunicationController(MPI_Comm nrpComm);
 };
 
 #endif

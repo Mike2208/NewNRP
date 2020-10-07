@@ -9,11 +9,6 @@ PhysicsCamera::PhysicsCamera(const DeviceIdentifier &id)
       PropertyTemplate(0, 0, 0, std::vector<unsigned char>({}))
 {}
 
-PhysicsCamera::PhysicsCamera(const DeviceIdentifier &id, const nlohmann::json &data)
-    : DeviceInterface(id),
-      PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, 0, 0, 0, std::vector<unsigned char>({})))
-{}
-
 uint32_t PhysicsCamera::imageHeight() const
 {
 	return this->getPropertyByName<ImageHeight>();

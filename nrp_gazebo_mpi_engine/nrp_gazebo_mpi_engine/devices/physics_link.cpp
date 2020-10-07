@@ -11,12 +11,6 @@ PhysicsLink::PhysicsLink(const DeviceIdentifier &id)
                        DefLinearVelocity, DefAngularVelocity)
 {}
 
-PhysicsLink::PhysicsLink(const DeviceIdentifier &id, const nlohmann::json &data)
-    : DeviceInterface(id),
-      PropertyTemplate(json_property_serializer_t::readProperties(data, DefPosition, DefRotation,
-                                                                  DefLinearVelocity, DefAngularVelocity))
-{}
-
 const PhysicsLink::vec3_t &PhysicsLink::position() const
 {
 	return this->getPropertyByName<Position, vec3_t>();

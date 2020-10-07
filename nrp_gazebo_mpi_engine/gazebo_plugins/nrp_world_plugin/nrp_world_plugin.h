@@ -19,10 +19,11 @@ namespace gazebo
 		public:
 			virtual ~NRPWorldPlugin() override = default;
 
-			virtual void Load(physics::WorldPtr world, sdf::ElementPtr sdf) override;
-			virtual void Reset() override;
+			void Load(physics::WorldPtr world, sdf::ElementPtr sdf) override;
+			void Reset() override;
 
-			virtual double runLoopStep(double timeStep) override;
+			double runLoopStep(double timeStep) override;
+			float getSimTime() const override;
 
 			bool finishWorldLoading() override;
 
