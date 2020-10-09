@@ -27,10 +27,15 @@ class MPISetup
 		 * \brief Initialize MPI if not yet done
 		 * \param argc MPI_Init argument
 		 * \param argv MPI_Init argument
-		 * \param sendParentPID Should the parent PID be sent after running MPI_INIT?
+		 * \param sendPID Should the PID be sent to the parent after running MPI_INIT?
 		 * This is only required in an engine spawned via the launch command "MPI"
 		 */
-		static MPISetup *initializeOnce(int argc, char **argv, bool sendParentPID = false);
+		static MPISetup *initializeOnce(int argc, char **argv, bool sendPID = false);
+
+		/*!
+		 * \brief Finalizes MPI if currently initialized
+		 */
+		static void finalize();
 
 		/*!
 		 * \brief Get error string for an MPI Error Code
@@ -44,6 +49,20 @@ class MPISetup
 		 * \return If this process does not have an MPI-ready parent, return MPI_COMM_NULL
 		 */
 		static MPI_Comm getParentComm();
+
+		/*!
+		 * \brief Send current PID process
+		 * \param comm Communicator to use. Default is parent process communicator
+		 * \param tag MPI Message tag
+		 */
+		void sendPID(MPI_Comm comm = MPISetup::getParentComm(), int tag = 0);
+
+		/*!
+		 * \brief Receive PID process
+		 * \param comm MPI Communicator to use
+		 * \param tag MPI Message tag
+		 */
+		pid_t recvPID(MPI_Comm comm, int tag);
 
 		/*!
 		 * \brief Finalizes MPI

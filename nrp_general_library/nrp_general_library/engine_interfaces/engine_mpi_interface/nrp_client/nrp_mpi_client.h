@@ -59,14 +59,14 @@ class NRPMPIClient
 
 		EngineInterface::RESULT waitForStepCompletion(float timeOut) override
 		{
-			if(this->_runLoopThread.wait_for(std::chrono_literals::operator""ms(timeOut)) != std::future_status::ready)
+			if(this->_runLoopThread.wait_for(std::chrono_literals::operator""s(timeOut)) != std::future_status::ready)
 				return EngineInterface::ERROR;
 
 			const auto retEngineTime = this->_runLoopThread.get();
 			if(retEngineTime < 0)
 				return EngineInterface::ERROR;
 
-			this->_engineTime += this->_runLoopThread.get();
+			this->_engineTime += retEngineTime;
 			return EngineInterface::SUCCESS;
 		}
 

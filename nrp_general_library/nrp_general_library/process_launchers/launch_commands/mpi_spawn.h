@@ -15,6 +15,7 @@ class MPISpawn
 		static constexpr std::string_view EnvCfgCmd = NRP_ENGINE_SET_ENV_CMD;
 
 	public:
+		MPISpawn() = default;
 		~MPISpawn() override;
 
 		pid_t launchEngineProcess(const EngineConfigGeneral &engineConfig, const EngineConfigConst::string_vector_t &additionalEnvParams,
@@ -26,6 +27,11 @@ class MPISpawn
 		 * \brief Get MPI Communicator with child
 		 */
 		MPI_Comm getIntercomm() const;
+
+		/*!
+		 * \brief Get Engine PID
+		 */
+		pid_t getEnginePID() const;
 
 	private:
 		/*!

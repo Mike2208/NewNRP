@@ -232,7 +232,8 @@ template<>
 struct MPISinglePropertySerializer<std::string>
     : public MPISinglePropertySerializerGeneral
 {
-	static constexpr int getVarSizes();
+	static constexpr int getVarSizes()
+	{	return 1;	}
 
 	static void resize(MPIPropertyData &dat, std::string &prop);
 
@@ -265,7 +266,7 @@ struct MPISinglePropertySerializer<boost::python::object> : public MPISingleProp
 
 			if constexpr (SEND == true)
 			{
-				python::tuple args(prop);
+				python::tuple args = python::make_tuple(prop);
 				python::dict kwargs;
 				kwargs["dest"] = 0;
 				kwargs["tag"] = tag;
@@ -288,8 +289,18 @@ struct MPISinglePropertySerializer<boost::python::object> : public MPISingleProp
 		}
 	}
 
+	/*!
+	 * \brief Set pPyMPICommFcn
+	 */
+	static void setPyMPICommFcn(void *fcn);
+
 	private:
 	    static boost::python::object pyMPIComm(MPI_Comm comm);
+
+		/*!
+		 * \brief Used as function pointer to PyMPIComm_New of MPI4Py. See MPISetup for details
+		 */
+		static void *pPyMPICommFcn;
 };
 
 #endif // MPI_PROPERTY_SERIALIZER_METHODS_H

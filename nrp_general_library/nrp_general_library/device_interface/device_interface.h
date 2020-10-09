@@ -62,7 +62,7 @@ class DeviceInterface
 		void setEngineName(const std::string &engineName);
 
 		const DeviceIdentifier &id() const;
-		void setId(const DeviceIdentifier &id);
+		void setID(const DeviceIdentifier &id);
 
 	private:
 		/*!

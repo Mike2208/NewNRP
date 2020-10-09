@@ -13,15 +13,17 @@ NRPGazeboMPIClient::NRPGazeboMPIClient(EngineConfigConst::config_storage_t &conf
     : NRPMPIClient(config, std::move(launcher))
 {}
 
-EngineInterface::RESULT NRPGazeboMPIClient::initialize()
-{
-	auto confDat = this->engineConfig()->writeConfig();
-	MPICommunication::sendString(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, confDat.dump());
+//EngineInterface::RESULT NRPGazeboMPIClient::initialize()
+//{
+//	this->_comm = this->getComm();
 
-	return EngineInterface::SUCCESS;
-}
+//	auto confDat = this->engineConfig()->writeConfig();
+//	MPICommunication::sendString(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, confDat.dump());
 
-EngineInterface::RESULT NRPGazeboMPIClient::shutdown()
-{
-	return EngineInterface::SUCCESS;
-}
+//	return EngineInterface::SUCCESS;
+//}
+
+//EngineInterface::RESULT NRPGazeboMPIClient::shutdown()
+//{
+//	return EngineInterface::SUCCESS;
+//}

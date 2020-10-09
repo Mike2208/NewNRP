@@ -7,6 +7,7 @@
 #include "nrp_gazebo_mpi_engine/devices/physics_link.h"
 #include "nrp_gazebo_mpi_engine/nrp_client/nrp_gazebo_mpi_client.h"
 #include "nrp_general_library/process_launchers/process_launcher_basic.h"
+#include "nrp_general_library/utils/python_interpreter_state.h"
 
 #include "tests/test_env_cmake.h"
 
@@ -14,6 +15,8 @@
 
 TEST(TestGazeboEngine, Start)
 {
+	PythonInterpreterState pyState;
+
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
 	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
@@ -41,6 +44,8 @@ TEST(TestGazeboEngine, Start)
 
 TEST(TestGazeboEngine, WorldPlugin)
 {
+	PythonInterpreterState pyState;
+
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
 	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
@@ -65,10 +70,14 @@ TEST(TestGazeboEngine, WorldPlugin)
 	ASSERT_EQ(engine->runLoopStep(1.0f), EngineInterface::RESULT::SUCCESS);
 
 	ASSERT_EQ(engine->waitForStepCompletion(5.0f), EngineInterface::RESULT::SUCCESS);
+
+	ASSERT_EQ(engine->shutdown(), EngineInterface::RESULT::SUCCESS);
 }
 
 TEST(TestGazeboEngine, CameraPlugin)
 {
+	PythonInterpreterState pyState;
+
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
 	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
@@ -123,6 +132,8 @@ TEST(TestGazeboEngine, CameraPlugin)
 
 TEST(TestGazeboEngine, JointPlugin)
 {
+	PythonInterpreterState pyState;
+
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
 	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
@@ -169,6 +180,8 @@ TEST(TestGazeboEngine, JointPlugin)
 
 TEST(TestGazeboEngine, LinkPlugin)
 {
+	PythonInterpreterState pyState;
+
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
 	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});

@@ -57,7 +57,7 @@ BOOST_PYTHON_MODULE(PYTHON_MODULE_NAME)
 	        .add_property("name", make_function(&DeviceInterface::name, return_value_policy<copy_const_reference>()), &DeviceInterface::setName)
 	        .add_property("type", make_function(&DeviceInterface::type, return_value_policy<copy_const_reference>()), &DeviceInterface::setType)
 	        .add_property("engine_name", make_function(&DeviceInterface::engineName, return_value_policy<copy_const_reference>()), &DeviceInterface::setEngineName)
-	        .add_property("id", make_function(&DeviceInterface::id, return_value_policy<reference_existing_object>()), &DeviceInterface::setId);
+	        .add_property("id", make_function(&DeviceInterface::id, return_value_policy<reference_existing_object>()), &DeviceInterface::setID);
 
 	register_ptr_to_python<DeviceInterfaceSharedPtr>();
 	register_ptr_to_python<DeviceInterfaceConstSharedPtr>();

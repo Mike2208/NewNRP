@@ -16,7 +16,7 @@
 MPISpawn::~MPISpawn()
 {
 	// Stop engine process if it's still running
-	this->stopEngineProcess(60);
+	this->stopEngineProcess(10);
 }
 
 pid_t MPISpawn::launchEngineProcess(const EngineConfigGeneral &engineConfig, const EngineConfigConst::string_vector_t &additionalEnvParams,
@@ -35,7 +35,7 @@ pid_t MPISpawn::launchEngineProcess(const EngineConfigGeneral &engineConfig, con
 	// Reserve variable space (EnvCfgCmd + ENV_VAR1=ENV_VAL1 + ENV_VAR2=ENV_VAL2 + ... + engineProcCmd + --param1 + --param2 + ... + nullptr)
 	startParamPtrs.reserve(!(appendParentEnv) + additionalEnvParams.size() + engineProcEnvVars.size() + additionalStartParams.size() + engineProcStartParams.size() + 2);
 
-	if(appendParentEnv)
+	if(!appendParentEnv)
 		startParamPtrs.push_back(NRP_CLEAR_ENV);
 
 	// Environment variables
@@ -71,7 +71,7 @@ pid_t MPISpawn::launchEngineProcess(const EngineConfigGeneral &engineConfig, con
 	}
 
 	// Get child pid
-	try{	MPICommunication::recvMPI(&this->_enginePID, sizeof(this->_enginePID), MPI_BYTE, MPI_ANY_SOURCE, MPI_ANY_TAG, this->_intercomm);	}
+	try{	this->_enginePID = MPISetup::getInstance()->recvPID(this->_intercomm, 0);	}
 	catch(std::exception &e)
 	{
 		const auto errMsg = "Failed to communicate with engine \"" + engineConfig.engineName() + "\" after launch: " + e.what();
@@ -86,6 +86,8 @@ pid_t MPISpawn::stopEngineProcess(unsigned int killWait)
 {
 	if(this->_enginePID > 0)
 	{
+		MPI_Comm_free(&this->_intercomm);
+
 		// Send SIGTERM to gracefully stop process
 		kill(this->_enginePID, SIGTERM);
 
@@ -99,8 +101,8 @@ pid_t MPISpawn::stopEngineProcess(unsigned int killWait)
 		bool pKilled = false;
 		do
 		{
-			int engineStatus;
-			if(waitpid(this->_enginePID, &engineStatus, WNOHANG) == this->_enginePID)
+			int status = 0;
+			if(waitpid(this->_enginePID, &status, WNOHANG | WUNTRACED) == this->_enginePID)
 			{
 				pKilled = true;
 				break;
@@ -116,6 +118,7 @@ pid_t MPISpawn::stopEngineProcess(unsigned int killWait)
 			kill(this->_enginePID, SIGKILL);
 
 		this->_enginePID = -1;
+		this->_intercomm = MPI_COMM_NULL;
 	}
 
 	return 0;
@@ -123,6 +126,9 @@ pid_t MPISpawn::stopEngineProcess(unsigned int killWait)
 
 MPI_Comm MPISpawn::getIntercomm() const
 {	return this->_intercomm;	}
+
+pid_t MPISpawn::getEnginePID() const
+{	return this->_enginePID;	}
 
 void MPISpawn::appendEnvVars(const EngineConfigConst::string_vector_t &envVars)
 {

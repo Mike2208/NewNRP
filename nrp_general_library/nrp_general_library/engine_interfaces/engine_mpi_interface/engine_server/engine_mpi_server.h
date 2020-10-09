@@ -87,6 +87,21 @@ class EngineMPIServer
 {
 	public:
 		/*!
+		 * \brief Server states. Will be set accordingly
+		 * - STOPPED:     Server state at startup and after server has shut down
+		 * - PAUSED:      State after initialize has been called and sim is not running
+		 * - RUNNING:     State during runLoopStep. After step has completed, state should be set back to PAUSED
+		 * - STOPPING:    State during shutdown call
+		 */
+		enum state_t
+		{
+			STOPPED,
+			PAUSED,
+			RUNNING,
+			STOPPING
+		};
+
+		/*!
 		 * \brief Get Communicator to NRP Client, assuming that this engine was spawned as a child process of the CLE.
 		 * Uses MPI_Comm_get_parent()
 		 * \exception Throws std::runtime_error if no communicator with parent can be found
@@ -110,7 +125,7 @@ class EngineMPIServer
 		EngineMPIServer(EngineMPIServer&&) = default;
 
 		EngineMPIServer &operator=(const EngineMPIServer&) = delete;
-		EngineMPIServer &operator=(EngineMPIServer&&) = delete;
+		EngineMPIServer &operator=(EngineMPIServer&&) = default;
 
 		/*!
 		 * \brief Get command from client. Blocks until command was received
@@ -189,6 +204,11 @@ class EngineMPIServer
 		 */
 		void removeAllDeviceControllers();
 
+		/*!
+		 * \brief Get current engine state
+		 */
+		state_t getEngineState() const;
+
 	protected:
 		/*!
 		 * \brief User-defined initialization function
@@ -229,21 +249,6 @@ class EngineMPIServer
 		 * \return Returns result of handling data
 		 */
 		virtual EngineInterface::RESULT handleDeviceInput(const DeviceIdentifier &devID);
-
-		/*!
-		 * \brief Server states. Will be set accordingly
-		 * - STOPPED:     Server state at startup and after server has shut down
-		 * - PAUSED:      State after initialize has been called and sim is not running
-		 * - RUNNING:     State during runLoopStep. After step has completed, state should be set back to PAUSED
-		 * - STOPPING:    State during shutdown call
-		 */
-		enum state_t
-		{
-			STOPPED,
-			PAUSED,
-			RUNNING,
-			STOPPING
-		};
 
 		/*!
 		 * \brief State of the server. See state_t for description of possible states

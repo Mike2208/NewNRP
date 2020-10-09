@@ -34,6 +34,7 @@ class ObjectPropertySerializerMethods
 		 * \tparam Deserialized property type
 		 * \param data All serialized data
 		 * \param name Name under which the property to deserialize is stored
+		 * \param prop Pointer to property. Usually unused
 		 * \return Returns deserialized property
 		 */
 		template<class PROPERTY>

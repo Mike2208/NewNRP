@@ -439,45 +439,45 @@ class PropertyTemplateGeneral
 					}
 				}
 
-				/*!
-				 * \brief Tries to retrieve value stored under name. If that fails, use the default value
-				 * \tparam FUNC Function callback. Should be of the form PROPERTY(const std::string_view &)
-				 * \tparam PROPERTY_T Property class. Should be convertible to PROPERTY
-				 * \param func Function callback. Tries to get value stored under name
-				 * \param name Name of property
-				 * \param defaultValue Default property that is used if func call throws an exception
-				 * \return Returns Property
-				 */
-				template<class FUNC, class PROPERTY_T>
-				static property_value_t getFuncValOrDefault(FUNC &&func, PROPERTY_T &&defaultValue)
-				{
-					if constexpr (std::is_base_of_v<PropertyTemplateGeneral::PropertyConfigGeneral, PROPERTY>)
-					{
-						static_assert(std::is_constructible_v<property_value_t, PROPERTY_T>, "Invalid value given as default");
-						property_value_t retProp(defaultValue);
-						try
-						{
-							retProp.Value = std::forward<FUNC>(func)(Name);
-						}
-						catch(const std::exception &)
-						{
-							retProp.Value = retProp.defaultValue;
-						}
+//				/*!
+//				 * \brief Tries to retrieve value stored under name. If that fails, use the default value
+//				 * \tparam FUNC Function callback. Should be of the form PROPERTY(const std::string_view &)
+//				 * \tparam PROPERTY_T Property class. Should be convertible to PROPERTY
+//				 * \param func Function callback. Tries to get value stored under name
+//				 * \param name Name of property
+//				 * \param defaultValue Default property that is used if func call throws an exception
+//				 * \return Returns Property
+//				 */
+//				template<class FUNC, class PROPERTY_T>
+//				static property_value_t getFuncValOrDefault(FUNC &&func, PROPERTY_T &&defaultValue)
+//				{
+//					if constexpr (std::is_base_of_v<PropertyTemplateGeneral::PropertyConfigGeneral, PROPERTY>)
+//					{
+//						static_assert(std::is_constructible_v<property_value_t, PROPERTY_T>, "Invalid value given as default");
+//						property_value_t retProp(defaultValue);
+//						try
+//						{
+//							retProp.Value = std::forward<FUNC>(func)(Name);
+//						}
+//						catch(const std::exception &)
+//						{
+//							retProp.Value = retProp.defaultValue;
+//						}
 
-						return retProp;
-					}
-					else
-					{
-						try
-						{
-							return std::forward<FUNC>(func)(Name);
-						}
-						catch(const std::exception &)
-						{
-							return std::forward<PROPERTY_T>(defaultValue);
-						}
-					}
-				}
+//						return retProp;
+//					}
+//					else
+//					{
+//						try
+//						{
+//							return std::forward<FUNC>(func)(Name);
+//						}
+//						catch(const std::exception &)
+//						{
+//							return std::forward<PROPERTY_T>(defaultValue);
+//						}
+//					}
+//				}
 		};
 };
 

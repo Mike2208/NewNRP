@@ -4,6 +4,8 @@
 #include <gazebo/gazebo.hh>
 #include <string_view>
 
+#include "nrp_general_library/utils/python_interpreter_state.h"
+
 namespace gazebo
 {
 	/*!
@@ -23,6 +25,21 @@ namespace gazebo
 			virtual void Reset();
 
 		private:
+			/*!
+			 * \brief Python State. Used for python interpreter
+			 */
+			PythonInterpreterState _pyState;
+
+			/*!
+			 * \brief Communication thread
+			 */
+			std::future<std::string> _commThread;
+
+			/*!
+			 * \brief MPI Communication function. Will continuously wait for new MPI commands
+			 * \return Returns empty string on success, error message on error
+			 */
+			static std::string commThreadFcn() noexcept;
 	};
 
 	GZ_REGISTER_SYSTEM_PLUGIN(NRPCommunicationPlugin)

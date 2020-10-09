@@ -1,6 +1,7 @@
 #include "nrp_general_library/utils/mpi_setup.h"
 
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.h"
+#include "nrp_general_library/utils/serializers/mpi_property_serializer_methods.h"
 
 // Include mpi before mpi4py
 #include <mpi.h>
@@ -17,23 +18,15 @@ MPISetup *MPISetup::resetInstance(int argc, char **argv)
 	return MPISetup::getInstance();
 }
 
-MPISetup *MPISetup::initializeOnce(int argc, char **argv, bool sendParentPID)
+MPISetup *MPISetup::initializeOnce(int argc, char **argv, bool sendPID)
 {
 	if(MPISetup::getInstance() == nullptr)
 	{
 		MPISetup *const retVal = MPISetup::resetInstance(argc, argv);
 
-		if(sendParentPID)
+		if(sendPID)
 		{
-			MPI_Comm parentComm;
-			const int errc = MPI_Comm_get_parent(&parentComm);
-			if(errc != MPI_SUCCESS)
-			{
-				const auto errMsg = "Failed to get parent communicator: " + std::to_string(errc);
-				std::cerr << errMsg << "\n";
-				throw std::runtime_error(errMsg);
-			}
-
+			MPI_Comm parentComm = MPISetup::getParentComm();
 			if(parentComm == MPI_COMM_NULL)
 			{
 				const auto errMsg = "No parent PID intercommunicator found. Has this process been launched via MPI_Comm_spawn()?";
@@ -41,8 +34,7 @@ MPISetup *MPISetup::initializeOnce(int argc, char **argv, bool sendParentPID)
 				throw std::runtime_error(errMsg);
 			}
 
-			const auto ppid = getppid();
-			MPICommunication::sendMPI(&ppid, sizeof(ppid), MPI_BYTE, 0, 0, parentComm);
+			retVal->sendPID(parentComm, 0);
 		}
 
 		return retVal;
@@ -50,6 +42,9 @@ MPISetup *MPISetup::initializeOnce(int argc, char **argv, bool sendParentPID)
 
 	return MPISetup::getInstance();
 }
+
+void MPISetup::finalize()
+{	MPISetup::_instance.reset();	}
 
 std::string MPISetup::getErrorString(int MPIErrorCode)
 {
@@ -80,6 +75,22 @@ MPI_Comm MPISetup::getParentComm()
 
 		retVal = MPI_COMM_NULL;
 	}
+	else
+		assert(retVal != MPI_COMM_NULL);
+
+	return retVal;
+}
+
+void MPISetup::sendPID(MPI_Comm comm, int tag)
+{
+	const pid_t ppid = getppid();
+	MPICommunication::sendMPI(&ppid, sizeof(pid_t), MPI_BYTE, 0, tag, comm);
+}
+
+pid_t MPISetup::recvPID(MPI_Comm comm, int tag)
+{
+	pid_t retVal;
+	MPICommunication::recvMPI(&retVal, sizeof(pid_t), MPI_BYTE, MPI_ANY_SOURCE, tag, comm);
 
 	return retVal;
 }
@@ -121,4 +132,6 @@ MPISetup::MPISetup(int argc, char **argv)
 		std::cerr << errMsg << "\n";
 		throw std::runtime_error(errMsg);
 	}
+
+	MPISinglePropertySerializer<boost::python::object>::setPyMPICommFcn(reinterpret_cast<void*>(PyMPIComm_New));
 }

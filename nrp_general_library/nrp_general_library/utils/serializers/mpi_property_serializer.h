@@ -1,6 +1,7 @@
 #ifndef MPI_property_SERIALIZER_H
 #define MPI_property_SERIALIZER_H
 
+#include "nrp_general_library/device_interface/device_interface.h"
 #include "nrp_general_library/utils/python_error_handler.h"
 #include "nrp_general_library/utils/serializers/property_serializer.h"
 
@@ -118,6 +119,17 @@ struct MPIPropertyData
 };
 
 /*!
+ * \brief MPIPropertyData with DeviceIdentifier. Used for deserialization if DevID is known
+ */
+struct MPIDeviceData
+        : public MPIPropertyData
+{
+	DeviceIdentifier DeviceID;
+
+	MPIDeviceData(DeviceIdentifier _deviceID, MPIPropertyData &&_dat = MPIPropertyData());
+};
+
+/*!
  * \brief Base for all MPI single Property serializer classes
  */
 struct MPISinglePropertySerializerGeneral
@@ -223,10 +235,13 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 		{
 			assert(property != nullptr);
 
-			constexpr bool isResizable = requires ()
-			{	MPISinglePropertySerializer<PROPERTY>::saveSize(data, *property);	};
-			if constexpr (isResizable)
-			{	MPISinglePropertySerializer<PROPERTY>::saveSize(data, *property);	}
+			if constexpr (SEND)
+			{
+				constexpr bool isResizable = requires ()
+				{	MPISinglePropertySerializer<PROPERTY>::saveSize(data, *property);	};
+				if constexpr (isResizable)
+				{	MPISinglePropertySerializer<PROPERTY>::saveSize(data, *property);	}
+			}
 
 			constexpr auto serMethod = serializationMethod<PROPERTY>();
 			if constexpr (serMethod == MPI_PROP_SERIALIZATION_BASE)
@@ -236,7 +251,7 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 			else
 			{
 				static_assert(serMethod == MPI_PROP_SERIALIZATION_FCN, "Unknown serialization method specified");
-				data.addPropDatatype(std::bind(&MPISinglePropertySerializer<PROPERTY>::template serializationFcn<SEND>, std::placeholders::_1, std::placeholders::_2, *property));
+				data.addPropDatatype(std::bind(&MPISinglePropertySerializer<PROPERTY>::template serializationFcn<SEND>, std::placeholders::_1, std::placeholders::_2, std::ref(*property)));
 			}
 		}
 
@@ -246,12 +261,11 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 		 * \return Returns a PROPERTY type of sufficient size to receive upcoming MPI_RECV
 		 */
 		template<class PROPERTY>
-		static PROPERTY deserializeSingleProperty(MPIPropertyData &data, const std::string_view &name)
+		static PROPERTY deserializeSingleProperty(MPIPropertyData &data, const std::string_view &)
 		{
-			auto retVal = resizeIfVariable<PROPERTY>(data);
-			emplaceSingleObject<PROPERTY, false>(data, name, serializeSingleProperty(retVal));
-
-			return retVal;
+			return resizeIfVariable<PROPERTY>(data);
+			//emplaceSingleObject<PROPERTY, false>(data, name, serializeSingleProperty(*pProp));
+			//return *pProp;
 		}
 
 	private:
@@ -291,6 +305,76 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 };
 
 #include "nrp_general_library/utils/serializers/mpi_property_serializer_methods.h"
+
+template<PROPERTY_TEMPLATE_C PROPERTY_TEMPLATE>
+struct PropertySerializer<MPIPropertyData, PROPERTY_TEMPLATE>
+{
+		using property_template_t = typename PROPERTY_TEMPLATE::property_template_t;
+
+		/*!
+		 *	\brief Update Properties by reading the given OBJECT. Will go through all existing properties and try to update them
+		 *	\tparam OBJECT Data type to be deserialized
+		 *	\param data OBJECT containing property data
+		 */
+		template<PROPERTY_SERIALIZER_OBJECT_C<MPIPropertyData> OBJECT_T>
+		static void updateProperties(property_template_t &properties, OBJECT_T &&data)
+		{
+			PropertySerializerGeneral::template updateProperties<MPIPropertyData, property_template_t, OBJECT_T>(properties, std::forward<OBJECT_T>(data));
+
+			if constexpr (property_template_t::NumProperties > 0)
+			{	deserializeProperties<0>(properties, data);	}
+		}
+
+		/*!
+		 *	\brief Read properties from the given OBJECT
+		 *	\tparam OBJECT Data type to be deserialized
+		 *	\tparam T Classes associated with properties. Per property, it should be string_view and PROPERTY
+		 *	\param data OBJECT containing property data
+		 *	\param defaultProperties Will be used if no corresponding value was found in config
+		 */
+		template<PROPERTY_SERIALIZER_OBJECT_C<MPIPropertyData> OBJECT_T, class ...T>
+		static property_template_t readProperties(OBJECT_T &&data, T &&... defaultProperties)
+		{
+			if constexpr (property_template_t::NumProperties == 0)
+			{
+				return PropertySerializerGeneral::template deserializeObject<MPIPropertyData, property_template_t, OBJECT_T, T...>(
+				            std::forward<OBJECT_T>(data), std::forward<T>(defaultProperties)...);
+			}
+			else
+			{
+				auto retVal = PropertySerializerGeneral::template deserializeObject<MPIPropertyData, property_template_t, OBJECT_T, T...>(
+				            std::forward<OBJECT_T>(data), std::forward<T>(defaultProperties)...);
+
+				deserializeProperties<0>(retVal, data);
+
+				return retVal;
+			}
+		}
+
+		/*!
+		 *	\brief Serializes properties into OBJECT
+		 *	\tparam OBJECT Data type to be serialized
+		 *	\param properties Properties to convert
+		 *	\param data OBJECT into which to insert the serialized data
+		 *	\return Returns an OBJECT. For each property, the value will be stored under its given name
+		 */
+		template<class PROPERTY_TEMPLATE_T>
+		static MPIPropertyData serializeProperties(PROPERTY_TEMPLATE_T &&properties, MPIPropertyData &&data = MPIPropertyData())
+		{	return PropertySerializerGeneral::template serializeObject<MPIPropertyData, property_template_t>(std::forward<PROPERTY_TEMPLATE_T>(properties), std::move(data));	}
+
+	private:
+		using mpi_ser_t = ObjectPropertySerializerMethods<MPIPropertyData>;
+
+		template<int ID>
+		static inline void deserializeProperties(property_template_t &props, MPIPropertyData &data)
+		{
+			mpi_ser_t::emplaceSingleObject<typename property_template_t::template property_t<ID>, false>(data, "", mpi_ser_t::serializeSingleProperty(props.template getProperty<ID>()));
+
+			if constexpr (ID+1 < property_template_t::NumProperties)
+			{	return deserializeProperties<ID+1>(props, data);	}
+		}
+};
+
 
 template<PROPERTY_TEMPLATE_C PROPERTY_TEMPLATE>
 using MPIPropertySerializer = PropertySerializer<MPIPropertyData, PROPERTY_TEMPLATE>;

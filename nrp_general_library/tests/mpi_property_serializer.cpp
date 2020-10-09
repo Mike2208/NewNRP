@@ -54,7 +54,7 @@ TEST(MPI_Serializer, TestSerialization)
 	data.generateDatatype();
 	ASSERT_NE(data.Datatype, MPI_DATATYPE_NULL);
 	ASSERT_EQ(data.VariableLengths.size(), 2);
-	ASSERT_EQ(data.VariableLengths.at(0), prop.strDat().length()+1);
+	ASSERT_EQ(data.VariableLengths.at(0), prop.strDat().size());
 	ASSERT_EQ(data.VariableLengths.at(1), prop.vecDat().size());
 	ASSERT_EQ(data.ExchangeFunctions.size(), 1);
 }

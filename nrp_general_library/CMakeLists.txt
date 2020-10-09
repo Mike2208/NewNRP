@@ -68,6 +68,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/utils/serializers/python_dict_property_serializer.cpp
 	nrp_general_library/utils/file_finder.cpp
 	nrp_general_library/utils/fixed_string.cpp
+	nrp_general_library/utils/mpi_communication.cpp
 	nrp_general_library/utils/mpi_setup.cpp
 	nrp_general_library/utils/pipe_communication.cpp
 	nrp_general_library/utils/python_error_handler.cpp
@@ -96,6 +97,7 @@ set(TEST_SRC_FILES
 	tests/engine_launcher_manager.cpp
 	tests/json_device_methods.cpp
 	tests/json_property_serializer.cpp
+	tests/mpi_communication.cpp
 	tests/mpi_property_serializer.cpp
 	tests/plugin_manager.cpp
 	tests/property_template.cpp
@@ -260,6 +262,14 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 		PUBLIC
 		${NAMESPACE_NAME}::${LIBRARY_NAME})
 
+	add_library(MPICommDevices STATIC tests/test_mpi_communication_devices.cpp)
+	target_link_libraries(MPICommDevices PUBLIC ${NAMESPACE_NAME}::${LIBRARY_NAME})
+
+	# Create mpi testing process (used for testing MPI child process spawning and communication)
+	set(TEST_MPI_COMMUNICATION "TestMPIComm")
+	add_executable(${TEST_MPI_COMMUNICATION} tests/test_mpi_communication_proc.cpp)
+	target_link_libraries(${TEST_MPI_COMMUNICATION} ${NAMESPACE_NAME}::${LIBRARY_NAME} MPICommDevices)
+
 	# Create testing env files
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/test_env.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/test_env.sh" @ONLY)
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h" @ONLY)
@@ -269,6 +279,7 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 	add_executable(${TEST_NAME} ${TEST_SRC_FILES})
 	target_link_libraries(${TEST_NAME}
 		PUBLIC
+		MPICommDevices
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
 		GTest::GTest
 		GTest::GTestMain

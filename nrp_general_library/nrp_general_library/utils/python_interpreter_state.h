@@ -17,7 +17,22 @@ class PythonInterpreterState
 		 * \param argc main()'s argc
 		 * \param argv main()'s argv
 		 */
-		PythonInterpreterState(int argc, char *argv[], bool allowThreads = false);
+		PythonInterpreterState(int argc, const char *const *argv, bool allowThreads = false);
+
+		/*!
+		 * \brief Constructor. Initializes Python with the given start parameters, enables threading, and releases GIL
+		 * \param argc main()'s argc
+		 * \param argv main()'s argv
+		 */
+		PythonInterpreterState(int argc, const std::vector<const char*> &argv, bool allowThreads = false);
+
+
+		/*!
+		 * \brief Constructor. Initializes Python with the no start parameters, enables threading, and releases GIL
+		 * \param argc main()'s argc
+		 * \param argv main()'s argv
+		 */
+		explicit PythonInterpreterState(bool allowThreads = false);
 
 		/*!
 		 * \brief Allow execution of other threads. If this is set, main thread may not execute python code

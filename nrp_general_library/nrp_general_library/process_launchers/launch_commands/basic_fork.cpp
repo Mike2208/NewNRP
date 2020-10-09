@@ -132,7 +132,7 @@ pid_t BasicFork::stopEngineProcess(unsigned int killWait)
 		do
 		{
 			int engineStatus;
-			if(waitpid(this->_enginePID, &engineStatus, WNOHANG) == this->_enginePID)
+			if(waitpid(this->_enginePID, &engineStatus, WNOHANG | WUNTRACED) == this->_enginePID)
 			{
 				pKilled = true;
 				break;

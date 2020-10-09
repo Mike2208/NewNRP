@@ -53,6 +53,8 @@ void MPIPropertyData::generateDatatype(unsigned int count, const int *dataCounts
 
 	MPI_Type_commit(&datatype);
 	this->Datatype = MPIDerivedDatatype(datatype);
+
+	assert(this->Datatype != MPI_DATATYPE_NULL);
 }
 
 void MPIPropertyData::addPropDatatype(mpi_prop_datatype_t<MPI_Datatype> &&dat)
@@ -94,3 +96,8 @@ MPI_Aint MPIPropertyData::getMPIAddr(void *loc)
 
 	return addr;
 }
+
+MPIDeviceData::MPIDeviceData(DeviceIdentifier _deviceID, MPIPropertyData &&_dat)
+    : MPIPropertyData(std::move(_dat)),
+      DeviceID(_deviceID)
+{}

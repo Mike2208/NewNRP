@@ -165,7 +165,9 @@ class PropertySerializerGeneral
 				try
 				{
 					using property_t = typename PROPERTY_TEMPLATE::template property_t<ID>;
-					properties.template getProperty<ID, property_t>() = ObjectPropertySerializerMethods<OBJECT>::template deserializeSingleProperty<property_t>(std::forward<OBJECT_T>(data), properties.template getName<ID>());
+					properties.template getProperty<ID, property_t>() =
+					        ObjectPropertySerializerMethods<OBJECT>::template deserializeSingleProperty<property_t>(std::forward<OBJECT_T>(data),
+					                                                                                                properties.template getName<ID>());
 				}
 				catch(const std::exception &)
 				{

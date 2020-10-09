@@ -7,12 +7,14 @@ void gazebo::NRPCommunicationPlugin::Load(int argc, char **argv)
 {
 	std::cout << "NRP Communication plugin: Initializing...\n";
 
-	MPISetup::initializeOnce(argc, argv);
+	this->_pyState = PythonInterpreterState();
+	MPISetup::initializeOnce(0, nullptr, true);
 
 	// Reset communication controller
 	NRPCommunicationController::resetInstance();
 
 	std::cout << "NRP Communication plugin: MPI Initialized started. Waiting for input...\n";
+	this->_commThread = std::async(std::launch::async, &NRPCommunicationPlugin::commThreadFcn);
 }
 
 void gazebo::NRPCommunicationPlugin::Reset()
@@ -21,4 +23,27 @@ void gazebo::NRPCommunicationPlugin::Reset()
 	std::cout << "NRP Communication plugin: Resetting controller...\n";
 	NRPCommunicationController::resetInstance();
 	std::cout << "NRP Communication plugin: Waiting for input...\n";
+}
+
+std::string gazebo::NRPCommunicationPlugin::commThreadFcn() noexcept
+{
+	auto &mpiComm = NRPCommunicationController::getInstance();
+	EngineMPIControl controlCmd(EngineMPIControlConst::NONE, 0);
+	do
+	{
+		try
+		{
+			mpiComm.getClientCmd(controlCmd);
+			mpiComm.handleClientCmd(controlCmd);
+		}
+		catch(std::exception &e)
+		{
+			const auto errMsg = std::string("MPI Communication Failure: ") + e.what();
+			std::cerr << errMsg << std::endl;
+			return errMsg;
+		}
+	}
+	while(mpiComm.getEngineState() != EngineMPIServer::STOPPED);
+
+	return "";
 }

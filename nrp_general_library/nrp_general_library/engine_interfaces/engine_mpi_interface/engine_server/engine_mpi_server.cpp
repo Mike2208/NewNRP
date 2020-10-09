@@ -130,6 +130,8 @@ EngineInterface::RESULT EngineMPIServer::shutdownHandler(const std::string &shut
 
 	MPICommunication::sendMPI(&retVal, sizeof(retVal), MPI_BYTE, 0, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
 
+	MPISetup::finalize();
+
 	return retVal;
 }
 
@@ -279,6 +281,11 @@ void EngineMPIServer::removeAllDeviceControllers()
 	this->_deviceControllers.clear();
 }
 
+EngineMPIServer::state_t EngineMPIServer::getEngineState() const
+{
+	return this->_state;
+}
+
 EngineInterface::RESULT EngineMPIServer::initialize(const std::string &)
 {
 	return EngineInterface::SUCCESS;
@@ -335,35 +342,6 @@ EngineInterface::RESULT EngineMPIServer::handleDeviceInput(const DeviceIdentifie
 	return EngineInterface::SUCCESS;
 }
 
-//EngineInterface::device_outputs_t EngineMPIServer::getOutputDevices(const EngineInterface::device_identifiers_t &deviceIdentifiers)
-//{
-//	EngineMPIControl devCmd(EngineMPIControl::GET_DEVICES, deviceIdentifiers.size());
-//	MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, devCmd);
-
-//	std::vector<MPIDeviceData> mpiDeserializers;
-//	mpiDeserializers.reserve((deviceIdentifiers.size()));
-
-
-//	// Send device identifiers
-//	for(const auto &devID : deviceIdentifiers)
-//	{
-//		if(devID.EngineName == this->engineName())
-//		{
-//			MPICommunication::sendDeviceID(this->_comm, EngineMPIControlConst::DEVICE_TAG, devID);
-//			mpiDeserializers.emplace_back(MPIDeviceData(devID));
-//		}
-//	}
-
-//	// Receive device data
-//	EngineInterface::device_outputs_t retVal;
-//	retVal.reserve(mpiDeserializers.size());
-
-//	for(auto &deserializer : mpiDeserializers)
-//	{	retVal.emplace_back(MPICommunication::recvDeviceByType<DEVICES..., false>(this->_comm, EngineMPIControlConst::DEVICE_TAG, deserializer));	}
-
-//	return retVal;
-//}
-
 auto MPISinglePropertySerializer<EngineMPIControlConst::CommandData>::derivedMPIDatatype(EngineMPIControlConst::CommandData &prop) -> mpi_prop_datatype_t<MPISinglePropertySerializerGeneral::MPIDerivedDatatype>
 {
 	MPI_Datatype newType;
@@ -388,8 +366,9 @@ auto MPISinglePropertySerializer<EngineMPIControlConst::CommandData>::derivedMPI
 	{
 		assert(std::holds_alternative<std::string>(prop.info));
 
+		std::string &info = std::get<std::string>(prop.info);
 		const int counts[] = {1, static_cast<int>(std::get<std::string>(prop.info).size()+1)};
-		const MPI_Aint disp[] = {getMPIAddr(&prop.cmd), getMPIAddr(std::get<std::string>(prop.info).data())};
+		const MPI_Aint disp[] = {getMPIAddr(&prop.cmd), getMPIAddr(info.data())};
 		const MPI_Datatype datat[] = {MPI_INT, MPI_CHAR};
 
 		MPI_Type_create_struct(2, counts, disp, datat, &newType);

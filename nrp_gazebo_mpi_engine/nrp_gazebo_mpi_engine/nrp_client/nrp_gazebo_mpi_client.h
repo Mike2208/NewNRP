@@ -29,15 +29,9 @@ class NRPGazeboMPIClient
 		NRPGazeboMPIClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~NRPGazeboMPIClient() override = default;
 
-		virtual EngineInterface::RESULT initialize() override;
+		//virtual EngineInterface::RESULT initialize() override;
 
-		virtual EngineInterface::RESULT shutdown() override;
-
-	private:
-		/*!
-		 * \brief Pointer to Engine Intercomm. Extracted during the initialize step from the launcher
-		 */
-		MPI_Comm *_pComm = nullptr;
+		//virtual EngineInterface::RESULT shutdown() override;
 };
 
 using GazeboEngineJSONLauncher = NRPGazeboMPIClient::EngineLauncher<NRPGazeboMPIClient::DefEngineName>;
