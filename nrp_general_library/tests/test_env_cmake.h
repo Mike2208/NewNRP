@@ -25,6 +25,6 @@
 #define TEST_MPI_COMMUNICATION_PROC "/home/mike/Projects/NewNRP/build/nrp_general_library/TestMPIComm"
 #define TEST_MPI_COMM_STR "teststr"
 #define TEST_MPI_COMM_DEVID DeviceIdentifier("name", "type", "engine")
-#define TEST_MPI_COMM_DEV1 TestDevice1(3, "return", boost::python::object(4))
+#define TEST_MPI_COMM_DEV1 TestDevice1(3, "ret", boost::python::dict())
 
 #endif // TEST_ENV_CMAKE_H

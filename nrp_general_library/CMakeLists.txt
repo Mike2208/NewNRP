@@ -97,8 +97,8 @@ set(TEST_SRC_FILES
 	tests/engine_launcher_manager.cpp
 	tests/json_device_methods.cpp
 	tests/json_property_serializer.cpp
-	tests/mpi_communication.cpp
-	tests/mpi_property_serializer.cpp
+	#tests/mpi_communication.cpp
+	#tests/mpi_property_serializer.cpp
 	tests/plugin_manager.cpp
 	tests/property_template.cpp
 	tests/python_dict_property_serializer.cpp
