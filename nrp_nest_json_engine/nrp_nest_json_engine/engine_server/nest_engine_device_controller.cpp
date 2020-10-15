@@ -1,4 +1,4 @@
-#include "nrp_nest_device_interface/engine_server/nest_engine_device_controller.h"
+#include "nrp_nest_json_engine/engine_server/nest_engine_device_controller.h"
 
 NestEngineJSONDeviceController<NestDeviceInterface>::NestEngineJSONDeviceController(const DeviceIdentifier &devID, boost::python::object nodeCollection, boost::python::dict nest)
 	: EngineJSONDeviceController(devID),

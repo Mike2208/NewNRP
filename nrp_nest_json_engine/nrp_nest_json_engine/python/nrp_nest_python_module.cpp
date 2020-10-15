@@ -2,9 +2,9 @@
 
 #include "nrp_general_library/config_headers/nrp_cmake_constants.h"
 #include "nrp_general_library/device_interface/python_device.h"
-#include "nrp_nest_device_interface/config/nrp_nest_cmake_constants.h"
-#include "nrp_nest_device_interface/devices/nest_device_interface.h"
-#include "nrp_nest_device_interface/python/create_device_class.h"
+#include "nrp_nest_json_engine/config/nrp_nest_cmake_constants.h"
+#include "nrp_nest_json_engine/devices/nest_device_interface.h"
+#include "nrp_nest_json_engine/python/create_device_class.h"
 
 
 namespace python = boost::python;

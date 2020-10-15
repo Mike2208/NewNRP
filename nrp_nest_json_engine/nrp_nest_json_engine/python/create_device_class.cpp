@@ -1,4 +1,4 @@
-#include "nrp_nest_device_interface/python/create_device_class.h"
+#include "nrp_nest_json_engine/python/create_device_class.h"
 
 CreateDeviceClass::CreateDeviceClass(boost::python::dict nest, boost::python::dict devMap)
     : _nest(nest),

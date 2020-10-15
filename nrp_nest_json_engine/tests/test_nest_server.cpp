@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "nrp_general_library/utils/python_interpreter_state.h"
-#include "nrp_nest_device_interface/engine_server/nest_json_server.h"
+#include "nrp_nest_json_engine/engine_server/nest_json_server.h"
 #include "tests/test_env_cmake.h"
 
 #include <boost/python.hpp>

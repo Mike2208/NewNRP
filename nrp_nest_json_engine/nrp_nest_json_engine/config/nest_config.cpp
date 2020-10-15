@@ -1,4 +1,4 @@
-#include "nrp_nest_device_interface/config/nest_config.h"
+#include "nrp_nest_json_engine/config/nest_config.h"
 
 #include "nrp_general_library/config_headers/nrp_cmake_constants.h"
 

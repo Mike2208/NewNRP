@@ -4,7 +4,7 @@
 /*!
  * \file nrp_nest_constants.h
  * \brief Contains constants exported from cmake. Used to set parameters dependent upon the build and installation process.
- * DO NOT EDIT THIS HEADER FILE! The code is automatically generated via cmake from nrp_nest_device_interface/config/nrp_nest_cmake_constants.h.in
+ * DO NOT EDIT THIS HEADER FILE! The code is automatically generated via cmake from nrp_nest_json_engine/config/nrp_nest_cmake_constants.h.in
  */
 
 /*!

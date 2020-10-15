@@ -1,4 +1,4 @@
-#include "nrp_nest_device_interface/nrp_client/nest_engine_json_nrp_client.h"
+#include "nrp_nest_json_engine/nrp_client/nest_engine_json_nrp_client.h"
 
 #include <signal.h>
 #include <sys/types.h>

@@ -1,11 +1,11 @@
-#include "nrp_nest_device_interface/engine_server/nest_json_server.h"
+#include "nrp_nest_json_engine/engine_server/nest_json_server.h"
 
 #include "nrp_general_library/utils/python_error_handler.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 
-#include "nrp_nest_device_interface/config/nrp_nest_cmake_constants.h"
-#include "nrp_nest_device_interface/engine_server/nest_engine_device_controller.h"
-#include "nrp_nest_device_interface/python/create_device_class.h"
+#include "nrp_nest_json_engine/config/nrp_nest_cmake_constants.h"
+#include "nrp_nest_json_engine/engine_server/nest_engine_device_controller.h"
+#include "nrp_nest_json_engine/python/create_device_class.h"
 
 #include <fstream>
 

@@ -6,7 +6,7 @@
 #include "tests/test_env_cmake.h"
 
 #define DEBUG_NO_CREATE_ENGINE_LAUNCHER_FCN
-#include "nrp_nest_device_interface/nrp_client/nest_engine_json_nrp_client.h"
+#include "nrp_nest_json_engine/nrp_client/nest_engine_json_nrp_client.h"
 #include "nrp_gazebo_json_engine/nrp_client/gazebo_engine_json_nrp_client.h"
 
 using namespace testing;

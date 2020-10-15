@@ -1,5 +1,5 @@
-#include "nrp_nest_device_interface/devices/nest_device_interface.h"
-#include "nrp_nest_device_interface/config/nrp_nest_cmake_constants.h"
+#include "nrp_nest_json_engine/devices/nest_device_interface.h"
+#include "nrp_nest_json_engine/config/nrp_nest_cmake_constants.h"
 
 #include <iostream>
 

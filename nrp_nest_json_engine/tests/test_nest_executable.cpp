@@ -2,7 +2,7 @@
 
 #include "nest_server_executable/nest_server_executable.h"
 #include "nrp_general_library/utils/pipe_communication.h"
-#include "nrp_nest_device_interface/config/nest_config.h"
+#include "nrp_nest_json_engine/config/nest_config.h"
 #include "tests/test_env_cmake.h"
 
 #include <future>

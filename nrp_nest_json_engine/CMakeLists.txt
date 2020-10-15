@@ -1,5 +1,5 @@
 set(PROJECT_NAME "NRPNestDeviceInterface")
-set(HEADER_DIRECTORY "nrp_nest_device_interface")
+set(HEADER_DIRECTORY "nrp_nest_json_engine")
 
 set(NAMESPACE_NAME "${PROJECT_NAME}")
 
@@ -20,17 +20,17 @@ include(ExternalProject)
 
 # List library build files
 set(LIB_SRC_FILES
-	nrp_nest_device_interface/config/nest_config.cpp
-	nrp_nest_device_interface/devices/nest_device_interface.cpp
-	nrp_nest_device_interface/engine_server/nest_engine_device_controller.cpp
-	nrp_nest_device_interface/engine_server/nest_json_server.cpp
-	nrp_nest_device_interface/nrp_client/nest_engine_json_nrp_client.cpp
-	nrp_nest_device_interface/python/create_device_class.cpp
+	nrp_nest_json_engine/config/nest_config.cpp
+	nrp_nest_json_engine/devices/nest_device_interface.cpp
+	nrp_nest_json_engine/engine_server/nest_engine_device_controller.cpp
+	nrp_nest_json_engine/engine_server/nest_json_server.cpp
+	nrp_nest_json_engine/nrp_client/nest_engine_json_nrp_client.cpp
+	nrp_nest_json_engine/python/create_device_class.cpp
 )
 
 # List of python module build files
 set(PYTHON_MODULE_SRC_FILES
-	nrp_nest_device_interface/python/nrp_nest_python_module.cpp
+	nrp_nest_json_engine/python/nrp_nest_python_module.cpp
 )
 
 # List executable build files
@@ -70,14 +70,14 @@ ExternalProject_Add(nest-simulator
 ## Header configuration
 
 # General Nest Header defines
-set(NEST_CMAKE_HEADER_CONFIG_FILE "nrp_nest_device_interface/config/nrp_nest_cmake_constants.h.in")
+set(NEST_CMAKE_HEADER_CONFIG_FILE "nrp_nest_json_engine/config/nrp_nest_cmake_constants.h.in")
 set(NRP_NEST_CMAKE_INSTALL_BINDIR "${NRP_NEST_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
 set(NRP_NEST_EXECUTABLE ${EXECUTABLE_NAME})
 set(NEST_CMAKE_INSTALL_PYNEST "${NEST_CMAKE_INSTALL_PREFIX}/lib/python3.6/site-packages")
-configure_file(${NEST_CMAKE_HEADER_CONFIG_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/nrp_nest_device_interface/config/nrp_nest_cmake_constants.h" @ONLY)
+configure_file(${NEST_CMAKE_HEADER_CONFIG_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/nrp_nest_json_engine/config/nrp_nest_cmake_constants.h" @ONLY)
 
 # Python module dependencies
-configure_file("nrp_nest_device_interface/python/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
+configure_file("nrp_nest_json_engine/python/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
 
 
 ##########################################
@@ -206,7 +206,7 @@ if(TARGET ${PYTHON_MODULE_NAME})
 	install(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py"
 		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
 
-	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/nrp_nest_device_interface/python/numpy_json_serializer.py"
+	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/nrp_nest_json_engine/python/numpy_json_serializer.py"
 		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
 endif()
 
