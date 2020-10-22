@@ -30,6 +30,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/device_interface/devices/python_object_device_interface.cpp
 	nrp_general_library/device_interface/python_device.cpp
 	nrp_general_library/engine_interfaces/engine_interface.cpp
+	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.cpp
@@ -106,6 +107,14 @@ add_library(restclient-cpp::restclient-cpp ALIAS restclient-cpp)
 # pistache: REST server library
 find_package(Pistache REQUIRED)
 
+# Protobuf: google's Protocol Buffers library
+pkg_check_modules(PROTOBUF REQUIRED protobuf)
+message(STATUS "Using protobuf ${PROTOBUF_VERSION}")
+
+# gRPC: google's Remote Procedure Calls library
+pkg_check_modules(GRPC REQUIRED grpc++)
+message(STATUS "Using gRPC ${GRPC_VERSION}")
+
 # nlohmann_json: JSON library
 find_package(nlohmann_json 3.9.0)
 if(NOT ${nlohmann_json_FOUND})
@@ -157,6 +166,8 @@ target_link_libraries(${LIBRARY_NAME}
 		${PYTHON_LIBRARIES}
 		restclient-cpp::restclient-cpp
 		spdlog::spdlog
+		${PROTOBUF_LIBRARIES}
+		${GRPC_LIBRARIES}
 
 	PRIVATE
 )
