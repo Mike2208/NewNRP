@@ -8,6 +8,7 @@ class EngineGrpcClient
     public:
 
         EngineGrpcClient();
+        grpc_connectivity_state connect();
 
     private:
 

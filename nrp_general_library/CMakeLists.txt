@@ -85,6 +85,7 @@ set(TEST_SRC_FILES
 	tests/engine_json_server.cpp
 	tests/engine_json_nrp_client.cpp
 	tests/engine_launcher_manager.cpp
+	tests/engine_grpc.cpp
 	tests/json_device_methods.cpp
 	tests/json_property_serializer.cpp
 	tests/plugin_manager.cpp
@@ -94,6 +95,9 @@ set(TEST_SRC_FILES
 	tests/transceiver_function_interpreter.cpp
 )
 
+# List of protobuf proto files
+get_filename_component(hw_proto "nrp_general_library/proto/dummy.proto" ABSOLUTE)
+get_filename_component(hw_proto_path "${hw_proto}" PATH)
 
 ##########################################
 ## Dependencies
@@ -111,6 +115,14 @@ find_package(Pistache REQUIRED)
 # Protobuf: google's Protocol Buffers library
 pkg_check_modules(PROTOBUF REQUIRED protobuf)
 message(STATUS "Using protobuf ${PROTOBUF_VERSION}")
+
+# Protobuf compiler
+find_program(PROTOC protoc)
+message(STATUS "Using protoc ${PROTOC}")
+
+# gRPC cpp plugin
+find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin)
+message(STATUS "Using gRPC cpp plugin ${GRPC_CPP_PLUGIN}")
 
 # gRPC: google's Remote Procedure Calls library
 pkg_check_modules(GRPC REQUIRED grpc++)
@@ -136,6 +148,25 @@ endif()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LibZip REQUIRED IMPORTED_TARGET libzip)
 
+# Generated sources
+set(proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/dummy.pb.cc")
+set(proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/dummy.pb.h")
+set(grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/dummy.grpc.pb.cc")
+set(grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/dummy.grpc.pb.h")
+add_custom_command(
+    OUTPUT "${proto_srcs}" "${proto_hdrs}" "${grpc_srcs}" "${grpc_hdrs}"
+    COMMAND ${PROTOC}
+    ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+        -I "${hw_proto_path}"
+        --plugin=protoc-gen-grpc="${GRPC_CPP_PLUGIN}"
+        "${hw_proto}"
+	DEPENDS "${hw_proto}")
+
+# Include generated *.pb.h files
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+
+set(LIB_SRC_FILES ${LIB_SRC_FILES} ${proto_srcs} ${grpc_srcs})
 
 ##########################################
 ## Header configuration

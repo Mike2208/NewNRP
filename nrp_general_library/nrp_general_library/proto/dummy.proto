@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package dummy;
+
+service Dummy
+{
+    rpc dummy(DummyRequest) returns (DummyReply) {}
+}
+
+message DummyRequest
+{
+    string name = 1;
+}
+
+message DummyReply
+{
+    string message = 1;
+}
+
+// EOF
