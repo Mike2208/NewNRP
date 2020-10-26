@@ -19,6 +19,11 @@ EngineGrpcServer::EngineGrpcServer()
     grpc::EnableDefaultHealthCheckService(true);
 }
 
+EngineGrpcServer::~EngineGrpcServer()
+{
+	this->shutdownServer();
+}
+
 void EngineGrpcServer::startServer()
 {
 	if(!this->_isServerRunning)

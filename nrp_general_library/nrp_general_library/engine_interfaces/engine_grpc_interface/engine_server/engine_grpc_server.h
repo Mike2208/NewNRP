@@ -22,6 +22,7 @@ class EngineGrpcServer
     public:
 
         EngineGrpcServer();
+        virtual ~EngineGrpcServer();
 
         void startServer();
         void shutdownServer();
