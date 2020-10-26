@@ -1,6 +1,8 @@
 #ifndef ENGINE_GRPC_SERVER_H
 #define ENGINE_GRPC_SERVER_H
 
+#include <string>
+
 #include <grpcpp/grpcpp.h>
 
 #include <dummy.grpc.pb.h>
@@ -21,10 +23,15 @@ class EngineGrpcServer
 
         EngineGrpcServer();
 
+        void startServer();
+        void shutdownServer();
+
     private:
 
-    DummyServiceImpl _service;
-    std::unique_ptr<grpc::Server> _server;
+        std::string                   _serverAddress;
+        DummyServiceImpl              _service;
+        std::unique_ptr<grpc::Server> _server;
+        bool                          _isServerRunning;
 };
 
 #endif // ENGINE_GRPC_SERVER_H

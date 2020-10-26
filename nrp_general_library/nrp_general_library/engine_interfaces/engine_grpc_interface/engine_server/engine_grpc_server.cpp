@@ -13,13 +13,30 @@ grpc::Status DummyServiceImpl::dummy(grpc::ServerContext * context, const DummyR
 
 EngineGrpcServer::EngineGrpcServer()
 {
-    std::string serverAddress("0.0.0.0:9002");
+    this->_serverAddress   = "0.0.0.0:9002";
+    this->_isServerRunning = false;
 
     grpc::EnableDefaultHealthCheckService(true);
+}
 
-    grpc::ServerBuilder builder;
-    builder.AddListeningPort(serverAddress, grpc::InsecureServerCredentials());
-    builder.RegisterService(&_service);
+void EngineGrpcServer::startServer()
+{
+	if(!this->_isServerRunning)
+	{
+        grpc::ServerBuilder builder;
+        builder.AddListeningPort(_serverAddress, grpc::InsecureServerCredentials());
+        builder.RegisterService(&_service);
 
-    _server = builder.BuildAndStart();
+        this->_server = builder.BuildAndStart();
+		this->_isServerRunning = true;
+	}
+}
+
+void EngineGrpcServer::shutdownServer()
+{
+	if(this->_isServerRunning)
+	{
+		this->_server->Shutdown();
+		this->_isServerRunning = false;
+	}
 }

@@ -10,5 +10,11 @@ TEST(EngineGrpc, BASIC)
     EngineGrpcServer server;
     EngineGrpcClient client;
 
+    ASSERT_EQ(client.getChannelStatus(), grpc_connectivity_state::GRPC_CHANNEL_IDLE);
+
+    server.startServer();
+
     ASSERT_EQ(client.connect(), grpc_connectivity_state::GRPC_CHANNEL_READY);
+
+    server.shutdownServer();
 }

@@ -13,6 +13,11 @@ EngineGrpcClient::EngineGrpcClient()
     _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
 }
 
+grpc_connectivity_state EngineGrpcClient::getChannelStatus()
+{
+    return _channel->GetState(false);
+}
+
 grpc_connectivity_state EngineGrpcClient::connect()
 {
     _channel->GetState(true);

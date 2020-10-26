@@ -8,6 +8,8 @@ class EngineGrpcClient
     public:
 
         EngineGrpcClient();
+
+        grpc_connectivity_state getChannelStatus();
         grpc_connectivity_state connect();
 
     private:
