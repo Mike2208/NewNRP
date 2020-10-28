@@ -45,3 +45,13 @@ void EngineGrpcServer::shutdownServer()
 		this->_isServerRunning = false;
 	}
 }
+
+void EngineGrpcServer::registerDevice(const std::string &deviceName, EngineGrpcDeviceController *interface)
+{
+    this->_devicesControllers.emplace(deviceName, interface);
+}
+
+unsigned EngineGrpcServer::getNumRegisteredDevices()
+{
+    return this->_devicesControllers.size();
+}

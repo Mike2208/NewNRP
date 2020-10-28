@@ -30,6 +30,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/device_interface/devices/python_object_device_interface.cpp
 	nrp_general_library/device_interface/python_device.cpp
 	nrp_general_library/engine_interfaces/engine_interface.cpp
+	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.cpp
 	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.cpp
 	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_client/engine_grpc_client.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.cpp
