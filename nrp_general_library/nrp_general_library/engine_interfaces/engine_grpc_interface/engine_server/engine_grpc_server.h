@@ -30,8 +30,11 @@ class EngineGrpcServer
         void startServer();
         void shutdownServer();
 
-        void registerDevice(const std::string &deviceName, EngineGrpcDeviceController *interface);
+        void registerDevice(const std::string & deviceName, EngineGrpcDeviceController * interface);
         unsigned getNumRegisteredDevices();
+
+        void setDeviceData(const std::string & deviceName, const google::protobuf::Message & data);
+        const google::protobuf::Message * getDeviceData(const std::string & deviceName);
 
     private:
 

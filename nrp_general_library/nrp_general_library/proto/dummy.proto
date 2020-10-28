@@ -14,7 +14,7 @@ message DummyRequest
 
 message DummyReply
 {
-    string message = 1;
+    int32 numCalls = 1;
 }
 
 // EOF

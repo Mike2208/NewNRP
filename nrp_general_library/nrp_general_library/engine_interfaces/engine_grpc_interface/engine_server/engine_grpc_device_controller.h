@@ -1,14 +1,10 @@
 #ifndef ENGINE_GRPC_DEVICE_CONTROLLER_H
 #define ENGINE_GRPC_DEVICE_CONTROLLER_H
 
+// TODO This is not the correct header, look for protobuf::Message header
+#include <dummy.grpc.pb.h>
+
 #include "nrp_general_library/device_interface/device_interface.h"
-
-struct DummyGrpcData
-{
-    DummyGrpcData(int a) : a(a) {};
-
-    int a;
-};
 
 class EngineGrpcDeviceController
         : public DeviceIdentifier,
@@ -27,14 +23,14 @@ class EngineGrpcDeviceController
 		 * \param data Additional data
 		 * \return Returns a json structure containing device information
 		 */
-		virtual DummyGrpcData getDeviceInformation(const DummyGrpcData &data) = 0;
+		virtual const google::protobuf::Message * getData() = 0;
 
 		/*!
 		 * \brief Handle received device data
 		 * \param data Data to be processed
 		 * \return Returns result of handling device
 		 */
-		virtual DummyGrpcData handleDeviceData(const DummyGrpcData &data) = 0;
+		virtual void setData(const google::protobuf::Message & data) = 0;
 };
 
 #endif // ENGINE_GRPC_DEVICE_CONTROLLER_H

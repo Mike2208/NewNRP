@@ -7,7 +7,7 @@
 
 grpc::Status DummyServiceImpl::dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply)
 {
-    reply->set_message(request->name());
+    reply->set_numcalls(0);
     return grpc::Status::OK;
 }
 
@@ -54,4 +54,28 @@ void EngineGrpcServer::registerDevice(const std::string &deviceName, EngineGrpcD
 unsigned EngineGrpcServer::getNumRegisteredDevices()
 {
     return this->_devicesControllers.size();
+}
+
+void EngineGrpcServer::setDeviceData(const std::string & deviceName, const google::protobuf::Message & data)
+{
+    const auto devInterface = this->_devicesControllers.find(deviceName);
+
+    if(devInterface == _devicesControllers.end())
+    {
+        // TODO Error handling for dev not found
+    }
+
+    devInterface->second->setData(data);
+}
+
+const google::protobuf::Message * EngineGrpcServer::getDeviceData(const std::string & deviceName)
+{
+    const auto devInterface = this->_devicesControllers.find(deviceName);
+
+    if(devInterface == _devicesControllers.end())
+    {
+        // TODO Error handling for dev not found
+    }
+
+    return devInterface->second->getData();
 }
