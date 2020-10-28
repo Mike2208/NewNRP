@@ -44,6 +44,17 @@ TEST(EngineGrpc, BASIC)
     server.shutdownServer();
 }
 
+TEST(EngineGrpc, InitCommand)
+{
+    EngineGrpcServer server;
+    EngineGrpcClient client;
+
+    ASSERT_THROW(client.sendInitCommand(), std::runtime_error);
+
+    server.startServer();
+    ASSERT_NO_THROW(client.sendInitCommand());
+}
+
 TEST(EngineGrpc, RegisterDevices)
 {
     EngineGrpcServer server;

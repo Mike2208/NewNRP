@@ -5,6 +5,7 @@ package dummy;
 service Dummy
 {
     rpc dummy(DummyRequest) returns (DummyReply) {}
+    rpc init(InitRequest)   returns (InitReply)  {}
 }
 
 message DummyRequest
@@ -15,6 +16,16 @@ message DummyRequest
 message DummyReply
 {
     int32 numCalls = 1;
+}
+
+message InitRequest
+{
+
+}
+
+message InitReply
+{
+
 }
 
 // EOF

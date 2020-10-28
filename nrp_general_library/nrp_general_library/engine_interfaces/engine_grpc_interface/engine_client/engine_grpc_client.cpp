@@ -11,6 +11,7 @@ EngineGrpcClient::EngineGrpcClient()
     std::string serverAddress("0.0.0.0:9002");
 
     _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+    _stub    = dummy::Dummy::NewStub(_channel);
 }
 
 grpc_connectivity_state EngineGrpcClient::getChannelStatus()
@@ -24,4 +25,19 @@ grpc_connectivity_state EngineGrpcClient::connect()
     _channel->WaitForConnected(gpr_time_add(
     gpr_now(GPR_CLOCK_REALTIME), gpr_time_from_seconds(10, GPR_TIMESPAN)));
     return _channel->GetState(false);
+}
+
+void EngineGrpcClient::sendInitCommand()
+{
+    dummy::InitRequest  request;
+    dummy::InitReply    reply;
+    grpc::ClientContext context;
+
+    grpc::Status status = _stub->init(&context, request, &reply);
+
+    if(!status.ok())
+    {
+        const auto errMsg = "Engine server initialization failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
+        throw std::runtime_error(errMsg);
+    }
 }

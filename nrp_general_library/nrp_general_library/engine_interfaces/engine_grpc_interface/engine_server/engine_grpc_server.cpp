@@ -11,6 +11,11 @@ grpc::Status DummyServiceImpl::dummy(grpc::ServerContext * context, const DummyR
     return grpc::Status::OK;
 }
 
+grpc::Status DummyServiceImpl::init(grpc::ServerContext * context, const dummy::InitRequest * request, dummy::InitReply * reply)
+{
+    return grpc::Status::OK;
+}
+
 EngineGrpcServer::EngineGrpcServer()
 {
     this->_serverAddress   = "0.0.0.0:9002";

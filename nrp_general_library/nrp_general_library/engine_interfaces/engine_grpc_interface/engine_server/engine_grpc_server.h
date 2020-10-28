@@ -18,6 +18,7 @@ using dummy::DummyReply;
 class DummyServiceImpl final : public Dummy::Service
 {
     grpc::Status dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply) override;
+    grpc::Status init(grpc::ServerContext * context, const dummy::InitRequest * request, dummy::InitReply * reply) override;
 };
 
 class EngineGrpcServer
