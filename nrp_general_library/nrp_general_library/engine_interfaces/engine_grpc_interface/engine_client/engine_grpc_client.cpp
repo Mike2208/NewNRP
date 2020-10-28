@@ -41,3 +41,18 @@ void EngineGrpcClient::sendInitCommand()
         throw std::runtime_error(errMsg);
     }
 }
+
+void EngineGrpcClient::sendShutdownCommand()
+{
+    dummy::ShutdownRequest request;
+    dummy::ShutdownReply   reply;
+    grpc::ClientContext    context;
+
+    grpc::Status status = _stub->shutdown(&context, request, &reply);
+
+    if(!status.ok())
+    {
+        const auto errMsg = "Engine server shutdown failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
+        throw std::runtime_error(errMsg);
+    }
+}

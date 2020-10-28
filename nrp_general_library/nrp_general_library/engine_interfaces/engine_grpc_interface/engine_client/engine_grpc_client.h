@@ -15,6 +15,7 @@ class EngineGrpcClient
         grpc_connectivity_state connect();
 
         void sendInitCommand();
+        void sendShutdownCommand();
 
     private:
 

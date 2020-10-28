@@ -4,8 +4,9 @@ package dummy;
 
 service Dummy
 {
-    rpc dummy(DummyRequest) returns (DummyReply) {}
-    rpc init(InitRequest)   returns (InitReply)  {}
+    rpc dummy(DummyRequest)       returns (DummyReply)     {}
+    rpc init(InitRequest)         returns (InitReply)      {}
+    rpc shutdown(ShutdownRequest) returns (ShutdownReply)  {}
 }
 
 message DummyRequest
@@ -24,6 +25,16 @@ message InitRequest
 }
 
 message InitReply
+{
+
+}
+
+message ShutdownRequest
+{
+
+}
+
+message ShutdownReply
 {
 
 }
