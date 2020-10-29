@@ -33,6 +33,7 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
 
         virtual nlohmann::json initialize(const nlohmann::json &data) = 0;
         virtual nlohmann::json shutdown(const nlohmann::json &data) = 0;
+        virtual float runLoopStep(const float timeStep) = 0;
 
         grpc::Status dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply) override;
         grpc::Status init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply) override;

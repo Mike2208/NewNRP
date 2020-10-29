@@ -74,7 +74,9 @@ class TestEngineGrpcServer
         template<class ...T>
         TestEngineGrpcServer(T &&...properties)
             : EngineGrpcServer(std::forward<T>(properties)...)
-        {}
+        {
+            this->_time = 0.0f;
+        }
 
         virtual ~TestEngineGrpcServer() override = default;
 
@@ -87,6 +89,17 @@ class TestEngineGrpcServer
         {
             return nlohmann::json({{"status", "shutdown"}, {"original", data}});
         }
+
+        float runLoopStep(const float timeStep)
+        {
+            _time += timeStep;
+
+            return _time;
+        }
+
+    private:
+
+        float _time;
 };
 
 TEST(EngineGrpc, BASIC)
@@ -147,7 +160,7 @@ TEST(EngineGrpc, RunLoopStepCommand)
 
     timeStep = 2.0f;
     ASSERT_NO_THROW(client.sendRunLoopStepCommand(timeStep));
-    timeStep = 1.0f;
+    timeStep = -1.0f;
     ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
 }
 

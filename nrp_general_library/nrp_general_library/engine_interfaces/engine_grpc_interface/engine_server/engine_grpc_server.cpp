@@ -49,7 +49,17 @@ grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * context, const Eng
 
 grpc::Status EngineGrpcServer::runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply)
 {
-    reply->set_enginetime(request->timestep());
+    try
+    {
+        reply->set_enginetime(this->runLoopStep(request->timestep()));
+    }
+    catch(const std::exception &e)
+    {
+        std::cerr << "Error while executing runLoopStep\n";
+        std::cerr << e.what();
+
+        return grpc::Status::CANCELLED;
+    }
 
     return grpc::Status::OK;
 }
