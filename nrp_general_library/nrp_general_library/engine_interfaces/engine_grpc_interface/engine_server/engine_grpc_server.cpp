@@ -13,13 +13,37 @@ grpc::Status EngineGrpcServer::dummy(grpc::ServerContext * context, const DummyR
 
 grpc::Status EngineGrpcServer::init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply)
 {
-    reply->set_json(request->json());
+    try
+    {
+        // Run initialization function
+        reply->set_json(this->initialize(request->json()).dump());
+    }
+    catch(const std::exception &e)
+    {
+        std::cerr << "Error while executing initialization\n";
+        std::cerr << e.what();
+
+        return grpc::Status::CANCELLED;
+    }
+
     return grpc::Status::OK;
 }
 
 grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply)
 {
-    reply->set_json(request->json());
+    try
+    {
+        // Run shutdown function
+        reply->set_json(this->shutdown(request->json()).dump());
+    }
+    catch(const std::exception &e)
+    {
+        std::cerr << "Error while executing shutdown\n";
+        std::cerr << e.what();
+
+        return grpc::Status::CANCELLED;
+    }
+
     return grpc::Status::OK;
 }
 

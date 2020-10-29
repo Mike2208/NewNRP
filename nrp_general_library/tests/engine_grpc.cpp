@@ -67,6 +67,28 @@ class TestEngineGrpcClient
         }
 };
 
+class TestEngineGrpcServer
+    : public EngineGrpcServer
+{
+    public:
+        template<class ...T>
+        TestEngineGrpcServer(T &&...properties)
+            : EngineGrpcServer(std::forward<T>(properties)...)
+        {}
+
+        virtual ~TestEngineGrpcServer() override = default;
+
+        nlohmann::json initialize(const nlohmann::json &data) override
+        {
+            return nlohmann::json({{"status", "success"}, {"original", data}});
+        }
+
+        nlohmann::json shutdown(const nlohmann::json &data) override
+        {
+            return nlohmann::json({{"status", "shutdown"}, {"original", data}});
+        }
+};
+
 TEST(EngineGrpc, BASIC)
 {
     // TODO This one has a linking issue, fix it!
@@ -87,7 +109,7 @@ TEST(EngineGrpc, BASIC)
 
 TEST(EngineGrpc, InitCommand)
 {
-    EngineGrpcServer server;
+    TestEngineGrpcServer server;
     SimulationConfig::config_storage_t config;
     TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
@@ -99,7 +121,7 @@ TEST(EngineGrpc, InitCommand)
 
 TEST(EngineGrpc, ShutdownCommand)
 {
-    EngineGrpcServer server;
+    TestEngineGrpcServer server;
     SimulationConfig::config_storage_t config;
     TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
@@ -111,7 +133,7 @@ TEST(EngineGrpc, ShutdownCommand)
 
 TEST(EngineGrpc, RunLoopStepCommand)
 {
-    EngineGrpcServer server;
+    TestEngineGrpcServer server;
     SimulationConfig::config_storage_t config;
     TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
@@ -131,7 +153,7 @@ TEST(EngineGrpc, RunLoopStepCommand)
 
 TEST(EngineGrpc, RegisterDevices)
 {
-    EngineGrpcServer server;
+    TestEngineGrpcServer server;
 
     TestGrpcDeviceController dev1(DeviceIdentifier("dev1", "test", "test"));
 
@@ -142,7 +164,7 @@ TEST(EngineGrpc, RegisterDevices)
 
 TEST(EngineGrpc, SetDeviceData)
 {
-    EngineGrpcServer server;
+    TestEngineGrpcServer server;
 
     const std::string deviceName = "device";
 
@@ -160,7 +182,7 @@ TEST(EngineGrpc, SetDeviceData)
 
 TEST(EngineGrpc, GetDeviceData)
 {
-    EngineGrpcServer server;
+    TestEngineGrpcServer server;
 
     const std::string deviceName = "device";
 

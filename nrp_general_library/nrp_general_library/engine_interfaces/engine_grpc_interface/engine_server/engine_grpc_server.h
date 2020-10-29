@@ -5,6 +5,7 @@
 #include <map>
 
 #include <grpcpp/grpcpp.h>
+#include <nlohmann/json.hpp>
 
 #include <engine_grpc.grpc.pb.h>
 
@@ -29,6 +30,9 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
 
         void setDeviceData(const std::string & deviceName, const google::protobuf::Message & data);
         const google::protobuf::Message * getDeviceData(const std::string & deviceName);
+
+        virtual nlohmann::json initialize(const nlohmann::json &data) = 0;
+        virtual nlohmann::json shutdown(const nlohmann::json &data) = 0;
 
         grpc::Status dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply) override;
         grpc::Status init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply) override;
