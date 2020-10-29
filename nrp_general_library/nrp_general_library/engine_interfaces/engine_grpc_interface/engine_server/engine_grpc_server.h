@@ -20,6 +20,7 @@ class DummyServiceImpl final : public Dummy::Service
     grpc::Status dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply) override;
     grpc::Status init(grpc::ServerContext * context, const dummy::InitRequest * request, dummy::InitReply * reply) override;
     grpc::Status shutdown(grpc::ServerContext * context, const dummy::ShutdownRequest * request, dummy::ShutdownReply * reply) override;
+    grpc::Status runLoopStep(grpc::ServerContext * context, const dummy::RunLoopStepRequest * request, dummy::RunLoopStepReply * reply) override;
 };
 
 class EngineGrpcServer

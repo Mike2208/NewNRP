@@ -21,6 +21,13 @@ grpc::Status DummyServiceImpl::shutdown(grpc::ServerContext * context, const dum
     return grpc::Status::OK;
 }
 
+grpc::Status DummyServiceImpl::runLoopStep(grpc::ServerContext * context, const dummy::RunLoopStepRequest * request, dummy::RunLoopStepReply * reply)
+{
+    reply->set_enginetime(request->timestep());
+
+    return grpc::Status::OK;
+}
+
 EngineGrpcServer::EngineGrpcServer()
 {
     this->_serverAddress   = "0.0.0.0:9002";

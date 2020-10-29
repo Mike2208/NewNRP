@@ -4,9 +4,10 @@ package dummy;
 
 service Dummy
 {
-    rpc dummy(DummyRequest)       returns (DummyReply)     {}
-    rpc init(InitRequest)         returns (InitReply)      {}
-    rpc shutdown(ShutdownRequest) returns (ShutdownReply)  {}
+    rpc dummy(DummyRequest)             returns (DummyReply)     {}
+    rpc init(InitRequest)               returns (InitReply)      {}
+    rpc shutdown(ShutdownRequest)       returns (ShutdownReply)  {}
+    rpc runLoopStep(RunLoopStepRequest) returns (RunLoopStepReply)  {}
 }
 
 message DummyRequest
@@ -37,6 +38,16 @@ message ShutdownRequest
 message ShutdownReply
 {
 
+}
+
+message RunLoopStepRequest
+{
+    float timeStep = 1;
+}
+
+message RunLoopStepReply
+{
+    float engineTime = 1;
 }
 
 // EOF

@@ -66,6 +66,25 @@ TEST(EngineGrpc, ShutdownCommand)
     ASSERT_NO_THROW(client.sendShutdownCommand());
 }
 
+TEST(EngineGrpc, RunLoopStepCommand)
+{
+    EngineGrpcServer server;
+    EngineGrpcClient client;
+
+    server.startServer();
+
+    float timeStep = 0.1f;
+    ASSERT_NEAR(client.sendRunLoopStepCommand(timeStep), timeStep, 0.0001);
+
+    timeStep = -0.1f;
+    ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
+
+    timeStep = 2.0f;
+    ASSERT_NO_THROW(client.sendRunLoopStepCommand(timeStep));
+    timeStep = 1.0f;
+    ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
+}
+
 TEST(EngineGrpc, RegisterDevices)
 {
     EngineGrpcServer server;

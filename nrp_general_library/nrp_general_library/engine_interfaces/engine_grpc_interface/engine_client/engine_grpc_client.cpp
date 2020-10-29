@@ -12,6 +12,8 @@ EngineGrpcClient::EngineGrpcClient()
 
     _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
     _stub    = dummy::Dummy::NewStub(_channel);
+
+    _prevEngineTime = 0.0f;
 }
 
 grpc_connectivity_state EngineGrpcClient::getChannelStatus()
@@ -55,4 +57,39 @@ void EngineGrpcClient::sendShutdownCommand()
         const auto errMsg = "Engine server shutdown failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
         throw std::runtime_error(errMsg);
     }
+}
+
+float EngineGrpcClient::sendRunLoopStepCommand(const float timeStep)
+{
+    dummy::RunLoopStepRequest request;
+    dummy::RunLoopStepReply   reply;
+    grpc::ClientContext       context;
+
+    request.set_timestep(timeStep);
+
+    grpc::Status status = _stub->runLoopStep(&context, request, &reply);
+
+    if(!status.ok())
+    {
+        const auto errMsg = "Engine server runLoopStep failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
+        throw std::runtime_error(errMsg);
+    }
+
+    const float engineTime = reply.enginetime();
+
+    if(engineTime < 0.0f)
+    {
+        const auto errMsg = "Invalid engine time (should be greater than 0): " + std::to_string(engineTime);
+        throw std::runtime_error(errMsg);
+    }
+
+    if(engineTime < this->_prevEngineTime)
+    {
+        const auto errMsg = "Invalid engine time (should be greater than previous time): " + std::to_string(engineTime) + ", previous: " + std::to_string(this->_prevEngineTime);
+        throw std::runtime_error(errMsg);
+    }
+
+    this->_prevEngineTime = engineTime;
+
+    return engineTime;
 }

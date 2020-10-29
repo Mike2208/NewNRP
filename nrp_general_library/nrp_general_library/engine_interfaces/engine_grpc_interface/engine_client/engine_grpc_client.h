@@ -16,11 +16,14 @@ class EngineGrpcClient
 
         void sendInitCommand();
         void sendShutdownCommand();
+        float sendRunLoopStepCommand(const float timeStep);
 
     private:
 
         std::shared_ptr<grpc::Channel>      _channel;
         std::unique_ptr<dummy::Dummy::Stub> _stub;
+
+        float _prevEngineTime;
 };
 
 #endif // ENGINE_GRPC_CLIENT_H
