@@ -13,11 +13,13 @@ grpc::Status EngineGrpcService::dummy(grpc::ServerContext * context, const Dummy
 
 grpc::Status EngineGrpcService::init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply)
 {
+    reply->set_json(request->json());
     return grpc::Status::OK;
 }
 
 grpc::Status EngineGrpcService::shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply)
 {
+    reply->set_json(request->json());
     return grpc::Status::OK;
 }
 

@@ -54,14 +54,14 @@ class TestEngineGrpcClient
 
         RESULT initialize() override
         {
-            this->sendInitCommand();
+            this->sendInitCommand("test");
 
             return RESULT::SUCCESS;
         }
 
         RESULT shutdown() override
         {
-            this->sendShutdownCommand();
+            this->sendShutdownCommand("test");
 
             return RESULT::SUCCESS;
         }
@@ -91,10 +91,10 @@ TEST(EngineGrpc, InitCommand)
     SimulationConfig::config_storage_t config;
     TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
-    ASSERT_THROW(client.sendInitCommand(), std::runtime_error);
+    ASSERT_THROW(client.sendInitCommand("initCommand"), std::runtime_error);
 
     server.startServer();
-    ASSERT_NO_THROW(client.sendInitCommand());
+    ASSERT_NO_THROW(client.sendInitCommand("initCommand"));
 }
 
 TEST(EngineGrpc, ShutdownCommand)
@@ -103,10 +103,10 @@ TEST(EngineGrpc, ShutdownCommand)
     SimulationConfig::config_storage_t config;
     TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
-    ASSERT_THROW(client.sendShutdownCommand(), std::runtime_error);
+    ASSERT_THROW(client.sendShutdownCommand("shutdownCommand"), std::runtime_error);
 
     server.startServer();
-    ASSERT_NO_THROW(client.sendShutdownCommand());
+    ASSERT_NO_THROW(client.sendShutdownCommand("shutdownCommand"));
 }
 
 TEST(EngineGrpc, RunLoopStepCommand)

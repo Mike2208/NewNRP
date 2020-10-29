@@ -3,6 +3,7 @@
 
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/support/time.h>
+#include <nlohmann/json.hpp>
 
 #include <engine_grpc.grpc.pb.h>
 
@@ -39,11 +40,13 @@ class EngineGrpcClient
             return _channel->GetState(false);
         }
 
-        void sendInitCommand()
+        void sendInitCommand(const nlohmann::json & data)
         {
             EngineGrpc::InitRequest  request;
             EngineGrpc::InitReply    reply;
-            grpc::ClientContext context;
+            grpc::ClientContext      context;
+
+            request.set_json(data.dump());
 
             grpc::Status status = _stub->init(&context, request, &reply);
 
@@ -54,11 +57,13 @@ class EngineGrpcClient
             }
         }
 
-        void sendShutdownCommand()
+        void sendShutdownCommand(const nlohmann::json & data)
         {
             EngineGrpc::ShutdownRequest request;
             EngineGrpc::ShutdownReply   reply;
-            grpc::ClientContext    context;
+            grpc::ClientContext         context;
+
+            request.set_json(data.dump());
 
             grpc::Status status = _stub->shutdown(&context, request, &reply);
 

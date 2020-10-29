@@ -22,22 +22,22 @@ message DummyReply
 
 message InitRequest
 {
-
+    string json = 1;
 }
 
 message InitReply
 {
-
+    string json = 1;
 }
 
 message ShutdownRequest
 {
-
+    string json = 1;
 }
 
 message ShutdownReply
 {
-
+    string json = 1;
 }
 
 message RunLoopStepRequest
