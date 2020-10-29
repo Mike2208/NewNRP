@@ -1,0 +1,3 @@
+from .@PYTHON_MODULE_NAME@ import *
+from .numpy_json_serializer import NumpyEncoder
+

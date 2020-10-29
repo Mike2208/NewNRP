@@ -90,11 +90,17 @@ concept DEVICE_C = requires {
 template<class DEVICE, FixedString TYPE, PROP_NAMES_C PROP_NAMES, class ...PROPERTIES>
 class Device
         : public DeviceInterface,
-          public PropertyTemplate<DEVICE, PROP_NAMES, PROPERTIES...>
+          public PropertyTemplate<DEVICE, PROP_NAMES, PROPERTIES...>,
+          public PtrTemplates<DEVICE>
 {
 	public:
 		static constexpr FixedString TypeName = TYPE;
 		using property_template_t = typename PropertyTemplate<DEVICE, PROP_NAMES, PROPERTIES...>::property_template_t;
+
+		using shared_ptr = typename PtrTemplates<DEVICE>::shared_ptr;
+		using const_shared_ptr = typename PtrTemplates<DEVICE>::const_shared_ptr;
+		using unique_ptr = typename PtrTemplates<DEVICE>::unique_ptr;
+		using const_unique_ptr = typename PtrTemplates<DEVICE>::const_unique_ptr;
 
 		virtual ~Device() override = default;
 

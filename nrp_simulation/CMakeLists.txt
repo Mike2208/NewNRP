@@ -160,7 +160,7 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 	target_link_libraries(${TEST_NAME}
 		PUBLIC
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
-		NRPNestDeviceInterface::NRPNestDeviceInterface
+		NRPNestJSONEngine::NRPNestJSONEngine
 		NRPGazeboJSONEngine::NRPGazeboJSONEngine
 		GTest::GTest
 		GTest::GTestMain)

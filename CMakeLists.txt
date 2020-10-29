@@ -80,6 +80,7 @@ add_subdirectory(nrp_gazebo_mpi_engine)
 
 ## Nest Engine
 add_subdirectory(nrp_nest_json_engine)
+add_subdirectory(nrp_nest_server_engine)
 
 ## Python Engine
 add_subdirectory(nrp_python_device_interface)
