@@ -6,21 +6,21 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include <dummy.grpc.pb.h>
+#include <engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
 
-using dummy::Dummy;
-using dummy::DummyRequest;
-using dummy::DummyReply;
+using EngineGrpc::EngineGrpcServiceInterface;
+using EngineGrpc::DummyRequest;
+using EngineGrpc::DummyReply;
 
 // Logic and data behind the server's behavior.
-class DummyServiceImpl final : public Dummy::Service
+class EngineGrpcService final : public EngineGrpcServiceInterface::Service
 {
     grpc::Status dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply) override;
-    grpc::Status init(grpc::ServerContext * context, const dummy::InitRequest * request, dummy::InitReply * reply) override;
-    grpc::Status shutdown(grpc::ServerContext * context, const dummy::ShutdownRequest * request, dummy::ShutdownReply * reply) override;
-    grpc::Status runLoopStep(grpc::ServerContext * context, const dummy::RunLoopStepRequest * request, dummy::RunLoopStepReply * reply) override;
+    grpc::Status init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply) override;
+    grpc::Status shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply) override;
+    grpc::Status runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply) override;
 };
 
 class EngineGrpcServer
@@ -42,7 +42,7 @@ class EngineGrpcServer
     private:
 
         std::string                   _serverAddress;
-        DummyServiceImpl              _service;
+        EngineGrpcService             _service;
         std::unique_ptr<grpc::Server> _server;
         bool                          _isServerRunning;
 

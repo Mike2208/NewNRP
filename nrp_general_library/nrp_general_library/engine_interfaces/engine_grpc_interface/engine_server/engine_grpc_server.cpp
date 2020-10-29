@@ -5,23 +5,23 @@
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
 
-grpc::Status DummyServiceImpl::dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply)
+grpc::Status EngineGrpcService::dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply)
 {
     reply->set_numcalls(0);
     return grpc::Status::OK;
 }
 
-grpc::Status DummyServiceImpl::init(grpc::ServerContext * context, const dummy::InitRequest * request, dummy::InitReply * reply)
+grpc::Status EngineGrpcService::init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply)
 {
     return grpc::Status::OK;
 }
 
-grpc::Status DummyServiceImpl::shutdown(grpc::ServerContext * context, const dummy::ShutdownRequest * request, dummy::ShutdownReply * reply)
+grpc::Status EngineGrpcService::shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply)
 {
     return grpc::Status::OK;
 }
 
-grpc::Status DummyServiceImpl::runLoopStep(grpc::ServerContext * context, const dummy::RunLoopStepRequest * request, dummy::RunLoopStepReply * reply)
+grpc::Status EngineGrpcService::runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply)
 {
     reply->set_enginetime(request->timestep());
 

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package dummy;
+package EngineGrpc;
 
-service Dummy
+service EngineGrpcServiceInterface
 {
     rpc dummy(DummyRequest)             returns (DummyReply)     {}
     rpc init(InitRequest)               returns (InitReply)      {}

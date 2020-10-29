@@ -4,7 +4,7 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/support/time.h>
 
-#include <dummy.grpc.pb.h>
+#include <engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
@@ -21,7 +21,7 @@ class EngineGrpcClient
             std::string serverAddress("0.0.0.0:9002");
 
             _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-            _stub    = dummy::Dummy::NewStub(_channel);
+            _stub    = EngineGrpc::EngineGrpcServiceInterface::NewStub(_channel);
 
             _prevEngineTime = 0.0f;
         }
@@ -41,8 +41,8 @@ class EngineGrpcClient
 
         void sendInitCommand()
         {
-            dummy::InitRequest  request;
-            dummy::InitReply    reply;
+            EngineGrpc::InitRequest  request;
+            EngineGrpc::InitReply    reply;
             grpc::ClientContext context;
 
             grpc::Status status = _stub->init(&context, request, &reply);
@@ -56,8 +56,8 @@ class EngineGrpcClient
 
         void sendShutdownCommand()
         {
-            dummy::ShutdownRequest request;
-            dummy::ShutdownReply   reply;
+            EngineGrpc::ShutdownRequest request;
+            EngineGrpc::ShutdownReply   reply;
             grpc::ClientContext    context;
 
             grpc::Status status = _stub->shutdown(&context, request, &reply);
@@ -71,8 +71,8 @@ class EngineGrpcClient
 
         float sendRunLoopStepCommand(const float timeStep)
         {
-            dummy::RunLoopStepRequest request;
-            dummy::RunLoopStepReply   reply;
+            EngineGrpc::RunLoopStepRequest request;
+            EngineGrpc::RunLoopStepReply   reply;
             grpc::ClientContext       context;
 
             request.set_timestep(timeStep);
@@ -133,8 +133,8 @@ class EngineGrpcClient
 
     private:
 
-        std::shared_ptr<grpc::Channel>      _channel;
-        std::unique_ptr<dummy::Dummy::Stub> _stub;
+        std::shared_ptr<grpc::Channel>                                _channel;
+        std::unique_ptr<EngineGrpc::EngineGrpcServiceInterface::Stub> _stub;
 
         float _prevEngineTime;
 };

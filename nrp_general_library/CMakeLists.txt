@@ -97,7 +97,7 @@ set(TEST_SRC_FILES
 )
 
 # List of protobuf proto files
-get_filename_component(hw_proto "nrp_general_library/proto/dummy.proto" ABSOLUTE)
+get_filename_component(hw_proto "nrp_general_library/proto/engine_grpc.proto" ABSOLUTE)
 get_filename_component(hw_proto_path "${hw_proto}" PATH)
 
 ##########################################
@@ -150,10 +150,10 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LibZip REQUIRED IMPORTED_TARGET libzip)
 
 # Generated sources
-set(proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/dummy.pb.cc")
-set(proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/dummy.pb.h")
-set(grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/dummy.grpc.pb.cc")
-set(grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/dummy.grpc.pb.h")
+set(proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/engine_grpc.pb.cc")
+set(proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/engine_grpc.pb.h")
+set(grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/engine_grpc.grpc.pb.cc")
+set(grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/engine_grpc.grpc.pb.h")
 add_custom_command(
     OUTPUT "${proto_srcs}" "${proto_hdrs}" "${grpc_srcs}" "${grpc_hdrs}"
     COMMAND ${PROTOC}

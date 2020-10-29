@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include <dummy.grpc.pb.h>
+#include <engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
@@ -27,8 +27,8 @@ class TestGrpcDeviceController : public EngineGrpcDeviceController
             this->_reply.set_numcalls(_reply.numcalls() + 1);
         }
 
-        dummy::DummyRequest _data;
-        dummy::DummyReply   _reply;
+        EngineGrpc::DummyRequest _data;
+        EngineGrpc::DummyReply   _reply;
 };
 
 class TestEngineJSONConfig
@@ -148,7 +148,7 @@ TEST(EngineGrpc, SetDeviceData)
 
     TestGrpcDeviceController device(DeviceIdentifier("dev1", "test", "test"));
 
-    dummy::DummyRequest request;
+    EngineGrpc::DummyRequest request;
     request.set_name("test");
 
     server.registerDevice(deviceName, &device);
@@ -166,12 +166,12 @@ TEST(EngineGrpc, GetDeviceData)
 
     TestGrpcDeviceController device(DeviceIdentifier("dev1", "test", "test"));
 
-    dummy::DummyRequest request;
+    EngineGrpc::DummyRequest request;
     request.set_name("test");
 
     server.registerDevice(deviceName, &device);
 
     server.setDeviceData(deviceName, request);
-    const dummy::DummyReply * reply = dynamic_cast<const dummy::DummyReply *>(server.getDeviceData(deviceName));
+    const EngineGrpc::DummyReply * reply = dynamic_cast<const EngineGrpc::DummyReply *>(server.getDeviceData(deviceName));
     ASSERT_EQ(reply->numcalls(), 1); 
 }
