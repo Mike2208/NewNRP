@@ -14,16 +14,7 @@ using EngineGrpc::EngineGrpcServiceInterface;
 using EngineGrpc::DummyRequest;
 using EngineGrpc::DummyReply;
 
-// Logic and data behind the server's behavior.
-class EngineGrpcService final : public EngineGrpcServiceInterface::Service
-{
-    grpc::Status dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply) override;
-    grpc::Status init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply) override;
-    grpc::Status shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply) override;
-    grpc::Status runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply) override;
-};
-
-class EngineGrpcServer
+class EngineGrpcServer : public EngineGrpcServiceInterface::Service
 {
     public:
 
@@ -39,10 +30,14 @@ class EngineGrpcServer
         void setDeviceData(const std::string & deviceName, const google::protobuf::Message & data);
         const google::protobuf::Message * getDeviceData(const std::string & deviceName);
 
+        grpc::Status dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply) override;
+        grpc::Status init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply) override;
+        grpc::Status shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply) override;
+        grpc::Status runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply) override;
+
     private:
 
         std::string                   _serverAddress;
-        EngineGrpcService             _service;
         std::unique_ptr<grpc::Server> _server;
         bool                          _isServerRunning;
 

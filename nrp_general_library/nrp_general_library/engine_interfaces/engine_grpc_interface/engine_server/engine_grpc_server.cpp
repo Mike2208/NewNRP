@@ -5,25 +5,25 @@
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
 
-grpc::Status EngineGrpcService::dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply)
+grpc::Status EngineGrpcServer::dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply)
 {
     reply->set_numcalls(0);
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcService::init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply)
+grpc::Status EngineGrpcServer::init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply)
 {
     reply->set_json(request->json());
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcService::shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply)
+grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply)
 {
     reply->set_json(request->json());
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcService::runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply)
+grpc::Status EngineGrpcServer::runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply)
 {
     reply->set_enginetime(request->timestep());
 
@@ -49,7 +49,7 @@ void EngineGrpcServer::startServer()
 	{
         grpc::ServerBuilder builder;
         builder.AddListeningPort(_serverAddress, grpc::InsecureServerCredentials());
-        builder.RegisterService(&_service);
+        builder.RegisterService(this);
 
         this->_server = builder.BuildAndStart();
 		this->_isServerRunning = true;
