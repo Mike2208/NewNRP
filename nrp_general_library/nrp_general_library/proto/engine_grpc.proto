@@ -4,20 +4,10 @@ package EngineGrpc;
 
 service EngineGrpcServiceInterface
 {
-    rpc dummy(DummyRequest)             returns (DummyReply)     {}
-    rpc init(InitRequest)               returns (InitReply)      {}
-    rpc shutdown(ShutdownRequest)       returns (ShutdownReply)  {}
-    rpc runLoopStep(RunLoopStepRequest) returns (RunLoopStepReply)  {}
-}
-
-message DummyRequest
-{
-    string name = 1;
-}
-
-message DummyReply
-{
-    int32 numCalls = 1;
+    rpc init(InitRequest)               returns (InitReply)        {}
+    rpc shutdown(ShutdownRequest)       returns (ShutdownReply)    {}
+    rpc runLoopStep(RunLoopStepRequest) returns (RunLoopStepReply) {}
+    rpc setDevice(SetDeviceRequest)     returns (SetDeviceReply)   {}
 }
 
 message InitRequest
@@ -48,6 +38,16 @@ message RunLoopStepRequest
 message RunLoopStepReply
 {
     float engineTime = 1;
+}
+
+message SetDeviceRequest
+{
+    repeated string deviceName = 1;
+}
+
+message SetDeviceReply
+{
+
 }
 
 // EOF

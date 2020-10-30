@@ -133,6 +133,23 @@ class EngineGrpcClient
 
         virtual typename EngineInterface::RESULT handleInputDevices(const typename EngineInterface::device_inputs_t &inputDevices) override
         {
+            EngineGrpc::SetDeviceRequest request;
+            EngineGrpc::SetDeviceReply   reply;
+            grpc::ClientContext          context;
+
+            for(const auto &device : inputDevices)
+            {
+                request.add_devicename(device->name());
+            }
+
+            grpc::Status status = _stub->setDevice(&context, request, &reply);
+
+            if(!status.ok())
+            {
+                const auto errMsg = "Engine server handleInputDevices failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
+                throw std::runtime_error(errMsg);
+            }
+
             return EngineInterface::SUCCESS;
         }
 

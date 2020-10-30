@@ -5,12 +5,6 @@
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
 
-grpc::Status EngineGrpcServer::dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply)
-{
-    reply->set_numcalls(0);
-    return grpc::Status::OK;
-}
-
 grpc::Status EngineGrpcServer::init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply)
 {
     try
@@ -52,6 +46,23 @@ grpc::Status EngineGrpcServer::runLoopStep(grpc::ServerContext * context, const 
     try
     {
         reply->set_enginetime(this->runLoopStep(request->timestep()));
+    }
+    catch(const std::exception &e)
+    {
+        std::cerr << "Error while executing runLoopStep\n";
+        std::cerr << e.what();
+
+        return grpc::Status::CANCELLED;
+    }
+
+    return grpc::Status::OK;
+}
+
+grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * context, const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply * reply)
+{
+    try
+    {
+        this->setDeviceData(*request);
     }
     catch(const std::exception &e)
     {
@@ -109,16 +120,20 @@ unsigned EngineGrpcServer::getNumRegisteredDevices()
     return this->_devicesControllers.size();
 }
 
-void EngineGrpcServer::setDeviceData(const std::string & deviceName, const google::protobuf::Message & data)
+void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
 {
-    const auto devInterface = this->_devicesControllers.find(deviceName);
+    const auto numDevices = data.devicename_size();
 
-    if(devInterface == _devicesControllers.end())
+    for(unsigned i = 0; i < numDevices; i++)
     {
-        // TODO Error handling for dev not found
-    }
+        const auto devInterface = this->_devicesControllers.find(data.devicename(i));
 
-    devInterface->second->setData(data);
+        if(devInterface != _devicesControllers.end())
+        {
+            devInterface->second->setData(data);
+            // TODO Error handling for dev not found
+        }
+    }
 }
 
 const google::protobuf::Message * EngineGrpcServer::getDeviceData(const std::string & deviceName)

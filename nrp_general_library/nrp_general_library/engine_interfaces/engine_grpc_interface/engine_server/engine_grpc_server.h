@@ -12,8 +12,6 @@
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
 
 using EngineGrpc::EngineGrpcServiceInterface;
-using EngineGrpc::DummyRequest;
-using EngineGrpc::DummyReply;
 
 class EngineGrpcServer : public EngineGrpcServiceInterface::Service
 {
@@ -28,17 +26,17 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
         void registerDevice(const std::string & deviceName, EngineGrpcDeviceController * interface);
         unsigned getNumRegisteredDevices();
 
-        void setDeviceData(const std::string & deviceName, const google::protobuf::Message & data);
+        void setDeviceData(const EngineGrpc::SetDeviceRequest & data);
         const google::protobuf::Message * getDeviceData(const std::string & deviceName);
 
         virtual nlohmann::json initialize(const nlohmann::json &data) = 0;
         virtual nlohmann::json shutdown(const nlohmann::json &data) = 0;
         virtual float runLoopStep(const float timeStep) = 0;
 
-        grpc::Status dummy(grpc::ServerContext * context, const DummyRequest * request, DummyReply * reply) override;
         grpc::Status init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply) override;
         grpc::Status shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply) override;
         grpc::Status runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply) override;
+        grpc::Status setDevice(grpc::ServerContext * context, const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply * reply) override;
 
     private:
 
