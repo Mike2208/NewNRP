@@ -20,6 +20,7 @@ class TestGrpcDeviceController : public EngineGrpcDeviceController
             _getMessage.Clear();
 
             _getMessage.mutable_deviceid()->set_devicename(_setMessage.deviceid().devicename());
+            _getMessage.mutable_deviceid()->set_devicetype(_setMessage.deviceid().devicetype());
 
             return &_getMessage;
         }
@@ -48,6 +49,8 @@ class TestGrpcDeviceInterface
     : public DeviceInterface
 {
     public:
+
+        static constexpr std::string_view TypeName = "test_type";
 
         TestGrpcDeviceInterface(const DeviceIdentifier &devID)
             : DeviceInterface(devID)
@@ -276,8 +279,10 @@ TEST(EngineGrpc, GetDeviceData2)
     std::vector<DeviceInterface*> input_devices;
 
     const std::string deviceName = "a";
-    const std::string deviceType = "b";
+    const std::string deviceType = "test_type";
     const std::string engineName = "c";
+
+    client.engineName() = engineName;
 
     DeviceIdentifier         devId(deviceName, deviceType, engineName);
     TestGrpcDeviceInterface  dev1(devId);             // Client side

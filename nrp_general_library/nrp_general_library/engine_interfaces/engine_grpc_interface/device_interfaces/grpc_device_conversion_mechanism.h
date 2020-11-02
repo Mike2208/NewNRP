@@ -36,7 +36,7 @@ struct DeviceConversionMechanism<EngineGrpc::SetDeviceMessage, const EngineGrpc:
     }
 
     template<DEVICE_C DEVICE>
-    static constexpr bool IsDeserializable = std::is_invocable_v<decltype(deserialize<DEVICE>)>;
+    static constexpr bool IsDeserializable = std::is_invocable_v<decltype(deserialize<DEVICE>), const EngineGrpc::GetDeviceMessage &>;
 
     static EngineGrpc::DeviceIdentifier serializeID(const DeviceIdentifier &id)
     {
