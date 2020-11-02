@@ -226,8 +226,10 @@ TEST(EngineGrpc, SetDeviceData2)
     std::vector<DeviceInterface*> input_devices;
 
     const std::string deviceName = "a";
-    const std::string deviceType = "b";
+    const std::string deviceType = "test_type";
     const std::string engineName = "c";
+
+    client.engineName() = engineName;
 
     DeviceIdentifier         devId(deviceName, deviceType, engineName);
     TestGrpcDeviceInterface  dev1(devId);             // Client side

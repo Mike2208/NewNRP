@@ -152,8 +152,11 @@ class EngineGrpcClient
 
             for(const auto &device : inputDevices)
             {
-                auto r = request.add_request();
-                r->CopyFrom(this->getProtoFromSingleDeviceInterface<DEVICES...>(*device));
+                if(device->engineName().compare(this->engineName()) == 0)
+                {
+                    auto r = request.add_request();
+                    r->CopyFrom(this->getProtoFromSingleDeviceInterface<DEVICES...>(*device));
+                }
             }
 
             grpc::Status status = _stub->setDevice(&context, request, &reply);
@@ -170,7 +173,20 @@ class EngineGrpcClient
         template<class DEVICE, class ...REMAINING_DEVICES>
         inline EngineGrpc::SetDeviceMessage getProtoFromSingleDeviceInterface(const DeviceInterface &device) const
         {
-            return this->_dcm.template serialize<DEVICE>(dynamic_cast<const DEVICE&>(device));
+            // Only check DEVICE classes with an existing conversion function
+            if constexpr (dcm_t::template IsSerializable<DEVICE>)
+            {
+                if(DEVICE::TypeName.compare(device.type()) == 0)
+                {
+                    return this->_dcm.template serialize<DEVICE>(dynamic_cast<const DEVICE&>(device));
+                }
+            }
+
+            // If device classess are left to check, go through them. If all device classes have been checked without proper result, throw an error
+            if constexpr (sizeof...(REMAINING_DEVICES) > 0)
+            {	return this->getProtoFromSingleDeviceInterface<REMAINING_DEVICES...>(device);	}
+            else
+            {	throw std::logic_error("Could not process given device of type " + device.type());	}
         }
 
         virtual typename EngineInterface::device_outputs_t getOutputDevices(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
