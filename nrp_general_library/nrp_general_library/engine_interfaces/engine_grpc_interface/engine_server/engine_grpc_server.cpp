@@ -145,7 +145,7 @@ void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
     for(unsigned i = 0; i < numDevices; i++)
     {
         const auto r = data.request(i);
-        const auto devInterface = this->_devicesControllers.find(r.devicename());
+        const auto devInterface = this->_devicesControllers.find(r.deviceid().devicename());
 
         if(devInterface != _devicesControllers.end())
         {
@@ -160,11 +160,11 @@ const EngineGrpc::GetDeviceReply * EngineGrpcServer::getDeviceData(const EngineG
     // TODO Check if clearing is enough, it may be that the message will grow uncontrollably, because of add_reply() calls!
     this->_getReply.Clear();
 
-    const auto numDevices = data.devicename_size();
+    const auto numDevices = data.deviceid_size();
 
     for(unsigned i = 0; i < numDevices; i++)
     {
-        const auto devInterface = this->_devicesControllers.find(data.devicename(i));
+        const auto devInterface = this->_devicesControllers.find(data.deviceid(i).devicename());
 
         if(devInterface != _devicesControllers.end())
         {

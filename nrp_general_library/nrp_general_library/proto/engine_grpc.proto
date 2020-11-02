@@ -48,7 +48,7 @@ message SetDeviceRequest
 
 message SetDeviceMessage
 {
-    string deviceName = 1;
+    DeviceIdentifier deviceId = 1;
 }
 
 message SetDeviceReply
@@ -58,7 +58,7 @@ message SetDeviceReply
 
 message GetDeviceRequest
 {
-    repeated string deviceName = 1;
+    repeated DeviceIdentifier deviceId = 1;
 }
 
 message GetDeviceReply
@@ -68,12 +68,20 @@ message GetDeviceReply
 
 message GetDeviceMessage
 {
-    string deviceName = 1;
+    DeviceIdentifier deviceId = 1;
+
     oneof test
     {
         string s = 2;
         int32  i = 3;
     }
+}
+
+message DeviceIdentifier
+{
+    string deviceName = 1;
+    string deviceType = 2;
+    string engineName = 3;
 }
 
 // EOF

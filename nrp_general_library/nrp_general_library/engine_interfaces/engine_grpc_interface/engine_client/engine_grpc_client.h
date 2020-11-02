@@ -8,9 +8,10 @@
 #include <engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
+#include "nrp_general_library/engine_interfaces/engine_grpc_interface/device_interfaces/grpc_device_conversion_mechanism.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
 
-template<class ENGINE, ENGINE_CONFIG_C ENGINE_CONFIG>
+template<class ENGINE, ENGINE_CONFIG_C ENGINE_CONFIG, DEVICE_C ...DEVICES>
 class EngineGrpcClient
     : public Engine<ENGINE, ENGINE_CONFIG>
 {
@@ -133,7 +134,7 @@ class EngineGrpcClient
             for(const auto &device : inputDevices)
             {
                 auto r = request.add_request();
-                r->set_devicename(device->name());
+                r->CopyFrom(this->getProtoFromSingleDeviceInterface<DEVICES...>(*device));
             }
 
             grpc::Status status = _stub->setDevice(&context, request, &reply);
@@ -147,6 +148,12 @@ class EngineGrpcClient
             return EngineInterface::SUCCESS;
         }
 
+        template<class DEVICE, class ...REMAINING_DEVICES>
+        inline EngineGrpc::SetDeviceMessage getProtoFromSingleDeviceInterface(const DeviceInterface &device) const
+        {
+            return this->_dcm.template serialize<DEVICE>(dynamic_cast<const DEVICE&>(device));
+        }
+
         virtual typename EngineInterface::device_outputs_t getOutputDevices(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
         {
             EngineGrpc::GetDeviceRequest request;
@@ -155,7 +162,8 @@ class EngineGrpcClient
 
             for(const auto &devID : deviceIdentifiers)
             {
-                request.add_devicename(devID.Name);
+                auto devId = request.add_deviceid();
+                devId->set_devicename(devID.Name);
             }
 
             grpc::Status status = _stub->getDevice(&context, request, &reply);
@@ -178,13 +186,16 @@ class EngineGrpcClient
             {
                 const auto r = reply.reply(i);
 
-                DeviceInterfaceSharedPtr newDevice(new DeviceInterface(r.devicename(), "", ""));
+                DeviceInterfaceSharedPtr newDevice(new DeviceInterface(r.deviceid().devicename(), "", ""));
 
                 interfaces.push_back(newDevice);
             }
 
             return interfaces;
         }
+
+        using dcm_t = DeviceConversionMechanism<EngineGrpc::SetDeviceMessage, const EngineGrpc::GetDeviceMessage, DEVICES...>;
+        dcm_t _dcm;
 
     private:
 
