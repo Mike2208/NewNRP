@@ -8,6 +8,7 @@ service EngineGrpcServiceInterface
     rpc shutdown(ShutdownRequest)       returns (ShutdownReply)    {}
     rpc runLoopStep(RunLoopStepRequest) returns (RunLoopStepReply) {}
     rpc setDevice(SetDeviceRequest)     returns (SetDeviceReply)   {}
+    rpc getDevice(GetDeviceRequest)     returns (GetDeviceReply)   {}
 }
 
 message InitRequest
@@ -42,12 +43,37 @@ message RunLoopStepReply
 
 message SetDeviceRequest
 {
-    repeated string deviceName = 1;
+    repeated SetDeviceMessage request = 1;
+}
+
+message SetDeviceMessage
+{
+    string deviceName = 1;
 }
 
 message SetDeviceReply
 {
 
+}
+
+message GetDeviceRequest
+{
+    repeated string deviceName = 1;
+}
+
+message GetDeviceReply
+{
+    repeated GetDeviceMessage reply = 1;
+}
+
+message GetDeviceMessage
+{
+    string deviceName = 1;
+    oneof test
+    {
+        string s = 2;
+        int32  i = 3;
+    }
 }
 
 // EOF

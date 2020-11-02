@@ -17,16 +17,20 @@ class TestGrpcDeviceController : public EngineGrpcDeviceController
 
         virtual const google::protobuf::Message * getData() override
         {
-            return &_reply;
+            _getMessage.Clear();
+
+            _getMessage.set_devicename(_setMessage.devicename());
+
+            return &_getMessage;
         }
 
         virtual void setData(const google::protobuf::Message & data) override
         {
-            _data.CopyFrom(data);
+            _setMessage.CopyFrom(data);
         }
 
-        EngineGrpc::SetDeviceRequest _data;
-        EngineGrpc::SetDeviceReply   _reply;
+        EngineGrpc::SetDeviceMessage _setMessage;
+        EngineGrpc::GetDeviceMessage _getMessage;
 };
 
 class TestEngineJSONConfig
@@ -187,13 +191,14 @@ TEST(EngineGrpc, SetDeviceData1)
     TestGrpcDeviceController device(DeviceIdentifier("test", "test", "test"));
 
     EngineGrpc::SetDeviceRequest request;
-    request.add_devicename(deviceName);
+    auto r = request.add_request();
+    r->set_devicename(deviceName);
 
     server.registerDevice(deviceName, &device);
 
     server.setDeviceData(request);
 
-    ASSERT_EQ(device._data.devicename(0), deviceName);
+    ASSERT_EQ(device._setMessage.devicename(), deviceName);
 }
 
 TEST(EngineGrpc, SetDeviceData2)
@@ -222,23 +227,64 @@ TEST(EngineGrpc, SetDeviceData2)
     server.startServer();
     client.handleInputDevices(input_devices);
 
-    ASSERT_EQ(deviceController._data.devicename(0), deviceName);
+    ASSERT_EQ(deviceController._setMessage.devicename(), deviceName);
 }
 
-TEST(EngineGrpc, GetDeviceData)
+TEST(EngineGrpc, GetDeviceData1)
 {
-    /*TestEngineGrpcServer server;
+    TestEngineGrpcServer server;
 
     const std::string deviceName = "device";
 
     TestGrpcDeviceController device(DeviceIdentifier("dev1", "test", "test"));
 
-    EngineGrpc::SetDeviceRequest request;
-    request.set_devicename(deviceName);
+    EngineGrpc::SetDeviceRequest setRequest;
+    EngineGrpc::GetDeviceRequest getRequest;
+    auto req = setRequest.add_request();
+    req->set_devicename(deviceName);
+
+    getRequest.add_devicename(deviceName);
 
     server.registerDevice(deviceName, &device);
 
-    server.setDeviceData(request);
-    const EngineGrpc:: * reply = dynamic_cast<const EngineGrpc::DummyReply *>(server.getDeviceData(deviceName));
-    ASSERT_EQ(reply->numcalls(), 1); */
+    server.setDeviceData(setRequest);
+    const auto response = server.getDeviceData(getRequest);
+
+    ASSERT_EQ(response->reply(0).devicename(), deviceName);
 }
+
+TEST(EngineGrpc, GetDeviceData2)
+{
+    SimulationConfig::config_storage_t config;
+
+    TestEngineGrpcServer server;
+    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+
+    // Client sends a request to the server
+
+    std::vector<DeviceInterface*> input_devices;
+
+    const std::string deviceName = "a";
+    const std::string deviceType = "b";
+    const std::string engineName = "c";
+
+    DeviceIdentifier         devId(deviceName, deviceType, engineName);
+    DeviceInterface          dev1(devId);             // Client side
+    TestGrpcDeviceController deviceController(devId); // Server side
+
+    server.registerDevice(deviceName, &deviceController);
+
+    input_devices.push_back(&dev1);
+
+    server.startServer();
+    client.handleInputDevices(input_devices);
+
+    EngineInterface::device_identifiers_t deviceIdentifiers;
+    deviceIdentifiers.insert(devId);
+
+    const auto output = client.getOutputDevices(deviceIdentifiers);
+
+    ASSERT_EQ(output.at(0)->name(), deviceName);
+}
+
+// EOF

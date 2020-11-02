@@ -75,6 +75,24 @@ grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * context, const En
     return grpc::Status::OK;
 }
 
+grpc::Status EngineGrpcServer::getDevice(grpc::ServerContext * context, const EngineGrpc::GetDeviceRequest * request, EngineGrpc::GetDeviceReply * reply)
+{
+    try
+    {
+        reply->CopyFrom(*this->getDeviceData(*request));
+    }
+    catch(const std::exception &e)
+    {
+        std::cerr << "Error while executing runLoopStep\n";
+        std::cerr << e.what();
+
+        return grpc::Status::CANCELLED;
+    }
+
+    return grpc::Status::OK;
+}
+
+
 EngineGrpcServer::EngineGrpcServer()
 {
     this->_serverAddress   = "0.0.0.0:9002";
@@ -122,6 +140,26 @@ unsigned EngineGrpcServer::getNumRegisteredDevices()
 
 void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
 {
+    const auto numDevices = data.request_size();
+
+    for(unsigned i = 0; i < numDevices; i++)
+    {
+        const auto r = data.request(i);
+        const auto devInterface = this->_devicesControllers.find(r.devicename());
+
+        if(devInterface != _devicesControllers.end())
+        {
+            devInterface->second->setData(r);
+            // TODO Error handling for dev not found
+        }
+    }
+}
+
+const EngineGrpc::GetDeviceReply * EngineGrpcServer::getDeviceData(const EngineGrpc::GetDeviceRequest & data)
+{
+    // TODO Check if clearing is enough, it may be that the message will grow uncontrollably, because of add_reply() calls!
+    this->_getReply.Clear();
+
     const auto numDevices = data.devicename_size();
 
     for(unsigned i = 0; i < numDevices; i++)
@@ -130,20 +168,11 @@ void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
 
         if(devInterface != _devicesControllers.end())
         {
-            devInterface->second->setData(data);
+            auto r = _getReply.add_reply();
+            r->CopyFrom(*devInterface->second->getData());
             // TODO Error handling for dev not found
         }
     }
-}
 
-const google::protobuf::Message * EngineGrpcServer::getDeviceData(const std::string & deviceName)
-{
-    const auto devInterface = this->_devicesControllers.find(deviceName);
-
-    if(devInterface == _devicesControllers.end())
-    {
-        // TODO Error handling for dev not found
-    }
-
-    return devInterface->second->getData();
+    return &_getReply;
 }

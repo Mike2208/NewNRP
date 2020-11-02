@@ -27,7 +27,7 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
         unsigned getNumRegisteredDevices();
 
         void setDeviceData(const EngineGrpc::SetDeviceRequest & data);
-        const google::protobuf::Message * getDeviceData(const std::string & deviceName);
+        const EngineGrpc::GetDeviceReply * getDeviceData(const EngineGrpc::GetDeviceRequest & data);
 
         virtual nlohmann::json initialize(const nlohmann::json &data) = 0;
         virtual nlohmann::json shutdown(const nlohmann::json &data) = 0;
@@ -37,6 +37,7 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
         grpc::Status shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply) override;
         grpc::Status runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply) override;
         grpc::Status setDevice(grpc::ServerContext * context, const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply * reply) override;
+        grpc::Status getDevice(grpc::ServerContext * context, const EngineGrpc::GetDeviceRequest * request, EngineGrpc::GetDeviceReply * reply) override;
 
     private:
 
@@ -45,6 +46,8 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
         bool                          _isServerRunning;
 
         std::map<std::string, EngineGrpcDeviceController*> _devicesControllers;
+
+        EngineGrpc::GetDeviceReply _getReply;
 };
 
 #endif // ENGINE_GRPC_SERVER_H

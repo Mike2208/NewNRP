@@ -124,13 +124,6 @@ class EngineGrpcClient
             return EngineInterface::SUCCESS;
         }
 
-        virtual typename EngineInterface::device_outputs_t getOutputDevices(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
-        {
-            typename EngineInterface::device_outputs_t interfaces;
-
-            return interfaces;
-        }
-
         virtual typename EngineInterface::RESULT handleInputDevices(const typename EngineInterface::device_inputs_t &inputDevices) override
         {
             EngineGrpc::SetDeviceRequest request;
@@ -139,7 +132,8 @@ class EngineGrpcClient
 
             for(const auto &device : inputDevices)
             {
-                request.add_devicename(device->name());
+                auto r = request.add_request();
+                r->set_devicename(device->name());
             }
 
             grpc::Status status = _stub->setDevice(&context, request, &reply);
@@ -151,6 +145,45 @@ class EngineGrpcClient
             }
 
             return EngineInterface::SUCCESS;
+        }
+
+        virtual typename EngineInterface::device_outputs_t getOutputDevices(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
+        {
+            EngineGrpc::GetDeviceRequest request;
+            EngineGrpc::GetDeviceReply   reply;
+            grpc::ClientContext          context;
+
+            for(const auto &devID : deviceIdentifiers)
+            {
+                request.add_devicename(devID.Name);
+            }
+
+            grpc::Status status = _stub->getDevice(&context, request, &reply);
+
+            if(!status.ok())
+            {
+                const auto errMsg = "Engine server getOutputDevices failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
+                throw std::runtime_error(errMsg);
+            }
+
+            return this->getDeviceInterfacesFromProtobuf(reply);
+        }
+
+        typename EngineInterface::device_outputs_t getDeviceInterfacesFromProtobuf(const EngineGrpc::GetDeviceReply & reply)
+        {
+            typename EngineInterface::device_outputs_t interfaces;
+            interfaces.reserve(reply.reply_size());
+
+            for(int i = 0; i < reply.reply_size(); i++)
+            {
+                const auto r = reply.reply(i);
+
+                DeviceInterfaceSharedPtr newDevice(new DeviceInterface(r.devicename(), "", ""));
+
+                interfaces.push_back(newDevice);
+            }
+
+            return interfaces;
         }
 
     private:
