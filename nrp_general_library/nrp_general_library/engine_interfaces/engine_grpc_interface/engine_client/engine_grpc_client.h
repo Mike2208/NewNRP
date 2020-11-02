@@ -1,6 +1,8 @@
 #ifndef ENGINE_GRPC_CLIENT_H
 #define ENGINE_GRPC_CLIENT_H
 
+#include <future>
+
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/support/time.h>
 #include <nlohmann/json.hpp>
@@ -112,16 +114,33 @@ class EngineGrpcClient
 
         float getEngineTime() const override
         {
-            return 0.0f;
+            return this->_engineTime;
         }
 
         virtual typename EngineInterface::step_result_t runLoopStep(float timeStep) override
         {
+            this->_loopStepThread = std::async(std::launch::async, std::bind(&EngineGrpcClient::sendRunLoopStepCommand, this, timeStep));
             return EngineInterface::SUCCESS;
         }
 
         virtual typename EngineInterface::RESULT waitForStepCompletion(float timeOut) override
         {
+            // If thread state is invalid, loop thread has completed and waitForStepCompletion was called once before
+            if(!this->_loopStepThread.valid())
+            {
+                return EngineInterface::SUCCESS;
+            }
+
+            // Wait until timeOut has passed
+            if(timeOut > 0)
+            {
+                if(this->_loopStepThread.wait_for(std::chrono::duration<double>(timeOut)) != std::future_status::ready)
+                    return EngineInterface::ERROR;
+            }
+            else
+                this->_loopStepThread.wait();
+
+            this->_engineTime = this->_loopStepThread.get();
             return EngineInterface::SUCCESS;
         }
 
@@ -202,7 +221,9 @@ class EngineGrpcClient
         std::shared_ptr<grpc::Channel>                                _channel;
         std::unique_ptr<EngineGrpc::EngineGrpcServiceInterface::Stub> _stub;
 
-        float _prevEngineTime;
+        float _prevEngineTime = 0.0f;
+        float _engineTime     = 0.0f;
+        std::future<float> _loopStepThread;
 };
 
 #endif // ENGINE_GRPC_CLIENT_H
