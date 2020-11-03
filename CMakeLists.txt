@@ -62,6 +62,7 @@ function(add_doxygen_source directory)
 	set_property(GLOBAL PROPERTY DOXYGEN_SOURCE_LIST "${tmp}")
 endfunction(add_doxygen_source)
 
+add_subdirectory(proto)
 
 ##########################################
 ## General NRP library

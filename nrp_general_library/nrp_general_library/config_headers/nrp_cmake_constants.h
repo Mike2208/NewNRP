@@ -29,7 +29,7 @@
 /*!
  *	\brief NRP Plugin install directory
  */
-#define NRP_PLUGIN_INSTALL_DIR ""
+#define NRP_PLUGIN_INSTALL_DIR "/usr/local/nrp/lib"
 
 /*!
  *	\brief Bash cmd to set environment before starting engine
