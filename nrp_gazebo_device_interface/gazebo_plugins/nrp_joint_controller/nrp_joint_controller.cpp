@@ -22,24 +22,29 @@ gazebo::JointDeviceController::JointDeviceController(const physics::JointPtr &jo
 
 const google::protobuf::Message * gazebo::JointDeviceController::getData()
 {
-	this->_jointData.setPosition(this->_joint->Position(0));
-	this->_jointData.setVelocity(this->_joint->GetVelocity(0));
-	this->_jointData.setEffort(this->_joint->GetForce(0));
+	EngineGrpc::GazeboJoint * jointData = new EngineGrpc::GazeboJoint();
 
-	return new EngineGrpc::GazeboJoint();
+	jointData->set_position(this->_joint->Position(0));
+	jointData->set_velocity(this->_joint->GetVelocity(0));
+	jointData->set_effort(this->_joint->GetForce(0));
+
+	return jointData;
 }
 
 void gazebo::JointDeviceController::setData(const google::protobuf::Message & data)
 {
+	// TODO Throw an exception on error?
 	bool success = true;
 
-	//JSONPropertySerializer<PhysicsJoint>::updateProperties(this->_jointData, data);
+	auto jointData = static_cast<const EngineGrpc::GazeboJoint &>(data);
 
-//	std::cout << std::to_string(this->_jointData.position()) << std::endl;
-//	std::cout << std::to_string(this->_jointData.velocity()) << std::endl;
-//	std::cout << std::to_string(this->_jointData.effort()) << std::endl;
-
+	// TODO Is this passed with data?
 	const auto &jointName = this->_jointData.name();
+
+	_jointData.setPosition(jointData.position());
+	_jointData.setVelocity(jointData.velocity());
+	_jointData.setEffort(jointData.effort());
+
 	if(!std::isnan(this->_jointData.position()))
 		success &= this->_jointController->SetPositionTarget(jointName, this->_jointData.position());
 
@@ -48,8 +53,6 @@ void gazebo::JointDeviceController::setData(const google::protobuf::Message & da
 
 	if(!std::isnan(this->_jointData.effort()))
 		this->_joint->SetForce(0, this->_jointData.effort());
-
-	//return json(success);
 }
 
 gazebo::NRPJointController::PIDConfig::PIDConfig(PID _pid, gazebo::NRPJointController::PIDConfig::PID_TYPE _type)

@@ -23,17 +23,31 @@ gazebo::LinkDeviceController::~LinkDeviceController() = default;
 
 const google::protobuf::Message *  gazebo::LinkDeviceController::getData()
 {
+	EngineGrpc::GazeboLink * linkData = new EngineGrpc::GazeboLink();
+
 	const auto &pose = this->_link->WorldCoGPose();
-	this->_data.setPosition({ ToFloat(pose.Pos().X()), ToFloat(pose.Pos().Y()), ToFloat(pose.Pos().Z())	});
-	this->_data.setRotation({ ToFloat(pose.Rot().X()), ToFloat(pose.Rot().Y()), ToFloat(pose.Rot().Z())	});
+
+	linkData->add_position(ToFloat(pose.Pos().X()));
+	linkData->add_position(ToFloat(pose.Pos().Y()));
+	linkData->add_position(ToFloat(pose.Pos().Z()));
+
+	linkData->add_rotation(ToFloat(pose.Rot().X()));
+	linkData->add_rotation(ToFloat(pose.Rot().Y()));
+	linkData->add_rotation(ToFloat(pose.Rot().Z()));
 
 	const auto &linVel = this->_link->WorldLinearVel();
-	this->_data.setLinVel({ ToFloat(linVel.X()), ToFloat(linVel.Y()), ToFloat(linVel.Z())	});
+
+	linkData->add_linearvelocity(ToFloat(linVel.X()));
+	linkData->add_linearvelocity(ToFloat(linVel.Y()));
+	linkData->add_linearvelocity(ToFloat(linVel.Z()));
 
 	const auto &angVel = this->_link->WorldAngularVel();
-	this->_data.setAngVel({ ToFloat(angVel.X()), ToFloat(angVel.Y()), ToFloat(angVel.Z())	});
 
-	return new EngineGrpc::GazeboLink();
+	linkData->add_angularvelocity(ToFloat(angVel.X()));
+	linkData->add_angularvelocity(ToFloat(angVel.Y()));
+	linkData->add_angularvelocity(ToFloat(angVel.Z()));
+
+	return linkData;
 }
 
 void gazebo::LinkDeviceController::setData(const google::protobuf::Message &)

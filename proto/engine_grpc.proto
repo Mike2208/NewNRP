@@ -70,10 +70,11 @@ message GetDeviceMessage
 {
     DeviceIdentifier deviceId = 1;
 
-    oneof test
+    oneof data
     {
-        string s = 2;
-        int32  i = 3;
+        GazeboCamera camera = 2;
+        GazeboLink   link   = 3;
+        GazeboJoint  joint  = 4;
     }
 }
 
@@ -94,12 +95,17 @@ message GazeboCamera
 
 message GazeboLink
 {
-
+    repeated float position        = 1;
+    repeated float rotation        = 2;
+    repeated float linearVelocity  = 3;
+    repeated float angularVelocity = 4;
 }
 
 message GazeboJoint
 {
-    
+    float position = 1;
+    float velocity = 2;
+    float effort   = 3;
 }
 
 // EOF

@@ -15,34 +15,12 @@ const google::protobuf::Message * gazebo::CameraDeviceController::getData()
 	// Render image
 	this->_camera->Render(true);
 
-	// Set headers
-	const auto imageHeight = this->_camera->ImageHeight();
-	const auto imageWidth = this->_camera->ImageWidth();
-	const auto imageDepth = this->_camera->ImageDepth();
-	this->_data.setImageHeight(imageHeight);
-	this->_data.setImageWidth(imageWidth);
-	this->_data.setImagePixelSize(imageDepth);
-
-	const auto imageSize = this->_camera->ImageByteSize();
-	this->_data.imageData().resize(imageSize);
-	memcpy(this->_data.imageData().data(), this->_camera->ImageData(), imageSize);
-
 	EngineGrpc::GazeboCamera * camera = new EngineGrpc::GazeboCamera();
 
-	camera->set_imageheight(imageHeight);
-	camera->set_imagewidth(imageWidth);
-	camera->set_imagedepth(imageDepth);
-
-	// Save image data
-//	const unsigned char *img_data = this->_camera->ImageData();
-//	const unsigned char *const img_data_end = img_data + this->_camera->ImageByteSize();
-//	auto img = nlohmann::json::array();
-//	for (; img_data < img_data_end; ++img_data)
-//	{
-//		img.push_back(*img_data);
-//	}
-
-//	retVal[PhysicsCamera::ImageData.m_data] = std::move(img);
+	camera->set_imageheight(this->_camera->ImageHeight());
+	camera->set_imagewidth(this->_camera->ImageWidth());
+	camera->set_imagedepth(this->_camera->ImageDepth());
+	camera->set_imagedata(reinterpret_cast<char const *>(this->_camera->ImageData()));
 
 	return camera;
 }
