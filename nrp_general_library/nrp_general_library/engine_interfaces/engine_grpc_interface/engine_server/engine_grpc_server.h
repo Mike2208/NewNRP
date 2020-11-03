@@ -22,19 +22,22 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
 
         EngineGrpcServer();
         EngineGrpcServer(const std::string address);
+        EngineGrpcServer(const std::string &serverAddress, const std::string &engineName, const std::string &registrationAddress);
         virtual ~EngineGrpcServer();
 
         void startServer();
         void startServerAsync();
         void shutdownServer();
 
-        const std::string serverAddress();
+        bool isServerRunning() const;
+
+        const std::string serverAddress() const;
 
         void registerDevice(const std::string & deviceName, EngineGrpcDeviceController * interface);
         unsigned getNumRegisteredDevices();
 
-        void setDeviceData(const EngineGrpc::SetDeviceRequest & data);
-        const EngineGrpc::GetDeviceReply * getDeviceData(const EngineGrpc::GetDeviceRequest & data);
+        virtual void setDeviceData(const EngineGrpc::SetDeviceRequest & data);
+        virtual const EngineGrpc::GetDeviceReply * getDeviceData(const EngineGrpc::GetDeviceRequest & data);
 
         virtual nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) = 0;
         virtual nlohmann::json shutdown(const nlohmann::json &data) = 0;
@@ -48,10 +51,12 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
 
     protected:
         mutex_t                       _deviceLock;
+        void clearRegisteredDevices();
 
     private:
 
         std::string                   _serverAddress;
+        std::string                   _engineName;
         std::unique_ptr<grpc::Server> _server;
         bool                          _isServerRunning;
 

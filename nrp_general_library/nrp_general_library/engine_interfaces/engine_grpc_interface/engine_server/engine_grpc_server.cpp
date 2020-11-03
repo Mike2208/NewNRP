@@ -107,6 +107,12 @@ EngineGrpcServer::EngineGrpcServer()
     grpc::EnableDefaultHealthCheckService(true);
 }
 
+EngineGrpcServer::EngineGrpcServer(const std::string &serverAddress, const std::string &engineName, const std::string &registrationAddress)
+    : EngineGrpcServer(serverAddress)
+{
+    this->_engineName = engineName;
+}
+
 EngineGrpcServer::EngineGrpcServer(const std::string address)
 {
     this->_serverAddress   = address;
@@ -120,7 +126,12 @@ EngineGrpcServer::~EngineGrpcServer()
 	this->shutdownServer();
 }
 
-const std::string EngineGrpcServer::serverAddress()
+bool EngineGrpcServer::isServerRunning() const
+{
+    return this->_isServerRunning;
+}
+
+const std::string EngineGrpcServer::serverAddress() const
 {
     return this->_serverAddress;
 }
@@ -161,6 +172,15 @@ void EngineGrpcServer::registerDevice(const std::string &deviceName, EngineGrpcD
 unsigned EngineGrpcServer::getNumRegisteredDevices()
 {
     return this->_devicesControllers.size();
+}
+
+void EngineGrpcServer::clearRegisteredDevices()
+{
+    // TODO Check if it's true
+	// Do not lock scope. This method is called from the route handlers, which should already have locked down access.
+	//EngineJSONServer::lock_t lock(this->_deviceLock);
+
+	this->_devicesControllers.clear();
 }
 
 void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)

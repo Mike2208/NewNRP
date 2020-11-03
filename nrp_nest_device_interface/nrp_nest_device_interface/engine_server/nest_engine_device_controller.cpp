@@ -1,13 +1,13 @@
 #include "nrp_nest_device_interface/engine_server/nest_engine_device_controller.h"
 
 NestEngineJSONDeviceController<NestJSONDeviceInterface>::NestEngineJSONDeviceController(const DeviceIdentifier &devID, boost::python::object nodeCollection, boost::python::dict nest)
-	: EngineJSONDeviceController(devID),
+	: EngineGrpcDeviceController(devID),
 	  _nest(nest),
 	  _nodeCollection(nodeCollection),
       _deviceData(devID, getStatusFromNest(nest, nodeCollection))
 {}
 
-nlohmann::json NestEngineJSONDeviceController<NestJSONDeviceInterface>::getDeviceInformation(const nlohmann::json::const_iterator &)
+const google::protobuf::Message * NestEngineJSONDeviceController<NestJSONDeviceInterface>::getData()
 {
 	// Get device status from Nest
 	boost::python::dict status;
@@ -27,21 +27,22 @@ nlohmann::json NestEngineJSONDeviceController<NestJSONDeviceInterface>::getDevic
 	this->_deviceData.NestJSONDeviceInterface::data() = status;
 
 	// Convert to JSON object
-	return PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::serializeProperties(this->_deviceData);
+	// TODO Return this as json embedded in protobuf
+	//PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::serializeProperties(this->_deviceData);
+	return new EngineGrpc::Nest();
 }
 
-nlohmann::json NestEngineJSONDeviceController<NestJSONDeviceInterface>::handleDeviceData(const nlohmann::json &data)
+void NestEngineJSONDeviceController<NestJSONDeviceInterface>::setData(const google::protobuf::Message & data)
 {
+	// TODO Pass json string to updateProps
 	// Update properties from data
-	PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::updateProperties(this->_deviceData, data);
+	PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::updateProperties(this->_deviceData, nlohmann::json());
 
 	// Convert to python dict object
 	//this->_deviceData.updateProperties(this->_deviceData, data);
 
 	// Update Nest status
 	this->_nest["SetStatus"](this->_nodeCollection, this->_deviceData.data());
-
-	return nlohmann::json();
 }
 
 void NestEngineJSONDeviceController<NestJSONDeviceInterface>::setNestID(boost::python::dict nest, boost::python::object nodeCollection)

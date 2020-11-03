@@ -3,6 +3,7 @@
 #include "nrp_general_library/utils/python_interpreter_state.h"
 #include "nrp_nest_device_interface/engine_server/nest_json_server.h"
 #include "tests/test_env_cmake.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"
 
 #include <boost/python.hpp>
 #include <future>
@@ -29,8 +30,8 @@ TEST(TestNestJSONServer, TestFunc)
 	nlohmann::json req = nlohmann::json({{NestConfig::ConfigType.m_data, cfg.writeConfig()}});
 	pyState.allowThreads();
 
-	EngineJSONServer::mutex_t fakeMutex;
-	EngineJSONServer::lock_t fakeLock(fakeMutex);
+	EngineGrpcServer::mutex_t fakeMutex;
+	EngineGrpcServer::lock_t fakeLock(fakeMutex);
 	nlohmann::json respParse = server.initialize(req, fakeLock);
 
 	const auto execResult = respParse[NestConfig::InitFileExecStatus.data()].get<bool>();
@@ -84,8 +85,8 @@ TEST(TestNestJSONServer, TestInitError)
 	nlohmann::json req = nlohmann::json({{NestConfig::ConfigType.m_data, cfg.writeConfig()}});
 	pyState.allowThreads();
 
-	EngineJSONServer::mutex_t fakeMutex;
-	EngineJSONServer::lock_t fakeLock(fakeMutex);
+	EngineGrpcServer::mutex_t fakeMutex;
+	EngineGrpcServer::lock_t fakeLock(fakeMutex);
 	nlohmann::json respParse = server.initialize(req, fakeLock);
 
 	pyState.endAllowThreads();

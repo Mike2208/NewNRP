@@ -2,7 +2,7 @@
 #define NEST_ENGINE_DEVICE_CONTROLLER_H
 
 #include "nrp_nest_device_interface/devices/nest_device_interface.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 #include "nrp_general_library/utils/serializers/python_dict_property_serializer.h"
 
@@ -21,15 +21,14 @@ class NestEngineJSONDeviceController;
 
 template<>
 class NestEngineJSONDeviceController<NestJSONDeviceInterface>
-        : public EngineJSONDeviceController
+        : public EngineGrpcDeviceController
 {
 	public:
 		NestEngineJSONDeviceController(const DeviceIdentifier &devID, boost::python::object nodeCollection, boost::python::dict nest);
 		virtual ~NestEngineJSONDeviceController() override = default;
 
-		virtual nlohmann::json getDeviceInformation(const nlohmann::json::const_iterator&) override;
-
-		virtual nlohmann::json handleDeviceData(const nlohmann::json &data) override;
+		virtual const google::protobuf::Message * getData();
+		virtual void setData(const google::protobuf::Message & data);
 
         /*!
 		 * \brief Set Nest properties

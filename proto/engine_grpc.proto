@@ -75,6 +75,7 @@ message GetDeviceMessage
         GazeboCamera camera = 2;
         GazeboLink   link   = 3;
         GazeboJoint  joint  = 4;
+        Nest         nest   = 5;
     }
 }
 
@@ -106,6 +107,11 @@ message GazeboJoint
     float position = 1;
     float velocity = 2;
     float effort   = 3;
+}
+
+message Nest
+{
+    string json = 1;
 }
 
 // EOF
