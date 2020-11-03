@@ -9,8 +9,10 @@ grpc::Status EngineGrpcServer::init(grpc::ServerContext * context, const EngineG
 {
     try
     {
+        EngineGrpcServer::lock_t lock(this->_deviceLock);
+
         // Run initialization function
-        reply->set_json(this->initialize(request->json()).dump());
+        reply->set_json(this->initialize(request->json(), lock).dump());
     }
     catch(const std::exception &e)
     {
@@ -27,6 +29,8 @@ grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * context, const Eng
 {
     try
     {
+        EngineGrpcServer::lock_t lock(this->_deviceLock);
+
         // Run shutdown function
         reply->set_json(this->shutdown(request->json()).dump());
     }
@@ -45,6 +49,8 @@ grpc::Status EngineGrpcServer::runLoopStep(grpc::ServerContext * context, const 
 {
     try
     {
+        EngineGrpcServer::lock_t lock(this->_deviceLock);
+
         reply->set_enginetime(this->runLoopStep(request->timestep()));
     }
     catch(const std::exception &e)
@@ -101,9 +107,27 @@ EngineGrpcServer::EngineGrpcServer()
     grpc::EnableDefaultHealthCheckService(true);
 }
 
+EngineGrpcServer::EngineGrpcServer(const std::string address)
+{
+    this->_serverAddress   = address;
+    this->_isServerRunning = false;
+
+    grpc::EnableDefaultHealthCheckService(true);
+}
+
 EngineGrpcServer::~EngineGrpcServer()
 {
 	this->shutdownServer();
+}
+
+const std::string EngineGrpcServer::serverAddress()
+{
+    return this->_serverAddress;
+}
+
+void EngineGrpcServer::startServerAsync()
+{
+    this->startServer();
 }
 
 void EngineGrpcServer::startServer()
@@ -130,6 +154,7 @@ void EngineGrpcServer::shutdownServer()
 
 void EngineGrpcServer::registerDevice(const std::string &deviceName, EngineGrpcDeviceController *interface)
 {
+    EngineGrpcServer::lock_t lock(this->_deviceLock);
     this->_devicesControllers.emplace(deviceName, interface);
 }
 
@@ -140,6 +165,8 @@ unsigned EngineGrpcServer::getNumRegisteredDevices()
 
 void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
 {
+    EngineGrpcServer::lock_t lock(this->_deviceLock);
+
     const auto numDevices = data.request_size();
 
     for(unsigned i = 0; i < numDevices; i++)
@@ -157,6 +184,8 @@ void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
 
 const EngineGrpc::GetDeviceReply * EngineGrpcServer::getDeviceData(const EngineGrpc::GetDeviceRequest & data)
 {
+    EngineGrpcServer::lock_t lock(this->_deviceLock);
+
     // TODO Check if clearing is enough, it may be that the message will grow uncontrollably, because of add_reply() calls!
     this->_getReply.Clear();
 

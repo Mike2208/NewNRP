@@ -49,6 +49,9 @@ find_package(gazebo REQUIRED)
 
 ##########################################
 ## Header configuration
+
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/../proto")
+
 set(NRP_GAZEBO_PLUGINS_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/nrp_gazebo_plugins" CACHE PATH "Install location of gazebo plugins")
 
 set(NRP_GAZEBO_COMMUNICATION_PLUGIN NRPGazeboCommunicationPlugin)
@@ -85,7 +88,8 @@ target_include_directories(${LIBRARY_NAME}
 
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
-	    ${NRP_GEN_LIB_TARGET}
+		${NRP_GEN_LIB_TARGET}
+		NRPProtoLibrary::NRPProtoLibrary
 )
 
 

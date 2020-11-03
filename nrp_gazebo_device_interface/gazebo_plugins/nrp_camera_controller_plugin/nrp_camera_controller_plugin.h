@@ -1,7 +1,9 @@
 #ifndef NRP_CAMERA_CONTROLLER_PLUGIN_H
 #define NRP_CAMERA_CONTROLLER_PLUGIN_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include <engine_grpc.grpc.pb.h>
+
+#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
 
 #include "nrp_gazebo_device_interface/devices/physics_camera.h"
 
@@ -12,14 +14,14 @@
 namespace gazebo
 {
 	class CameraDeviceController
-	        : public EngineJSONDeviceController
+	        : public EngineGrpcDeviceController
 	{
 		public:
 			CameraDeviceController(const rendering::CameraPtr &camera);
 			virtual ~CameraDeviceController() override;
 
-			virtual nlohmann::json getDeviceInformation(const nlohmann::json::const_iterator &data) override;
-			virtual nlohmann::json handleDeviceData(const nlohmann::json &data) override;
+			virtual const google::protobuf::Message * getData() override;
+			virtual void setData(const google::protobuf::Message & data) override;
 
 		private:
 			rendering::CameraPtr _camera;

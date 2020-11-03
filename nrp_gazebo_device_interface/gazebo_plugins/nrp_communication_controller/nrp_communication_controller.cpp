@@ -32,7 +32,7 @@ NRPCommunicationController &NRPCommunicationController::resetInstance(const std:
 
 void NRPCommunicationController::registerStepController(GazeboStepController *stepController)
 {
-	EngineJSONServer::lock_t lock(this->_deviceLock);
+	EngineGrpcServer::lock_t lock(this->_deviceLock);
 	this->_stepController = stepController;
 }
 
@@ -60,7 +60,7 @@ float NRPCommunicationController::runLoopStep(float timeStep)
 	}
 }
 
-json NRPCommunicationController::initialize(const json &data, EngineJSONServer::lock_t &lock)
+json NRPCommunicationController::initialize(const json &data, EngineGrpcServer::lock_t &lock)
 {
 	ConfigStorage confDat(data);
 	GazeboConfig conf(confDat);
@@ -97,9 +97,9 @@ json NRPCommunicationController::shutdown(const json&)
 }
 
 NRPCommunicationController::NRPCommunicationController(const std::string &address)
-    : EngineJSONServer(address)
+    : EngineGrpcServer(address)
 {}
 
-NRPCommunicationController::NRPCommunicationController(const std::string &serverURL, const std::string &engineName, const std::string &registrationURL)
-    : EngineJSONServer(serverURL, engineName, registrationURL)
-{}
+/*NRPCommunicationController::NRPCommunicationController(const std::string &serverURL, const std::string &engineName, const std::string &registrationURL)
+    : EngineGrpcServer(serverURL, engineName, registrationURL)
+{}*/

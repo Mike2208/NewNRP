@@ -3,14 +3,14 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
 gazebo::CameraDeviceController::CameraDeviceController(const rendering::CameraPtr &camera)
-    : EngineJSONDeviceController(DeviceIdentifier(camera->ScopedName(), PhysicsCamera::TypeName.data(), "")),
+    : EngineGrpcDeviceController(DeviceIdentifier(camera->ScopedName(), PhysicsCamera::TypeName.data(), "")),
       _camera(camera),
       _data(camera->ScopedName())
 {}
 
 gazebo::CameraDeviceController::~CameraDeviceController() = default;
 
-nlohmann::json gazebo::CameraDeviceController::getDeviceInformation(const nlohmann::json::const_iterator&)
+const google::protobuf::Message * gazebo::CameraDeviceController::getData()
 {
 	// Render image
 	this->_camera->Render(true);
@@ -27,8 +27,11 @@ nlohmann::json gazebo::CameraDeviceController::getDeviceInformation(const nlohma
 	this->_data.imageData().resize(imageSize);
 	memcpy(this->_data.imageData().data(), this->_camera->ImageData(), imageSize);
 
-	// Save image data directly, prevents copying
-	nlohmann::json retVal = JSONPropertySerializer<PhysicsCamera>::serializeProperties(this->_data, nlohmann::json());
+	EngineGrpc::GazeboCamera * camera = new EngineGrpc::GazeboCamera();
+
+	camera->set_imageheight(imageHeight);
+	camera->set_imagewidth(imageWidth);
+	camera->set_imagedepth(imageDepth);
 
 	// Save image data
 //	const unsigned char *img_data = this->_camera->ImageData();
@@ -41,12 +44,12 @@ nlohmann::json gazebo::CameraDeviceController::getDeviceInformation(const nlohma
 
 //	retVal[PhysicsCamera::ImageData.m_data] = std::move(img);
 
-	return retVal;
+	return camera;
 }
 
-nlohmann::json gazebo::CameraDeviceController::handleDeviceData(const nlohmann::json &data)
+void gazebo::CameraDeviceController::setData(const google::protobuf::Message & data)
 {
-	return nlohmann::json();
+	// Do nothing
 }
 
 gazebo::NRPCameraController::~NRPCameraController() = default;

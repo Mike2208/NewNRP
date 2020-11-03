@@ -84,4 +84,22 @@ message DeviceIdentifier
     string engineName = 3;
 }
 
+message GazeboCamera
+{
+    uint32 imageWidth  = 1;
+    uint32 imageHeight = 2;
+    uint32 imageDepth  = 3;
+    bytes  imageData   = 4;
+}
+
+message GazeboLink
+{
+
+}
+
+message GazeboJoint
+{
+    
+}
+
 // EOF

@@ -14,26 +14,26 @@
 using namespace nlohmann;
 
 gazebo::JointDeviceController::JointDeviceController(const physics::JointPtr &joint, const gazebo::physics::JointControllerPtr &jointController, const std::string &jointName)
-    : EngineJSONDeviceController(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), "")),
+    : EngineGrpcDeviceController(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), "")),
       _joint(joint),
       _jointController(jointController),
       _jointData(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), ""))
 {}
 
-json gazebo::JointDeviceController::getDeviceInformation(const json::const_iterator &)
+const google::protobuf::Message * gazebo::JointDeviceController::getData()
 {
 	this->_jointData.setPosition(this->_joint->Position(0));
 	this->_jointData.setVelocity(this->_joint->GetVelocity(0));
 	this->_jointData.setEffort(this->_joint->GetForce(0));
 
-	return JSONPropertySerializer<PhysicsJoint>::serializeProperties(this->_jointData, nlohmann::json());
+	return new EngineGrpc::GazeboJoint();
 }
 
-json gazebo::JointDeviceController::handleDeviceData(const json &data)
+void gazebo::JointDeviceController::setData(const google::protobuf::Message & data)
 {
 	bool success = true;
 
-	JSONPropertySerializer<PhysicsJoint>::updateProperties(this->_jointData, data);
+	//JSONPropertySerializer<PhysicsJoint>::updateProperties(this->_jointData, data);
 
 //	std::cout << std::to_string(this->_jointData.position()) << std::endl;
 //	std::cout << std::to_string(this->_jointData.velocity()) << std::endl;
@@ -49,7 +49,7 @@ json gazebo::JointDeviceController::handleDeviceData(const json &data)
 	if(!std::isnan(this->_jointData.effort()))
 		this->_joint->SetForce(0, this->_jointData.effort());
 
-	return json(success);
+	//return json(success);
 }
 
 gazebo::NRPJointController::PIDConfig::PIDConfig(PID _pid, gazebo::NRPJointController::PIDConfig::PID_TYPE _type)

@@ -14,14 +14,14 @@ inline float ToFloat(const T &val)
 }
 
 gazebo::LinkDeviceController::LinkDeviceController(const std::string &linkName, const gazebo::physics::LinkPtr &link)
-    : EngineJSONDeviceController(DeviceIdentifier(linkName, PhysicsLink::TypeName.data(), "")),
+    : EngineGrpcDeviceController(DeviceIdentifier(linkName, PhysicsLink::TypeName.data(), "")),
       _data(linkName),
       _link(link)
 {}
 
 gazebo::LinkDeviceController::~LinkDeviceController() = default;
 
-json gazebo::LinkDeviceController::getDeviceInformation(const json::const_iterator &)
+const google::protobuf::Message *  gazebo::LinkDeviceController::getData()
 {
 	const auto &pose = this->_link->WorldCoGPose();
 	this->_data.setPosition({ ToFloat(pose.Pos().X()), ToFloat(pose.Pos().Y()), ToFloat(pose.Pos().Z())	});
@@ -33,12 +33,12 @@ json gazebo::LinkDeviceController::getDeviceInformation(const json::const_iterat
 	const auto &angVel = this->_link->WorldAngularVel();
 	this->_data.setAngVel({ ToFloat(angVel.X()), ToFloat(angVel.Y()), ToFloat(angVel.Z())	});
 
-	return JSONPropertySerializer<PhysicsLink>::serializeProperties(this->_data, nlohmann::json());
+	return new EngineGrpc::GazeboLink();
 }
 
-json gazebo::LinkDeviceController::handleDeviceData(const json &)
+void gazebo::LinkDeviceController::setData(const google::protobuf::Message &)
 {
-	return json();
+	// Do nothing
 }
 
 gazebo::NRPLinkControllerPlugin::~NRPLinkControllerPlugin() = default;
