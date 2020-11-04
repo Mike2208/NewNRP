@@ -15,10 +15,10 @@ class TestGrpcDeviceController : public EngineGrpcDeviceController
 
         TestGrpcDeviceController(const DeviceIdentifier &devID) : EngineGrpcDeviceController(devID) {}
 
-        virtual void getData(EngineGrpc::GetDeviceMessage * reply) override
+        virtual void getData(EngineGrpc::GetDeviceMessage *) override
         {
-            reply->mutable_deviceid()->set_devicename(_setMessage.deviceid().devicename());
-            reply->mutable_deviceid()->set_devicetype(_setMessage.deviceid().devicetype());
+            //reply->mutable_deviceid()->set_devicename(_setMessage.deviceid().devicename());
+            //reply->mutable_deviceid()->set_devicetype(_setMessage.deviceid().devicetype());
         }
 
         virtual void setData(const google::protobuf::Message & data) override
@@ -244,9 +244,11 @@ TEST(EngineGrpc, GetDeviceData1)
 {
     TestEngineGrpcServer server;
 
-    const std::string deviceName = "device";
+    const std::string deviceName = "TestDevice";
+    const std::string deviceType = "TestType";
+    const std::string engineName = "TestEngine";
 
-    TestGrpcDeviceController device(DeviceIdentifier("dev1", "test", "test"));
+    TestGrpcDeviceController device(DeviceIdentifier("dev1", deviceType, engineName));
 
     EngineGrpc::SetDeviceRequest setRequest;
     EngineGrpc::GetDeviceRequest getRequest;
@@ -263,6 +265,8 @@ TEST(EngineGrpc, GetDeviceData1)
     server.getDeviceData(getRequest, &getReply);
 
     ASSERT_EQ(getReply.reply(0).deviceid().devicename(), deviceName);
+    ASSERT_EQ(getReply.reply(0).deviceid().devicetype(), deviceType);
+    ASSERT_EQ(getReply.reply(0).deviceid().enginename(), engineName);
 }
 
 TEST(EngineGrpc, GetDeviceData2)
@@ -298,7 +302,9 @@ TEST(EngineGrpc, GetDeviceData2)
 
     const auto output = client.getOutputDevices(deviceIdentifiers);
 
-    ASSERT_EQ(output.at(0)->name(), deviceName);
+    ASSERT_EQ(output.at(0)->name(),       deviceName);
+    ASSERT_EQ(output.at(0)->type(),       deviceType);
+    ASSERT_EQ(output.at(0)->engineName(), engineName);
 }
 
 // EOF

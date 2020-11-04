@@ -217,7 +217,15 @@ void EngineGrpcServer::getDeviceData(const EngineGrpc::GetDeviceRequest & reques
             auto r = reply->add_reply();
             devInterface->second->getData(r);
             // TODO Error handling for dev not found
-            // TODO Fill in deviceid part of the message
+
+            // Set device ID data
+            // TODO Why is devInterface->second->Name different from devInterface->first name?
+
+            r->mutable_deviceid()->set_devicename(devInterface->first);
+            r->mutable_deviceid()->set_devicetype(devInterface->second->Type);
+            r->mutable_deviceid()->set_enginename(devInterface->second->EngineName);
         }
     }
 }
+
+// EOF
