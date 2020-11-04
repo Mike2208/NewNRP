@@ -5,7 +5,7 @@
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
 
-grpc::Status EngineGrpcServer::init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply)
+grpc::Status EngineGrpcServer::init(grpc::ServerContext * , const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply)
 {
     try
     {
@@ -25,7 +25,7 @@ grpc::Status EngineGrpcServer::init(grpc::ServerContext * context, const EngineG
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply)
+grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * , const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply)
 {
     try
     {
@@ -45,7 +45,7 @@ grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * context, const Eng
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcServer::runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply)
+grpc::Status EngineGrpcServer::runLoopStep(grpc::ServerContext * , const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply)
 {
     try
     {
@@ -64,7 +64,7 @@ grpc::Status EngineGrpcServer::runLoopStep(grpc::ServerContext * context, const 
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * context, const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply * reply)
+grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * , const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply * )
 {
     try
     {
@@ -81,7 +81,7 @@ grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * context, const En
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcServer::getDevice(grpc::ServerContext * context, const EngineGrpc::GetDeviceRequest * request, EngineGrpc::GetDeviceReply * reply)
+grpc::Status EngineGrpcServer::getDevice(grpc::ServerContext * , const EngineGrpc::GetDeviceRequest * request, EngineGrpc::GetDeviceReply * reply)
 {
     try
     {
@@ -107,7 +107,7 @@ EngineGrpcServer::EngineGrpcServer()
     grpc::EnableDefaultHealthCheckService(true);
 }
 
-EngineGrpcServer::EngineGrpcServer(const std::string &serverAddress, const std::string &engineName, const std::string &registrationAddress)
+EngineGrpcServer::EngineGrpcServer(const std::string &serverAddress, const std::string &engineName, const std::string &)
     : EngineGrpcServer(serverAddress)
 {
     this->_engineName = engineName;
@@ -189,7 +189,7 @@ void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
 
     const auto numDevices = data.request_size();
 
-    for(unsigned i = 0; i < numDevices; i++)
+    for(int i = 0; i < numDevices; i++)
     {
         const auto r = data.request(i);
         const auto devInterface = this->_devicesControllers.find(r.deviceid().devicename());
@@ -211,7 +211,7 @@ const EngineGrpc::GetDeviceReply * EngineGrpcServer::getDeviceData(const EngineG
 
     const auto numDevices = data.deviceid_size();
 
-    for(unsigned i = 0; i < numDevices; i++)
+    for(int i = 0; i < numDevices; i++)
     {
         const auto devInterface = this->_devicesControllers.find(data.deviceid(i).devicename());
 

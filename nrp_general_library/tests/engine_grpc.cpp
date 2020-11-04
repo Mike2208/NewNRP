@@ -95,7 +95,7 @@ class TestEngineGrpcServer
 
         virtual ~TestEngineGrpcServer() override = default;
 
-        nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) override
+        nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &) override
         {
             return nlohmann::json({{"status", "success"}, {"original", data}});
         }
