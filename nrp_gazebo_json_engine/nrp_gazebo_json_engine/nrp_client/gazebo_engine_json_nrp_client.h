@@ -14,10 +14,10 @@
 #include <unistd.h>
 
 /*! \defgroup gazebo_json_engine "Gazebo REST JSON Engine"
-Gazebo Engine based on the \ref json_engine.
+Gazebo Engine based on the \ref json_engine. The client is defined in GazeboEngineJSONNRPClient.
  */
 
-/*! \addtogroup gazebo_json_engine
+/*!
  *  \brief NRP - Gazebo Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
  */
 class GazeboEngineJSONNRPClient

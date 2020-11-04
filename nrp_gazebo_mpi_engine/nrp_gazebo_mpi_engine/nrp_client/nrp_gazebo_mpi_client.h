@@ -13,11 +13,11 @@
 
 #include <unistd.h>
 
-/*! \defgroup gazebo_json_engine "Gazebo REST JSON Engine"
-Gazebo Engine based on the \ref json_engine.
+/*! \defgroup gazebo_mpi_engine "Gazebo MPI Engine"
+Gazebo Engine based on the \ref mpi_engine.
  */
 
-/*! \addtogroup gazebo_json_engine
+/*!
  *  \brief NRP - Gazebo Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
  */
 class NRPGazeboMPIClient

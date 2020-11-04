@@ -128,6 +128,11 @@ endif()
 
 
 ##########################################
+## Append Doxygen files
+add_doxygen_source("${CMAKE_CURRENT_SOURCE_DIR}" ${EXEC_SRC_FILES} ${LIB_SRC_FILES} ${PYTHON_MODULE_SRC_FILES} "${HEADER_DIRECTORY}")
+
+
+##########################################
 ## Server Configuration Generator
 add_executable(NRPGenServerConf nrp_gen_server_conf/nrp_gen_server_conf.cpp)
 target_link_libraries(NRPGenServerConf

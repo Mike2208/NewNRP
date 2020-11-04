@@ -22,8 +22,6 @@ include(ExternalProject)
 set(LIB_SRC_FILES
 	nrp_nest_server_engine/config/nest_server_config.cpp
 	nrp_nest_server_engine/devices/nest_server_device.cpp
-	nrp_nest_server_engine/engine_server/nest_engine_device_controller.cpp
-	nrp_nest_server_engine/engine_server/nest_server.cpp
 	nrp_nest_server_engine/nrp_client/nest_engine_server_nrp_client.cpp
 	nrp_nest_server_engine/python/create_device_class.cpp
 )
@@ -35,15 +33,10 @@ set(PYTHON_MODULE_SRC_FILES
 
 # List executable build files
 set(EXEC_SRC_FILES
-	nest_server_executable/main.cpp
-	nest_server_executable/nest_server_executable.cpp
 )
 
 # List testing build files
 set(TEST_SRC_FILES
-	nest_server_executable/nest_server_executable.cpp
-	tests/test_nest_executable.cpp
-	tests/test_nest_server.cpp
 )
 
 

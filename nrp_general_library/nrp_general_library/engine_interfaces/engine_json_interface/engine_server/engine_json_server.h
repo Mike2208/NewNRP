@@ -10,12 +10,27 @@
 #include <pistache/router.h>
 #include <pistache/endpoint.h>
 
-/*! \defgroup json_engine REST JSON Engine
-The REST JSON engine uses an HTTP REST Server as the base for the Engine server. The client can then use REST calls to communicate.
-All communication will be de-/serialized using JSON
+/*! \addtogroup engine_types
+\ref json_engine: An engine which relies on an HTTP REST server for communication. Serializes devices into JSON format
  */
 
-/*! \addtogroup json_engine
+/*! \defgroup json_engine REST JSON Engine
+The REST JSON engine uses an HTTP REST Server as the base for the Engine server. The client can then use REST calls to communicate.
+All communication will be de-/serialized using JSON.
+
+The server is defined in EngineJSONServer, the configuration in EngineJSONConfig, and the client in EngineJSONNRPClient.
+
+To control devices, EngineJSONDeviceController can be registered with the server.
+
+To help create servers, EngineJSONOptsParser can be used to parse start parameters and extract relevant information.
+Additionally, the CLE will launch an instance of EngineJSONRegistrationServer which can be used by EngineJSONServers communicate its address with clients.
+
+TODO: Remove JSONDeviceConversionMechanism and only use JSONPropertySerializer.
+
+TODO: Rewrite EngineJSONDeviceController to use classes as inputs/outputs instead of json.
+ */
+
+/*!
  *  \brief Manages communication with the NRP. Uses a REST server to send/receive data. Singleton class.
  */
 class EngineJSONServer

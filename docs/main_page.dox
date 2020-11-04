@@ -7,8 +7,7 @@ The NewNRP documentation is divided into the following concepts:
 - \subpage engines "Engines". User-defined external processes. Execute components of simulation
 - \subpage devices "Devices". User-defined data structures. Used to exchange data between engine server/clients
 
-Currently, the software supports the following engine types:
-- \ref json_engine "REST JSON Engine". An engine which relies on an HTTP REST server for communication. Serializes devices into JSON format
+The available engine types are listed \ref engine_types "here".
 
 The software supports the following engines:
 - \ref gazebo_json_engine "Gazebo JSON Engine": Gazebo physics simulator

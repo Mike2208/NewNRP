@@ -1,7 +1,7 @@
 #ifndef GAZEBO_STEP_CONTROLLER_H
 #define GAZEBO_STEP_CONTROLLER_H
 
-/*! \addtogroup gazebo_json_engine
+/*!
  *  \brief Controlls execution of Gazebo steps. Will be inherited by a Gazebo WorldPlugin
  */
 class GazeboStepController
