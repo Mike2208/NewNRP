@@ -76,3 +76,13 @@ void DeviceInterface::setId(const DeviceIdentifier &id)
 {
 	this->_id = id;
 }
+
+void DeviceInterface::serialize(EngineGrpc::SetDeviceMessage * ) const
+{
+
+}
+
+void DeviceInterface::deserialize(const EngineGrpc::GetDeviceMessage & )
+{
+
+}

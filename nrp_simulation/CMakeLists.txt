@@ -53,6 +53,8 @@ find_package(Pistache REQUIRED)
 ##########################################
 ## Header configuration
 
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/../proto")
+
 # Server config file name
 set(NRP_SERVER_CONFIG_FILE_NAME "nrp.conf")
 

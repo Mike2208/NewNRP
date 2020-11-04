@@ -32,7 +32,7 @@ void gazebo::JointDeviceController::setData(const google::protobuf::Message & da
 	// TODO Throw an exception on error?
 	bool success = true;
 
-	auto jointData = static_cast<const EngineGrpc::GazeboJoint &>(data);
+	auto jointData = static_cast<const EngineGrpc::GazeboJointSetData &>(data);
 
 	// TODO Is this passed with data?
 	const auto &jointName = this->_jointData.name();

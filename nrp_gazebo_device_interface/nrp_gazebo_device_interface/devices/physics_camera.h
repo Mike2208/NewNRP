@@ -49,6 +49,7 @@ class PhysicsCamera
 		PhysicsCamera(const std::string &name);
 		PhysicsCamera(const DeviceIdentifier &id);
 		PhysicsCamera(const DeviceIdentifier &id, const nlohmann::json &data);
+		PhysicsCamera(const DeviceIdentifier &id, const EngineGrpc::GetDeviceMessage &data);
 
 		uint32_t imageHeight() const;
 		uint32_t &imageHeight();
@@ -65,6 +66,8 @@ class PhysicsCamera
 		const std::vector<unsigned char> &imageData() const;
 		std::vector<unsigned char> &imageData();
 		void setImageData(std::vector<unsigned char> &imageData);
+
+		virtual void serialize(EngineGrpc::SetDeviceMessage * request) const override;
 };
 
 #endif // PHYSICS_CAMERA_H

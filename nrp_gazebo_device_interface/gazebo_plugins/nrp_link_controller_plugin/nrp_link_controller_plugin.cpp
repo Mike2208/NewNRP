@@ -32,6 +32,7 @@ void gazebo::LinkDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
 	reply->mutable_link()->add_rotation(ToFloat(pose.Rot().X()));
 	reply->mutable_link()->add_rotation(ToFloat(pose.Rot().Y()));
 	reply->mutable_link()->add_rotation(ToFloat(pose.Rot().Z()));
+	reply->mutable_link()->add_rotation(0.0f);
 
 	const auto &linVel = this->_link->WorldLinearVel();
 

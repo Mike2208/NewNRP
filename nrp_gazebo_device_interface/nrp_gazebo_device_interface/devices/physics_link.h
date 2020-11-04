@@ -41,6 +41,7 @@ class PhysicsLink
 		PhysicsLink(const std::string &name);
 		PhysicsLink(const DeviceIdentifier &id);
 		PhysicsLink(const DeviceIdentifier &id, const nlohmann::json &data);
+		PhysicsLink(const DeviceIdentifier &id, const EngineGrpc::GetDeviceMessage &data);
 
 		const vec3_t &position() const;
 		void setPosition(const vec3_t &position);
@@ -53,6 +54,8 @@ class PhysicsLink
 
 		const vec3_t &angVel() const;
 		void setAngVel(const vec3_t &angVel);
+
+		virtual void serialize(EngineGrpc::SetDeviceMessage * request) const override;
 };
 
 #endif // JSON_PHYSICS_LINK_H

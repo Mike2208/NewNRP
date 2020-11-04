@@ -8,6 +8,8 @@
 #include <memory>
 #include <type_traits>
 
+#include <engine_grpc.grpc.pb.h>
+
 /*!
  * \brief Identifies a single device
  */
@@ -59,6 +61,10 @@ class DeviceInterface
 
 		const DeviceIdentifier &id() const;
 		void setId(const DeviceIdentifier &id);
+
+		virtual void serialize(EngineGrpc::SetDeviceMessage * request) const;
+		virtual void deserialize(const EngineGrpc::GetDeviceMessage &deviceData);
+
 
 	private:
 		/*!

@@ -8,16 +8,22 @@
 #include <chrono>
 
 GazeboEngineJSONNRPClient::GazeboEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
-    : EngineJSONNRPClient(config, std::move(launcher))
+    : EngineGrpcClient(config, std::move(launcher))
 {}
 
 GazeboEngineJSONNRPClient::RESULT GazeboEngineJSONNRPClient::initialize()
 {
 	// Wait for Gazebo to load world
 	auto confDat = this->engineConfig()->writeConfig();
-	const nlohmann::json initRes = this->sendInitCommand(confDat);
-	if(!initRes[0].get<bool>())
+	try
+	{
+		this->sendInitCommand(confDat);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
 		return GazeboEngineJSONNRPClient::ERROR;
+	}
 
 	return GazeboEngineJSONNRPClient::SUCCESS;
 }

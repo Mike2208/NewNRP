@@ -155,8 +155,7 @@ class EngineGrpcClient
                 if(device->engineName().compare(this->engineName()) == 0)
                 {
                     auto r = request.add_request();
-                    // TODO Do not use CopyFrom!
-                    r->CopyFrom(this->getProtoFromSingleDeviceInterface<DEVICES...>(*device));
+                    this->getProtoFromSingleDeviceInterface<DEVICES...>(*device, r);
                 }
             }
 
@@ -172,22 +171,31 @@ class EngineGrpcClient
         }
 
         template<class DEVICE, class ...REMAINING_DEVICES>
-        inline EngineGrpc::SetDeviceMessage getProtoFromSingleDeviceInterface(const DeviceInterface &device) const
+        inline void getProtoFromSingleDeviceInterface(const DeviceInterface &device, EngineGrpc::SetDeviceMessage * request) const
         {
-            // Only check DEVICE classes with an existing conversion function
-            if constexpr (dcm_t::template IsSerializable<DEVICE>)
+            if(DEVICE::TypeName.compare(device.type()) == 0)
             {
-                if(DEVICE::TypeName.compare(device.type()) == 0)
-                {
-                    return this->_dcm.template serialize<DEVICE>(dynamic_cast<const DEVICE&>(device));
-                }
+                request->mutable_deviceid()->set_devicename(device.name());
+                request->mutable_deviceid()->set_devicetype(device.type());
+                request->mutable_deviceid()->set_enginename(device.engineName());
+
+                device.serialize(request);
+
+                // Early return
+
+                return;
             }
 
             // If device classess are left to check, go through them. If all device classes have been checked without proper result, throw an error
+
             if constexpr (sizeof...(REMAINING_DEVICES) > 0)
-            {	return this->getProtoFromSingleDeviceInterface<REMAINING_DEVICES...>(device);	}
+            {
+                this->getProtoFromSingleDeviceInterface<REMAINING_DEVICES...>(device, request);
+            }
             else
-            {	throw std::logic_error("Could not process given device of type " + device.type());	}
+            {
+                throw std::logic_error("Could not process given device of type " + device.type());
+            }
         }
 
         virtual typename EngineInterface::device_outputs_t getOutputDevices(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
@@ -200,8 +208,11 @@ class EngineGrpcClient
             {
                 if(this->engineName().compare(devID.EngineName) == 0)
                 {
-                    auto devId = request.add_deviceid();
-                    devId->CopyFrom(this->_dcm.serializeID(devID));
+                    auto r = request.add_deviceid();
+
+                    r->set_devicename(devID.Name);
+                    r->set_devicetype(devID.Type);
+                    r->set_enginename(devID.EngineName);
                 }
             }
 
@@ -223,40 +234,41 @@ class EngineGrpcClient
 
             for(int i = 0; i < reply.reply_size(); i++)
             {
-                const auto r = reply.reply(i);
-
-                auto deviceID = this->_dcm.getID(r);
-                deviceID.EngineName = this->engineName();
-                interfaces.push_back(this->getSingleDeviceInterfaceFromProto<DEVICES...>(r, deviceID));
+                interfaces.push_back(this->getSingleDeviceInterfaceFromProto<DEVICES...>(reply.reply(i)));
             }
 
             return interfaces;
         }
 
         template<class DEVICE, class ...REMAINING_DEVICES>
-        inline DeviceInterfaceConstSharedPtr getSingleDeviceInterfaceFromProto(const EngineGrpc::GetDeviceMessage &deviceData, const DeviceIdentifier &deviceID) const
+        inline DeviceInterfaceConstSharedPtr getSingleDeviceInterfaceFromProto(const EngineGrpc::GetDeviceMessage &deviceData) const
         {
-            // Only check DEVICE classes with an existing conversion function
-            if constexpr (dcm_t::template IsDeserializable<DEVICE>)
+            if(DEVICE::TypeName.compare(deviceData.deviceid().devicetype()) == 0)
             {
-                if(DEVICE::TypeName.compare(deviceID.Type) == 0)
-                {
-                    DeviceInterfaceSharedPtr newDevice(new DEVICE(this->_dcm.template deserialize<DEVICE>(deviceData)));
-                    newDevice->setEngineName(this->engineName());
+                DeviceIdentifier devId(deviceData.deviceid().devicename(),
+                                       deviceData.deviceid().devicetype(),
+                                       deviceData.deviceid().enginename());
 
-                    return newDevice;
-                }
+                DeviceInterfaceSharedPtr newDevice(new DEVICE(devId, deviceData));
+                // TODO Why is this done here?
+                newDevice->setEngineName(this->engineName());
+
+                return newDevice;
             }
 
             // If device classess are left to check, go through them. If all device classes have been checked without proper result, throw an error
             if constexpr (sizeof...(REMAINING_DEVICES) > 0)
-                return this->getSingleDeviceInterfaceFromProto<REMAINING_DEVICES...>(deviceData, deviceID);
+            {
+                return this->getSingleDeviceInterfaceFromProto<REMAINING_DEVICES...>(deviceData);
+            }
             else
-                throw std::logic_error("Could not process given device of type " + deviceID.Type);
+            {
+                throw std::logic_error("Could not process given device of type " + deviceData.deviceid().devicetype());
+            }
         }
 
-        using dcm_t = DeviceConversionMechanism<EngineGrpc::SetDeviceMessage, const EngineGrpc::GetDeviceMessage, DEVICES...>;
-        dcm_t _dcm;
+        //using dcm_t = DeviceConversionMechanism<EngineGrpc::SetDeviceMessage, const EngineGrpc::GetDeviceMessage, DEVICES...>;
+        //dcm_t _dcm;
 
     private:
 

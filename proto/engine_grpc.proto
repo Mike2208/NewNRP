@@ -49,6 +49,36 @@ message SetDeviceRequest
 message SetDeviceMessage
 {
     DeviceIdentifier deviceId = 1;
+
+    oneof data
+    {
+        GazeboCameraSetData camera = 2;
+        GazeboLinkSetData   link   = 3;
+        GazeboJointSetData  joint  = 4;
+        NestSetData         nest   = 5;
+    }
+}
+
+message NestSetData
+{
+    string json = 1;
+}
+
+message GazeboCameraSetData
+{
+
+}
+
+message GazeboLinkSetData
+{
+
+}
+
+message GazeboJointSetData
+{
+    float position = 1;
+    float velocity = 2;
+    float effort   = 3;
 }
 
 message SetDeviceReply

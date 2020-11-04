@@ -50,6 +50,12 @@ class TestGrpcDeviceInterface1
         TestGrpcDeviceInterface1(const DeviceIdentifier &devID)
             : DeviceInterface(devID)
         {}
+
+        TestGrpcDeviceInterface1(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &)
+            : TestGrpcDeviceInterface1(devID)
+        {
+            // TODO
+        }
 };
 
 class TestGrpcDeviceInterface2
@@ -62,6 +68,12 @@ class TestGrpcDeviceInterface2
         TestGrpcDeviceInterface2(const DeviceIdentifier &devID)
             : DeviceInterface(devID)
         {}
+
+        TestGrpcDeviceInterface2(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &)
+            : TestGrpcDeviceInterface2(devID)
+        {
+            // TODO
+        }
 };
 
 class TestEngineGrpcClient

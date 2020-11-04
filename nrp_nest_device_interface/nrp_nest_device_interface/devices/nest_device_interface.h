@@ -22,6 +22,8 @@ class NestJSONDeviceInterface
 		 */
 		NestJSONDeviceInterface(const DeviceIdentifier &devID, const nlohmann::json &json);
 
+		NestJSONDeviceInterface(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &data);
+
 		/*!
 		 *	\brief Constructor
 		 *	\param devID Device ID
@@ -30,6 +32,8 @@ class NestJSONDeviceInterface
 		NestJSONDeviceInterface(const DeviceIdentifier &devID, const boost::python::dict &data);
 
 		virtual ~NestJSONDeviceInterface() override = default;
+
+		virtual void serialize(EngineGrpc::SetDeviceMessage * request) const override;
 
 		boost::python::dict data() const;
 
