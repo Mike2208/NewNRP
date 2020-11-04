@@ -27,8 +27,8 @@ class NestEngineJSONDeviceController<NestJSONDeviceInterface>
 		NestEngineJSONDeviceController(const DeviceIdentifier &devID, boost::python::object nodeCollection, boost::python::dict nest);
 		virtual ~NestEngineJSONDeviceController() override = default;
 
-		virtual const google::protobuf::Message * getData();
-		virtual void setData(const google::protobuf::Message & data);
+		virtual void getData(EngineGrpc::GetDeviceMessage * reply) override;
+		virtual void setData(const google::protobuf::Message & data) override;
 
         /*!
 		 * \brief Set Nest properties

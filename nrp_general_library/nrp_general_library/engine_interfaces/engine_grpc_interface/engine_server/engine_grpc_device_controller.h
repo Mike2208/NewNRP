@@ -23,13 +23,14 @@ class EngineGrpcDeviceController
 		 * \param data Additional data
 		 * \return Returns a json structure containing device information
 		 */
-		virtual const google::protobuf::Message * getData() = 0;
+		virtual void getData(EngineGrpc::GetDeviceMessage * reply) = 0;
 
 		/*!
 		 * \brief Handle received device data
 		 * \param data Data to be processed
 		 * \return Returns result of handling device
 		 */
+		// TODO the argument can become EngineGrpc::SetDeviceRequest?
 		virtual void setData(const google::protobuf::Message & data) = 0;
 };
 

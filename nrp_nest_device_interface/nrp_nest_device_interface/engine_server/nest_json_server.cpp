@@ -232,10 +232,10 @@ nlohmann::json NestJSONServer::formatInitErrorMessage(const std::string &errMsg)
 	return nlohmann::json({{NestConfig::InitFileExecStatus, 0}, {NestConfig::InitFileErrorMsg, errMsg}});
 }
 
-const EngineGrpc::GetDeviceReply * NestJSONServer::getDeviceData(const EngineGrpc::GetDeviceRequest & data)
+void NestJSONServer::getDeviceData(const EngineGrpc::GetDeviceRequest & data, EngineGrpc::GetDeviceReply * reply)
 {
 	PythonGILLock lock(this->_pyGILState, true);
-	return this->EngineGrpcServer::getDeviceData(data);
+	this->EngineGrpcServer::getDeviceData(data, reply);
 }
 
 void NestJSONServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)

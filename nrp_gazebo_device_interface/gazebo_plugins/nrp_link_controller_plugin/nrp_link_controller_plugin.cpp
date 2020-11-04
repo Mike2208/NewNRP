@@ -21,33 +21,29 @@ gazebo::LinkDeviceController::LinkDeviceController(const std::string &linkName, 
 
 gazebo::LinkDeviceController::~LinkDeviceController() = default;
 
-const google::protobuf::Message *  gazebo::LinkDeviceController::getData()
+void gazebo::LinkDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
 {
-	EngineGrpc::GazeboLink * linkData = new EngineGrpc::GazeboLink();
-
 	const auto &pose = this->_link->WorldCoGPose();
 
-	linkData->add_position(ToFloat(pose.Pos().X()));
-	linkData->add_position(ToFloat(pose.Pos().Y()));
-	linkData->add_position(ToFloat(pose.Pos().Z()));
+	reply->mutable_link()->add_position(ToFloat(pose.Pos().X()));
+	reply->mutable_link()->add_position(ToFloat(pose.Pos().Y()));
+	reply->mutable_link()->add_position(ToFloat(pose.Pos().Z()));
 
-	linkData->add_rotation(ToFloat(pose.Rot().X()));
-	linkData->add_rotation(ToFloat(pose.Rot().Y()));
-	linkData->add_rotation(ToFloat(pose.Rot().Z()));
+	reply->mutable_link()->add_rotation(ToFloat(pose.Rot().X()));
+	reply->mutable_link()->add_rotation(ToFloat(pose.Rot().Y()));
+	reply->mutable_link()->add_rotation(ToFloat(pose.Rot().Z()));
 
 	const auto &linVel = this->_link->WorldLinearVel();
 
-	linkData->add_linearvelocity(ToFloat(linVel.X()));
-	linkData->add_linearvelocity(ToFloat(linVel.Y()));
-	linkData->add_linearvelocity(ToFloat(linVel.Z()));
+	reply->mutable_link()->add_linearvelocity(ToFloat(linVel.X()));
+	reply->mutable_link()->add_linearvelocity(ToFloat(linVel.Y()));
+	reply->mutable_link()->add_linearvelocity(ToFloat(linVel.Z()));
 
 	const auto &angVel = this->_link->WorldAngularVel();
 
-	linkData->add_angularvelocity(ToFloat(angVel.X()));
-	linkData->add_angularvelocity(ToFloat(angVel.Y()));
-	linkData->add_angularvelocity(ToFloat(angVel.Z()));
-
-	return linkData;
+	reply->mutable_link()->add_angularvelocity(ToFloat(angVel.X()));
+	reply->mutable_link()->add_angularvelocity(ToFloat(angVel.Y()));
+	reply->mutable_link()->add_angularvelocity(ToFloat(angVel.Z()));
 }
 
 void gazebo::LinkDeviceController::setData(const google::protobuf::Message &)

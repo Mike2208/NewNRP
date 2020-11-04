@@ -15,14 +15,10 @@ class TestGrpcDeviceController : public EngineGrpcDeviceController
 
         TestGrpcDeviceController(const DeviceIdentifier &devID) : EngineGrpcDeviceController(devID) {}
 
-        virtual const google::protobuf::Message * getData() override
+        virtual void getData(EngineGrpc::GetDeviceMessage * reply) override
         {
-            _getMessage.Clear();
-
-            _getMessage.mutable_deviceid()->set_devicename(_setMessage.deviceid().devicename());
-            _getMessage.mutable_deviceid()->set_devicetype(_setMessage.deviceid().devicetype());
-
-            return &_getMessage;
+            reply->mutable_deviceid()->set_devicename(_setMessage.deviceid().devicename());
+            reply->mutable_deviceid()->set_devicetype(_setMessage.deviceid().devicetype());
         }
 
         virtual void setData(const google::protobuf::Message & data) override
@@ -31,7 +27,6 @@ class TestGrpcDeviceController : public EngineGrpcDeviceController
         }
 
         EngineGrpc::SetDeviceMessage _setMessage;
-        EngineGrpc::GetDeviceMessage _getMessage;
 };
 
 class TestEngineJSONConfig
@@ -255,6 +250,7 @@ TEST(EngineGrpc, GetDeviceData1)
 
     EngineGrpc::SetDeviceRequest setRequest;
     EngineGrpc::GetDeviceRequest getRequest;
+    EngineGrpc::GetDeviceReply   getReply;
     auto req = setRequest.add_request();
     req->mutable_deviceid()->set_devicename(deviceName);
 
@@ -264,9 +260,9 @@ TEST(EngineGrpc, GetDeviceData1)
     server.registerDevice(deviceName, &device);
 
     server.setDeviceData(setRequest);
-    const auto response = server.getDeviceData(getRequest);
+    server.getDeviceData(getRequest, &getReply);
 
-    ASSERT_EQ(response->reply(0).deviceid().devicename(), deviceName);
+    ASSERT_EQ(getReply.reply(0).deviceid().devicename(), deviceName);
 }
 
 TEST(EngineGrpc, GetDeviceData2)

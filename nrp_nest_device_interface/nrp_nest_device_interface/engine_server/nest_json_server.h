@@ -111,7 +111,7 @@ class NestJSONServer
 		static nlohmann::json formatInitErrorMessage(const std::string &errMsg);
 
 		void setDeviceData(const EngineGrpc::SetDeviceRequest & data) override;
-        const EngineGrpc::GetDeviceReply * getDeviceData(const EngineGrpc::GetDeviceRequest & data) override;
+        void getDeviceData(const EngineGrpc::GetDeviceRequest & request, EngineGrpc::GetDeviceReply * reply) override;
 };
 
 #endif // NEST_JSON_SERVER_H

@@ -37,7 +37,7 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
         unsigned getNumRegisteredDevices();
 
         virtual void setDeviceData(const EngineGrpc::SetDeviceRequest & data);
-        virtual const EngineGrpc::GetDeviceReply * getDeviceData(const EngineGrpc::GetDeviceRequest & data);
+        virtual void getDeviceData(const EngineGrpc::GetDeviceRequest & request, EngineGrpc::GetDeviceReply * reply);
 
         virtual nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) = 0;
         virtual nlohmann::json shutdown(const nlohmann::json &data) = 0;
@@ -61,8 +61,6 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
         bool                          _isServerRunning;
 
         std::map<std::string, EngineGrpcDeviceController*> _devicesControllers;
-
-        EngineGrpc::GetDeviceReply _getReply;
 };
 
 #endif // ENGINE_GRPC_SERVER_H

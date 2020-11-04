@@ -85,7 +85,7 @@ grpc::Status EngineGrpcServer::getDevice(grpc::ServerContext * , const EngineGrp
 {
     try
     {
-        reply->CopyFrom(*this->getDeviceData(*request));
+        this->getDeviceData(*request, reply);
     }
     catch(const std::exception &e)
     {
@@ -202,26 +202,22 @@ void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
     }
 }
 
-const EngineGrpc::GetDeviceReply * EngineGrpcServer::getDeviceData(const EngineGrpc::GetDeviceRequest & data)
+void EngineGrpcServer::getDeviceData(const EngineGrpc::GetDeviceRequest & request, EngineGrpc::GetDeviceReply * reply)
 {
     EngineGrpcServer::lock_t lock(this->_deviceLock);
 
-    // TODO Check if clearing is enough, it may be that the message will grow uncontrollably, because of add_reply() calls!
-    this->_getReply.Clear();
-
-    const auto numDevices = data.deviceid_size();
+    const auto numDevices = request.deviceid_size();
 
     for(int i = 0; i < numDevices; i++)
     {
-        const auto devInterface = this->_devicesControllers.find(data.deviceid(i).devicename());
+        const auto devInterface = this->_devicesControllers.find(request.deviceid(i).devicename());
 
         if(devInterface != _devicesControllers.end())
         {
-            auto r = _getReply.add_reply();
-            r->CopyFrom(*devInterface->second->getData());
+            auto r = reply->add_reply();
+            devInterface->second->getData(r);
             // TODO Error handling for dev not found
+            // TODO Fill in deviceid part of the message
         }
     }
-
-    return &_getReply;
 }

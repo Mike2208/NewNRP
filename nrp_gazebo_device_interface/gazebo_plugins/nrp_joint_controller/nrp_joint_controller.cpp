@@ -20,15 +20,11 @@ gazebo::JointDeviceController::JointDeviceController(const physics::JointPtr &jo
       _jointData(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), ""))
 {}
 
-const google::protobuf::Message * gazebo::JointDeviceController::getData()
+void gazebo::JointDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
 {
-	EngineGrpc::GazeboJoint * jointData = new EngineGrpc::GazeboJoint();
-
-	jointData->set_position(this->_joint->Position(0));
-	jointData->set_velocity(this->_joint->GetVelocity(0));
-	jointData->set_effort(this->_joint->GetForce(0));
-
-	return jointData;
+	reply->mutable_joint()->set_position(this->_joint->Position(0));
+	reply->mutable_joint()->set_velocity(this->_joint->GetVelocity(0));
+	reply->mutable_joint()->set_effort(this->_joint->GetForce(0));
 }
 
 void gazebo::JointDeviceController::setData(const google::protobuf::Message & data)

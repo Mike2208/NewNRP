@@ -7,7 +7,7 @@ NestEngineJSONDeviceController<NestJSONDeviceInterface>::NestEngineJSONDeviceCon
       _deviceData(devID, getStatusFromNest(nest, nodeCollection))
 {}
 
-const google::protobuf::Message * NestEngineJSONDeviceController<NestJSONDeviceInterface>::getData()
+void NestEngineJSONDeviceController<NestJSONDeviceInterface>::getData(EngineGrpc::GetDeviceMessage * reply)
 {
 	// Get device status from Nest
 	boost::python::dict status;
@@ -27,9 +27,7 @@ const google::protobuf::Message * NestEngineJSONDeviceController<NestJSONDeviceI
 	this->_deviceData.NestJSONDeviceInterface::data() = status;
 
 	// Return data as json embedded in protobuf
-	EngineGrpc::Nest * nestData = new EngineGrpc::Nest();
-	nestData->set_json(PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::serializeProperties(this->_deviceData));
-	return nestData;
+	reply->mutable_nest()->set_json(PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::serializeProperties(this->_deviceData));
 }
 
 void NestEngineJSONDeviceController<NestJSONDeviceInterface>::setData(const google::protobuf::Message & data)
