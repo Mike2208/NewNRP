@@ -26,17 +26,18 @@ const google::protobuf::Message * NestEngineJSONDeviceController<NestJSONDeviceI
 	// Read properties from dict object
 	this->_deviceData.NestJSONDeviceInterface::data() = status;
 
-	// Convert to JSON object
-	// TODO Return this as json embedded in protobuf
-	//PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::serializeProperties(this->_deviceData);
-	return new EngineGrpc::Nest();
+	// Return data as json embedded in protobuf
+	EngineGrpc::Nest * nestData = new EngineGrpc::Nest();
+	nestData->set_json(PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::serializeProperties(this->_deviceData));
+	return nestData;
 }
 
 void NestEngineJSONDeviceController<NestJSONDeviceInterface>::setData(const google::protobuf::Message & data)
 {
-	// TODO Pass json string to updateProps
+	auto newData = static_cast<const EngineGrpc::Nest &>(data);
+
 	// Update properties from data
-	PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::updateProperties(this->_deviceData, nlohmann::json());
+	PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::updateProperties(this->_deviceData, nlohmann::json(newData.json()));
 
 	// Convert to python dict object
 	//this->_deviceData.updateProperties(this->_deviceData, data);
