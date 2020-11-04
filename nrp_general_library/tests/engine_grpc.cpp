@@ -40,20 +40,32 @@ class TestEngineJSONConfig
         {}
 };
 
-class TestGrpcDeviceInterface
+class TestGrpcDeviceInterface1
     : public DeviceInterface
 {
     public:
 
-        static constexpr std::string_view TypeName = "test_type";
+        static constexpr std::string_view TypeName = "test_type1";
 
-        TestGrpcDeviceInterface(const DeviceIdentifier &devID)
+        TestGrpcDeviceInterface1(const DeviceIdentifier &devID)
+            : DeviceInterface(devID)
+        {}
+};
+
+class TestGrpcDeviceInterface2
+    : public DeviceInterface
+{
+    public:
+
+        static constexpr std::string_view TypeName = "test_type2";
+
+        TestGrpcDeviceInterface2(const DeviceIdentifier &devID)
             : DeviceInterface(devID)
         {}
 };
 
 class TestEngineGrpcClient
-        : public EngineGrpcClient<TestEngineGrpcClient, TestEngineJSONConfig, TestGrpcDeviceInterface>
+        : public EngineGrpcClient<TestEngineGrpcClient, TestEngineJSONConfig, TestGrpcDeviceInterface1, TestGrpcDeviceInterface2>
 {
     public:
         TestEngineGrpcClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
@@ -221,13 +233,13 @@ TEST(EngineGrpc, SetDeviceData2)
     std::vector<DeviceInterface*> input_devices;
 
     const std::string deviceName = "a";
-    const std::string deviceType = "test_type";
+    const std::string deviceType = "test_type1";
     const std::string engineName = "c";
 
     client.engineName() = engineName;
 
     DeviceIdentifier         devId(deviceName, deviceType, engineName);
-    TestGrpcDeviceInterface  dev1(devId);             // Client side
+    TestGrpcDeviceInterface1 dev1(devId);             // Client side
     TestGrpcDeviceController deviceController(devId); // Server side
 
     server.registerDevice(deviceName, &deviceController);
@@ -281,13 +293,13 @@ TEST(EngineGrpc, GetDeviceData2)
     std::vector<DeviceInterface*> input_devices;
 
     const std::string deviceName = "a";
-    const std::string deviceType = "test_type";
+    const std::string deviceType = "test_type2";
     const std::string engineName = "c";
 
     client.engineName() = engineName;
 
     DeviceIdentifier         devId(deviceName, deviceType, engineName);
-    TestGrpcDeviceInterface  dev1(devId);             // Client side
+    TestGrpcDeviceInterface2 dev1(devId);             // Client side
     TestGrpcDeviceController deviceController(devId); // Server side
 
     server.registerDevice(deviceName, &deviceController);
@@ -302,9 +314,70 @@ TEST(EngineGrpc, GetDeviceData2)
 
     const auto output = client.getOutputDevices(deviceIdentifiers);
 
+    ASSERT_EQ(output.size(), 1);
     ASSERT_EQ(output.at(0)->name(),       deviceName);
     ASSERT_EQ(output.at(0)->type(),       deviceType);
     ASSERT_EQ(output.at(0)->engineName(), engineName);
+}
+
+TEST(EngineGrpc, GetDeviceData3)
+{
+    SimulationConfig::config_storage_t config;
+
+    TestEngineGrpcServer server;
+    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+
+    // Client sends a request to the server
+
+    std::vector<DeviceInterface*> input_devices;
+
+    const std::string engineName = "c";
+
+    const std::string deviceName1 = "a";
+    const std::string deviceType1 = "test_type1";
+    const std::string deviceName2 = "b";
+    const std::string deviceType2 = "test_type2";
+
+    client.engineName() = engineName;
+
+    DeviceIdentifier         devId1(deviceName1, deviceType1, engineName);
+    DeviceIdentifier         devId2(deviceName2, deviceType2, engineName);
+    TestGrpcDeviceInterface1 dev1(devId1);              // Client side
+    TestGrpcDeviceInterface2 dev2(devId2);              // Client side
+    TestGrpcDeviceController deviceController1(devId1); // Server side
+    TestGrpcDeviceController deviceController2(devId2); // Server side
+
+    server.registerDevice(deviceName1, &deviceController1);
+    server.registerDevice(deviceName2, &deviceController2);
+
+    input_devices.push_back(&dev1);
+    input_devices.push_back(&dev2);
+
+    server.startServer();
+    client.handleInputDevices(input_devices);
+
+    EngineInterface::device_identifiers_t deviceIdentifiers;
+    deviceIdentifiers.insert(devId1);
+    deviceIdentifiers.insert(devId2);
+
+    const auto output = client.getOutputDevices(deviceIdentifiers);
+
+    ASSERT_EQ(output.size(), 2);
+    ASSERT_EQ(output.at(0)->engineName(), engineName);
+    ASSERT_EQ(output.at(1)->engineName(), engineName);
+
+    if(output.at(0)->type().compare(deviceType1) == 0)
+    {
+        ASSERT_EQ(output.at(0)->name(), deviceName1);
+        ASSERT_EQ(output.at(1)->name(), deviceName2);
+        ASSERT_EQ(output.at(1)->type(), deviceType2);
+    }
+    else
+    {
+        ASSERT_EQ(output.at(0)->name(), deviceName2);
+        ASSERT_EQ(output.at(1)->name(), deviceName1);
+        ASSERT_EQ(output.at(1)->type(), deviceType1);
+    }
 }
 
 // EOF

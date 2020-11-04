@@ -155,6 +155,7 @@ class EngineGrpcClient
                 if(device->engineName().compare(this->engineName()) == 0)
                 {
                     auto r = request.add_request();
+                    // TODO Do not use CopyFrom!
                     r->CopyFrom(this->getProtoFromSingleDeviceInterface<DEVICES...>(*device));
                 }
             }
