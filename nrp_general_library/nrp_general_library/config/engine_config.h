@@ -29,6 +29,12 @@ struct EngineConfigConst
 	static constexpr std::string_view DefEngineName = "engine";
 
 	/*!
+	 * \brief Engine type. Used by EngineLauncherManager to select correct engine
+	 */
+	static constexpr FixedString EngineLaunchCmd = "EngineLaunchCommand";
+	static constexpr FixedString DefEngineLaunchCmd = "Default";
+
+	/*!
 	 * \brief Engine Timestep (in s)
 	 */
 	static constexpr FixedString EngineTimestep = "EngineTimestep";
@@ -58,11 +64,11 @@ struct EngineConfigConst
 	static constexpr FixedString EngineProcStartParams = "EngineProcStartParams";
 	static const string_vector_t DefEngineProcStartParams;
 
-	using ECfgPropNames = PropNames<EngineType, EngineName, EngineTimestep, EngineRunStepTimeout, EngineProcEnvParams, EngineProcStartParams, EngineProcCmd>;
+	using ECfgPropNames = PropNames<EngineType, EngineName, EngineLaunchCmd, EngineTimestep, EngineRunStepTimeout, EngineProcEnvParams, EngineProcStartParams, EngineProcCmd>;
 
 	template<class CONFIG, class PROP_NAMES, class ...PROPERTIES>
 	using ECfgProps = JSONConfigProperties<CONFIG, MultiPropNames<EngineConfigConst::ECfgPropNames, PROP_NAMES>,
-	                                       std::string, std::string, float, float, EngineConfigConst::string_vector_t,
+	                                       std::string, std::string, std::string, float, float, EngineConfigConst::string_vector_t,
 	                                       EngineConfigConst::string_vector_t, std::string, PROPERTIES...>;
 };
 
@@ -80,6 +86,12 @@ class EngineConfigGeneral
 		 */
 		virtual const std::string &engineName() const = 0;
 		std::string &engineName();
+
+		/*!
+		 * \brief Get Engine Launch command
+		 */
+		virtual const std::string &engineLaunchCmd() const = 0;
+		std::string &engineLaunchCmd();
 
 		/*!
 		 * \brief Get Engine Timestep
@@ -137,6 +149,7 @@ class EngineConfig
 		    : json_config_properties_t(data,
 		                               CONFIG::DefEngineType.data(),
 		                               CONFIG::DefEngineName.data(),
+		                               CONFIG::DefEngineLaunchCmd.data(),
 		                               CONFIG::DefEngineTimestep,
 		                               CONFIG::DefEngineRunStepTimeout,
 		                               CONFIG::DefEngineProcEnvParams,
@@ -150,6 +163,12 @@ class EngineConfig
 
 		std::string &engineName()
 		{	return this->EngineConfigGeneral::engineName();	}
+
+		const std::string &engineLaunchCmd() const override final
+		{	return this->template getPropertyByName<EngineLaunchCmd>();	}
+
+		std::string &engineLaunchCmd()
+		{	return this->EngineConfigGeneral::engineLaunchCmd();	}
 
 		const float &engineTimestep() const override final
 		{	return this->template getPropertyByName<EngineTimestep>();	}

@@ -1,7 +1,7 @@
 #include "nrp_general_library/utils/python_interpreter_state.h"
 
 
-PythonInterpreterState::PythonInterpreterState(int argc, char *argv[], bool allowThreads)
+PythonInterpreterState::PythonInterpreterState(int argc, const char *const *argv, bool allowThreads)
 	: _wcharArgs(argc, argv)
 {
 	assert(argc >= 1);
@@ -18,6 +18,14 @@ PythonInterpreterState::PythonInterpreterState(int argc, char *argv[], bool allo
 	else
 		this->_state = nullptr;
 }
+
+PythonInterpreterState::PythonInterpreterState(int argc, const std::vector<const char*> &argv, bool allowThreads)
+    : PythonInterpreterState(argc, argv.data(), allowThreads)
+{}
+
+PythonInterpreterState::PythonInterpreterState(bool allowThreads)
+    : PythonInterpreterState(1, {"ProgName"}, allowThreads)
+{}
 
 void PythonInterpreterState::allowThreads()
 {

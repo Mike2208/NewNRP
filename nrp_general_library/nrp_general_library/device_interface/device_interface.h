@@ -1,8 +1,10 @@
 #ifndef DEVICE_INTERFACE_H
 #define DEVICE_INTERFACE_H
 
+#include "nrp_general_library/utils/property_template.h"
 #include "nrp_general_library/utils/ptr_templates.h"
 
+#include <concepts>
 #include <string>
 #include <string_view>
 #include <memory>
@@ -31,6 +33,7 @@ struct DeviceIdentifier
 	std::string EngineName;
 
 	DeviceIdentifier(const std::string &_name, const std::string &_type, const std::string &_engineName);
+	DeviceIdentifier() = default;
 
 	bool operator==(const DeviceIdentifier &other) const;
 	bool operator<(const DeviceIdentifier &other) const;
@@ -46,6 +49,7 @@ class DeviceInterface
 		enum RESULT
 		{ SUCCESS, ERROR };
 
+		DeviceInterface() = default;
 		DeviceInterface(const DeviceIdentifier &id);
 		DeviceInterface(const std::string &name, const std::string &type, const std::string &engineName);
 		virtual ~DeviceInterface() = default;
@@ -60,7 +64,7 @@ class DeviceInterface
 		void setEngineName(const std::string &engineName);
 
 		const DeviceIdentifier &id() const;
-		void setId(const DeviceIdentifier &id);
+		void setID(const DeviceIdentifier &id);
 
 		virtual void serialize(EngineGrpc::SetDeviceMessage * request) const;
 		virtual void deserialize(const EngineGrpc::GetDeviceMessage &deviceData);
@@ -78,7 +82,48 @@ using DeviceInterfaceConstSharedPtr = DeviceInterface::const_shared_ptr;
 
 template<class T>
 concept DEVICE_C = requires {
-        (std::is_base_of_v<DeviceInterface, T>);
+        std::derived_from<T, DeviceInterface>;
+        {	T::TypeName	};
+};
+
+/*!
+ * \brief Device class. All devices must inherit from this one
+ * \tparam DEVICE Final derived device class
+ * \tparam TYPE Device Type
+ * \tparam PROP_NAMES Property Names
+ * \tparam PROPERTIES Device Properties
+ */
+template<class DEVICE, FixedString TYPE, PROP_NAMES_C PROP_NAMES, class ...PROPERTIES>
+class Device
+        : public DeviceInterface,
+          public PropertyTemplate<DEVICE, PROP_NAMES, PROPERTIES...>,
+          public PtrTemplates<DEVICE>
+{
+	public:
+		static constexpr FixedString TypeName = TYPE;
+		using property_template_t = typename PropertyTemplate<DEVICE, PROP_NAMES, PROPERTIES...>::property_template_t;
+
+		using shared_ptr = typename PtrTemplates<DEVICE>::shared_ptr;
+		using const_shared_ptr = typename PtrTemplates<DEVICE>::const_shared_ptr;
+		using unique_ptr = typename PtrTemplates<DEVICE>::unique_ptr;
+		using const_unique_ptr = typename PtrTemplates<DEVICE>::const_unique_ptr;
+
+		virtual ~Device() override = default;
+
+		/*!
+		 * \brief Constructor
+		 * \tparam PROPERTIES_T Property types to pass along to PropertyTemplate constructor
+		 * \param devID Device ID
+		 * \param props Properties to pass along to PropertyTemplate constructor
+		 */
+		template<class ...PROPERTIES_T>
+		Device(const DeviceIdentifier &devID, PROPERTIES_T &&...props)
+		    : DeviceInterface(devID),
+		      property_template_t(std::forward<PROPERTIES_T>(props)...)
+		{
+			// Make sure DEVICE class is derived from DeviceInterface
+			static_assert(DEVICE_C<DEVICE>, "DEVICE does not fulfill concept requirements");
+		};
 };
 
 /*! \page devices Devices

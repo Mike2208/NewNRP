@@ -18,11 +18,8 @@ auto python_device_class_(const std::string &class_name, auto init)
 {
 	namespace python = boost::python;
 
-	python::register_ptr_to_python<PtrTemplates<DEVICE>::shared_ptr>();
-	python::register_ptr_to_python<PtrTemplates<DEVICE>::const_shared_ptr>();
-
-	python::register_ptr_to_python<PtrTemplates<DEVICE>::unique_ptr>();
-	python::register_ptr_to_python<PtrTemplates<DEVICE>::const_unique_ptr>();
+	python::register_ptr_to_python<typename PtrTemplates<DEVICE>::shared_ptr>();
+	python::register_ptr_to_python<typename PtrTemplates<DEVICE>::const_shared_ptr>();
 
 	return python::class_<DEVICE, python::bases<DeviceInterface> >(class_name.data(), init);
 }

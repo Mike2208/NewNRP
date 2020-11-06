@@ -38,7 +38,8 @@ endif()
 find_package(Boost REQUIRED COMPONENTS ${BOOST_PYTHON_COMPONENT} filesystem)
 set(BOOST_PYTHON "Boost::${BOOST_PYTHON_COMPONENT}")
 
-set(PYTHON_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages" CACHE PATH "Install location for python libraries")
+set(PYTHON_INSTALL_DIR_REL "python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages" CACHE INTERNAL "Relative install location for python libraries")
+set(PYTHON_INSTALL_DIR_ABS "${CMAKE_INSTALL_LIBDIR}/${PYTHON_INSTALL_DIR_REL}" CACHE INTERNAL "Absoulte install location for python libraries")
 
 
 ##########################################
@@ -72,18 +73,22 @@ add_subdirectory(nrp_general_library)
 ##########################################
 ## NRP Engines
 
-## Gazebo Engine
-add_subdirectory(nrp_gazebo_device_interface)
+## Gazebo JSON Engine
+add_subdirectory(nrp_gazebo_json_engine)
+
+## Gazebo JSON Engine
+add_subdirectory(nrp_gazebo_mpi_engine)
 
 ## Nest Engine
-add_subdirectory(nrp_nest_device_interface)
+add_subdirectory(nrp_nest_json_engine)
+add_subdirectory(nrp_nest_server_engine)
 
 ## Python Engine
 add_subdirectory(nrp_python_device_interface)
 
 ##########################################
 ## NRP Simulation
-set(NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS "NRPGazeboDeviceInterface.so;NRPNestDeviceInterface.so"
+set(NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS "NRPGazeboJSONEngine.so;NRPNestJSONEngine.so"
 	CACHE STRING "Default engines which will always be available in the NRP server")
 add_subdirectory(nrp_simulation)
 
@@ -100,5 +105,6 @@ add_subdirectory(nrp_simulation)
 ## Doxygen
 get_property(DOXYGEN_SOURCES GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
 doxygen_add_docs(doxygen
-	${DOXYGEN_SOURCES} "docs/main_page.dox"
+	${DOXYGEN_SOURCES}
+	"docs/main_page.dox" "docs/engine_types.dox"
 	COMMENT "Generating documentation")

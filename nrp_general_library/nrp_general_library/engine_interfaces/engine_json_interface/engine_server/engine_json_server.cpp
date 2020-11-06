@@ -77,7 +77,6 @@ EngineJSONServer::~EngineJSONServer()
 	this->shutdownServer();
 }
 
-
 bool EngineJSONServer::isServerRunning() const
 {
 	return this->_serverRunning;

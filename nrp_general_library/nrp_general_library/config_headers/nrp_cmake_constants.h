@@ -18,22 +18,27 @@
 /*!
  * \brief Install Location
  */
-#define NRP_INSTALL_DIR "/usr/local/nrp"
-
+#define NRP_INSTALL_DIR "/usr/local/nrp_grpc"
 
 /*!
  *	\brief Library Install location
  */
-#define NRP_LIB_INSTALL_DIR "/usr/local/nrp/lib"
+#define NRP_LIB_INSTALL_DIR "/usr/local/nrp_grpc/lib"
 
 /*!
  *	\brief NRP Plugin install directory
  */
-#define NRP_PLUGIN_INSTALL_DIR "/usr/local/nrp/lib"
+#define NRP_PLUGIN_INSTALL_DIR "/usr/local/nrp_grpc/lib"
 
 /*!
  *	\brief Bash cmd to set environment before starting engine
  */
-#define NRP_ENGINE_SET_ENV_CMD "/usr/local/nrp/bin/set_env_exec.sh"
+#define NRP_ENGINE_SET_ENV_CMD "/usr/local/nrp_grpc/sbin/set_env_exec.sh"
+
+/*!
+ * \brief Parameter to pass to NRP_ENGINE_SET_ENV_CMD if child env variables should be sanitized before executing.
+ * This will clear the entire environment, so essential variables such as PATH, LD_LIBRARY_PATH, PYTHON_PATH must be set manually
+ */
+#define NRP_CLEAR_ENV "NRP_CLEAR_ENV"
 
 #endif // NRP_CMAKE_CONSTANTS_H

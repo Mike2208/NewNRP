@@ -130,6 +130,11 @@ endif()
 
 
 ##########################################
+## Append Doxygen files
+add_doxygen_source("${CMAKE_CURRENT_SOURCE_DIR}" ${EXEC_SRC_FILES} ${LIB_SRC_FILES} ${PYTHON_MODULE_SRC_FILES} "${HEADER_DIRECTORY}")
+
+
+##########################################
 ## Server Configuration Generator
 add_executable(NRPGenServerConf nrp_gen_server_conf/nrp_gen_server_conf.cpp)
 target_link_libraries(NRPGenServerConf
@@ -162,8 +167,8 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 	target_link_libraries(${TEST_NAME}
 		PUBLIC
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
-		NRPNestDeviceInterface::NRPNestDeviceInterface
-		NRPGazeboDeviceInterface::NRPGazeboDeviceInterface
+		NRPNestJSONEngine::NRPNestJSONEngine
+		NRPGazeboJSONEngine::NRPGazeboJSONEngine
 		GTest::GTest
 		GTest::GTestMain)
 
@@ -212,10 +217,10 @@ install(DIRECTORY ${HEADER_DIRECTORY}
 # Install python module
 if(TARGET ${PYTHON_MODULE_NAME})
 	install(TARGETS ${PYTHON_MODULE_NAME}
-		DESTINATION "${PYTHON_INSTALL_DIR}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
 
 	install(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py"
-		DESTINATION "${PYTHON_INSTALL_DIR}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
 endif()
 
 # Install executable files

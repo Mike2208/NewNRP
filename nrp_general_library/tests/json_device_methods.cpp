@@ -12,6 +12,8 @@ struct TestJSONDeviceInterface
         : public DeviceInterface,
           public PropertyTemplate<TestJSONDeviceInterface, PropNames<"int", "string">, int, std::string>
 {
+	static constexpr FixedString TypeName = "type";
+
 	template<class ...T>
 	TestJSONDeviceInterface(const DeviceIdentifier &id, const nlohmann::json &data, T &&...properties)
 	    : DeviceInterface(id),

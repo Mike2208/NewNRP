@@ -34,22 +34,15 @@ class ObjectPropertySerializerMethods
 		 * \tparam Deserialized property type
 		 * \param data All serialized data
 		 * \param name Name under which the property to deserialize is stored
+		 * \param prop Pointer to property. Usually unused
 		 * \return Returns deserialized property
 		 */
 		template<class PROPERTY>
 		static PROPERTY deserializeSingleProperty(const OBJECT &data, const std::string_view &name);
-
-		/*!
-		 * \brief Deserialize a single property
-		 * \param data All serialized data
-		 * \param name Name under which the property to deserialize is stored
-		 * \return Returns property deserializer. Can be used to convert the property to a chosen type later on
-		 */
-		static SinglePropertyDeserializer<OBJECT> deserializeSingleProperty(const OBJECT &data, const std::string_view &name);
 };
 
 template<class T, class OBJECT>
-concept PROPERTY_SERIALIZER_OBJECT_C = std::is_same_v<OBJECT, std::remove_cv_t<std::decay_t<T> > >;
+concept PROPERTY_SERIALIZER_OBJECT_C = std::same_as<OBJECT, std::remove_cv_t<std::decay_t<T> > >;
 
 /*!
  * \brief De-/Serialization Methods. This class can be used to convert PropertyTemplates to OBJECT type.
@@ -88,8 +81,9 @@ struct PropertySerializer
 		 *	\param data OBJECT into which to insert the serialized data
 		 *	\return Returns an OBJECT. For each property, the value will be stored under its given name
 		 */
-		static OBJECT serializeProperties(const property_template_t &properties, OBJECT &&data = OBJECT())
-		{	return PropertySerializerGeneral::template serializeObject<OBJECT, property_template_t>(properties, std::move(data));	}
+		template<class PROPERTY_TEMPLATE_T>
+		static OBJECT serializeProperties(PROPERTY_TEMPLATE_T &&properties, OBJECT &&data = OBJECT())
+		{	return PropertySerializerGeneral::template serializeObject<OBJECT, property_template_t>(std::forward<PROPERTY_TEMPLATE_T>(properties), std::move(data));	}
 };
 
 #endif // PROPERTY_SERIALIZER_H

@@ -33,11 +33,6 @@ class ObjectPropertySerializerMethods<boost::python::dict>
 			}
 		}
 
-		static SinglePropertyDeserializer<boost::python::object> deserializeSingleProperty(const boost::python::dict &data, const std::string_view &name)
-		{
-			return SinglePropertyDeserializer<boost::python::object>(data.get(name.data()));
-		}
-
 		static void emplaceSingleObject(boost::python::dict &data, const std::string_view &name, boost::python::object &&singleObject)
 		{
 			data[name.data()] = std::move(singleObject);
