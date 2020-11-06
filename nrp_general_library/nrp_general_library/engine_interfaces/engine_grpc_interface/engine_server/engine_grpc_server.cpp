@@ -11,8 +11,10 @@ grpc::Status EngineGrpcServer::init(grpc::ServerContext * , const EngineGrpc::In
     {
         EngineGrpcServer::lock_t lock(this->_deviceLock);
 
+        nlohmann::json requestJson = nlohmann::json::parse(request->json());
+
         // Run initialization function
-        reply->set_json(this->initialize(request->json(), lock).dump());
+        reply->set_json(this->initialize(requestJson, lock).dump());
     }
     catch(const std::exception &e)
     {
@@ -31,8 +33,10 @@ grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * , const EngineGrpc
     {
         EngineGrpcServer::lock_t lock(this->_deviceLock);
 
+        nlohmann::json requestJson = nlohmann::json::parse(request->json());
+
         // Run shutdown function
-        reply->set_json(this->shutdown(request->json()).dump());
+        reply->set_json(this->shutdown(requestJson));
     }
     catch(const std::exception &e)
     {
