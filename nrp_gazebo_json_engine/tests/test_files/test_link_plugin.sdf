@@ -86,7 +86,7 @@
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
     <model name='youbot'>
-      <plugin name="link_youbot" filename="NRPGazeboLinkControllerPlugin.so" />
+      <plugin name="link_youbot" filename="NRPGazeboJSONLinkControllerPlugin.so" />
       <pose>0.106072 -0.040675 0.09 0 -0 0</pose>
       <link name='base_footprint'>
         <pose>0 0 0 0 -0 0</pose>
@@ -1829,6 +1829,6 @@
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
-    <plugin name="nrp_world" filename="NRPGazeboWorldPlugin.so"/>
+    <plugin name="nrp_world" filename="NRPGazeboJSONWorldPlugin.so"/>
   </world>
 </sdf>
