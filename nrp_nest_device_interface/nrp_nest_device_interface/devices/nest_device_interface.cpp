@@ -14,7 +14,7 @@ NestJSONDeviceInterface::NestJSONDeviceInterface(const DeviceIdentifier &devID, 
 }
 
 NestJSONDeviceInterface::NestJSONDeviceInterface(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &data)
-    : NestJSONDeviceInterface(devID, data.nest().json())
+    : NestJSONDeviceInterface(devID, nlohmann::json::parse(data.nest().json()))
 {
     // Do nothing
 }

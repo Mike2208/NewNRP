@@ -35,7 +35,7 @@ void NestEngineJSONDeviceController<NestJSONDeviceInterface>::setData(const goog
 	auto newData = static_cast<const EngineGrpc::Nest &>(data);
 
 	// Update properties from data
-	PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::updateProperties(this->_deviceData, nlohmann::json(newData.json()));
+	PropertySerializer<nlohmann::json, typename NestJSONDeviceInterface::property_template_t>::updateProperties(this->_deviceData, nlohmann::json::parse(newData.json()));
 
 	// Convert to python dict object
 	//this->_deviceData.updateProperties(this->_deviceData, data);
