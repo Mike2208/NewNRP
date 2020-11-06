@@ -70,7 +70,7 @@ TEST(DeviceInterfaceTest, Constructor)
 	ASSERT_STREQ(interface.engineName().data(), engineType2.data());
 
 	const DeviceIdentifier id1(deviceName1, deviceType1, engineType1);
-	interface.setId(id1);
+	interface.setID(id1);
 
 	ASSERT_STREQ(interface.name().data(), id1.Name.data());
 	ASSERT_STREQ(interface.type().data(), id1.Type.data());

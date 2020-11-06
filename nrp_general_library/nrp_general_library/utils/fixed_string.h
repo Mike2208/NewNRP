@@ -45,6 +45,9 @@ struct FixedString
 		constexpr operator std::string() const
 		{ return std::string(m_data); }
 
+		constexpr const char *data() const
+		{ return m_data; }
+
 		template<std::size_t M>
 		constexpr bool compare(const char(&other)[M]) const
 		{

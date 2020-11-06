@@ -72,7 +72,7 @@ const DeviceIdentifier &DeviceInterface::id() const
 	return this->_id;
 }
 
-void DeviceInterface::setId(const DeviceIdentifier &id)
+void DeviceInterface::setID(const DeviceIdentifier &id)
 {
 	this->_id = id;
 }

@@ -6,7 +6,7 @@
 
 #include <nlohmann/json.hpp>
 
-/*! \addtogroup json_engine
+/*!
  *  \brief Device Interface on the Server side. Handles IO for single device.
  */
 class EngineJSONDeviceController
