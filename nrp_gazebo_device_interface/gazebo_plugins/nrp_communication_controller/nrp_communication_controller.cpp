@@ -100,6 +100,6 @@ NRPCommunicationController::NRPCommunicationController(const std::string &addres
     : EngineGrpcServer(address)
 {}
 
-/*NRPCommunicationController::NRPCommunicationController(const std::string &serverURL, const std::string &engineName, const std::string &registrationURL)
+NRPCommunicationController::NRPCommunicationController(const std::string &serverURL, const std::string &engineName, const std::string &registrationURL)
     : EngineGrpcServer(serverURL, engineName, registrationURL)
-{}*/
+{}
