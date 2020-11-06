@@ -4683,7 +4683,7 @@
           <always_on>1</always_on>
           <update_rate>30</update_rate>
           <visualize>1</visualize>
-          <plugin name='mouse_right_eye' filename='NRPGazeboCameraControllerPlugin.so'/>
+          <plugin name='mouse_right_eye' filename='NRPGazeboJSONCameraControllerPlugin.so'/>
         </sensor>
         <self_collide>0</self_collide>
         <inertial>
@@ -4716,13 +4716,13 @@
           </dynamics>
         </axis>
       </joint>
-      <plugin name='husky' filename='NRPGazeboJointControllerPlugin.so'>
+      <plugin name='husky' filename='NRPGazeboJSONJointControllerPlugin.so'>
         <back_left_joint P='1' I='0' D='0' Type='velocity' Target='0' IMax='0' IMin='0'/>
         <back_right_joint P='1' I='0' D='0' Type='velocity' Target='0' IMax='0' IMin='0'/>
         <front_left_joint P='1' I='0' D='0' Type='velocity' Target='0' IMax='0' IMin='0'/>
         <front_right_joint P='1' I='0' D='0' Type='velocity' Target='0' IMax='0' IMin='0'/>
       </plugin>
     </model>
-    <plugin name='nrp_world' filename='NRPGazeboWorldPlugin.so'/>
+    <plugin name='nrp_world' filename='NRPGazeboJSONWorldPlugin.so'/>
   </world>
 </sdf>
