@@ -111,6 +111,14 @@ EngineGrpcServer::EngineGrpcServer(const std::string &serverAddress, const std::
     : EngineGrpcServer(serverAddress)
 {
     this->_engineName = engineName;
+    if(engineName.compare("gazebo") == 0)
+    {
+        this->_serverAddress = "0.0.0.0:9002";
+    }
+    else
+    {
+        this->_serverAddress = "0.0.0.0:27182";
+    }
 }
 
 EngineGrpcServer::EngineGrpcServer(const std::string address)
