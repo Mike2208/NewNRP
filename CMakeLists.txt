@@ -87,7 +87,7 @@ add_subdirectory(nrp_python_device_interface)
 
 ##########################################
 ## NRP Simulation
-set(NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS "NRPGazeboJSONEngine.so;NRPNestDeviceInterface.so"
+set(NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS "NRPGazeboJSONEngine.so;NRPNestJSONEngine.so"
 	CACHE STRING "Default engines which will always be available in the NRP server")
 add_subdirectory(nrp_simulation)
 

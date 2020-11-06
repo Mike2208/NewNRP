@@ -20,4 +20,5 @@ The NewNRP relies on several components to run:
 - \ref device_conversion_mechanism "Device Conversion Mechanism". Used to prepare Devices for sending/receiving
 - \ref config "Configuration Files". Used to read/write configuration files
 - \ref plugin_system "Plugin System". Used to dynamically load Engines during NRPSimulation startup
+- \ref process_launchers "Process Launchers". Used to launch processes appropriately. Will alter behavior depending on computer type (e.g. local machine, HPC, ...)
 */
