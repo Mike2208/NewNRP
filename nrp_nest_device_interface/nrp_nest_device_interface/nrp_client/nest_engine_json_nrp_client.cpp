@@ -8,7 +8,7 @@
 #include <chrono>
 
 NestEngineJSONNRPClient::NestEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
-    : EngineGrpcClient(config, std::move(launcher))
+    : EngineJSONNRPClient(config, std::move(launcher))
 {}
 
 NestEngineJSONNRPClient::~NestEngineJSONNRPClient()
@@ -17,16 +17,16 @@ NestEngineJSONNRPClient::~NestEngineJSONNRPClient()
 NestEngineJSONNRPClient::RESULT NestEngineJSONNRPClient::initialize()
 {
 	const auto &nestConfig = this->engineConfig();
-	try
+	nlohmann::json resp = this->sendInitCommand(nlohmann::json({{NestConfig::ConfigType.m_data, nestConfig->writeConfig()}}));
+	if(!resp.at(NestConfig::InitFileExecStatus.data()).get<bool>())
 	{
-		this->sendInitCommand(nlohmann::json({{NestConfig::ConfigType.m_data, nestConfig->writeConfig()}}));
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
+		// Write the error message
+		this->_initErrMsg = resp.at(NestConfig::InitFileErrorMsg.data());
+		std::cerr << this->_initErrMsg << std::endl;
+
 		return NestEngineJSONNRPClient::ERROR;
 	}
-	
+
 	return NestEngineJSONNRPClient::SUCCESS;
 }
 

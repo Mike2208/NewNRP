@@ -1,7 +1,7 @@
 #ifndef NEST_JSON_SERVER_H
 #define NEST_JSON_SERVER_H
 
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 #include "nrp_nest_device_interface/engine_server/nest_engine_device_controller.h"
 
@@ -15,7 +15,7 @@
 #include <boost/python.hpp>
 
 class NestJSONServer
-        : public EngineGrpcServer
+        : public EngineJSONServer
 {
 	public:
 		NestJSONServer(const std::string &serverAddress, boost::python::dict globals, boost::python::object locals);
@@ -35,7 +35,7 @@ class NestJSONServer
 		bool shutdownFlag() const;
 
 		virtual float runLoopStep(float timeStep) override;
-		virtual nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) override;
+		virtual nlohmann::json initialize(const nlohmann::json &data, EngineJSONServer::lock_t &deviceLock) override;
 		virtual nlohmann::json shutdown(const nlohmann::json &data) override;
 
 	private:
@@ -82,7 +82,7 @@ class NestJSONServer
 		/*!
 		 * \brief List of device ptrs. Used to manage controller deletion
 		 */
-		std::list<EngineGrpcDeviceController::shared_ptr> _deviceControllerPtrs;
+		std::list<EngineJSONDeviceController::shared_ptr> _deviceControllerPtrs;
 
 		/*!
 		 *	\brief GIL Lock state
@@ -110,8 +110,9 @@ class NestJSONServer
 		 */
 		static nlohmann::json formatInitErrorMessage(const std::string &errMsg);
 
-		void setDeviceData(const EngineGrpc::SetDeviceRequest & data) override;
-        void getDeviceData(const EngineGrpc::GetDeviceRequest & request, EngineGrpc::GetDeviceReply * reply) override;
+		nlohmann::json getDeviceData(const nlohmann::json &reqData) override;
+
+		nlohmann::json setDeviceData(const nlohmann::json &reqData) override;
 };
 
 #endif // NEST_JSON_SERVER_H

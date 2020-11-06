@@ -66,8 +66,6 @@ ExternalProject_Add(nest-simulator
 ##########################################
 ## Header configuration
 
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/../proto")
-
 # General Nest Header defines
 set(NEST_CMAKE_HEADER_CONFIG_FILE "nrp_nest_device_interface/config/nrp_nest_cmake_constants.h.in")
 set(NRP_NEST_CMAKE_INSTALL_BINDIR "${NRP_NEST_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
@@ -153,8 +151,7 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 		PUBLIC
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
 		GTest::GTest
-		GTest::GTestMain
-		NRPProtoLibrary::NRPProtoLibrary)
+		GTest::GTestMain)
 
 	gtest_discover_tests(${TEST_NAME}
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/tests"

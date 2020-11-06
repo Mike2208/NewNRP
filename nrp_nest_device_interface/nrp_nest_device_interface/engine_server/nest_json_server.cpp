@@ -13,13 +13,13 @@ namespace python = boost::python;
 
 
 NestJSONServer::NestJSONServer(const std::string &serverAddress, python::dict globals, python::object locals)
-    : EngineGrpcServer(serverAddress),
+    : EngineJSONServer(serverAddress),
       _pyGlobals(globals),
       _pyLocals(locals)
 {}
 
 NestJSONServer::NestJSONServer(const std::string &serverAddress, const std::string &engineName, const std::string &registrationAddress, python::dict globals, boost::python::object locals)
-    : EngineGrpcServer(serverAddress, engineName, registrationAddress),
+    : EngineJSONServer(serverAddress, engineName, registrationAddress),
       _pyGlobals(globals),
       _pyLocals(locals)
 {}
@@ -78,7 +78,7 @@ float NestJSONServer::runLoopStep(float timeStep)
 	}
 }
 
-nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineGrpcServer::lock_t&)
+nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSONServer::lock_t&)
 {
 	PythonGILLock lock(this->_pyGILState, true);
 	try
@@ -232,14 +232,14 @@ nlohmann::json NestJSONServer::formatInitErrorMessage(const std::string &errMsg)
 	return nlohmann::json({{NestConfig::InitFileExecStatus, 0}, {NestConfig::InitFileErrorMsg, errMsg}});
 }
 
-void NestJSONServer::getDeviceData(const EngineGrpc::GetDeviceRequest & data, EngineGrpc::GetDeviceReply * reply)
+nlohmann::json NestJSONServer::getDeviceData(const nlohmann::json &reqData)
 {
 	PythonGILLock lock(this->_pyGILState, true);
-	this->EngineGrpcServer::getDeviceData(data, reply);
+	return this->EngineJSONServer::getDeviceData(reqData);
 }
 
-void NestJSONServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
+nlohmann::json NestJSONServer::setDeviceData(const nlohmann::json &reqData)
 {
 	PythonGILLock lock(this->_pyGILState, true);
-	this->EngineGrpcServer::setDeviceData(data);
+	return this->EngineJSONServer::setDeviceData(reqData);
 }

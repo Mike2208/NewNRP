@@ -13,18 +13,7 @@ NestJSONDeviceInterface::NestJSONDeviceInterface(const DeviceIdentifier &devID, 
 	this->PythonObjectDeviceInterface::data().JsonEncoder = boost::python::import(NRP_NEST_PYTHON_MODULE_STR).attr("__dict__")["NumpyEncoder"];
 }
 
-NestJSONDeviceInterface::NestJSONDeviceInterface(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &data)
-    : NestJSONDeviceInterface(devID, nlohmann::json::parse(data.nest().json()))
-{
-    // Do nothing
-}
-
 boost::python::dict NestJSONDeviceInterface::data() const
 {
 	return boost::python::dict(PythonObjectDeviceInterface::data().Data);
-}
-
-void NestJSONDeviceInterface::serialize(EngineGrpc::SetDeviceMessage * request) const
-{
-    request->mutable_nest()->set_json(JSONPropertySerializer<NestJSONDeviceInterface>::serializeProperties(this->data(), nlohmann::json()));
 }
