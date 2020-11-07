@@ -1,6 +1,7 @@
 #include "nrp_nest_server_engine/config/nest_server_config.h"
 
 #include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 #include <sys/types.h>
 #include <sys/socket.h>

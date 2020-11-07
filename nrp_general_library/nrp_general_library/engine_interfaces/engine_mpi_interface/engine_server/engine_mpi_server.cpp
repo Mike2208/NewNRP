@@ -2,6 +2,7 @@
 
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.h"
 #include "nrp_general_library/utils/mpi_setup.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 EngineMPIControl::EngineMPIControl(const PropertyTemplate &props)
     : PropertyTemplate(props)
@@ -53,9 +54,7 @@ MPI_Comm EngineMPIServer::getNRPComm()
 	MPI_Comm retVal = MPISetup::getParentComm();
 	if(retVal == MPI_COMM_NULL)
 	{
-		const auto errMsg = "Unable to find MPI communicator with NRP Client";
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate("Unable to find MPI communicator with NRP Client");
 	}
 
 	return retVal;
@@ -94,7 +93,7 @@ EngineInterface::RESULT EngineMPIServer::handleClientCmd(const EngineMPIControl 
 			return this->handleInputDevicesHandler(std::get<int>(cmd.info()));
 
 		default:
-			throw std::runtime_error("Unexcpected command received by EngineMPIServer");
+			throw NRPException::logCreate("Unexpected command received by EngineMPIServer");
 	}
 }
 
@@ -102,9 +101,7 @@ EngineInterface::RESULT EngineMPIServer::initializeHandler(const std::string &in
 {
 	if(this->_state != STOPPED)
 	{
-		const auto errMsg = "Initialize request was sent to running MPI engine. Stopping...";
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate("Initialize request was sent to running MPI engine. Stopping...");
 	}
 
 	const auto retVal = this->initialize(initData);
@@ -119,9 +116,7 @@ EngineInterface::RESULT EngineMPIServer::shutdownHandler(const std::string &shut
 {
 	if(this->_state == STOPPED || this->_state == STOPPING)
 	{
-		const auto errMsg = "Shutdown request was sent to stopped MPI engine. Aborting...";
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate("Shutdown request was sent to stopped MPI engine. Aborting...");
 	}
 
 	this->_state = STOPPING;
@@ -139,9 +134,7 @@ EngineInterface::RESULT EngineMPIServer::runLoopStepHandler(float timeStep)
 {
 	if(this->_state != PAUSED)
 	{
-		const auto errMsg = "RunLoop request was sent to unpaused MPI engine. Aborting...";
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate("RunLoop request was sent to unpaused MPI engine. Aborting...");
 	}
 
 	this->_state = RUNNING;
@@ -164,9 +157,7 @@ EngineInterface::RESULT EngineMPIServer::getOutputDevicesHandler(const int numDe
 {
 	if(this->_state != PAUSED)
 	{
-		const auto errMsg = "Get device data request was sent to unpaused MPI engine. Aborting...";
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate("Get device data request was sent to unpaused MPI engine. Aborting...");
 	}
 
 	std::vector<DeviceIdentifier> devIDs;
@@ -201,9 +192,7 @@ EngineInterface::RESULT EngineMPIServer::getOutputDevicesHandler(const int numDe
 		}
 		catch(std::exception &e)
 		{
-			const auto errMsg = "Failed to send device data \"" + devID.Name + "\" . Aborting...";
-			std::cerr << e.what() << "\n" << errMsg << "\n";
-			throw std::runtime_error(errMsg);
+			throw NRPException::logCreate("Failed to send device data \"" + devID.Name + "\":" + e.what() + ". Aborting...");
 		}
 	}
 
@@ -214,9 +203,7 @@ EngineInterface::RESULT EngineMPIServer::handleInputDevicesHandler(const int num
 {
 	if(this->_state != PAUSED)
 	{
-		const auto errMsg = "Handle device data request was sent to unpaused MPI engine. Aborting...";
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate("Handle device data request was sent to unpaused MPI engine. Aborting...");
 	}
 
 	std::vector<DeviceIdentifier> devIDs;
@@ -234,9 +221,7 @@ EngineInterface::RESULT EngineMPIServer::handleInputDevicesHandler(const int num
 		}
 		catch(std::exception &e)
 		{
-			const auto errMsg = "Failed to retrieve device ID from NRP Client. Aborting...";
-			std::cerr << e.what() << "\n" << errMsg << "\n";
-			throw std::runtime_error(errMsg);
+			throw NRPException::logCreate(std::string("Failed to retrieve device ID from NRP Client: ") + e.what() +  ". Aborting...");
 		}
 
 		this->handleDeviceInput(devID);
@@ -301,9 +286,7 @@ MPIPropertyData EngineMPIServer::getDeviceOutput(const DeviceIdentifier &devID)
 	const auto devCtrlIt = this->_deviceControllers.find(devID.Name);
 	if(devCtrlIt == this->_deviceControllers.end())
 	{
-		const auto errMsg = "No controller registered for device with name \"" + devID.Name + "\" . Aborting...";
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate("No controller registered for device with name \"" + devID.Name + "\" . Aborting...");
 	}
 
 	try
@@ -323,9 +306,7 @@ EngineInterface::RESULT EngineMPIServer::handleDeviceInput(const DeviceIdentifie
 	const auto devCtrlIt = this->_deviceControllers.find(devID.Name);
 	if(devCtrlIt == this->_deviceControllers.end())
 	{
-		const auto errMsg = "No controller registered for device with name \"" + devID.Name + "\" . Aborting...";
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate("No controller registered for device with name \"" + devID.Name + "\" . Aborting...");
 	}
 
 	try
@@ -334,9 +315,7 @@ EngineInterface::RESULT EngineMPIServer::handleDeviceInput(const DeviceIdentifie
 	}
 	catch(std::exception &e)
 	{
-		const auto errMsg = "Failed to retrieve device data from NRP Client. Aborting...";
-		std::cerr << e.what() << "\n" << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate(std::string("Failed to retrieve device data from NRP Client: ") + e.what() + ". Aborting...");
 	}
 
 	return EngineInterface::SUCCESS;

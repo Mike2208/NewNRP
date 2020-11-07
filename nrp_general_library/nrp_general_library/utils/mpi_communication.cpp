@@ -1,6 +1,7 @@
 #include "nrp_general_library/utils/mpi_communication.h"
 
 #include "nrp_general_library/utils/mpi_setup.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 void MPICommunication::sendString(MPI_Comm comm, int tag, const std::string &str)
 {
@@ -71,9 +72,7 @@ void MPICommunication::sendMPI(const void *buff, int count, MPI_Datatype datatyp
 	}
 	catch(std::exception &e)
 	{
-		const auto errMsg = std::string("Error while sending MPI data: \n") + e.what();
-		std::cerr << errMsg << std::endl;
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate(std::string("Error while sending MPI data: \n") + e.what());
 	}
 }
 
@@ -87,9 +86,7 @@ void MPICommunication::sendMPIBlocking(const void *buff, int count, MPI_Datatype
 	}
 	catch(std::exception &e)
 	{
-		const auto errMsg = std::string("Error while sending MPI data: \n") + e.what();
-		std::cerr << errMsg << std::endl;
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate(std::string("Error while sending MPI data: \n") + e.what());
 	}
 }
 
@@ -103,8 +100,6 @@ void MPICommunication::recvMPI(void *buff, int count, MPI_Datatype datatype, int
 	}
 	catch(std::exception &e)
 	{
-		const auto errMsg = std::string("Error while receving MPI data: \n") + e.what();
-		std::cerr << errMsg << std::endl;
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate(std::string("Error while receving MPI data: \n") + e.what());
 	}
 }

@@ -1,6 +1,7 @@
 #include "nrp_general_library/plugin_system/plugin_manager.h"
 
 #include "nrp_general_library/plugin_system/plugin.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 #include <dlfcn.h>
 #include <iostream>
@@ -61,8 +62,6 @@ void PluginManager::addPluginPath(const std::string &pluginPath) const
 
 	if(setenv("LD_LIBRARY_PATH", newLibPath.data(), true) != 0)
 	{
-		const auto errMsg = std::string("Failed to add plugin path to LD_LIBRARY_PATH: ") + strerror(errno);
-		std::cerr << errMsg << std::endl;
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate(std::string("Failed to add plugin path to LD_LIBRARY_PATH: ") + strerror(errno));
 	}
 }

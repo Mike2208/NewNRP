@@ -3,6 +3,7 @@
 
 #include "nrp_general_library/process_launchers/process_launcher.h"
 #include "nrp_general_library/process_launchers/process_launcher_basic.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 #include <iostream>
 #include <map>
@@ -41,9 +42,7 @@ class ProcessLauncherManager
 			const auto launcherIterator = this->_processLaunchers.find(launcherType);
 			if(launcherIterator == this->_processLaunchers.end())
 			{
-				const auto errMsg = "Could not find process launcher of type \"" + launcherType + "\"";
-				std::cerr << errMsg << std::endl;
-				throw std::logic_error(errMsg);
+				throw NRPException::logCreate("Could not find process launcher of type \"" + launcherType + "\"");
 			}
 
 			return launcherIterator->second->createLauncher();

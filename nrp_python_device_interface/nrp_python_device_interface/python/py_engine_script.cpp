@@ -1,4 +1,6 @@
 #include "nrp_python_device_interface/python/py_engine_script.h"
+
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_python_device_interface/engine_server/python_engine_json_device_controller.h"
 
 
@@ -39,11 +41,7 @@ boost::python::object &PyEngineScript::getDevice(const std::string &deviceName)
 {
 	auto devIt = this->_nameDeviceMap.find(deviceName);
 	if(devIt == this->_nameDeviceMap.end())
-	{
-		const auto errMsg = "Could not find device with name \"" + deviceName + "\"";
-		std::cerr << errMsg << std::endl;
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate("Could not find device with name \"" + deviceName + "\"");
 
 	return *(devIt->second);
 }

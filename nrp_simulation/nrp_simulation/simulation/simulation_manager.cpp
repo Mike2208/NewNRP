@@ -1,6 +1,7 @@
 #include "nrp_simulation/simulation/simulation_manager.h"
 
 #include "nrp_general_library/utils/file_finder.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_simulation/config/cmake_conf.h"
 
 #include <iostream>
@@ -251,12 +252,7 @@ SimulationLoop SimulationManager::createSimLoop(const EngineLauncherManagerConst
 		nlohmann::json engineData = static_cast<const nlohmann::json &>(engineConfig);
 		auto engineTypeIterator = engineData.find(EngineConfigConst::EngineType.m_data);
 		if(engineTypeIterator == engineData.end())
-		{
-			const auto errMsg = "Improperly formatted engine config. Couldn't find EngineType specification";
-			spdlog::error(errMsg);
-
-			throw std::invalid_argument(errMsg);
-		}
+			throw NRPException::logCreate("Improperly formatted engine config. Couldn't find EngineType specification");
 
 		// Get engine launcher associated with type
 		const std::string engineType = *engineTypeIterator;
@@ -276,10 +272,7 @@ SimulationLoop SimulationManager::createSimLoop(const EngineLauncherManagerConst
 		}
 		catch(const std::exception &e)
 		{
-			spdlog::error("Failed to launch engine interface \"" + engineLauncher->engineType() + "\"");
-			spdlog::error(e.what());
-
-			throw;
+			throw NRPException::logCreate("Failed to launch engine interface \"" + engineLauncher->engineType() + "\": " + e.what());
 		}
 	}
 

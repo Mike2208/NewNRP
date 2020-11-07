@@ -1,5 +1,7 @@
 #include "nrp_simulation/utils/pipe_packet_communication.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <assert.h>
 #include <iostream>
 #include <limits>
@@ -100,12 +102,7 @@ void PipePacketCommunication::blockResetSignal(uint16_t confirmSignalOffsetNum)
 	const auto signal = PipePacketCommunication::generateSigset(resetSignal);
 
 	if(sigprocmask(SIG_BLOCK, &signal, nullptr) != 0)
-	{
-		const auto errMsg = "Could not block proc communication signal " + std::to_string(resetSignal) + ":\n" + strerror(errno);
-		std::cerr << errMsg << std::endl;
-
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate("Could not block proc communication signal " + std::to_string(resetSignal) + ":\n" + strerror(errno));
 }
 
 void PipePacketCommunication::startServerAsync()
@@ -230,12 +227,7 @@ void PipePacketCommunication::commHandler()
 	const auto signal = PipePacketCommunication::generateSigset(sigNum);
 	const auto sigFd = signalfd(-1, &signal, SFD_NONBLOCK);
 	if(sigFd < 0)
-	{
-		const auto errMsg = std::string("Could not create signalfd:\n") + strerror(errno);
-		std::cerr << errMsg << std::endl;
-
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate(std::string("Could not create signalfd:\n") + strerror(errno));
 
 	auto outIter = this->_outPackets.begin();
 
@@ -287,12 +279,7 @@ void PipePacketCommunication::commHandler()
 			{
 				readBytes = read(sigFd, reinterpret_cast<uint8_t*>(&signalDat)+readData, SigSize - readData);
 				if(readBytes < 0)
-				{
-					const auto errMsg = std::string("Unable to read from signalfd:\n") + strerror(errno);
-					std::cerr << errMsg << std::endl;
-
-					throw std::runtime_error(errMsg);
-				}
+					throw NRPException::logCreate(std::string("Unable to read from signalfd:\n") + strerror(errno));
 
 				readData += static_cast<size_t>(readBytes);
 			}

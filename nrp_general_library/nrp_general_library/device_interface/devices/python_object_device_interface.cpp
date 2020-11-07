@@ -1,6 +1,8 @@
 #include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
+#include "nrp_general_library/utils/python_error_handler.h"
 
 namespace python = boost::python;
 
@@ -33,8 +35,7 @@ const std::string &PythonObjectDeviceInterfaceConst::PyObjData::serialize() cons
 	}
 	catch(python::error_already_set&)
 	{
-		PyErr_Print();
-		throw std::runtime_error("Encountered unexpected python error during JSON serialization");
+		throw NRPException::logCreate("Encountered unexpected python error during JSON serialization: " + handle_pyerror());
 	}
 }
 
@@ -50,8 +51,7 @@ python::object PythonObjectDeviceInterfaceConst::PyObjData::deserialize() const
 	}
 	catch(python::error_already_set&)
 	{
-		PyErr_Print();
-		throw std::runtime_error("Encountered unexpected python error during JSON deserialization");
+		throw NRPException::logCreate("Encountered unexpected python error during JSON deserialization: " + handle_pyerror());
 	}
 }
 

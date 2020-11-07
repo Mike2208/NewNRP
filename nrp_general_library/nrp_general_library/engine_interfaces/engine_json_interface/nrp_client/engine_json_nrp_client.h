@@ -6,6 +6,7 @@
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_registration_server.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/restclient_setup.h"
 
 #include <nlohmann/json.hpp>
@@ -64,10 +65,7 @@ class EngineJSONNRPClient
 				const auto serverAddr = this->waitForRegistration(20, 1);
 				if(serverAddr.empty())
 				{
-					const auto errMsg = "Error while waiting for engine \"" + this->engineName() + "\" to register its address. Did not receive a reply";
-					std::cerr << errMsg << std::endl;
-
-					throw std::runtime_error(errMsg);
+					throw NRPException::logCreate("Error while waiting for engine \"" + this->engineName() + "\" to register its address. Did not receive a reply");
 				}
 
 				this->engineConfig()->engineServerAddress() = serverAddr;
@@ -243,10 +241,7 @@ class EngineJSONNRPClient
 			}
 			catch (const std::exception &e)
 			{
-				std::cerr << "Communication with engine server failed\n";
-				std::cerr << e.what() << std::endl;
-
-				throw;
+				throw NRPException::logCreate(std::string("Communication with engine server failed: ") + e.what());
 			}
 		}
 
@@ -273,18 +268,12 @@ class EngineJSONNRPClient
 			}
 			catch (const std::exception &e)
 			{
-				std::cerr << "Error while parsing the return value of the run_step of " + this->engineName() << std::endl;
-				std::cerr << e.what() << std::endl;
-
-				throw;
+				throw NRPException::logCreate("Error while parsing the return value of the run_step of \"" + this->engineName() + "\": " + e.what());
 			}
 
 			if(engineTime < 0)
 			{
-				const auto errMsg = "Error during execution of engine " + this->engineName();
-				std::cerr << errMsg << std::endl;
-
-				throw std::runtime_error(errMsg);
+				throw NRPException::logCreate("Error during execution of engine \"" + this->engineName() + "\"");
 			}
 
 			return engineTime;
@@ -317,9 +306,7 @@ class EngineJSONNRPClient
 				catch(const std::exception &e)
 				{
 					// TODO: Handle json device parsing error
-					std::cerr << e.what();
-
-					throw;
+					throw NRPException::logCreate(std::string("Failed to parse JSON Device Interface: ") + e.what());
 				}
 			}
 
@@ -353,7 +340,7 @@ class EngineJSONNRPClient
 			if constexpr (sizeof...(REMAINING_DEVICES) > 0)
 			    return this->getSingleDeviceInterfaceFromJSON<REMAINING_DEVICES...>(deviceData, deviceID);
 			else
-			    throw std::logic_error("Could not process given device of type " + deviceID.Type);
+			    throw NRPException::logCreate("Could not process given device of type " + deviceID.Type);
 		}
 
 		/*!
@@ -377,7 +364,7 @@ class EngineJSONNRPClient
 			if constexpr (sizeof...(REMAINING_DEVICES) > 0)
 			{	return this->getJSONFromSingleDeviceInterface<REMAINING_DEVICES...>(device);	}
 			else
-			{	throw std::logic_error("Could not process given device of type " + device.type());	}
+			{	throw NRPException::logCreate("Could not process given device of type " + device.type());	}
 		}
 };
 

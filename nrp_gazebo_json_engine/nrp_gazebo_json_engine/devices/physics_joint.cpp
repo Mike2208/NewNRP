@@ -1,5 +1,7 @@
 #include "nrp_gazebo_json_engine/devices/physics_joint.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 PhysicsJointConst::FloatNan::FloatNan(float val)
     : _val(val)
 {}
@@ -66,5 +68,5 @@ PhysicsJointConst::FloatNan JSONPropertySerializerMethods::deserializeSingleProp
 			return NAN;
 	}
 	else
-		throw std::out_of_range(std::string("Couldn't find JSON attribute ") + name.data() + " during deserialization");
+		throw NRPException::logCreate(std::string("Couldn't find JSON attribute ") + name.data() + " during deserialization");
 }

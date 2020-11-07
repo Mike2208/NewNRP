@@ -1,6 +1,7 @@
 #include "nrp_general_library/transceiver_function/single_transceiver_device.h"
 
 #include "nrp_general_library/transceiver_function/transceiver_function_interpreter.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 SingleTransceiverDevice::SingleTransceiverDevice(const std::string &keyword, const DeviceIdentifier &deviceID)
     : _keyword(keyword),
@@ -33,7 +34,7 @@ boost::python::object SingleTransceiverDevice::runTf(boost::python::tuple &args,
 	}
 
 	if(!foundDevID)
-		throw std::out_of_range("Couldn't find device with ID name \"" + this->_deviceID.Name + "\"");
+		throw NRPException::logCreate("Couldn't find device with ID name \"" + this->_deviceID.Name + "\"");
 
 	return TransceiverDeviceInterface::runTf(args, kwargs);
 }

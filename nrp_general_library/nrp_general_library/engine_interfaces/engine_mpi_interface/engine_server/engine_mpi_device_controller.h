@@ -4,6 +4,7 @@
 #include "nrp_general_library/device_interface/device_interface.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/serializers/mpi_property_serializer.h"
 
 /*!
@@ -83,9 +84,7 @@ class EngineMPIDeviceController
 			{	MPICommunication::recvDevice<DEVICE, false>(comm, tag, retVal);	}
 			catch(std::exception &e)
 			{
-				const auto errMsg = std::string("Failed to retrieve device data: ") + e.what();
-				std::cerr << errMsg << "\n";
-				throw std::runtime_error(errMsg);
+				throw NRPException::logCreate(std::string("Failed to retrieve device data: ") + e.what());
 			}
 
 			return retVal;

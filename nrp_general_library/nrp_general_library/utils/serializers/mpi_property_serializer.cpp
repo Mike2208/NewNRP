@@ -1,5 +1,6 @@
 #include "nrp_general_library/utils/serializers/mpi_property_serializer.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/mpi_setup.h"
 
 #include <assert.h>
@@ -88,11 +89,7 @@ MPI_Aint MPIPropertyData::getMPIAddr(void *loc)
 	MPI_Aint addr;
 	int errc = MPI_Get_address(loc, &addr);
 	if(errc != 0)
-	{
-		const auto errMsg = "Failed to get MPI Address: " + MPISetup::getErrorString(errc);
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate("Failed to get MPI Address: " + MPISetup::getErrorString(errc));
 
 	return addr;
 }

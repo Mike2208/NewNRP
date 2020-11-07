@@ -134,9 +134,8 @@ class NRPMPIClient
 		{
 			if(this->_process->launchCommand()->launchType() != MPISpawn::LaunchType.data())
 			{
-				const auto errMsg = "Gazebo engine \"" + this->engineConfigGeneral()->engineName() + "\" was not created by an MPISpawn. Unable to get MPI Intercomm";
-				std::cerr << errMsg << "\n";
-				throw std::runtime_error(errMsg);
+				throw NRPException::logCreate("Gazebo engine \"" + this->engineConfigGeneral()->engineName() +
+				                              "\" was not created by an MPISpawn. Unable to get MPI Intercomm");
 			}
 
 			return dynamic_cast<const MPISpawn*>(this->_process->launchCommand())->getIntercomm();

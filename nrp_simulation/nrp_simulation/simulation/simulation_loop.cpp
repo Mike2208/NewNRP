@@ -2,6 +2,7 @@
 
 #include "nrp_general_library/config/engine_config.h"
 #include "nrp_general_library/config/transceiver_function_config.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 #include <iostream>
 
@@ -27,10 +28,7 @@ void SimulationLoop::initLoop()
 		}
 		catch(std::exception &e)
 		{
-			const auto errMsg = "Failed to initialize engine \"" + engine->engineName() + "\": " + e.what();
-
-			std::cerr << errMsg << std::endl;
-			throw std::runtime_error(errMsg);
+			throw NRPException::logCreate("Failed to initialize engine \"" + engine->engineName() + "\": " + e.what());
 		}
 	}
 }

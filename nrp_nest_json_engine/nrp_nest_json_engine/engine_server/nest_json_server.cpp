@@ -68,13 +68,10 @@ float NestJSONServer::runLoopStep(float timeStep)
 		this->_pyNest["Run"](runTime);
 		return NestJSONServer::convertMillToSec(python::extract<float>(this->_pyNest["GetKernelStatus"]("time")));
 	}
-	catch(python::error_already_set &e)
+	catch(python::error_already_set &)
 	{
 		// If an error occured, print the error
-		PyErr_Print();
-		PyErr_Clear();
-
-		throw e;
+		throw NRPException::logCreate("Failed to run Nest step: " + handle_pyerror());
 	}
 }
 
@@ -117,13 +114,8 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 	if(!initFileName.empty())
 	{
 		std::fstream initFile(initFileName, std::ios_base::in);
-		if(!initFile.is_open())
-		{
-			const auto errMsg = "Could not find init file " + initFileName;
-			std::cerr << errMsg;
-			throw std::invalid_argument(errMsg);
-		}
-		initFile.close();
+		if(!initFile.good())
+			return this->formatInitErrorMessage("Could not find init file " + initFileName);
 
 		// Execute Init File
 		try
@@ -142,6 +134,8 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 				return this->formatInitErrorMessage(msg);
 			}
 		}
+
+		initFile.close();
 	}
 
 	nlohmann::json jsonDevMap;

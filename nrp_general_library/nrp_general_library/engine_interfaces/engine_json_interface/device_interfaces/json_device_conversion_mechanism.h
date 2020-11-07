@@ -2,6 +2,7 @@
 #define JSON_DEVICE_CONVERSION_MECHANISM_H
 
 #include "nrp_general_library/device_interface/device_conversion_mechanism.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
 #include <iostream>
@@ -53,8 +54,7 @@ struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator,
 		catch(const std::exception &e)
 		{
 			// TODO: Handle json parsing error
-			std::cerr << e.what();
-			throw;
+			throw NRPException::logCreate(std::string("Failed to parse JSON DeviceID: ") + e.what());
 		}
 	}
 };

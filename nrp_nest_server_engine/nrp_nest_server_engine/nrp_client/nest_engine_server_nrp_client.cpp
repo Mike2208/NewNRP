@@ -1,5 +1,6 @@
 #include "nrp_nest_server_engine/nrp_client/nest_engine_server_nrp_client.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/restclient_setup.h"
 
 #include <chrono>

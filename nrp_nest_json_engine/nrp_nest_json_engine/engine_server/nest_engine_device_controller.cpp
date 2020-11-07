@@ -1,5 +1,8 @@
 #include "nrp_nest_json_engine/engine_server/nest_engine_device_controller.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+#include "nrp_general_library/utils/python_error_handler.h"
+
 NestEngineJSONDeviceController<NestDeviceInterface>::NestEngineJSONDeviceController(const DeviceIdentifier &devID, boost::python::object nodeCollection, boost::python::dict nest)
 	: EngineJSONDeviceController(devID),
 	  _nest(nest),
@@ -17,10 +20,7 @@ nlohmann::json NestEngineJSONDeviceController<NestDeviceInterface>::getDeviceInf
 	}
 	catch(boost::python::error_already_set &)
 	{
-		PyErr_Print();
-		PyErr_Clear();
-
-		throw;
+		throw NRPException::logCreate("Failed to get Nest device status: " + handle_pyerror());
 	}
 
 	// Read properties from dict object

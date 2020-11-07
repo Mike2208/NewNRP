@@ -47,11 +47,7 @@ float PythonJSONServer::runLoopStep(float timestep)
 	catch(python::error_already_set &)
 	{
 		// If an error occured, return the message to the NRP server
-		const auto msg = handle_pyerror();
-		PyErr_Clear();
-
-		std::cerr << msg << std::endl;
-		throw std::runtime_error(msg);
+		throw NRPExceptionNonRecoverable(handle_pyerror());
 	}
 }
 
@@ -66,15 +62,7 @@ nlohmann::json PythonJSONServer::initialize(const nlohmann::json &data, EngineJS
 	catch(python::error_already_set &)
 	{
 		// If an error occured, return the message to the NRP server without setting the initRunFlag
-		if (PyErr_Occurred())
-		{
-			const auto msg = handle_pyerror();
-			PyErr_Clear();
-
-			std::cerr << msg;
-			return this->formatInitErrorMessage(msg);
-		}
-		PyErr_Clear();
+		return this->formatInitErrorMessage(handle_pyerror());
 	}
 
 	// Read received configuration
@@ -168,14 +156,7 @@ nlohmann::json PythonJSONServer::shutdown(const nlohmann::json &)
 		catch(python::error_already_set &)
 		{
 			// If an error occured, return the message to the NRP server
-			if (PyErr_Occurred())
-			{
-				const auto msg = handle_pyerror();
-				PyErr_Clear();
-
-				std::cerr << msg << std::endl;
-				throw std::runtime_error(msg);
-			}
+			throw NRPExceptionNonRecoverable(handle_pyerror());
 		}
 	}
 

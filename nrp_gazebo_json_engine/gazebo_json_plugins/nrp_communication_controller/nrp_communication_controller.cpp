@@ -1,5 +1,7 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <nlohmann/json.hpp>
 
 using namespace nlohmann;
@@ -40,10 +42,7 @@ float NRPCommunicationController::runLoopStep(float timeStep)
 {
 	if(this->_stepController == nullptr)
 	{
-		auto err = std::out_of_range("Tried to run loop while the controller has not yet been initialized");
-		std::cerr << err.what();
-
-		throw err;
+		throw NRPException::logCreate<NRPExceptionNonRecoverable>("Tried to run loop while the controller has not yet been initialized");
 	}
 
 	try
@@ -53,10 +52,7 @@ float NRPCommunicationController::runLoopStep(float timeStep)
 	}
 	catch(const std::exception &e)
 	{
-		std::cerr << "Error during Gazebo stepping\n";
-		std::cerr << e.what();
-
-		throw;
+		throw NRPException::logCreate(std::string("Error during Gazebo stepping: ") + e.what());
 	}
 }
 

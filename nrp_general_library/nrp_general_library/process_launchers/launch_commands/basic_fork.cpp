@@ -1,5 +1,7 @@
 #include "nrp_general_library/process_launchers/launch_commands/basic_fork.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <chrono>
 #include <exception>
 #include <iostream>
@@ -108,9 +110,7 @@ pid_t BasicFork::launchEngineProcess(const EngineConfigGeneral &engineConfig, co
 	else
 	{
 		// Fork failed, throw error
-		std::invalid_argument err("Forking engine child process failed");
-		std::cerr << err.what();
-		throw err;
+		throw NRPException::logCreate("Forking engine child process failed");
 	}
 }
 
@@ -158,21 +158,10 @@ void BasicFork::appendEnvVars(const EngineConfigConst::string_vector_t &envVars)
 	// Modify child environment variables
 	for(auto &envVar : envVars)
 	{
-//		const auto splitVar = ProcessLauncherBasic::splitEnvVar(envVar);
-//		if(std::get<0>(splitVar).empty() ||
-//		        setenv(std::get<0>(splitVar).data(), std::get<1>(splitVar).data(), 1))
-//		{
-//			const auto errMsg = std::string("Failed to add environment variable:\n") + envVar.data();
-//			std::cerr << errMsg << std::endl;
-//			throw std::logic_error(errMsg);
-//		}
-
 		const std::string envCmd = "export " + envVar;
 		if(system(envCmd.data()) != 0)
 		{
-			const auto errMsg = std::string("Failed to add environment variable:\n") + envVar.data();
-			std::cerr << errMsg << std::endl;
-			throw std::logic_error(errMsg);
+			throw NRPException::logCreate(std::string("Failed to add environment variable:\n") + envVar.data());
 		}
 	}
 }

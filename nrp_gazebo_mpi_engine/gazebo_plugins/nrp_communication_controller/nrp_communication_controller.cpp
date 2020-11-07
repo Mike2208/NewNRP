@@ -1,5 +1,7 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <nlohmann/json.hpp>
 
 using namespace nlohmann;
@@ -72,10 +74,7 @@ EngineInterface::step_result_t NRPCommunicationController::runLoopStep(float tim
 {
 	if(this->_stepController == nullptr)
 	{
-		const auto err = std::out_of_range("Tried to run loop while the controller has not yet been initialized");
-		std::cerr << err.what() << std::endl;
-
-		throw err;
+		throw NRPException::logCreate("Tried to run loop while the controller has not yet been initialized");
 	}
 
 	try
@@ -85,10 +84,7 @@ EngineInterface::step_result_t NRPCommunicationController::runLoopStep(float tim
 	}
 	catch(const std::exception &e)
 	{
-		const auto errMsg = std::string("Error during Gazebo stepping: ") + e.what();
-		std::cerr << errMsg << std::endl;
-
-		throw std::runtime_error(e.what());
+		throw NRPException::logCreate(std::string("Error during Gazebo stepping: ") + e.what());
 	}
 
 	return EngineInterface::SUCCESS;
@@ -98,10 +94,7 @@ float NRPCommunicationController::getSimTime() const
 {
 	if(this->_stepController == nullptr)
 	{
-		const auto err = std::out_of_range("Tried to run loop while the controller has not yet been initialized");
-		std::cerr << err.what() << std::endl;
-
-		throw err;
+		throw NRPException::logCreate("Tried to run loop while the controller has not yet been initialized");
 	}
 
 	return this->_stepController->getSimTime();

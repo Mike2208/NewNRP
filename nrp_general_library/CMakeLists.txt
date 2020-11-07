@@ -70,9 +70,11 @@ set(LIB_SRC_FILES
 	nrp_general_library/utils/fixed_string.cpp
 	nrp_general_library/utils/mpi_communication.cpp
 	nrp_general_library/utils/mpi_setup.cpp
+	nrp_general_library/utils/nrp_exceptions.cpp
 	nrp_general_library/utils/pipe_communication.cpp
 	nrp_general_library/utils/python_error_handler.cpp
 	nrp_general_library/utils/python_interpreter_state.cpp
+	nrp_general_library/utils/spdlog_setup.cpp
 	nrp_general_library/utils/wchar_t_converter.cpp
 	nrp_general_library/utils/zip_container.cpp
 )
