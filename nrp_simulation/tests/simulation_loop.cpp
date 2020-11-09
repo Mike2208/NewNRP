@@ -38,7 +38,7 @@ TEST(SimulationLoopTest, Constructor)
 	EngineInterfaceSharedPtr brain(NestEngineJSONLauncher().launchEngine(config->engineConfigs().at(0), ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	config->engineConfigs().at(1).Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
-	EngineInterfaceSharedPtr physics(GazeboEngineJSONLauncher().launchEngine(config->engineConfigs().at(1), ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
+	EngineInterfaceSharedPtr physics(GazeboEngineGrpcLauncher().launchEngine(config->engineConfigs().at(1), ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NO_THROW(SimulationLoop simLoop(config, {brain, physics}));
 }
@@ -73,7 +73,7 @@ TEST(SimulationLoopTest, RunLoop)
 	}
 
 	EngineInterfaceSharedPtr brain(NestEngineJSONLauncher().launchEngine(config->engineConfigs().at(0), ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
-	EngineInterfaceSharedPtr physics(GazeboEngineJSONLauncher().launchEngine(config->engineConfigs().at(1), ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
+	EngineInterfaceSharedPtr physics(GazeboEngineGrpcLauncher().launchEngine(config->engineConfigs().at(1), ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	SimulationLoop simLoop(config, {brain, physics});
 

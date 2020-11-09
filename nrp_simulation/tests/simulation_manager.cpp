@@ -151,7 +151,7 @@ TEST(SimulationManagerTest, SimulationManagerLoop)
 	ASSERT_THROW(manager.initSimulationLoop(engines, processManager, simLock), std::invalid_argument);
 
 	// Add launchers
-	engines->registerLauncher(EngineLauncherInterfaceSharedPtr(new GazeboEngineJSONLauncher()));
+	engines->registerLauncher(EngineLauncherInterfaceSharedPtr(new GazeboEngineGrpcLauncher()));
 	engines->registerLauncher(EngineLauncherInterfaceSharedPtr(new NestEngineJSONLauncher()));
 
 	manager.initSimulationLoop(engines, processManager, simLock);

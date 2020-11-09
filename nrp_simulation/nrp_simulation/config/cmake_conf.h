@@ -13,7 +13,7 @@
 /*!
  * \brief Engine Launcher plugins that should be added to server by default
  */
-#define NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS {"NRPGazeboJSONEngine.so", "NRPNestJSONEngine.so"}
+#define NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS {"NRPGazeboGrpcEngine.so", "NRPNestJSONEngine.so"}
 
 /*!
  * \brief Server config file name

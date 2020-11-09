@@ -30,8 +30,8 @@ TEST(TestGazeboEngine, Start)
 	std::cout << confHolder.Data.dump(4, ' ') << std::endl;
 
 	// Launch gazebo server
-	GazeboEngineJSONLauncher launcher;
-	PtrTemplates<GazeboEngineJSONNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineJSONNRPClient>(
+	GazeboEngineGrpcLauncher launcher;
+	PtrTemplates<GazeboEngineGrpcNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineGrpcNRPClient>(
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);
@@ -54,8 +54,8 @@ TEST(TestGazeboEngine, WorldPlugin)
 	confHolder.Data = conf.writeConfig();
 
 	// Launch gazebo server
-	GazeboEngineJSONLauncher launcher;
-	PtrTemplates<GazeboEngineJSONNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineJSONNRPClient>(
+	GazeboEngineGrpcLauncher launcher;
+	PtrTemplates<GazeboEngineGrpcNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineGrpcNRPClient>(
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);
@@ -84,8 +84,8 @@ TEST(TestGazeboEngine, CameraPlugin)
 	confHolder.Data = conf.writeConfig();
 
 	// Launch gazebo server
-	GazeboEngineJSONLauncher launcher;
-	PtrTemplates<GazeboEngineJSONNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineJSONNRPClient>(
+	GazeboEngineGrpcLauncher launcher;
+	PtrTemplates<GazeboEngineGrpcNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineGrpcNRPClient>(
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);
@@ -138,8 +138,8 @@ TEST(TestGazeboEngine, JointPlugin)
 	confHolder.Data = conf.writeConfig();
 
 	// Launch gazebo server
-	GazeboEngineJSONLauncher launcher;
-	PtrTemplates<GazeboEngineJSONNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineJSONNRPClient>(
+	GazeboEngineGrpcLauncher launcher;
+	PtrTemplates<GazeboEngineGrpcNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineGrpcNRPClient>(
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);
@@ -184,8 +184,8 @@ TEST(TestGazeboEngine, LinkPlugin)
 	confHolder.Data = conf.writeConfig();
 
 	// Launch gazebo server
-	GazeboEngineJSONLauncher launcher;
-	PtrTemplates<GazeboEngineJSONNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineJSONNRPClient>(
+	GazeboEngineGrpcLauncher launcher;
+	PtrTemplates<GazeboEngineGrpcNRPClient>::shared_ptr engine = std::dynamic_pointer_cast<GazeboEngineGrpcNRPClient>(
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);

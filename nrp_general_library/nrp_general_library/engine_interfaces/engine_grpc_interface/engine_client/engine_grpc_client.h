@@ -22,16 +22,7 @@ class EngineGrpcClient
         EngineGrpcClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
             : Engine<ENGINE, ENGINE_CONFIG>(config, std::move(launcher))
         {
-            std::string serverAddress;
-
-            if(this->engineName().compare("gazebo") == 0)
-            {
-                serverAddress = "0.0.0.0:9003";
-            }
-            else
-            {
-                serverAddress = "0.0.0.0:27182";
-            }
+            std::string serverAddress = this->engineConfig()->engineServerAddress();
 
             _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
             _stub    = EngineGrpc::EngineGrpcServiceInterface::NewStub(_channel);
