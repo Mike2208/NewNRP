@@ -1,11 +1,11 @@
-set(PROJECT_NAME "NRPSimulation")
-set(HEADER_DIRECTORY "nrp_simulation")
+set(PROJECT_NAME "NRPGazeboGrpcEngine")
+set(HEADER_DIRECTORY "nrp_gazebo_grpc_engine")
 
 set(NAMESPACE_NAME "${PROJECT_NAME}")
 
-set(LIBRARY_NAME "NRPSimulationLib")
-set(PYTHON_MODULE_NAME "Py${PROJECT_NAME}")
-set(EXECUTABLE_NAME "NRPSimulation")
+set(LIBRARY_NAME "${PROJECT_NAME}")
+set(PYTHON_MODULE_NAME "${PROJECT_NAME}Python")
+set(EXECUTABLE_NAME "${PROJECT_NAME}Main")
 set(TEST_NAME "${PROJECT_NAME}Tests")
 
 set(LIB_EXPORT_NAME "${LIBRARY_NAME}Targets")
@@ -19,35 +19,32 @@ include(GNUInstallDirs)
 
 # List library build files
 set(LIB_SRC_FILES
-	nrp_simulation/config/server_config.cpp
-	#nrp_simulation/server/simulation_server.cpp
-	#nrp_simulation/server/simulation_status.cpp
-	nrp_simulation/simulation/simulation_loop.cpp
-	nrp_simulation/simulation/simulation_manager.cpp
-	nrp_simulation/utils/pipe_packet_communication.cpp
+	nrp_gazebo_grpc_engine/config/gazebo_config.cpp
+	nrp_gazebo_grpc_engine/engine_server/gazebo_step_controller.cpp
+	nrp_gazebo_grpc_engine/nrp_client/gazebo_engine_grpc_nrp_client.cpp
+	nrp_gazebo_grpc_engine/devices/physics_camera.cpp
+	nrp_gazebo_grpc_engine/devices/physics_joint.cpp
+	nrp_gazebo_grpc_engine/devices/physics_link.cpp
 )
 
 # List of python module build files
 set(PYTHON_MODULE_SRC_FILES
+	nrp_gazebo_grpc_engine/python/python_module.cpp
 )
 
 # List executable build files
 set(EXEC_SRC_FILES
-	nrp_simulation_executable/main.cpp
 )
 
 # List testing build files
 set(TEST_SRC_FILES
-    tests/simulation_loop.cpp
-	tests/simulation_manager.cpp
+	tests/test_gazebo_engine.cpp
 )
 
 
 ##########################################
 ## Dependencies
-
-# pistache: REST server library
-find_package(Pistache REQUIRED)
+find_package(gazebo REQUIRED)
 
 
 ##########################################
@@ -55,51 +52,48 @@ find_package(Pistache REQUIRED)
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/../proto")
 
-# Server config file name
-set(NRP_SERVER_CONFIG_FILE_NAME "nrp.conf")
+set(NRP_GAZEBO_PLUGINS_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/nrp_gazebo_plugins" CACHE PATH "Install location of gazebo plugins")
 
-# Set directories under which to look for NRP Server Config File
-set(NRP_GLOBAL_SERVER_CONFIG_DIR "${CMAKE_INSTALL_PREFIX}/etc/nrp/")
-set(NRP_SERVER_CONFIG_DIRS "~/.config/nrp/" "${NRP_GLOBAL_SERVER_CONFIG_DIR}" "/etc/nrp/")
-list(JOIN NRP_SERVER_CONFIG_DIRS "\", \"" NRP_SERVER_CONFIG_DIRS_STR)
+set(NRP_GAZEBO_COMMUNICATION_PLUGIN NRPGazeboGrpcCommunicationPlugin)
 
-# Default working directory
-set(NRP_SERVER_DEFAULT_WORKING_DIR "${CMAKE_INSTALL_PREFIX}/var/nrp/" CACHE PATH "Default working directory of the NRP")
+set(NRP_GAZEBO_PLUGINS_INSTALL_DIR_ABSOLUTE ${NRP_GAZEBO_PLUGINS_INSTALL_DIR})
+if(NOT IS_ABSOLUTE ${NRP_GAZEBO_PLUGINS_INSTALL_DIR})
+	set(NRP_GAZEBO_PLUGINS_INSTALL_DIR_ABSOLUTE ${CMAKE_INSTALL_PREFIX}/${NRP_GAZEBO_PLUGINS_INSTALL_DIR})
+endif()
 
-# Default experiment max
-set(NRP_SERVER_DEF_MAX_NUM_EXPERIMENTS 5 CACHE STRING "Default server experiment limit")
+list(JOIN GAZEBO_LIBRARY_DIRS ":" DEFAULT_GAZEBO_LIB_DIRS)
 
-# Default engines
-list(JOIN NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS "\", \"" NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS_STR)
+# Gazebo defines
+configure_file("nrp_gazebo_grpc_engine/config/nrp_gazebo_cmake_constants.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/nrp_gazebo_grpc_engine/config/nrp_gazebo_cmake_constants.h" @ONLY)
 
-# General Header defines
-configure_file(nrp_simulation/config/cmake_conf.h.in ${CMAKE_CURRENT_SOURCE_DIR}/nrp_simulation/config/cmake_conf.h @ONLY)
-
+# Python module dependencies
+configure_file("nrp_gazebo_grpc_engine/python/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
 
 ##########################################
-# NRPServer
-add_library(${LIBRARY_NAME} SHARED ${LIB_SRC_FILES})
+# NRPGazeboGrpcEngine
+add_library("${LIBRARY_NAME}" SHARED ${LIB_SRC_FILES})
 add_library(${NAMESPACE_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
 
-target_link_libraries(${LIBRARY_NAME}
-	PUBLIC
-	${NRP_GEN_LIB_TARGET}
-	pistache
-)
+set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
 target_include_directories(${LIBRARY_NAME}
 	PUBLIC 
-		$<INSTALL_INTERFACE:include>
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>		
-		${PYTHON_INCLUDE_DIR}
+		"$<INSTALL_INTERFACE:include>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
 
 	PRIVATE
+	    ${PYTHON_INCLUDE_DIR}
+)
+
+target_link_libraries(${LIBRARY_NAME}
+	PUBLIC
+	    ${NRP_GEN_LIB_TARGET}
 )
 
 
 ##########################################
-## NRPServerPythonModule
+## NRPGazeboDevicePythonModule
 if(NOT ${PYTHON_MODULE_SRC_FILES} STREQUAL "")
 	add_library(${PYTHON_MODULE_NAME} SHARED ${PYTHON_MODULE_SRC_FILES})
 	add_library(${NAMESPACE_NAME}::${PYTHON_MODULE_NAME} ALIAS ${PYTHON_MODULE_NAME})
@@ -112,7 +106,7 @@ if(NOT ${PYTHON_MODULE_SRC_FILES} STREQUAL "")
 			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	)
 
-     target_link_libraries(${PYTHON_MODULE_NAME}
+    target_link_libraries(${PYTHON_MODULE_NAME}
 		PUBLIC
 		    ${NAMESPACE_NAME}::${LIBRARY_NAME}
 	)
@@ -122,42 +116,26 @@ endif()
 ##########################################
 ## Executable
 if(NOT "${EXEC_SRC_FILES}" STREQUAL "")
-	add_executable(${EXECUTABLE_NAME} ${EXEC_SRC_FILES})
-	target_link_libraries(${EXECUTABLE_NAME}
-		${NAMESPACE_NAME}::${LIBRARY_NAME}
-	)
+	add_executable("${EXECUTABLE_NAME}" ${EXEC_SRC_FILES})
+	target_link_libraries("${EXECUTABLE_NAME}" "${LIBRARY_NAME}")
 endif()
 
 
 ##########################################
 ## Append Doxygen files
-add_doxygen_source("${CMAKE_CURRENT_SOURCE_DIR}" ${EXEC_SRC_FILES} ${LIB_SRC_FILES} ${PYTHON_MODULE_SRC_FILES} "${HEADER_DIRECTORY}")
+add_doxygen_source("${CMAKE_CURRENT_SOURCE_DIR}" ${EXEC_SRC_FILES} ${LIB_SRC_FILES} ${PYTHON_MODULE_SRC_FILES} ${HEADER_DIRECTORY})
 
 
 ##########################################
-## Server Configuration Generator
-add_executable(NRPGenServerConf nrp_gen_server_conf/nrp_gen_server_conf.cpp)
-target_link_libraries(NRPGenServerConf
-	${NAMESPACE_NAME}::${LIBRARY_NAME}
-)
-
-add_custom_target(NRPServerConf ALL
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/NRPGenServerConf "${CMAKE_CURRENT_BINARY_DIR}/${NRP_SERVER_CONFIG_FILE_NAME}"
-	DEPENDS NRPGenServerConf
-	BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/${NRP_SERVER_CONFIG_FILE_NAME}"
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	COMMENT "Creating default server config file"
-	VERBATIM)
+## Gazebo plugins
+set(NRP_GAZEBO_LIB_TARGET "${NAMESPACE_NAME}::${LIBRARY_NAME}")
+add_subdirectory(gazebo_grpc_plugins)
 
 
 ##########################################
 ## Tests
 if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
-	set(GAZEBO_WORLD_FILE "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/empty_world.sdf")
-
 	# Create testing env files
-	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/simulation_config.json.in"
-		"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/simulation_config.json" @ONLY)
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/test_env.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/test_env.sh" @ONLY)
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h" @ONLY)
 
@@ -167,10 +145,13 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 	target_link_libraries(${TEST_NAME}
 		PUBLIC
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
-		NRPNestJSONEngine::NRPNestJSONEngine
-		NRPGazeboGrpcEngine::NRPGazeboGrpcEngine
 		GTest::GTest
-		GTest::GTestMain)
+		GTest::GTestMain
+		NRPGazeboGrpcPlugins::NRPGazeboGrpcJointControllerPlugin
+		NRPGazeboGrpcPlugins::NRPGazeboGrpcLinkControllerPlugin
+		NRPGazeboGrpcPlugins::NRPGazeboGrpcCameraControllerPlugin
+		NRPGazeboGrpcPlugins::NRPGazeboGrpcWorldPlugin
+		NRPGazeboGrpcPlugins::NRPGazeboGrpcCommunicationPlugin)
 
 	gtest_discover_tests(${TEST_NAME}
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/tests"
@@ -188,8 +169,8 @@ install(TARGETS
 		${LIBRARY_NAME}
 	EXPORT
 		${LIB_EXPORT_NAME}
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	LIBRARY DESTINATION ${NRP_PLUGIN_INSTALL_DIR}
+	ARCHIVE DESTINATION ${NRP_PLUGIN_INSTALL_DIR}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 
 	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${HEADER_DIRECTORY}
@@ -227,16 +208,6 @@ endif()
 if(TARGET ${EXECUTABLE_NAME})
 	install(TARGETS ${EXECUTABLE_NAME}
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif()
-
-# Install server conf
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${NRP_SERVER_CONFIG_FILE_NAME}
-	DESTINATION ${NRP_GLOBAL_SERVER_CONFIG_DIR}
-	PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
-
-# Install server working directory
-if(${NRP_SERVER_DEFAULT_WORKING_DIR} STREQUAL "")
-	install(DIRECTORY DESTINATION ${NRP_SERVER_DEFAULT_WORKING_DIR})
 endif()
 
 # create cmake version and config files
