@@ -14,33 +14,32 @@
 using namespace nlohmann;
 
 gazebo::JointDeviceController::JointDeviceController(const physics::JointPtr &joint, const gazebo::physics::JointControllerPtr &jointController, const std::string &jointName)
-    : EngineGrpcDeviceController(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), "")),
+    : EngineJSONDeviceController(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), "")),
       _joint(joint),
       _jointController(jointController),
       _jointData(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), ""))
 {}
 
-void gazebo::JointDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
+json gazebo::JointDeviceController::getDeviceInformation(const json::const_iterator &)
 {
-	reply->mutable_joint()->set_position(this->_joint->Position(0));
-	reply->mutable_joint()->set_velocity(this->_joint->GetVelocity(0));
-	reply->mutable_joint()->set_effort(this->_joint->GetForce(0));
+	this->_jointData.setPosition(this->_joint->Position(0));
+	this->_jointData.setVelocity(this->_joint->GetVelocity(0));
+	this->_jointData.setEffort(this->_joint->GetForce(0));
+
+	return JSONPropertySerializer<PhysicsJoint>::serializeProperties(this->_jointData, nlohmann::json());
 }
 
-void gazebo::JointDeviceController::setData(const google::protobuf::Message & data)
+json gazebo::JointDeviceController::handleDeviceData(const json &data)
 {
-	// TODO Throw an exception on error?
 	bool success = true;
 
-	auto jointData = static_cast<const EngineGrpc::GazeboJointSetData &>(data);
+	JSONPropertySerializer<PhysicsJoint>::updateProperties(this->_jointData, data);
 
-	// TODO Is this passed with data?
+//	std::cout << std::to_string(this->_jointData.position()) << std::endl;
+//	std::cout << std::to_string(this->_jointData.velocity()) << std::endl;
+//	std::cout << std::to_string(this->_jointData.effort()) << std::endl;
+
 	const auto &jointName = this->_jointData.name();
-
-	_jointData.setPosition(jointData.position());
-	_jointData.setVelocity(jointData.velocity());
-	_jointData.setEffort(jointData.effort());
-
 	if(!std::isnan(this->_jointData.position()))
 		success &= this->_jointController->SetPositionTarget(jointName, this->_jointData.position());
 
@@ -49,6 +48,8 @@ void gazebo::JointDeviceController::setData(const google::protobuf::Message & da
 
 	if(!std::isnan(this->_jointData.effort()))
 		this->_joint->SetForce(0, this->_jointData.effort());
+
+	return json(success);
 }
 
 gazebo::NRPJointController::PIDConfig::PIDConfig(PID _pid, gazebo::NRPJointController::PIDConfig::PID_TYPE _type)

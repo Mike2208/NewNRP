@@ -17,48 +17,6 @@ PhysicsLink::PhysicsLink(const DeviceIdentifier &id, const nlohmann::json &data)
                                                                   DefLinearVelocity, DefAngularVelocity))
 {}
 
-PhysicsLink::PhysicsLink(const DeviceIdentifier &id, const EngineGrpc::GetDeviceMessage &data)
-	: PhysicsLink(id)
-{
-	assert(data.link().position_size() == 3);
-
-	PhysicsLink::vec3_t pos { data.link().position(0),
-	                          data.link().position(1),
-							  data.link().position(2) };
-
-	this->setPosition(pos);
-
-	assert(data.link().rotation_size() == 4);
-
-	PhysicsLink::quat_t rot { data.link().rotation(0),
-							  data.link().rotation(1),
-							  data.link().rotation(2),
-							  data.link().rotation(3) };
-
-	this->setRotation(rot);
-
-	assert(data.link().linearvelocity_size() == 3);
-
-	PhysicsLink::vec3_t lin { data.link().linearvelocity(0),
-	                          data.link().linearvelocity(1),
-							  data.link().linearvelocity(2) };
-
-	this->setLinVel(lin);
-
-	assert(data.link().angularvelocity_size() == 3);
-
-	PhysicsLink::vec3_t ang { data.link().angularvelocity(0),
-	                          data.link().angularvelocity(1),
-							  data.link().angularvelocity(2) };
-
-	this->setAngVel(ang);
-}
-
-void PhysicsLink::serialize(EngineGrpc::SetDeviceMessage *) const
-{
-	// Do nothing
-}
-
 const PhysicsLink::vec3_t &PhysicsLink::position() const
 {
 	return this->getPropertyByName<Position, vec3_t>();

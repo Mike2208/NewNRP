@@ -1,8 +1,8 @@
 #ifndef NRP_COMMUNICATION_CONTROLLER_H
 #define NRP_COMMUNICATION_CONTROLLER_H
 
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
 
 #include "nrp_gazebo_json_engine/config/gazebo_config.h"
 #include "nrp_gazebo_json_engine/engine_server/gazebo_step_controller.h"
@@ -18,7 +18,7 @@
  * \brief Manages communication with the NRP. Uses a REST server to send/receive data. Singleton class.
  */
 class NRPCommunicationController
-        : public EngineGrpcServer
+        : public EngineJSONServer
 {
 	public:
 		~NRPCommunicationController() override;
@@ -89,7 +89,7 @@ class NRPCommunicationController
 
 		virtual float runLoopStep(float timeStep) override;
 
-		virtual nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) override;
+		virtual nlohmann::json initialize(const nlohmann::json &data, EngineJSONServer::lock_t &lock) override;
 
 		virtual nlohmann::json shutdown(const nlohmann::json &data) override;
 

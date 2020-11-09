@@ -3,7 +3,7 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
 gazebo::CameraDeviceController::CameraDeviceController(const std::string &devName, const rendering::CameraPtr &camera, const sensors::SensorPtr &parent)
-    : EngineGrpcDeviceController(DeviceIdentifier(devName, PhysicsCamera::TypeName.data(), "")),
+    : EngineJSONDeviceController(DeviceIdentifier(devName, PhysicsCamera::TypeName.data(), "")),
       _camera(camera),
       _parentSensor(parent),
       _data(camera->ScopedName())
@@ -11,20 +11,37 @@ gazebo::CameraDeviceController::CameraDeviceController(const std::string &devNam
 
 gazebo::CameraDeviceController::~CameraDeviceController() = default;
 
-void gazebo::CameraDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
+nlohmann::json gazebo::CameraDeviceController::getDeviceInformation(const nlohmann::json::const_iterator&)
 {
 	// Render image
-	this->_camera->Render(true);
+//	try{this->_camera->Render(false);}
+//	catch(std::exception &e)
+//	{
+//		std::cerr << "Error during camera rendering:\n" << e.what() << "\n";
+//		std::cerr << "Last recorded image at: " << this->_camera->LastRenderWallTime() << "\n";
+//		//throw;
 
-	reply->mutable_camera()->set_imageheight(this->_camera->ImageHeight());
-	reply->mutable_camera()->set_imagewidth(this->_camera->ImageWidth());
-	reply->mutable_camera()->set_imagedepth(this->_camera->ImageDepth());
-	reply->mutable_camera()->set_imagedata(reinterpret_cast<char const *>(this->_camera->ImageData()));
+//		return JSONPropertySerializer<PhysicsCamera>::serializeProperties(this->_data, nlohmann::json());
+//	}
+
+	// Data updated via updateCamData()
+	return JSONPropertySerializer<PhysicsCamera>::serializeProperties(this->_data, nlohmann::json());
+
+	// Save image data
+//	const unsigned char *img_data = this->_camera->ImageData();
+//	const unsigned char *const img_data_end = img_data + this->_camera->ImageByteSize();
+//	auto img = nlohmann::json::array();
+//	for (; img_data < img_data_end; ++img_data)
+//	{
+//		img.push_back(*img_data);
+//	}
+
+//	retVal[PhysicsCamera::ImageData.m_data] = std::move(img);
 }
 
-void gazebo::CameraDeviceController::setData(const google::protobuf::Message & data)
+nlohmann::json gazebo::CameraDeviceController::handleDeviceData(const nlohmann::json &data)
 {
-	// Do nothing
+	return nlohmann::json();
 }
 
 void gazebo::CameraDeviceController::updateCamData(const unsigned char *image, unsigned int width, unsigned int height, unsigned int depth)

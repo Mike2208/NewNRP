@@ -18,21 +18,6 @@ PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id, const nlohmann::json &dat
       PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, NAN, NAN, NAN))
 {}
 
-PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id, const EngineGrpc::GetDeviceMessage &data)
-	: PhysicsJoint(id)
-{
-	this->setPosition(data.joint().position());
-	this->setVelocity(data.joint().velocity());
-	this->setEffort(data.joint().effort());
-}
-
-void PhysicsJoint::serialize(EngineGrpc::SetDeviceMessage * request) const
-{
-	request->mutable_joint()->set_position(this->position());
-	request->mutable_joint()->set_velocity(this->velocity());
-	request->mutable_joint()->set_effort(this->effort());
-}
-
 float PhysicsJoint::position() const
 {
 	return this->getPropertyByName<Position>();

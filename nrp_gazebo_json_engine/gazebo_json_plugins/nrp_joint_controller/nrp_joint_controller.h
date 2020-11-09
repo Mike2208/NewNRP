@@ -3,7 +3,7 @@
 
 #include "nrp_gazebo_json_engine/config/nrp_gazebo_cmake_constants.h"
 #include "nrp_gazebo_json_engine/devices/physics_joint.h"
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/JointController.hh>
@@ -15,7 +15,7 @@ namespace gazebo
 	 * \brief Interface for a single joint
 	 */
 	class JointDeviceController
-	        : public EngineGrpcDeviceController
+	        : public EngineJSONDeviceController
 	{
 			using fcn_ptr_t = void(physics::JointPtr, double, int);
 
@@ -23,8 +23,8 @@ namespace gazebo
 			JointDeviceController(const physics::JointPtr &joint, const physics::JointControllerPtr &jointController, const std::string &jointName);
 			virtual ~JointDeviceController() override = default;
 
-			virtual void getData(EngineGrpc::GetDeviceMessage * reply) override;
-			virtual void setData(const google::protobuf::Message & data) override;
+			virtual nlohmann::json getDeviceInformation(const nlohmann::json::const_iterator &data) override;
+			virtual nlohmann::json handleDeviceData(const nlohmann::json &data) override;
 
 		private:
 			/*!

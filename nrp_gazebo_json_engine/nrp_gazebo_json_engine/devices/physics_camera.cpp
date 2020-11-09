@@ -9,26 +9,10 @@ PhysicsCamera::PhysicsCamera(const DeviceIdentifier &id)
       PropertyTemplate(0, 0, 0, std::vector<unsigned char>({}))
 {}
 
-/*PhysicsCamera::PhysicsCamera(const DeviceIdentifier &id, const nlohmann::json &data)
+PhysicsCamera::PhysicsCamera(const DeviceIdentifier &id, const nlohmann::json &data)
     : DeviceInterface(id),
       PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, 0, 0, 0, std::vector<unsigned char>({})))
-{}*/
-
-PhysicsCamera::PhysicsCamera(const DeviceIdentifier &id, const EngineGrpc::GetDeviceMessage &data)
-	: PhysicsCamera(id)
-{
-	this->setImageHeight(data.camera().imageheight());
-	this->setImageWidth(data.camera().imagewidth());
-	this->setImagePixelSize(data.camera().imagedepth());
-
-	std::vector<unsigned char> charvect(data.camera().imagedata().begin(), data.camera().imagedata().end());
-	this->setImageData(charvect);
-}
-
-void PhysicsCamera::serialize(EngineGrpc::SetDeviceMessage * ) const
-{
-	// Do nothing
-}
+{}
 
 uint32_t PhysicsCamera::imageHeight() const
 {

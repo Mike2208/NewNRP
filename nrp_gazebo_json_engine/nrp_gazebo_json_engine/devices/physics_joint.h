@@ -45,7 +45,6 @@ class PhysicsJoint
 		PhysicsJoint(const std::string &name);
 		PhysicsJoint(const DeviceIdentifier &id);
 		PhysicsJoint(const DeviceIdentifier &id, const nlohmann::json &data);
-		PhysicsJoint(const DeviceIdentifier &id, const EngineGrpc::GetDeviceMessage &data);
 
 		float position() const;
 		void setPosition(float position);
@@ -55,8 +54,6 @@ class PhysicsJoint
 
 		float effort() const;
 		void setEffort(float effort);
-
-		virtual void serialize(EngineGrpc::SetDeviceMessage * request) const override;
 };
 
 template<>
