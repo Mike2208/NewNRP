@@ -26,7 +26,7 @@ class EngineGrpcClient
 
             if(this->engineName().compare("gazebo") == 0)
             {
-                serverAddress = "0.0.0.0:9002";
+                serverAddress = "0.0.0.0:9003";
             }
             else
             {
