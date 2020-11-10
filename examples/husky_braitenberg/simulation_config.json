@@ -1,0 +1,28 @@
+{
+	"SimulationName": "test_sim",
+	"SimDescription": "Launches a Gazebo simulation with a Husky robot and a Nest sim with a Braitenberg model",
+	"SimulationTimeout": 10,
+	"EngineConfigs": [
+		{
+			"EngineType": "gazebo_json",
+			"EngineName": "gazebo",
+			"EngineProcCmd__Comment": "gazebo",
+			"GazeboWorldFile": "husky_world_2.sdf"
+		},
+		{
+			"EngineType": "nest_json",
+			"EngineName": "nest",
+			"NestInitFileName": "braitenberg.py"
+		}
+	],
+	"TransceiverFunctions": [
+		{
+			"Name": "cam_tf",
+			"FileName": "cam_tf.py"
+		},
+		{
+			"Name": "mot_tf",
+			"FileName": "mot_tf.py"
+		}
+	]
+}
