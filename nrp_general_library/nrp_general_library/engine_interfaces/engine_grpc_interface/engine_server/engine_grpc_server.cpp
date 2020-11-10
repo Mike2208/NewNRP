@@ -36,7 +36,7 @@ grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * , const EngineGrpc
         nlohmann::json requestJson = nlohmann::json::parse(request->json());
 
         // Run shutdown function
-        reply->set_json(this->shutdown(requestJson));
+        reply->set_json(this->shutdown(requestJson).dump());
     }
     catch(const std::exception &e)
     {
