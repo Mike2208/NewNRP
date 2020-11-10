@@ -41,9 +41,7 @@ class ProcessLauncherManager
 
 			const auto launcherIterator = this->_processLaunchers.find(launcherType);
 			if(launcherIterator == this->_processLaunchers.end())
-			{
 				throw NRPException::logCreate("Could not find process launcher of type \"" + launcherType + "\"");
-			}
 
 			return launcherIterator->second->createLauncher();
 		}

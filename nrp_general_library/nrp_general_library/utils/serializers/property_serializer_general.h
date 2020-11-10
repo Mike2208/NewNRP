@@ -1,7 +1,9 @@
 #ifndef PROPERTY_SERIALIZER_GENERAL_H
 #define PROPERTY_SERIALIZER_GENERAL_H
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/property_template.h"
+
 
 template<class OBJECT>
 class ObjectPropertySerializerMethods;
@@ -169,7 +171,7 @@ class PropertySerializerGeneral
 					        ObjectPropertySerializerMethods<OBJECT>::template deserializeSingleProperty<property_t>(std::forward<OBJECT_T>(data),
 					                                                                                                properties.template getName<ID>());
 				}
-				catch(const std::exception &)
+				catch(std::exception &)
 				{
 					// TODO: Create specific exception to throw on deserialization failure
 				}

@@ -84,7 +84,7 @@ class EngineMPIDeviceController
 			{	MPICommunication::recvDevice<DEVICE, false>(comm, tag, retVal);	}
 			catch(std::exception &e)
 			{
-				throw NRPException::logCreate(std::string("Failed to retrieve device data: ") + e.what());
+				throw NRPException::logCreate(e, "Failed to retrieve device data");
 			}
 
 			return retVal;

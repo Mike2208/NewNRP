@@ -43,7 +43,7 @@ nlohmann::json SimulationParams::parseJSONFile(const std::string &fileName)
 	{
 		cfgFile >> cfgJSON;
 	}
-	catch (const std::exception &e)
+	catch(std::exception &e)
 	{
 		throw std::invalid_argument("Error: Could not parse config file " + fileName + "\n" + e.what());
 	}
@@ -85,7 +85,7 @@ SimulationManager SimulationManager::createFromParams(const cxxopts::ParseResult
 
 	try
 	{	servCfgFileName = args[SimulationParams::ParamServCfgFile.data()].as<SimulationParams::ParamServCfgFileT>();	}
-	catch (const std::domain_error&)
+	catch(std::domain_error&)
 	{
 		servCfgFileName = FileFinder::findFile(NRP_SERVER_CONFIG_FILE_NAME, NRP_SERVER_CONFIG_DIRS);
 		if(servCfgFileName.empty())
@@ -101,7 +101,7 @@ SimulationManager SimulationManager::createFromParams(const cxxopts::ParseResult
 	{
 		simCfgFileName = args[SimulationParams::ParamSimCfgFile.data()].as<SimulationParams::ParamSimCfgFileT>();
 	}
-	catch(const std::domain_error&)
+	catch(std::domain_error&)
 	{
 		// If no simulation file name is present, return empty config
 		return SimulationManager(serverConfig, simConfig);
@@ -270,9 +270,9 @@ SimulationLoop SimulationManager::createSimLoop(const EngineLauncherManagerConst
 		{
 			engines.push_back(engineLauncher->launchEngine(engineConfig, processLauncherManager->createProcessLauncher(this->_serverConfig->processLauncherType())));
 		}
-		catch(const std::exception &e)
+		catch(std::exception &e)
 		{
-			throw NRPException::logCreate("Failed to launch engine interface \"" + engineLauncher->engineType() + "\": " + e.what());
+			throw NRPException::logCreate(e, "Failed to launch engine interface \"" + engineLauncher->engineType() + "\"");
 		}
 	}
 

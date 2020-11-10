@@ -28,9 +28,9 @@ class ObjectPropertySerializerMethods<boost::python::dict>
 			{
 				return boost::python::extract<PROPERTY>(data[name.data()]);
 			}
-			catch(const boost::python::error_already_set &)
+			catch(boost::python::error_already_set &)
 			{
-				throw NRPException::logCreate(std::string("Couldn't find dict element ") + name.data() + " while deserializing object: " + handle_pyerror());
+				throw NRPExceptionMissingProperty(std::string("Couldn't find dict element ") + name.data() + " while deserializing object: " + handle_pyerror());
 			}
 		}
 

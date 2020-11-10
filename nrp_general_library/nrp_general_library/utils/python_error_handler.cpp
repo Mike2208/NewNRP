@@ -21,24 +21,24 @@ std::string handle_pyerror()
 
 		// Create traceback
 		object traceback(import("traceback"));
-	//	if (!tb)
-	//	{
-	//		//PyException_SetTraceback(val, tb);
-
-	//		object format_exception_only(traceback.attr("format_exception_only"));
-	//		formatted_list = format_exception_only(hexc,hval);
-	//	}
-	//	else
-	//	{
-	//		object format_exception(traceback.attr("format_exception"));
-	//		formatted_list = format_exception(hexc,hval,htb);
-	//	}
-
 		if (!tb)
+		{
 			PyException_SetTraceback(val, tb);
 
-		object format_exception(traceback.attr("format_exception"));
-		formatted_list = format_exception(hexc,hval,htb);
+			object format_exception_only(traceback.attr("format_exception_only"));
+			formatted_list = format_exception_only(hexc,hval);
+		}
+		else
+		{
+			object format_exception(traceback.attr("format_exception"));
+			formatted_list = format_exception(hexc,hval,htb);
+		}
+
+//		if (!tb)
+//			PyException_SetTraceback(val, tb);
+
+//		object format_exception(traceback.attr("format_exception"));
+//		formatted_list = format_exception(hexc,hval,htb);
 
 		formatted = str("").join(formatted_list);
 		const std::string retVal = extract<std::string>(formatted);

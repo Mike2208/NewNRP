@@ -29,7 +29,7 @@ class ObjectPropertySerializerMethods<nlohmann::json>
 			if(dataIterator != data.end())
 				return *dataIterator;
 			else
-				throw NRPException::logCreate<NRPExceptionRecoverable>(std::string("Couldn't find JSON attribute ") + name.data() + " during deserialization");
+				throw NRPExceptionMissingProperty(std::string("Couldn't find JSON attribute \"") + name.data() + "\" during deserialization");
 		}
 
 		static void emplaceSingleObject(nlohmann::json &data, const std::string_view &name, nlohmann::json &&singleObject)

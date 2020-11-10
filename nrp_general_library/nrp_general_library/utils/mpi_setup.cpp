@@ -29,9 +29,7 @@ MPISetup *MPISetup::initializeOnce(int argc, char **argv, bool sendPID)
 		{
 			MPI_Comm parentComm = MPISetup::getParentComm();
 			if(parentComm == MPI_COMM_NULL)
-			{
 				throw NRPException::logCreate("No parent PID intercommunicator found. Has this process been launched via MPI_Comm_spawn()?");
-			}
 
 			retVal->sendPID(parentComm, 0);
 		}

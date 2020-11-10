@@ -24,9 +24,7 @@ void TransceiverFunctionManager::loadTF(const TransceiverFunctionConfigSharedPtr
 	auto storedConfigIterator = this->_tfSettings.find(tfConfig);
 	auto loadedTF = this->_tfInterpreter.findTF(tfConfig->name());
 	if(loadedTF != this->_tfInterpreter.loadedTFs().end() || storedConfigIterator != this->_tfSettings.end())
-	{
 		throw NRPException::logCreate("TF with name " + tfConfig->name() + "already loaded");
-	}
 
 	this->_tfSettings.insert(tfConfig);
 	this->_tfInterpreter.loadTransceiverFunction(*tfConfig);

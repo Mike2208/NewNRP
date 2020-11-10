@@ -15,9 +15,54 @@ class NRPExceptionNonRecoverable;
 class NRPException
         : public std::exception
 {
+		/*!
+		 * \brief Extract NRPException from EXCEPTION if possible
+		 * \tparam EXCEPTION Exception type
+		 * \param exception Exception data
+		 * \return Returns ptr to casted exception, nullptr if not possible
+		 */
+		template<class EXCEPTION>
+		static NRPException *nrpException(EXCEPTION &exception) noexcept
+		{
+			try
+			{
+				return dynamic_cast<NRPException*>(&exception);
+			}
+			catch(std::exception&)
+			{
+				return nullptr;
+			}
+		}
+
 	public:
 		using spdlog_out_fcn_t = void(&)(const std::string&);
 		static constexpr spdlog_out_fcn_t SPDErrLogDefault = spdlog::error<std::string>;
+
+		template<class EXCEPTION>
+		static void logOnce(EXCEPTION &exception, spdlog_out_fcn_t spdlogCall = SPDErrLogDefault)
+		{
+			NRPException *const logData = NRPException::nrpException(exception);
+			if(logData == nullptr)
+				std::invoke(spdlogCall, exception.what());
+			else if(logData->_msgLogged != true)
+			{
+				std::invoke(spdlogCall, exception.what());
+				logData->_msgLogged = true;
+			}
+		}
+
+		template<class EXCEPTION = NRPExceptionNonRecoverable, class LOG_EXCEPTION_T>
+		requires(std::constructible_from<EXCEPTION, const std::string&>)
+		static EXCEPTION logCreate(LOG_EXCEPTION_T &exception, const std::string &msg, spdlog_out_fcn_t spdlogCall = SPDErrLogDefault)
+		{
+			NRPException::logOnce(exception, spdlogCall);
+
+			std::invoke(spdlogCall, msg);
+			if constexpr (std::constructible_from<EXCEPTION, const std::string&, bool>)
+			{	return EXCEPTION(msg, true);	}
+			else
+			{	return EXCEPTION(msg);	}
+		}
 
 		/*!
 		 * \brief Logs the given message to the output, then returns EXCEPTION type
@@ -56,6 +101,7 @@ class NRPException
 
 template<>
 void NRPException::logCreate<void>(const std::string &msg, spdlog_out_fcn_t spdlog_call);
+
 
 /*!
  * \brief Exception for non-recoverable errors

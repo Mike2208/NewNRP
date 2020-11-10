@@ -64,9 +64,7 @@ class EngineJSONNRPClient
 			{
 				const auto serverAddr = this->waitForRegistration(20, 1);
 				if(serverAddr.empty())
-				{
 					throw NRPException::logCreate("Error while waiting for engine \"" + this->engineName() + "\" to register its address. Did not receive a reply");
-				}
 
 				this->engineConfig()->engineServerAddress() = serverAddr;
 				this->_serverAddress = serverAddr;
@@ -239,9 +237,9 @@ class EngineJSONNRPClient
 
 				return nlohmann::json::parse(resp.body);
 			}
-			catch (const std::exception &e)
+			catch(std::exception &e)
 			{
-				throw NRPException::logCreate(std::string("Communication with engine server failed: ") + e.what());
+				throw NRPException::logCreate(e, "Communication with engine server failed");
 			}
 		}
 
@@ -266,15 +264,13 @@ class EngineJSONNRPClient
 			{
 				engineTime = resp[EngineJSONConfigConst::EngineTimeName.data()];
 			}
-			catch (const std::exception &e)
+			catch(std::exception &e)
 			{
-				throw NRPException::logCreate("Error while parsing the return value of the run_step of \"" + this->engineName() + "\": " + e.what());
+				throw NRPException::logCreate(e, "Error while parsing the return value of the run_step of \"" + this->engineName() + "\"");
 			}
 
 			if(engineTime < 0)
-			{
 				throw NRPException::logCreate("Error during execution of engine \"" + this->engineName() + "\"");
-			}
 
 			return engineTime;
 		}
@@ -303,10 +299,10 @@ class EngineJSONNRPClient
 					deviceID.EngineName = this->engineName();
 					interfaces.push_back(this->getSingleDeviceInterfaceFromJSON<DEVICES...>(curDeviceIterator, deviceID));
 				}
-				catch(const std::exception &e)
+				catch(std::exception &e)
 				{
 					// TODO: Handle json device parsing error
-					throw NRPException::logCreate(std::string("Failed to parse JSON Device Interface: ") + e.what());
+					throw NRPException::logCreate(e, "Failed to parse JSON Device Interface");
 				}
 			}
 

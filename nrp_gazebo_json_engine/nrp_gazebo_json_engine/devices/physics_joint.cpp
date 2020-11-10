@@ -68,5 +68,5 @@ PhysicsJointConst::FloatNan JSONPropertySerializerMethods::deserializeSingleProp
 			return NAN;
 	}
 	else
-		throw NRPException::logCreate(std::string("Couldn't find JSON attribute ") + name.data() + " during deserialization");
+		throw NRPExceptionMissingProperty(std::string("Couldn't find JSON attribute \"") + name.data() + "\" during deserialization");
 }

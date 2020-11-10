@@ -127,7 +127,7 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	// Check timeout if no server is running
 	SimulationConfig::config_storage_t config;
 	TestEngineJSONNRPClient fakeClient("localhost:" + std::to_string(server.serverPort()), config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
-	ASSERT_THROW(fakeClient.initialize(), std::domain_error);
+	ASSERT_THROW(fakeClient.initialize(), NRPExceptionNonRecoverable);
 
 	// Start server, test init
 	server.startServerAsync();

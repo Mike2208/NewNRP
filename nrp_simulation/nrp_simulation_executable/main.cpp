@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	{
 		startParamPtr.reset(new cxxopts::ParseResult(optParser.parse(argc, argv)));
 	}
-	catch(const cxxopts::OptionParseException &e)
+	catch(cxxopts::OptionParseException &e)
 	{
 		// If options aren't well formed, output help and exit
 		std::cout << e.what() << std::endl;

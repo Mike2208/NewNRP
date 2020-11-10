@@ -21,7 +21,7 @@ void gazebo::NRPCommunicationPlugin::Load(int argc, char **argv)
 	}
 	catch(cxxopts::OptionException &e)
 	{
-		throw NRPException::logCreate(std::string("Failed to parse options: \n") + e.what());
+		throw NRPException::logCreate(e, "Failed to parse options");
 	}
 
 	// Create server with given URL

@@ -88,9 +88,7 @@ void gazebo::NRPJointController::Load(gazebo::physics::ModelPtr model, sdf::Elem
 			// Find corresponding joint data
 			const auto pJoint = model->GetJoint(jointName);
 			if(pJoint == nullptr)
-			{
 				throw NRPException::logCreate("Joint \"" + jointName + "\" not found in model \"" + model->GetScopedName() + "\"");
-			}
 
 			// Read PID settings
 			PIDConfig jointConfig(common::PID(pJointPID->Get<double>("P"), pJointPID->Get<double>("I"), pJointPID->Get<double>("D")),
@@ -110,9 +108,9 @@ void gazebo::NRPJointController::Load(gazebo::physics::ModelPtr model, sdf::Elem
 			pJointPID = pJointPID->GetNextElement();
 		}
 	}
-	catch(const std::exception &)
+	catch(std::exception &e)
 	{
-		throw NRPException::logCreate("Error reading configuration for plugin \"" + this->GetHandle() + "\" of model \"" + model->GetScopedName() + "\"");
+		throw NRPException::logCreate(e, "Error reading configuration for plugin \"" + this->GetHandle() + "\" of model \"" + model->GetScopedName() + "\"");
 	}
 
 	// Initiate PID controllers with read values

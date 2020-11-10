@@ -86,7 +86,7 @@ namespace gazebo
 		{
 			return pidConfig->Get<T>(key);
 		}
-		catch(const std::exception &e)
+		catch(std::exception &e)
 		{
 			std::cerr << e.what();
 		}

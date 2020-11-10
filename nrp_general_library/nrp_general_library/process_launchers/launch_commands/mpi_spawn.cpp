@@ -74,7 +74,7 @@ pid_t MPISpawn::launchEngineProcess(const EngineConfigGeneral &engineConfig, con
 	try{	this->_enginePID = MPISetup::getInstance()->recvPID(this->_intercomm, 0);	}
 	catch(std::exception &e)
 	{
-		throw NRPException::logCreate("Failed to communicate with engine \"" + engineConfig.engineName() + "\" after launch: " + e.what());
+		throw NRPException::logCreate(e, "Failed to communicate with engine \"" + engineConfig.engineName() + "\" after launch");
 	}
 
 	return this->_enginePID;
@@ -144,8 +144,6 @@ void MPISpawn::appendEnvVars(const EngineConfigConst::string_vector_t &envVars)
 
 		const std::string envCmd = "export " + envVar;
 		if(system(envCmd.data()) != 0)
-		{
 			throw NRPException::logCreate(std::string("Failed to add environment variable:\n") + envVar.data());
-		}
 	}
 }

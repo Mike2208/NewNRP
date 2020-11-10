@@ -42,9 +42,9 @@ double gazebo::NRPWorldPlugin::runLoopStep(double timeStep)
 	{
 		this->startLoop(std::max(static_cast<unsigned int>(timeStep/this->_world->Physics()->GetMaxStepSize()), (unsigned int)1));
 	}
-	catch(const std::exception &e)
+	catch(std::exception &e)
 	{
-		throw NRPException::logCreate(std::string("Error while executing gazebo step: ") + e.what());
+		throw NRPException::logCreate(e, "Error while executing gazebo step");
 	}
 
 	//std::cout << "NRPWorldPlugin: Finished loop step. Time:" <<  this->_world->SimTime().Double() << "\n";

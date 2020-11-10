@@ -2,11 +2,28 @@
 #define PROPERTY_TEMPLATE_H
 
 #include "nrp_general_library/utils/fixed_string.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 #include <concepts>
 #include <exception>
 #include <stdexcept>
 #include <tuple>
+
+
+/*!
+ * \brief Exception that is raised when a specified property cannot be found
+ */
+class NRPExceptionMissingProperty
+        : public NRPExceptionRecoverable
+{
+	public:
+		template<class T>
+		NRPExceptionMissingProperty(T &&msg, bool isLogged = false)
+		    : NRPExceptionRecoverable(std::forward<T>(msg), isLogged)
+		{}
+
+		~NRPExceptionMissingProperty() override;
+};
 
 class ObjectDeserializerGeneral;
 
@@ -433,9 +450,13 @@ class PropertyTemplateGeneral
 					{
 						return std::forward<PROPERTY_SERIALIZER_T>(serializer).template deserializeSingleProperty<property_value_t>(Name);
 					}
-					catch(const std::exception &)
+					catch(NRPExceptionMissingProperty &)
 					{
 						return std::forward<PROPERTY_T>(defaultValue);
+					}
+					catch(std::exception &e)
+					{
+						throw NRPException::logCreate(e, std::string("Failed to get property by name \"") + Name.data() + "\"");
 					}
 				}
 
@@ -459,7 +480,7 @@ class PropertyTemplateGeneral
 //						{
 //							retProp.Value = std::forward<FUNC>(func)(Name);
 //						}
-//						catch(const std::exception &)
+//						catch(std::exception &)
 //						{
 //							retProp.Value = retProp.defaultValue;
 //						}
@@ -472,7 +493,7 @@ class PropertyTemplateGeneral
 //						{
 //							return std::forward<FUNC>(func)(Name);
 //						}
-//						catch(const std::exception &)
+//						catch(std::exception &)
 //						{
 //							return std::forward<PROPERTY_T>(defaultValue);
 //						}

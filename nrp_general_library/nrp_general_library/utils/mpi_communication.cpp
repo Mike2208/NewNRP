@@ -72,7 +72,7 @@ void MPICommunication::sendMPI(const void *buff, int count, MPI_Datatype datatyp
 	}
 	catch(std::exception &e)
 	{
-		throw NRPException::logCreate(std::string("Error while sending MPI data: \n") + e.what());
+		throw NRPException::logCreate(e, "Error while sending MPI data");
 	}
 }
 
@@ -86,7 +86,7 @@ void MPICommunication::sendMPIBlocking(const void *buff, int count, MPI_Datatype
 	}
 	catch(std::exception &e)
 	{
-		throw NRPException::logCreate(std::string("Error while sending MPI data: \n") + e.what());
+		throw NRPException::logCreate(e, "Error while sending MPI data");
 	}
 }
 
@@ -100,6 +100,6 @@ void MPICommunication::recvMPI(void *buff, int count, MPI_Datatype datatype, int
 	}
 	catch(std::exception &e)
 	{
-		throw NRPException::logCreate(std::string("Error while receving MPI data: \n") + e.what());
+		throw NRPException::logCreate(e, "Error while receving MPI data");
 	}
 }

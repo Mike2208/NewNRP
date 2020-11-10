@@ -85,7 +85,7 @@ TEST(EngineJSONServerTest, Functions)
 
 	data.clear();
 	data.update(devThrow.convertDeviceToJSON(devThrow));
-	ASSERT_THROW(server.setDeviceData(data), std::domain_error);
+	ASSERT_THROW(server.setDeviceData(data), NRPExceptionNonRecoverable);
 
 	// Get Data
 	retData = server.getDeviceData(nlohmann::json());

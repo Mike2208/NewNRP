@@ -160,8 +160,6 @@ void BasicFork::appendEnvVars(const EngineConfigConst::string_vector_t &envVars)
 	{
 		const std::string envCmd = "export " + envVar;
 		if(system(envCmd.data()) != 0)
-		{
 			throw NRPException::logCreate(std::string("Failed to add environment variable:\n") + envVar.data());
-		}
 	}
 }

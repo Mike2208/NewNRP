@@ -73,18 +73,16 @@ EngineInterface::RESULT NRPCommunicationController::shutdown(const std::string &
 EngineInterface::step_result_t NRPCommunicationController::runLoopStep(float timeStep)
 {
 	if(this->_stepController == nullptr)
-	{
 		throw NRPException::logCreate("Tried to run loop while the controller has not yet been initialized");
-	}
 
 	try
 	{
 		// Execute loop step (Note: The _deviceLock mutex has already been set by EngineJSONServer::runLoopStepHandler, so no calls to reading/writing from/to devices is possible at this moment)
 		this->_stepController->runLoopStep(static_cast<double>(timeStep));
 	}
-	catch(const std::exception &e)
+	catch(std::exception &e)
 	{
-		throw NRPException::logCreate(std::string("Error during Gazebo stepping: ") + e.what());
+		throw NRPException::logCreate(e, "Error during Gazebo stepping");
 	}
 
 	return EngineInterface::SUCCESS;
@@ -93,9 +91,7 @@ EngineInterface::step_result_t NRPCommunicationController::runLoopStep(float tim
 float NRPCommunicationController::getSimTime() const
 {
 	if(this->_stepController == nullptr)
-	{
 		throw NRPException::logCreate("Tried to run loop while the controller has not yet been initialized");
-	}
 
 	return this->_stepController->getSimTime();
 }

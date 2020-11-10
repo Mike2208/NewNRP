@@ -95,9 +95,7 @@ boost::python::object TransceiverFunctionInterpreter::runSingleTransceiverFuncti
 
 	// If TF doesn't exist yet, throw error
 	if(tfDataIterator == this->_transceiverFunctions.end())
-	{
 		throw NRPException::logCreate("TF with name " + tfName + "not loaded");
-	}
 
 	return this->runSingleTransceiverFunction(tfDataIterator->second);
 }
@@ -135,7 +133,7 @@ TransceiverFunctionInterpreter::transceiver_function_datas_t::iterator Transceiv
 	{
 		boost::python::exec_file(transceiverFunction.fileName().data(), this->_globalDict, this->_globalDict);
 	}
-	catch(const boost::python::error_already_set &)
+	catch(boost::python::error_already_set &)
 	{
 		const auto err = NRPException::logCreate("Loading of TransceiverFunction file \"" + transceiverFunction.fileName() + "\" failed: " + handle_pyerror());
 
@@ -150,9 +148,7 @@ TransceiverFunctionInterpreter::transceiver_function_datas_t::iterator Transceiv
 
 	// Check that load resulted in a TF
 	if(this->_newTFIt == this->_transceiverFunctions.end())
-	{
 		throw NRPException::logCreate("No TF found for " + transceiverFunction.name());
-	}
 
 	// Update transfer function params
 	this->_newTFIt->second.DeviceIDs      = this->_newTFIt->second.TransceiverFunction->updateRequestedDeviceIDs(EngineInterface::device_identifiers_t());

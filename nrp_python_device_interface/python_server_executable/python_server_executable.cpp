@@ -94,7 +94,7 @@ void PythonServerExecutable::handleSIGTERM(int signal)
 		{
 			PythonServerExecutable::shutdown();
 		}
-		catch(const std::exception &e)
+		catch(std::exception &e)
 		{
 			std::cerr << e.what();
 		}

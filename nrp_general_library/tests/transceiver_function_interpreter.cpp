@@ -18,7 +18,7 @@ TEST(TransceiverFunctionInterpreterTest, TestSimplePythonFcn)
 		globals.update(simpleFcn.attr("__dict__"));
 		globals["simple_fcn"]();
 	}
-	catch(const boost::python::error_already_set &)
+	catch(boost::python::error_already_set &)
 	{
 		PyErr_Print();
 		PyErr_Clear();
@@ -43,7 +43,7 @@ TEST(TransceiverFunctionInterpreterTest, TestSimplePythonFcn)
 	ASSERT_EQ(boost::python::extract<int>(res), 3);
 
 	// Test invalid TF name
-	ASSERT_THROW(interpreter->runSingleTransceiverFunction("invalidTFName"), std::invalid_argument);
+	ASSERT_THROW(interpreter->runSingleTransceiverFunction("invalidTFName"), NRPExceptionNonRecoverable);
 
 	TransceiverDeviceInterface::setTFInterpreter(nullptr);
 }

@@ -51,10 +51,10 @@ struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator,
 			const auto &dataVal = data.value();
 			return DeviceIdentifier(data.key(), dataVal[JSONTypeID.data()], dataVal[JSONEngineNameID.data()]);
 		}
-		catch(const std::exception &e)
+		catch(std::exception &e)
 		{
 			// TODO: Handle json parsing error
-			throw NRPException::logCreate(std::string("Failed to parse JSON DeviceID: ") + e.what());
+			throw NRPException::logCreate(e, "Failed to parse JSON DeviceID");
 		}
 	}
 };

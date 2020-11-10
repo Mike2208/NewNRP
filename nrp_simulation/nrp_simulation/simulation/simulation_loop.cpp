@@ -28,7 +28,7 @@ void SimulationLoop::initLoop()
 		}
 		catch(std::exception &e)
 		{
-			throw NRPException::logCreate("Failed to initialize engine \"" + engine->engineName() + "\": " + e.what());
+			throw NRPException::logCreate(e, "Failed to initialize engine \"" + engine->engineName() + "\"");
 		}
 	}
 }
@@ -75,7 +75,7 @@ void SimulationLoop::runLoop(float runLoopTime)
 				this->_tfManager.setEngineOutputDeviceData(engine->engineName(), engine->getOutputDevices(requestedDeviceIDs));
 			}
 		}
-		catch(const std::exception &)
+		catch(std::exception &)
 		{
 			// TODO: Handle failure on output device retrieval
 			throw;
