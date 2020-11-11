@@ -19,7 +19,7 @@ void gazebo::CameraDeviceController::getData(EngineGrpc::GetDeviceMessage * repl
 	reply->mutable_camera()->set_imageheight(this->_data.imageHeight());
 	reply->mutable_camera()->set_imagewidth(this->_data.imageWidth());
 	reply->mutable_camera()->set_imagedepth(this->_data.imagePixelSize());
-	reply->mutable_camera()->set_imagedata(reinterpret_cast<char const *>(this->_data.imageData().data()));
+	reply->mutable_camera()->set_imagedata(this->_imData);
 }
 
 void gazebo::CameraDeviceController::setData(const google::protobuf::Message & data)
@@ -42,8 +42,11 @@ void gazebo::CameraDeviceController::updateCamData(const unsigned char *image, u
 		this->_data.setImagePixelSize(depth);
 
 		const auto imageSize = width*height*depth;
-		this->_data.imageData().resize(imageSize);
-		memcpy(this->_data.imageData().data(), image, imageSize);
+		//this->_data.imageData().resize(imageSize);
+		//memcpy(this->_data.imageData().data(), image, imageSize);
+
+		this->_imData.resize(imageSize);
+		memcpy(this->_imData.data(), image, imageSize);
 	}
 }
 
