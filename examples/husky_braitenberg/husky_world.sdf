@@ -4683,8 +4683,8 @@
           <always_on>1</always_on>
           <update_rate>30</update_rate>
           <visualize>1</visualize>
-          <plugin name='mouse_right_eye' filename='NRPGazeboJSONCameraControllerPlugin.so'>
-          </plugin>
+<!--          <plugin name='mouse_right_eye' filename='NRPGazeboGrpcCameraControllerPlugin.so'>
+          </plugin> -->
         </sensor>
         <self_collide>0</self_collide>
         <inertial>
@@ -4717,12 +4717,12 @@
           </dynamics>
         </axis>
       </joint>
-      <plugin name="husky" filename="NRPGazeboJSONJointControllerPlugin.so">
+<!--      <plugin name="husky" filename="NRPGazeboGrpcJointControllerPlugin.so">
         <back_left_joint P=1 I=0 D=0 Type="velocity" Target=0 IMax=0 IMin=0 />
         <back_right_joint P=1 I=0 D=0 Type="velocity" Target=0 IMax=0 IMin=0 />
         <front_left_joint P=1 I=0 D=0 Type="velocity" Target=0 IMax=0 IMin=0 />
         <front_right_joint P=1 I=0 D=0 Type="velocity" Target=0 IMax=0 IMin=0 />
-      </plugin>
+      </plugin>-->
       <!--<plugin name='husky_diff_controller' filename='libhusky_gazebo_plugins.so'>
         <alwaysOn>1</alwaysOn>
         <updateRate>100.0</updateRate>
@@ -4735,6 +4735,6 @@
         <torque>35</torque>
       </plugin>-->
     </model>
-    <plugin name='nrp_world' filename='NRPGazeboJSONWorldPlugin.so'/>
+<!--    <plugin name='nrp_world' filename='NRPGazeboGrpcWorldPlugin.so'/> -->
   </world>
 </sdf>

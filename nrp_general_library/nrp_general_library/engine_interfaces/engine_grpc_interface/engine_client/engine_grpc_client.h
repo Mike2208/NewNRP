@@ -52,7 +52,9 @@ class EngineGrpcClient
             request.set_json(data.dump());
 
             grpc::Status status = _stub->init(&context, request, &reply);
-
+            std::cout << "INIT" << std::endl;
+            std::cout << reply.json() << std::endl;
+            std::cout << "INIT" << std::endl;
             if(!status.ok())
             {
                 const auto errMsg = "Engine server initialization failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
