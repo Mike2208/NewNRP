@@ -14,12 +14,12 @@ gazebo::CameraDeviceController::~CameraDeviceController() = default;
 void gazebo::CameraDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
 {
 	// Render image
-	this->_camera->Render(true);
+	//this->_camera->Render(true);
 
-	reply->mutable_camera()->set_imageheight(this->_camera->ImageHeight());
-	reply->mutable_camera()->set_imagewidth(this->_camera->ImageWidth());
-	reply->mutable_camera()->set_imagedepth(this->_camera->ImageDepth());
-	reply->mutable_camera()->set_imagedata(reinterpret_cast<char const *>(this->_camera->ImageData()));
+	reply->mutable_camera()->set_imageheight(this->_data.imageHeight());
+	reply->mutable_camera()->set_imagewidth(this->_data.imageWidth());
+	reply->mutable_camera()->set_imagedepth(this->_data.imagePixelSize());
+	reply->mutable_camera()->set_imagedata(reinterpret_cast<char const *>(this->_data.imageData().data()));
 }
 
 void gazebo::CameraDeviceController::setData(const google::protobuf::Message & data)
