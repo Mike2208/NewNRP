@@ -10,7 +10,7 @@
 #include <memory>
 #include <type_traits>
 
-#include <engine_grpc.grpc.pb.h>
+#include "engine_grpc.grpc.pb.h"
 
 /*!
  * \brief Identifies a single device

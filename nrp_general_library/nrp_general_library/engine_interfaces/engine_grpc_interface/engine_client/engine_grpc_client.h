@@ -7,7 +7,7 @@
 #include <grpcpp/support/time.h>
 #include <nlohmann/json.hpp>
 
-#include <engine_grpc.grpc.pb.h>
+#include "engine_grpc.grpc.pb.h"
 
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/device_interfaces/grpc_device_conversion_mechanism.h"

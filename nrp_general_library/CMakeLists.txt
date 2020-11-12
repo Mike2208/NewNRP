@@ -161,8 +161,6 @@ endif()
 
 set(NRP_CLEAR_ENV "NRP_CLEAR_ENV")
 
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/../proto")
-
 # General Header defines
 configure_file("nrp_general_library/config_headers/nrp_cmake_constants.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/nrp_general_library/config_headers/nrp_cmake_constants.h" @ONLY)
 

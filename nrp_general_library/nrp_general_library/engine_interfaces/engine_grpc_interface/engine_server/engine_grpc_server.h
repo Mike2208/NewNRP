@@ -7,7 +7,7 @@
 #include <grpcpp/grpcpp.h>
 #include <nlohmann/json.hpp>
 
-#include <engine_grpc.grpc.pb.h>
+#include "engine_grpc.grpc.pb.h"
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
 
