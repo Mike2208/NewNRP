@@ -56,7 +56,7 @@ namespace gazebo
 
 				PID_TYPE Type = POSITION;
 
-				PIDConfig(common::PID _pid, PID_TYPE _type);
+				PIDConfig(PID &&_pid, PID_TYPE _type);
 
 				static PID_TYPE convertStringToType(std::string type);
 			};
@@ -64,7 +64,7 @@ namespace gazebo
 		public:
 			virtual ~NRPJointController() override;
 
-			virtual void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
+			virtual void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 		private:
 
@@ -72,6 +72,11 @@ namespace gazebo
 			 * \brief List containing all joint interfaces. TODO: Change to shared_ptr to prevent segfault errors when this plugin is destroyed
 			 */
 			std::list<JointDeviceController> _jointDeviceControllers;
+
+			/*!
+			 * \brief Joint PID Configuration
+			 */
+			std::map<std::string, PIDConfig> _jointConfigs;
 
 			template<class T>
 			static T getOptionalValue(const sdf::ElementPtr &pidConfig, const std::string &key, T defaultValue);
