@@ -7,6 +7,7 @@
 			"EngineType": "gazebo_grpc",
 			"EngineName": "gazebo",
 			"EngineProcCmd": "gazebo",
+			"ServerAddress": "localhost:9100",
 			"GazeboWorldFile": "husky_world_2.sdf"
 		},
 		{
@@ -19,6 +20,10 @@
 		{
 			"Name": "cam_tf",
 			"FileName": "cam_tf.py"
+		},
+		{
+			"Name": "mot_tf",
+			"FileName": "mot_tf.py"
 		}
 	]
 }

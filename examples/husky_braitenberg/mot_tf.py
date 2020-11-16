@@ -1,6 +1,6 @@
 from NRPPythonModule import *
-from NRPGazeboDeviceInterfacePython import PhysicsJoint
-import NRPNestPythonModule
+from NRPGazeboGrpcEnginePython import PhysicsJoint
+import NRPNestJSONPythonModule
 
 @SingleTransceiverDevice(keyword='lwn', id=DeviceIdentifier('lwn', 'nest_dev', 'nest'))
 @SingleTransceiverDevice(keyword='rwn', id=DeviceIdentifier('rwn', 'nest_dev', 'nest'))
@@ -8,9 +8,13 @@ import NRPNestPythonModule
 @TransceiverFunction("gazebo")
 def transceiver_function(lwn, rwn, lpg):
     back_left_j   = PhysicsJoint("husky::back_left_joint")
+    back_left_j.name = "gazebo"
     back_right_j  = PhysicsJoint("husky::back_right_joint")
+    back_right_j.name = "gazebo"
     front_left_j  = PhysicsJoint("husky::front_left_joint")
+    front_left_j.name = "gazebo"
     front_right_j = PhysicsJoint("husky::front_right_joint")
+    front_right_j.name = "gazebo"
     
     back_left_j.engine_name   = 'gazebo'
     back_right_j.engine_name  = 'gazebo'
@@ -38,6 +42,7 @@ def transceiver_function(lwn, rwn, lpg):
 
     front_left_j.velocity = forward_vel - rot_vel
     front_right_j.velocity = -forward_vel - rot_vel
-    
+   
+    #return []
     return [ back_left_j, back_right_j, front_left_j, front_right_j ]
 
