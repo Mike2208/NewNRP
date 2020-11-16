@@ -60,7 +60,7 @@ float NRPCommunicationController::runLoopStep(float timeStep)
 	}
 }
 
-json NRPCommunicationController::initialize(const json &data, EngineGrpcServer::lock_t &lock)
+void NRPCommunicationController::initialize(const json &data, EngineGrpcServer::lock_t &lock)
 {
 	ConfigStorage confDat(data);
 	GazeboConfig conf(confDat);
@@ -82,18 +82,18 @@ json NRPCommunicationController::initialize(const json &data, EngineGrpcServer::
 		if(waitTime <= 0)
 		{
 			lock.lock();
-			return nlohmann::json({false});
+
+			const auto errMsg = "Couldn't load world";
+            throw std::runtime_error(errMsg);
 		}
 	}
 
 	lock.lock();
-
-	return nlohmann::json({true});
 }
 
-json NRPCommunicationController::shutdown(const json&)
+void NRPCommunicationController::shutdown(const json&)
 {
-	return nlohmann::json();
+	// Do nothing
 }
 
 NRPCommunicationController::NRPCommunicationController(const std::string &address)

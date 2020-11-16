@@ -54,8 +54,8 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
 
         std::map<std::string, EngineGrpcDeviceController*> _devicesControllers;
 
-        virtual nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) = 0;
-        virtual nlohmann::json shutdown(const nlohmann::json &data) = 0;
+        virtual void initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) = 0;
+        virtual void shutdown(const nlohmann::json &data) = 0;
         virtual float runLoopStep(const float timeStep) = 0;
 
         grpc::Status init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply) override;

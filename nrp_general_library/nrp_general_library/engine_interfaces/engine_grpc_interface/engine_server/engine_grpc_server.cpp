@@ -13,8 +13,9 @@ grpc::Status EngineGrpcServer::init(grpc::ServerContext * , const EngineGrpc::In
 
         nlohmann::json requestJson = nlohmann::json::parse(request->json());
 
-        // Run initialization function
-        reply->set_json(this->initialize(requestJson, lock).dump());
+        // Run engine-specific initialization function
+
+        this->initialize(requestJson, lock);
     }
     catch(const std::exception &e)
     {
@@ -35,8 +36,9 @@ grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * , const EngineGrpc
 
         nlohmann::json requestJson = nlohmann::json::parse(request->json());
 
-        // Run shutdown function
-        reply->set_json(this->shutdown(requestJson).dump());
+        // Run engine-specifi shutdown function
+
+        this->shutdown(requestJson);
     }
     catch(const std::exception &e)
     {

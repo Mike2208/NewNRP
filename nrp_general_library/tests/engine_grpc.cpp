@@ -114,14 +114,14 @@ class TestEngineGrpcServer
 
         virtual ~TestEngineGrpcServer() override = default;
 
-        nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &) override
+        void initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &) override
         {
-            return nlohmann::json({{"status", "success"}, {"original", data}});
+            // Do nothing
         }
 
-        nlohmann::json shutdown(const nlohmann::json &data) override
+        void shutdown(const nlohmann::json &data) override
         {
-            return nlohmann::json({{"status", "shutdown"}, {"original", data}});
+            // Do nothing
         }
 
         float runLoopStep(const float timeStep)
