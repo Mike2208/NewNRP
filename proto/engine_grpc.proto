@@ -18,7 +18,7 @@ message InitRequest
 
 message InitReply
 {
-    string json = 1;
+    // Empty
 }
 
 message ShutdownRequest
@@ -28,7 +28,7 @@ message ShutdownRequest
 
 message ShutdownReply
 {
-    string json = 1;
+    // Empty
 }
 
 message RunLoopStepRequest
@@ -83,7 +83,7 @@ message GazeboJointSetData
 
 message SetDeviceReply
 {
-
+    // Empty
 }
 
 message GetDeviceRequest

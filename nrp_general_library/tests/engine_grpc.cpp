@@ -116,19 +116,30 @@ class TestEngineGrpcServer
 
         void initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &) override
         {
-            // Do nothing
+            if(data.at("throw"))
+            {
+                throw std::runtime_error("Init failed");
+            }
         }
 
         void shutdown(const nlohmann::json &data) override
         {
-            // Do nothing
+            if(data.at("throw"))
+            {
+                throw std::runtime_error("Shutdown failed");
+            }
         }
 
-        float runLoopStep(const float timeStep)
+        float runLoopStep(const float timeStep) override
         {
             _time += timeStep;
 
             return _time;
+        }
+
+        void resetEngineTime()
+        {
+            this->_time = 0.0f;
         }
 
     private:
@@ -156,46 +167,90 @@ TEST(EngineGrpc, BASIC)
 
 TEST(EngineGrpc, InitCommand)
 {
-    TestEngineGrpcServer server;
+    TestEngineGrpcServer               server;
     SimulationConfig::config_storage_t config;
-    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+    TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
-    ASSERT_THROW(client.sendInitCommand("initCommand"), std::runtime_error);
+    nlohmann::json jsonMessage;
+    jsonMessage["init"]  = true;
+    jsonMessage["throw"] = false;
+
+    // The gRPC server isn't running, so the init command should fail
+
+    ASSERT_THROW(client.sendInitCommand(jsonMessage), std::runtime_error);
+
+    // Start the server and send the init command. It should succeed
 
     server.startServer();
-    ASSERT_NO_THROW(client.sendInitCommand("initCommand"));
+    ASSERT_NO_THROW(client.sendInitCommand(jsonMessage));
+
+    // Force the server to return an error from the rpc
+    // Check if the client receives an error response on command handling failure
+
+    jsonMessage["throw"] = true;
+    ASSERT_THROW(client.sendInitCommand(jsonMessage), std::runtime_error);
 }
 
 TEST(EngineGrpc, ShutdownCommand)
 {
-    TestEngineGrpcServer server;
+    TestEngineGrpcServer               server;
     SimulationConfig::config_storage_t config;
-    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+    TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
-    ASSERT_THROW(client.sendShutdownCommand("shutdownCommand"), std::runtime_error);
+    nlohmann::json jsonMessage;
+    jsonMessage["shutdown"] = true;
+    jsonMessage["throw"]    = false;
+
+    // The gRPC server isn't running, so the shutdown command should fail
+
+    ASSERT_THROW(client.sendShutdownCommand(jsonMessage), std::runtime_error);
+
+    // Start the server and send the shutdown command. It should succeed
 
     server.startServer();
-    ASSERT_NO_THROW(client.sendShutdownCommand("shutdownCommand"));
+    ASSERT_NO_THROW(client.sendShutdownCommand(jsonMessage));
+
+    // Force the server to return an error from the rpc
+    // Check if the client receives an error response on command handling failure
+
+    jsonMessage["throw"] = true;
+    ASSERT_THROW(client.sendShutdownCommand(jsonMessage), std::runtime_error);
 }
 
 TEST(EngineGrpc, RunLoopStepCommand)
 {
-    TestEngineGrpcServer server;
+    TestEngineGrpcServer               server;
     SimulationConfig::config_storage_t config;
-    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+    TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+
+    // The gRPC server isn't running, so the runLoopStep command should fail
+
+    float timeStep = 0.1f;
+    ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
 
     server.startServer();
 
-    float timeStep = 0.1f;
-    ASSERT_NEAR(client.sendRunLoopStepCommand(timeStep), timeStep, 0.0001);
+    // Engine time should never be smaller than 0
 
+    server.resetEngineTime();
     timeStep = -0.1f;
     ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
 
+    // Normal loop execution, the command should return engine time
+
+    server.resetEngineTime();
+    timeStep = 1.0f;
+    ASSERT_NEAR(client.sendRunLoopStepCommand(timeStep), timeStep, 0.0001);
+
+    // Try to go back in time. The client should raise an error when engine time is decreasing
+
+    server.resetEngineTime();
     timeStep = 2.0f;
     ASSERT_NO_THROW(client.sendRunLoopStepCommand(timeStep));
     timeStep = -1.0f;
     ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
+
+    // TODO Add test for failure on server side
 }
 
 TEST(EngineGrpc, RegisterDevices)
