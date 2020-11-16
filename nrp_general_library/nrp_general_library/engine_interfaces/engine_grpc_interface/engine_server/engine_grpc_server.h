@@ -36,11 +36,6 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
         void registerDevice(const std::string & deviceName, EngineGrpcDeviceController * interface);
         unsigned getNumRegisteredDevices();
 
-        // TODO Try to make this private/protected
-        virtual void setDeviceData(const EngineGrpc::SetDeviceRequest & data);
-        // TODO Try to make this private/protected
-        virtual void getDeviceData(const EngineGrpc::GetDeviceRequest & request, EngineGrpc::GetDeviceReply * reply);
-
     protected:
         mutex_t                       _deviceLock;
         void clearRegisteredDevices();
@@ -63,6 +58,9 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
         grpc::Status runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply) override;
         grpc::Status setDevice(grpc::ServerContext * context, const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply * reply) override;
         grpc::Status getDevice(grpc::ServerContext * context, const EngineGrpc::GetDeviceRequest * request, EngineGrpc::GetDeviceReply * reply) override;
+
+        virtual void setDeviceData(const EngineGrpc::SetDeviceRequest & data);
+        virtual void getDeviceData(const EngineGrpc::GetDeviceRequest & request, EngineGrpc::GetDeviceReply * reply);
 };
 
 #endif // ENGINE_GRPC_SERVER_H

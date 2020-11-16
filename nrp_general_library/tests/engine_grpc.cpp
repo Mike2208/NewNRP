@@ -264,38 +264,12 @@ TEST(EngineGrpc, RegisterDevices)
     ASSERT_EQ(server.getNumRegisteredDevices(), 1);
 }
 
-TEST(EngineGrpc, SetDeviceData1)
+TEST(EngineGrpc, SetDeviceData)
 {
     SimulationConfig::config_storage_t config;
 
     TestEngineGrpcServer server;
     TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
-
-    // Only server method
-
-    const std::string deviceName = "device";
-
-    TestGrpcDeviceController device(DeviceIdentifier("test", "test", "test"));
-
-    EngineGrpc::SetDeviceRequest request;
-    auto r = request.add_request();
-    r->mutable_deviceid()->set_devicename(deviceName);
-
-    server.registerDevice(deviceName, &device);
-
-    server.setDeviceData(request);
-
-    ASSERT_EQ(device._setMessage.deviceid().devicename(), deviceName);
-}
-
-TEST(EngineGrpc, SetDeviceData2)
-{
-    SimulationConfig::config_storage_t config;
-
-    TestEngineGrpcServer server;
-    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
-
-    // Client sends a request to the server
 
     std::vector<DeviceInterface*> input_devices;
 
@@ -313,42 +287,23 @@ TEST(EngineGrpc, SetDeviceData2)
 
     input_devices.push_back(&dev1);
 
+    // The gRPC server isn't running, so the handleInputDevices command should fail
+
+    ASSERT_THROW(client.handleInputDevices(input_devices), std::runtime_error);
+
+    // Normal command execution
+
     server.startServer();
     client.handleInputDevices(input_devices);
 
     ASSERT_EQ(deviceController._setMessage.deviceid().devicename(), deviceName);
+    ASSERT_EQ(deviceController._setMessage.deviceid().devicetype(), deviceType);
+    ASSERT_EQ(deviceController._setMessage.deviceid().enginename(), engineName);
+
+    // TODO Add test for failure on server side
 }
 
-TEST(EngineGrpc, GetDeviceData1)
-{
-    TestEngineGrpcServer server;
-
-    const std::string deviceName = "TestDevice";
-    const std::string deviceType = "TestType";
-    const std::string engineName = "TestEngine";
-
-    TestGrpcDeviceController device(DeviceIdentifier("dev1", deviceType, engineName));
-
-    EngineGrpc::SetDeviceRequest setRequest;
-    EngineGrpc::GetDeviceRequest getRequest;
-    EngineGrpc::GetDeviceReply   getReply;
-    auto req = setRequest.add_request();
-    req->mutable_deviceid()->set_devicename(deviceName);
-
-    auto devId = getRequest.add_deviceid();
-    devId->set_devicename(deviceName);
-
-    server.registerDevice(deviceName, &device);
-
-    server.setDeviceData(setRequest);
-    server.getDeviceData(getRequest, &getReply);
-
-    ASSERT_EQ(getReply.reply(0).deviceid().devicename(), deviceName);
-    ASSERT_EQ(getReply.reply(0).deviceid().devicetype(), deviceType);
-    ASSERT_EQ(getReply.reply(0).deviceid().enginename(), engineName);
-}
-
-TEST(EngineGrpc, GetDeviceData2)
+TEST(EngineGrpc, GetDeviceData)
 {
     SimulationConfig::config_storage_t config;
 
@@ -373,11 +328,17 @@ TEST(EngineGrpc, GetDeviceData2)
 
     input_devices.push_back(&dev1);
 
-    server.startServer();
-    client.handleInputDevices(input_devices);
-
     EngineInterface::device_identifiers_t deviceIdentifiers;
     deviceIdentifiers.insert(devId);
+
+    // The gRPC server isn't running, so the getOutputDevices command should fail
+
+    ASSERT_THROW(client.getOutputDevices(deviceIdentifiers), std::runtime_error);
+
+    // Normal command execution
+
+    server.startServer();
+    client.handleInputDevices(input_devices);
 
     const auto output = client.getOutputDevices(deviceIdentifiers);
 
