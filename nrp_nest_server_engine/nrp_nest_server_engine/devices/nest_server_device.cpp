@@ -1,5 +1,5 @@
 #include "nrp_nest_server_engine/devices/nest_server_device.h"
-#include "nrp_nest_server_engine/config/nrp_nest_cmake_constants.h"
+#include "nrp_nest_server_engine/config/cmake_constants.h"
 
 #include <iostream>
 

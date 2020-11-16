@@ -3,7 +3,7 @@
 #include "nrp_general_library/utils/python_error_handler.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 
-#include "nrp_python_device_interface/config/nrp_python_cmake_constants.h"
+#include "nrp_python_device_interface/config/cmake_constants.h"
 #include "nrp_python_device_interface/engine_server/python_engine_json_device_controller.h"
 #include "nrp_python_device_interface/python/py_engine_script.h"
 

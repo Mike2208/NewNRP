@@ -1,6 +1,6 @@
 #include "nrp_python_device_interface/config/python_config.h"
 
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 
 PythonConfig::PythonConfig(EngineConfigConst::config_storage_t &config)
     : PythonConfig(config.Data)

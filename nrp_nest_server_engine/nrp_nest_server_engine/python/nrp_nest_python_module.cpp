@@ -1,8 +1,8 @@
 #include <boost/python.hpp>
 
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 #include "nrp_general_library/device_interface/python_device.h"
-#include "nrp_nest_server_engine/config/nrp_nest_cmake_constants.h"
+#include "nrp_nest_server_engine/config/cmake_constants.h"
 #include "nrp_nest_server_engine/devices/nest_server_device.h"
 #include "nrp_nest_server_engine/python/create_device_class.h"
 

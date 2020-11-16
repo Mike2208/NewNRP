@@ -3,9 +3,9 @@
 #include "nrp_gazebo_json_engine/devices/physics_link.h"
 
 #include "nrp_general_library/device_interface/device_interface.h"
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 
-#include "nrp_gazebo_json_engine/config/nrp_gazebo_cmake_constants.h"
+#include "nrp_gazebo_json_engine/config/cmake_constants.h"
 
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>

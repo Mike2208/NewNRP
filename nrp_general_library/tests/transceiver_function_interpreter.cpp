@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 #include "tests/test_transceiver_function_interpreter.h"
 #include "tests/test_env_cmake.h"
 

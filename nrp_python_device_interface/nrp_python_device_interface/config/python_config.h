@@ -4,7 +4,7 @@
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
 #include "nrp_general_library/utils/ptr_templates.h"
 
-#include "nrp_python_device_interface/config/nrp_python_cmake_constants.h"
+#include "nrp_python_device_interface/config/cmake_constants.h"
 
 struct PythonConfigConst
 {

@@ -1,6 +1,6 @@
 #include "nrp_python_device/python_module.h"
 
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 
 #include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
 

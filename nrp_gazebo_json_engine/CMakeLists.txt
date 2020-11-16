@@ -61,7 +61,7 @@ endif()
 list(JOIN GAZEBO_LIBRARY_DIRS ":" DEFAULT_GAZEBO_LIB_DIRS)
 
 # Gazebo defines
-configure_file("nrp_gazebo_json_engine/config/nrp_gazebo_cmake_constants.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/nrp_gazebo_json_engine/config/nrp_gazebo_cmake_constants.h" @ONLY)
+configure_file("nrp_gazebo_json_engine/config/cmake_constants.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/config/cmake_constants.h" @ONLY)
 
 # Python module dependencies
 configure_file("nrp_gazebo_json_engine/python/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
@@ -76,8 +76,9 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
 target_include_directories(${LIBRARY_NAME}
 	PUBLIC 
-		"$<INSTALL_INTERFACE:include>"
+	    $<INSTALL_INTERFACE:include>
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
 
 	PRIVATE
 	    ${PYTHON_INCLUDE_DIR}
@@ -99,8 +100,6 @@ if(NOT ${PYTHON_MODULE_SRC_FILES} STREQUAL "")
 
 	target_include_directories(${PYTHON_MODULE_NAME}
 		PUBLIC
-		    $<INSTALL_INTERFACE:include>
-			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	)
 
     target_link_libraries(${PYTHON_MODULE_NAME}
@@ -134,7 +133,7 @@ add_subdirectory(gazebo_json_plugins)
 if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 	# Create testing env files
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/test_env.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/test_env.sh" @ONLY)
-	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h" @ONLY)
+	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/tests/test_env_cmake.h" @ONLY)
 
 	# Create testing executable
 	enable_testing()
@@ -184,9 +183,9 @@ install(EXPORT ${LIB_EXPORT_NAME}
 )
 
 # Install headers
-install(DIRECTORY ${HEADER_DIRECTORY}
+install(DIRECTORY "${HEADER_DIRECTORY}" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}"
 	DESTINATION
-	    ${CMAKE_INSTALL_INCLUDEDIR}/${HEADER_DIRECTORY}
+	    ${CMAKE_INSTALL_INCLUDEDIR}
 	FILES_MATCHING
 	    PATTERN "*.h"
 		PATTERN "*.hpp"

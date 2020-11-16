@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "nrp_gazebo_json_engine/config/gazebo_config.h"
-#include "nrp_gazebo_json_engine/config/nrp_gazebo_cmake_constants.h"
+#include "nrp_gazebo_json_engine/config/cmake_constants.h"
 #include "nrp_gazebo_json_engine/devices/physics_camera.h"
 #include "nrp_gazebo_json_engine/devices/physics_joint.h"
 #include "nrp_gazebo_json_engine/devices/physics_link.h"

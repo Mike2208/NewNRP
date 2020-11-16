@@ -1,7 +1,7 @@
 #ifndef NRP_JOINT_CONTROLLER_H
 #define NRP_JOINT_CONTROLLER_H
 
-#include "nrp_gazebo_mpi_engine/config/nrp_gazebo_cmake_constants.h"
+#include "nrp_gazebo_mpi_engine/config/cmake_constants.h"
 #include "nrp_gazebo_mpi_engine/devices/physics_joint.h"
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_device_controller.h"
 

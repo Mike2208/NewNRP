@@ -1,7 +1,7 @@
 #include <boost/python.hpp>
 
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
-#include "nrp_python_device_interface/config/nrp_python_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
+#include "nrp_python_device_interface/config/cmake_constants.h"
 #include "nrp_python_device_interface/engine_server/python_json_server.h"
 #include "nrp_python_device_interface/python/py_engine_script.h"
 #include "nrp_python_device_interface/python/py_engine_script_wrapper.h"

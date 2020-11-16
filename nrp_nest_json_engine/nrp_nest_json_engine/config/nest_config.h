@@ -4,7 +4,7 @@
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
 #include "nrp_general_library/utils/ptr_templates.h"
 
-#include "nrp_nest_json_engine/config/nrp_nest_cmake_constants.h"
+#include "nrp_nest_json_engine/config/cmake_constants.h"
 
 struct NestConfigConst
 {

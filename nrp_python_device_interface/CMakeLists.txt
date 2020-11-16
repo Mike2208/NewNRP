@@ -67,10 +67,10 @@ endif()
 ## Header configuration
 
 # General Python Header defines
-set(PYTHON_CMAKE_HEADER_CONFIG_FILE "nrp_python_device_interface/config/nrp_python_cmake_constants.h.in")
+set(PYTHON_CMAKE_HEADER_CONFIG_FILE "nrp_python_device_interface/config/cmake_constants.h.in")
 set(NRP_PYTHON_CMAKE_INSTALL_BINDIR "${NRP_PYTHON_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
 set(NRP_PYTHON_EXECUTABLE ${EXECUTABLE_NAME})
-configure_file(${PYTHON_CMAKE_HEADER_CONFIG_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/nrp_python_device_interface/config/nrp_python_cmake_constants.h" @ONLY)
+configure_file(${PYTHON_CMAKE_HEADER_CONFIG_FILE} "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/config/cmake_constants.h" @ONLY)
 
 # Python module dependencies
 configure_file("nrp_python_device_interface/python/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
@@ -94,8 +94,9 @@ target_link_libraries(${LIBRARY_NAME}
 
 target_include_directories(${LIBRARY_NAME}
 	PUBLIC 
-		$<INSTALL_INTERFACE:include>
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>		
+	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
 		${PYTHON_INCLUDE_DIR}
 
 	PRIVATE
@@ -112,8 +113,6 @@ if(NOT ${PYTHON_MODULE_SRC_FILES} STREQUAL "")
 
 	target_include_directories(${PYTHON_MODULE_NAME}
 		PUBLIC
-		    $<INSTALL_INTERFACE:include>
-			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	)
 
     target_link_libraries(${PYTHON_MODULE_NAME}
@@ -141,7 +140,7 @@ add_doxygen_source("${CMAKE_CURRENT_SOURCE_DIR}" ${EXEC_SRC_FILES} ${LIB_SRC_FIL
 if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 	# Create testing env files
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/test_env.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/test_env.sh" @ONLY)
-	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h" @ONLY)
+	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/tests/test_env_cmake.h" @ONLY)
 
 	# Create testing executable
 	enable_testing()
@@ -186,9 +185,9 @@ install(EXPORT ${LIB_EXPORT_NAME}
 )
 
 # Install headers
-install(DIRECTORY ${HEADER_DIRECTORY}
+install(DIRECTORY "${HEADER_DIRECTORY}" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}"
 	DESTINATION
-	    ${CMAKE_INSTALL_INCLUDEDIR}/${HEADER_DIRECTORY}
+	    ${CMAKE_INSTALL_INCLUDEDIR}
 	FILES_MATCHING
 	    PATTERN "*.h"
 		PATTERN "*.hpp"
