@@ -5,6 +5,18 @@
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
 
+grpc::Status EngineGrpcServer::handleGrpcError(const std::string & contextMessage, const std::string & errorMessage)
+{
+    std::cerr << contextMessage << std::endl;
+    std::cerr << errorMessage   << std::endl;
+
+    // Pass the error message to the client
+
+    grpc::Status status(grpc::StatusCode::CANCELLED, errorMessage);
+
+    return status;
+}
+
 grpc::Status EngineGrpcServer::init(grpc::ServerContext * , const EngineGrpc::InitRequest * request, EngineGrpc::InitReply *)
 {
     try
@@ -19,20 +31,13 @@ grpc::Status EngineGrpcServer::init(grpc::ServerContext * , const EngineGrpc::In
     }
     catch(const std::exception &e)
     {
-        std::cerr << "Error while executing initialization\n";
-        std::cerr << e.what();
-
-        // Pass the error message to the client
-
-        grpc::Status status(grpc::StatusCode::CANCELLED, e.what());
-
-        return status;
+        return handleGrpcError("Error while executing initialization", e.what());
     }
 
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * , const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply)
+grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * , const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply *)
 {
     try
     {
@@ -46,14 +51,7 @@ grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * , const EngineGrpc
     }
     catch(const std::exception &e)
     {
-        std::cerr << "Error while executing shutdown\n";
-        std::cerr << e.what();
-
-        // Pass the error message to the client
-
-        grpc::Status status(grpc::StatusCode::CANCELLED, e.what());
-
-        return status;
+        return handleGrpcError("Error while executing shutdown", e.what());
     }
 
     return grpc::Status::OK;
@@ -69,20 +67,13 @@ grpc::Status EngineGrpcServer::runLoopStep(grpc::ServerContext * , const EngineG
     }
     catch(const std::exception &e)
     {
-        std::cerr << "Error while executing runLoopStep\n";
-        std::cerr << e.what();
-
-        // Pass the error message to the client
-
-        grpc::Status status(grpc::StatusCode::CANCELLED, e.what());
-
-        return status;
+        return handleGrpcError("Error while executing runLoopStep", e.what());
     }
 
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * , const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply * reply)
+grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * , const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply *)
 {
     try
     {
@@ -90,14 +81,7 @@ grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * , const EngineGrp
     }
     catch(const std::exception &e)
     {
-        std::cerr << "Error while executing setDevice\n";
-        std::cerr << e.what();
-
-        // Pass the error message to the client
-
-        grpc::Status status(grpc::StatusCode::CANCELLED, e.what());
-
-        return status;
+        return handleGrpcError("Error while executing setDevice", e.what());
     }
 
     return grpc::Status::OK;
@@ -111,14 +95,7 @@ grpc::Status EngineGrpcServer::getDevice(grpc::ServerContext * , const EngineGrp
     }
     catch(const std::exception &e)
     {
-        std::cerr << "Error while executing getDevice\n";
-        std::cerr << e.what();
-
-        // Pass the error message to the client
-
-        grpc::Status status(grpc::StatusCode::CANCELLED, e.what());
-
-        return status;
+        return handleGrpcError("Error while executing getDevice", e.what());
     }
 
     return grpc::Status::OK;

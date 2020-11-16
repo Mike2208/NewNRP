@@ -61,6 +61,8 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
 
         virtual void setDeviceData(const EngineGrpc::SetDeviceRequest & data);
         virtual void getDeviceData(const EngineGrpc::GetDeviceRequest & request, EngineGrpc::GetDeviceReply * reply);
+
+        grpc::Status handleGrpcError(const std::string & contextMessage, const std::string & errorMessage);
 };
 
 #endif // ENGINE_GRPC_SERVER_H
