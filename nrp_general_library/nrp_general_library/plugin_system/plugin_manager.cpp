@@ -11,7 +11,19 @@ using engine_launch_fcn_t = NRP_ENGINE_LAUNCH_FCN_T;
 EngineLauncherInterface::unique_ptr PluginManager::loadPlugin(const std::string &pluginLibFile)
 {
 	dlerror();	// Clear previous error msgs
-	void *pLibHandle = dlopen(pluginLibFile.data(), RTLD_LAZY | RTLD_GLOBAL);
+
+	// Try loading plugin with given paths
+	void *pLibHandle = nullptr;
+	for(const auto &path : this->_pluginPaths)
+	{
+		const std::string fileName = path.empty() ? pluginLibFile : (path/pluginLibFile).c_str();
+
+		pLibHandle = dlopen(fileName.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+		if(pLibHandle != nullptr)
+			break;
+	}
+
+	// Print error if opening failed
 	if(pLibHandle == nullptr)
 	{
 		const auto dlerr = dlerror();
@@ -24,8 +36,10 @@ EngineLauncherInterface::unique_ptr PluginManager::loadPlugin(const std::string 
 		return nullptr;
 	}
 
+	// Save stored library
 	this->_loadedLibs.emplace(pluginLibFile, pLibHandle);
 
+	// Find EngineLauncherInterface function in library
 	engine_launch_fcn_t *pLaunchFcn = reinterpret_cast<engine_launch_fcn_t*>(dlsym(pLibHandle, CREATE_NRP_ENGINE_LAUNCHER_FCN_STR));
 	if(pLaunchFcn == nullptr)
 	{
@@ -40,6 +54,7 @@ EngineLauncherInterface::unique_ptr PluginManager::loadPlugin(const std::string 
 
 PluginManager::~PluginManager()
 {
+	// Unload all plugins
 	while(!this->_loadedLibs.empty())
 	{
 		auto curLibIt = --this->_loadedLibs.end();
@@ -53,15 +68,7 @@ PluginManager::~PluginManager()
 	}
 }
 
-void PluginManager::addPluginPath(const std::string &pluginPath) const
+void PluginManager::addPluginPath(const std::string &pluginPath)
 {
-	// Add plugin directory to search path
-	const char *const pEnvLibPath = getenv("LD_LIBRARY_PATH");
-	const std::string newLibPath = pEnvLibPath == nullptr ? pluginPath
-	                                                      : std::string(pEnvLibPath) + ":" + pluginPath;
-
-	if(setenv("LD_LIBRARY_PATH", newLibPath.data(), true) != 0)
-	{
-		throw NRPException::logCreate(std::string("Failed to add plugin path to LD_LIBRARY_PATH: ") + strerror(errno));
-	}
+	this->_pluginPaths.insert(--this->_pluginPaths.end(), pluginPath);
 }

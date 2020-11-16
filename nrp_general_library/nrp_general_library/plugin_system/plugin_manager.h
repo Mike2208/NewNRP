@@ -24,11 +24,10 @@ class PluginManager
 		~PluginManager();
 
 		/*!
-		 * \brief Adds pluginPath to front of LD_LIBRARY_PATH
+		 * \brief Adds search path under which to look for plugins
 		 * \param pluginPath Path to plugins
-		 * \throw Throws if unable to set LD_LIBRARY_PATH
 		 */
-		void addPluginPath(const std::string &pluginPath) const;
+		void addPluginPath(const std::string &pluginPath);
 
 
 	private:
@@ -36,6 +35,12 @@ class PluginManager
 		 * \brief Loaded Libraries
 		 */
 		std::map<std::string, void*> _loadedLibs;
+
+		/*!
+		 * \brief Plugin paths. The last element should always be an empty path,
+		 * which signifies using the standard linux search method
+		 */
+		std::vector<std::filesystem::path> _pluginPaths = {std::filesystem::path()};
 };
 
 #endif // PLUGIN_MANAGER_H
