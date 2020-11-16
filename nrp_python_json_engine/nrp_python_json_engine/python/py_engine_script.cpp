@@ -1,7 +1,7 @@
-#include "nrp_python_device_interface/python/py_engine_script.h"
+#include "nrp_python_json_engine/python/py_engine_script.h"
 
 #include "nrp_general_library/utils/nrp_exceptions.h"
-#include "nrp_python_device_interface/engine_server/python_engine_json_device_controller.h"
+#include "nrp_python_json_engine/engine_server/python_engine_json_device_controller.h"
 
 
 PyEngineScript::~PyEngineScript()

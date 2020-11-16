@@ -1,10 +1,10 @@
 #include <boost/python.hpp>
 
 #include "nrp_general_library/config/cmake_constants.h"
-#include "nrp_python_device_interface/config/cmake_constants.h"
-#include "nrp_python_device_interface/engine_server/python_json_server.h"
-#include "nrp_python_device_interface/python/py_engine_script.h"
-#include "nrp_python_device_interface/python/py_engine_script_wrapper.h"
+#include "nrp_python_json_engine/config/cmake_constants.h"
+#include "nrp_python_json_engine/engine_server/python_json_server.h"
+#include "nrp_python_json_engine/python/py_engine_script.h"
+#include "nrp_python_json_engine/python/py_engine_script_wrapper.h"
 
 
 namespace python = boost::python;

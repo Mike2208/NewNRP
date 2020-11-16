@@ -1,4 +1,4 @@
-#include "nrp_python_device_interface/python/py_engine_script_wrapper.h"
+#include "nrp_python_json_engine/python/py_engine_script_wrapper.h"
 
 #include "nrp_python_device/python_module.h"
 

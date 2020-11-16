@@ -1,4 +1,4 @@
-#include "nrp_python_device_interface/engine_server/python_engine_json_device_controller.h"
+#include "nrp_python_json_engine/engine_server/python_engine_json_device_controller.h"
 
 #include <iostream>
 

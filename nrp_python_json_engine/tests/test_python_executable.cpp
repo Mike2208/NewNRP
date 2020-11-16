@@ -2,7 +2,7 @@
 
 #include "python_server_executable/python_server_executable.h"
 #include "nrp_general_library/utils/pipe_communication.h"
-#include "nrp_python_device_interface/config/python_config.h"
+#include "nrp_python_json_engine/config/python_config.h"
 #include "tests/test_env_cmake.h"
 
 #include <future>

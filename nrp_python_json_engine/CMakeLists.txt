@@ -1,5 +1,5 @@
-set(PROJECT_NAME "NRPPythonDeviceInterface")
-set(HEADER_DIRECTORY "nrp_python_device_interface")
+set(PROJECT_NAME "NRPPythonJSONEngine")
+set(HEADER_DIRECTORY "nrp_python_json_engine")
 
 set(NAMESPACE_NAME "${PROJECT_NAME}")
 
@@ -20,17 +20,17 @@ include(ExternalProject)
 
 # List library build files
 set(LIB_SRC_FILES
-	nrp_python_device_interface/config/python_config.cpp
-	nrp_python_device_interface/engine_server/python_engine_json_device_controller.cpp
-	nrp_python_device_interface/engine_server/python_json_server.cpp
-	nrp_python_device_interface/nrp_client/python_engine_json_nrp_client.cpp
-	nrp_python_device_interface/python/py_engine_script.cpp
-	nrp_python_device_interface/python/py_engine_script_wrapper.cpp
+	nrp_python_json_engine/config/python_config.cpp
+	nrp_python_json_engine/engine_server/python_engine_json_device_controller.cpp
+	nrp_python_json_engine/engine_server/python_json_server.cpp
+	nrp_python_json_engine/nrp_client/python_engine_json_nrp_client.cpp
+	nrp_python_json_engine/python/py_engine_script.cpp
+	nrp_python_json_engine/python/py_engine_script_wrapper.cpp
 )
 
 # List of python module build files
 set(PYTHON_MODULE_SRC_FILES
-	nrp_python_device_interface/python/nrp_python_engine_module.cpp
+	nrp_python_json_engine/python/nrp_python_engine_module.cpp
 )
 
 # List executable build files
@@ -67,17 +67,17 @@ endif()
 ## Header configuration
 
 # General Python Header defines
-set(PYTHON_CMAKE_HEADER_CONFIG_FILE "nrp_python_device_interface/config/cmake_constants.h.in")
+set(PYTHON_CMAKE_HEADER_CONFIG_FILE "nrp_python_json_engine/config/cmake_constants.h.in")
 set(NRP_PYTHON_CMAKE_INSTALL_BINDIR "${NRP_PYTHON_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
 set(NRP_PYTHON_EXECUTABLE ${EXECUTABLE_NAME})
 configure_file(${PYTHON_CMAKE_HEADER_CONFIG_FILE} "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/config/cmake_constants.h" @ONLY)
 
 # Python module dependencies
-configure_file("nrp_python_device_interface/python/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
+configure_file("nrp_python_json_engine/python/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
 
 
 ##########################################
-# NRPPythonDeviceInterface
+# NRPPythonJSONEngine
 add_library("${LIBRARY_NAME}" SHARED ${LIB_SRC_FILES})
 add_library(${NAMESPACE_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
@@ -87,13 +87,13 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
-		${NRP_GEN_LIB_TARGET}
+	    ${NRP_GEN_LIB_TARGET}
 
 	PRIVATE
 )
 
 target_include_directories(${LIBRARY_NAME}
-	PUBLIC 
+	PUBLIC
 	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
@@ -164,9 +164,9 @@ set(INSTALL_CONFIGDIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 # Install library files
 install(TARGETS
-		${LIBRARY_NAME}
+	    ${LIBRARY_NAME}
 	EXPORT
-		${LIB_EXPORT_NAME}
+	    ${LIB_EXPORT_NAME}
 	LIBRARY DESTINATION ${NRP_PLUGIN_INSTALL_DIR}
 	ARCHIVE DESTINATION ${NRP_PLUGIN_INSTALL_DIR}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -177,11 +177,11 @@ install(TARGETS
 # Install export target
 install(EXPORT ${LIB_EXPORT_NAME}
 	DESTINATION
-		${INSTALL_CONFIGDIR}
+	    ${INSTALL_CONFIGDIR}
 	FILE
-		"${LIB_EXPORT_NAME}.cmake"
+	    "${LIB_EXPORT_NAME}.cmake"
 	NAMESPACE
-		"${NAMESPACE_NAME}::"
+	    "${NAMESPACE_NAME}::"
 )
 
 # Install headers
@@ -224,7 +224,7 @@ configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/cmake/ProjectConfig.cma
 # Install cmake version and config files
 install(
 	FILES
-		"${CMAKE_CURRENT_BINARY_DIR}/${LIB_CONFIG_NAME}.cmake"
+	    "${CMAKE_CURRENT_BINARY_DIR}/${LIB_CONFIG_NAME}.cmake"
 		"${CMAKE_CURRENT_BINARY_DIR}/${LIB_VERSION_NAME}.cmake"
 	DESTINATION ${INSTALL_CONFIGDIR}
 )

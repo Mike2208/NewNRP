@@ -6,7 +6,7 @@
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/plugin_system/plugin.h"
 
-#include "nrp_python_device_interface/config/python_config.h"
+#include "nrp_python_json_engine/config/python_config.h"
 
 #include <unistd.h>
 

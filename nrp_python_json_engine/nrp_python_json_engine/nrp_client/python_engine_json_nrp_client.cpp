@@ -1,4 +1,4 @@
-#include "nrp_python_device_interface/nrp_client/python_engine_json_nrp_client.h"
+#include "nrp_python_json_engine/nrp_client/python_engine_json_nrp_client.h"
 
 #include <signal.h>
 #include <sys/types.h>

@@ -4,7 +4,7 @@
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_opts_parser.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 
-#include "nrp_python_device_interface/engine_server/python_json_server.h"
+#include "nrp_python_json_engine/engine_server/python_json_server.h"
 
 /*!
  * \brief Executes an instance of PYTHON along with a JSON server

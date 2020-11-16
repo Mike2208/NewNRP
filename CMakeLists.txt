@@ -83,7 +83,7 @@ add_subdirectory(nrp_nest_json_engine)
 add_subdirectory(nrp_nest_server_engine)
 
 ## Python Engine
-add_subdirectory(nrp_python_device_interface)
+add_subdirectory(nrp_python_json_engine)
 
 ##########################################
 ## NRP Simulation

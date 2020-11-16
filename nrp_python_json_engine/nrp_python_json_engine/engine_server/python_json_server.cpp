@@ -1,11 +1,11 @@
-#include "nrp_python_device_interface/engine_server/python_json_server.h"
+#include "nrp_python_json_engine/engine_server/python_json_server.h"
 
 #include "nrp_general_library/utils/python_error_handler.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 
-#include "nrp_python_device_interface/config/cmake_constants.h"
-#include "nrp_python_device_interface/engine_server/python_engine_json_device_controller.h"
-#include "nrp_python_device_interface/python/py_engine_script.h"
+#include "nrp_python_json_engine/config/cmake_constants.h"
+#include "nrp_python_json_engine/engine_server/python_engine_json_device_controller.h"
+#include "nrp_python_json_engine/python/py_engine_script.h"
 
 #include <fstream>
 

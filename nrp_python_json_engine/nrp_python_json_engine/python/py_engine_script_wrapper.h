@@ -1,7 +1,7 @@
 #ifndef PY_ENGINE_SCRIPT_WRAPPER_H
 #define PY_ENGINE_SCRIPT_WRAPPER_H
 
-#include "nrp_python_device_interface/python/py_engine_script.h"
+#include "nrp_python_json_engine/python/py_engine_script.h"
 
 /*!
  * \brief Wrapper around PyEngineScript.

@@ -3,7 +3,7 @@
 
 #include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
 #include "nrp_general_library/utils/ptr_templates.h"
-#include "nrp_python_device_interface/engine_server/python_json_server.h"
+#include "nrp_python_json_engine/engine_server/python_json_server.h"
 
 #include <boost/python.hpp>
 #include <map>
