@@ -36,18 +36,10 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
         void registerDevice(const std::string & deviceName, EngineGrpcDeviceController * interface);
         unsigned getNumRegisteredDevices();
 
+        // TODO Try to make this private/protected
         virtual void setDeviceData(const EngineGrpc::SetDeviceRequest & data);
+        // TODO Try to make this private/protected
         virtual void getDeviceData(const EngineGrpc::GetDeviceRequest & request, EngineGrpc::GetDeviceReply * reply);
-
-        virtual nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) = 0;
-        virtual nlohmann::json shutdown(const nlohmann::json &data) = 0;
-        virtual float runLoopStep(const float timeStep) = 0;
-
-        grpc::Status init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply) override;
-        grpc::Status shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply) override;
-        grpc::Status runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply) override;
-        grpc::Status setDevice(grpc::ServerContext * context, const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply * reply) override;
-        grpc::Status getDevice(grpc::ServerContext * context, const EngineGrpc::GetDeviceRequest * request, EngineGrpc::GetDeviceReply * reply) override;
 
     protected:
         mutex_t                       _deviceLock;
@@ -61,6 +53,16 @@ class EngineGrpcServer : public EngineGrpcServiceInterface::Service
         bool                          _isServerRunning;
 
         std::map<std::string, EngineGrpcDeviceController*> _devicesControllers;
+
+        virtual nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) = 0;
+        virtual nlohmann::json shutdown(const nlohmann::json &data) = 0;
+        virtual float runLoopStep(const float timeStep) = 0;
+
+        grpc::Status init(grpc::ServerContext * context, const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply) override;
+        grpc::Status shutdown(grpc::ServerContext * context, const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply) override;
+        grpc::Status runLoopStep(grpc::ServerContext * context, const EngineGrpc::RunLoopStepRequest * request, EngineGrpc::RunLoopStepReply * reply) override;
+        grpc::Status setDevice(grpc::ServerContext * context, const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply * reply) override;
+        grpc::Status getDevice(grpc::ServerContext * context, const EngineGrpc::GetDeviceRequest * request, EngineGrpc::GetDeviceReply * reply) override;
 };
 
 #endif // ENGINE_GRPC_SERVER_H
