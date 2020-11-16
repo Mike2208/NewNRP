@@ -25,6 +25,6 @@
 /*!
  * \brief Name of NRP Python server Executable
  */
-#define NRP_PYTHON_EXECUTABLE_PATH "/usr/local/nrp_grpc/bin/NRPPythonExecutable"
+#define NRP_PYTHON_EXECUTABLE_PATH "/usr/local/nrp/bin/NRPPythonExecutable"
 
 #endif // NRP_PYTHON_CMAKE_CONSTANTS_H

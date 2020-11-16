@@ -8,7 +8,7 @@
 /*!
  * \brief Path to NRP simulation executable
  */
-#define NRP_SIMULATION_EXECUTABLE "/usr/local/nrp_grpc/NRPSimulation"
+#define NRP_SIMULATION_EXECUTABLE "/usr/local/nrp/NRPSimulation"
 
 /*!
  * \brief Engine Launcher plugins that should be added to server by default
@@ -23,7 +23,7 @@
 /*!
  * \brief NRP Server default working directory
  */
-#define NRP_SERVER_DEFAULT_WORKING_DIR "/usr/local/nrp_grpc/var/nrp"
+#define NRP_SERVER_DEFAULT_WORKING_DIR "/usr/local/nrp/var/nrp"
 
 /*!
  * \brief Default limit for experiments
@@ -33,6 +33,6 @@
 /*!
  * \brief Directories under which to search for config file
  */
-#define NRP_SERVER_CONFIG_DIRS  {"~/.config/nrp/", "/usr/local/nrp_grpc/etc/nrp/", "/etc/nrp/"}
+#define NRP_SERVER_CONFIG_DIRS  {"~/.config/nrp/", "/usr/local/nrp/etc/nrp/", "/etc/nrp/"}
 
 #endif // CMAKE_CONF_H

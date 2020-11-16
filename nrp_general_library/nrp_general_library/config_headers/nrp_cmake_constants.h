@@ -18,22 +18,22 @@
 /*!
  * \brief Install Location
  */
-#define NRP_INSTALL_DIR "/usr/local/nrp_grpc"
+#define NRP_INSTALL_DIR "/usr/local/nrp"
 
 /*!
  *	\brief Library Install location
  */
-#define NRP_LIB_INSTALL_DIR "/usr/local/nrp_grpc/lib"
+#define NRP_LIB_INSTALL_DIR "/usr/local/nrp/lib"
 
 /*!
  *	\brief NRP Plugin install directory
  */
-#define NRP_PLUGIN_INSTALL_DIR ""
+#define NRP_PLUGIN_INSTALL_DIR "/usr/local/nrp/lib"
 
 /*!
  *	\brief Bash cmd to set environment before starting engine
  */
-#define NRP_ENGINE_SET_ENV_CMD "/usr/local/nrp_grpc/sbin/set_env_exec.sh"
+#define NRP_ENGINE_SET_ENV_CMD "/usr/local/nrp/sbin/set_env_exec.sh"
 
 /*!
  * \brief Parameter to pass to NRP_ENGINE_SET_ENV_CMD if child env variables should be sanitized before executing.

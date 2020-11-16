@@ -30,6 +30,6 @@
 /*!
  * \brief Name of NRP Nest Executable
  */
-#define NRP_NEST_SERVER_EXECUTABLE_PATH "/usr/local/nrp_grpc/bin/nest-server"
+#define NRP_NEST_SERVER_EXECUTABLE_PATH "/usr/local/nrp/bin/nest-server"
 
 #endif // NRP_NEST_CMAKE_CONSTANTS_H

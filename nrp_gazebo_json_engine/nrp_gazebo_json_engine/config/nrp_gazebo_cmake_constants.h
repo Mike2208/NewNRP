@@ -19,7 +19,7 @@
 /*!
  *	\brief Path to NRP gazebo plugins
  */
-#define NRP_GAZEBO_PLUGINS_DIR "/usr/local/nrp_grpc/lib/nrp_gazebo_plugins"
+#define NRP_GAZEBO_PLUGINS_DIR "/usr/local/nrp/lib/nrp_gazebo_plugins"
 
 /*!
  *	\brief Gazebo Communication Plugin Library Name
@@ -29,7 +29,7 @@
 /*!
  *	\brief Path to default gazebo plugins
  */
-#define DEFAULT_GAZEBO_PLUGIN_DIR "/usr/lib/x86_64-linux-gnu/gazebo-11/plugins"
+#define DEFAULT_GAZEBO_PLUGIN_DIR "/usr/lib/gazebo-11/plugins"
 
 /*!
  *	\brief Path to default gazebo models
@@ -39,6 +39,6 @@
 /*!
  *	\brief Path to default gazebo libraries
  */
-#define DEFAULT_GAZEBO_LIB_DIRS "/usr/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins"
+#define DEFAULT_GAZEBO_LIB_DIRS "/usr/lib:/usr/lib/gazebo-11/plugins"
 
 #endif // NRP_GAZEBO_CMAKE_CONSTANTS_H

@@ -15,7 +15,7 @@
 /*!
  * \brief Path to NRP Nest Executable
  */
-#define NRP_NEST_BIN_PATH "/usr/local/nrp_grpc/bin"
+#define NRP_NEST_BIN_PATH "/usr/local/nrp/bin"
 
 /*!
  * \brief Name of python module
@@ -30,6 +30,6 @@
 /*!
  * \brief Name of NRP Nest Executable
  */
-#define NRP_NEST_EXECUTABLE_PATH "/usr/local/nrp_grpc/bin/NRPNestJSONExecutable"
+#define NRP_NEST_EXECUTABLE_PATH "/usr/local/nrp/bin/NRPNestJSONExecutable"
 
 #endif // NRP_NEST_CMAKE_CONSTANTS_H
