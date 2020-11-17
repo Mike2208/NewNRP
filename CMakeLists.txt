@@ -19,9 +19,9 @@ option(ENABLE_TESTING "Build tests" ON)
 if(${ENABLE_TESTING})
 	include(GoogleTest)
 
-	find_package(GTest 1.10)
+	find_package(GTest 1.10 QUIET)
 	if(NOT ${GTest_FOUND})
-		message("Please wait. Downloading and compiling GTest...")
+		message("Please wait. Downloading GTest...")
 		FetchContent_Declare(GTest
 			GIT_REPOSITORY https://github.com/google/googletest.git
 			GIT_TAG v1.10.x)
@@ -30,7 +30,7 @@ if(${ENABLE_TESTING})
 		if(NOT GTest_POPULATED)
 			FetchContent_Populate(GTest)
 
-			set(INSTALL_GTEST "Install google testing framework" OFF)
+			set(INSTALL_GTEST OFF)
 			add_subdirectory(${gtest_SOURCE_DIR} ${gtest_BINARY_DIR})
 
 			add_library(GTest::gtest ALIAS gtest)
@@ -60,9 +60,9 @@ set(PYTHON_INSTALL_DIR_ABS "${CMAKE_INSTALL_LIBDIR}/${PYTHON_INSTALL_DIR_REL}" C
 
 ##########################################
 ## Log library
-find_package(spdlog 1.8.1)
+find_package(spdlog 1.8.1 QUIET)
 if(NOT ${spdlog_FOUND})
-	message("Please wait. Downloading and compiling spdlog...")
+	message("Please wait. Downloading spdlog...")
 	FetchContent_Declare(spdlog
 		GIT_REPOSITORY https://github.com/gabime/spdlog.git
 		GIT_TAG v1.8.1)
@@ -71,8 +71,8 @@ if(NOT ${spdlog_FOUND})
 	if(NOT spdlog_POPULATED)
 		FetchContent_Populate(spdlog)
 
-		set(SPDLOG_BUILD_SHARED "Create shared libraries for spdlog" ON)
-		set(SPDLOG_INSTALL "Configure spdlog install" ON)
+		set(SPDLOG_BUILD_SHARED ON)
+		set(SPDLOG_INSTALL ON)
 
 		add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR})
 	endif()

@@ -116,9 +116,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 
 # cxxopts: Start Parameter Processing
-find_package(cxxopts 2.2)
+find_package(cxxopts 2.2 QUIET)
 if(NOT ${cxxopts_FOUND})
-	message("Please wait. Downloading and compiling cxxopts...")
+	message("Please wait. Downloading cxxopts...")
 	FetchContent_Declare(cxxopts
 		GIT_REPOSITORY https://github.com/jarro2783/cxxopts.git
 		GIT_TAG v2.2.1)
@@ -136,9 +136,9 @@ if(NOT ${cxxopts_FOUND})
 endif()
 
 # restclient-cpp: REST client library
-find_package(restclient-cpp)
+find_package(restclient-cpp QUIET)
 if(NOT ${restclient-cpp_FOUND})
-	message("Please wait. Downloading and compiling restclient-cpp...")
+	message("Please wait. Downloading restclient-cpp...")
 	FetchContent_Declare(restclient-cpp
 		GIT_REPOSITORY https://github.com/mrtazz/restclient-cpp.git
 		GIT_TAG c140e62ecc793533ad40794c17d2982121aebc0b)
@@ -157,7 +157,7 @@ add_library(restclient-cpp::restclient-cpp ALIAS restclient-cpp)
 find_package(Pistache REQUIRED)
 
 # nlohmann_json: JSON library
-find_package(nlohmann_json 3.9.0)
+find_package(nlohmann_json 3.9.0 QUIET)
 if(NOT ${nlohmann_json_FOUND})
 	message("Please wait. Downloading and compiling a newer version of nlohmann_json...")
 	FetchContent_Declare(json
