@@ -113,12 +113,27 @@ set(TEST_SRC_FILES
 ## Dependencies
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(FetchContent)
 
 # cxxopts: Start Parameter Processing
 add_subdirectory(depends/cxxopts)
 
 # restclient-cpp: REST client library
-add_subdirectory(depends/restclient-cpp)
+find_package(restclient-cpp)
+if(NOT ${restclient-cpp_FOUND})
+	message("Please wait. Downloading and compiling restclient-cpp...")
+	FetchContent_Declare(restclient-cpp
+		GIT_REPOSITORY https://github.com/mrtazz/restclient-cpp.git
+		GIT_TAG c140e62ecc793533ad40794c17d2982121aebc0b)
+
+	FetchContent_GetProperties(restclient-cpp)
+	if(NOT restclient-cpp_POPULATED)
+		FetchContent_Populate(restclient-cpp)
+		add_subdirectory(${restclient-cpp_SOURCE_DIR} ${restclient-cpp_BINARY_DIR})
+		target_include_directories(restclient-cpp
+			INTERFACE "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+	endif()
+endif()
 add_library(restclient-cpp::restclient-cpp ALIAS restclient-cpp)
 
 # pistache: REST server library
@@ -128,15 +143,14 @@ find_package(Pistache REQUIRED)
 find_package(nlohmann_json 3.9.0)
 if(NOT ${nlohmann_json_FOUND})
 	message("Please wait. Downloading and compiling a newer version of nlohmann_json...")
-	include(FetchContent)
 	FetchContent_Declare(json
 		GIT_REPOSITORY https://github.com/nlohmann/json.git
-		    GIT_TAG v3.9.0)
+		GIT_TAG v3.9.0)
 
 	FetchContent_GetProperties(json)
 	if(NOT json_POPULATED)
 		FetchContent_Populate(json)
-	  	add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
+		add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
 	endif()
 endif()
 
