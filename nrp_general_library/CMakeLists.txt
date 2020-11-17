@@ -127,7 +127,6 @@ if(NOT ${cxxopts_FOUND})
 	if(NOT cxxopts_POPULATED)
 		FetchContent_Populate(cxxopts)
 
-		set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 		set(CXXOPTS_BUILD_EXAMPLES OFF)
 		set(CXXOPTS_BUILD_TESTS OFF)
 
@@ -313,8 +312,8 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 		PUBLIC
 		MPICommDevices
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
-		GTest::GTest
-		GTest::GTestMain
+		GTest::gtest
+		GTest::gtest_main
 		${TEST_PYTHON_MODULE_NAME})
 
 	gtest_discover_tests(${TEST_NAME}

@@ -8,8 +8,10 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(GNUInstallDirs)
 include(ExternalProject)
+include(FetchContent)
 
 cmake_policy(SET CMP0077 NEW)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 ##########################################
 ## Unit testing library
@@ -17,10 +19,24 @@ option(ENABLE_TESTING "Build tests" ON)
 if(${ENABLE_TESTING})
 	include(GoogleTest)
 
-	option(INSTALL_GTEST "Install google testing framework" OFF)
-	add_subdirectory("depends/googletest")
-	add_library(GTest::GTest ALIAS gtest)
-	add_library(GTest::GTestMain ALIAS gtest_main)
+	find_package(GTest 1.10)
+	if(NOT ${GTest_FOUND})
+		message("Please wait. Downloading and compiling GTest...")
+		FetchContent_Declare(GTest
+			GIT_REPOSITORY https://github.com/google/googletest.git
+			GIT_TAG v1.10.x)
+
+		FetchContent_GetProperties(GTest)
+		if(NOT GTest_POPULATED)
+			FetchContent_Populate(GTest)
+
+			set(INSTALL_GTEST "Install google testing framework" OFF)
+			add_subdirectory(${gtest_SOURCE_DIR} ${gtest_BINARY_DIR})
+
+			add_library(GTest::gtest ALIAS gtest)
+			add_library(GTest::gtest_main ALIAS gtest_main)
+		endif()
+	endif()
 endif()
 
 
