@@ -239,11 +239,10 @@ void EngineJSONServer::setDeviceHandler(const Pistache::Rest::Request &req, Pist
 	{
 		jrequest = json::parse(req.body());
 	}
-	catch(std::exception &)
+	catch(std::exception &e)
 	{
 		// TODO: Catch json parse error
-		std::cerr << "Failed while parsing JSON object:" << std::endl;
-		std::cerr << jrequest << std::endl;
+		NRPException::logCreate(e, "Failed while parsing JSON object: " + std::string(jrequest));
 
 		res.send(Pistache::Http::Code::Bad_Request);
 		throw;

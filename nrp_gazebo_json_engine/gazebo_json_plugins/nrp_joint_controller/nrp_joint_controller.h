@@ -4,6 +4,7 @@
 #include "nrp_gazebo_json_engine/config/cmake_constants.h"
 #include "nrp_gazebo_json_engine/devices/physics_joint.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/JointController.hh>
@@ -88,7 +89,7 @@ namespace gazebo
 		}
 		catch(std::exception &e)
 		{
-			std::cerr << e.what();
+			NRPException::logOnce(e);
 		}
 
 		return defaultValue;

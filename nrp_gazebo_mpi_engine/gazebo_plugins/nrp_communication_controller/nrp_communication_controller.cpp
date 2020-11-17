@@ -40,8 +40,7 @@ EngineInterface::RESULT NRPCommunicationController::initialize(const std::string
 	}
 	catch(std::exception &e)
 	{
-		const auto errMsg = std::string("Unable to parse initialization data: ") + e.what();
-		std::cerr << errMsg << std::endl;
+		NRPException::logCreate(e, "Unable to parse initialization data");
 		return EngineInterface::ERROR;
 	}
 

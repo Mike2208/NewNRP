@@ -88,7 +88,7 @@ namespace gazebo
 		}
 		catch(std::exception &e)
 		{
-			std::cerr << e.what();
+			NRPException::logOnce(e);
 		}
 
 		return defaultValue;
