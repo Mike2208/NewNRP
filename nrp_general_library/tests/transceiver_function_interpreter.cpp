@@ -6,6 +6,15 @@
 
 using namespace boost;
 
+void appendPythonPath(const std::string &path)
+{
+	boost::python::handle pathH(boost::python::borrowed(PySys_GetObject("path")));
+	boost::python::list paths(pathH);
+	paths.append(path);
+
+	PySys_SetObject("path", paths.ptr());
+}
+
 TEST(TransceiverFunctionInterpreterTest, TestSimplePythonFcn)
 {
 	Py_Initialize();
@@ -13,8 +22,11 @@ TEST(TransceiverFunctionInterpreterTest, TestSimplePythonFcn)
 	python::dict globals(main.attr("__dict__"));
 	try
 	{
+		// Append simple_function path to search
+		appendPythonPath(TEST_SIMPLE_TRANSCEIVER_FCN_MODULE_PATH);
+
+		// Load simple function
 		python::object simpleFcn(python::import("simple_fcn"));
-		python::incref(simpleFcn.ptr());
 		globals.update(simpleFcn.attr("__dict__"));
 		globals["simple_fcn"]();
 	}
@@ -53,6 +65,8 @@ TEST(TransceiverFunctionInterpreterTest, TestTransceiverFcnDevices)
 	Py_Initialize();
 	python::object main(python::import("__main__"));
 	python::object nrpModule(python::import(PYTHON_MODULE_NAME_STR));
+
+	appendPythonPath(TEST_PYTHON_MODULE_PATH);
 	python::object testModule(python::import(TEST_PYTHON_MODULE_NAME_STR));
 
 	python::dict globals(main.attr("__dict__"));
@@ -93,8 +107,9 @@ TEST(TransceiverFunctionInterpreterTest, TestTransceiverFunction)
 	Py_Initialize();
 	python::object main(python::import("__main__"));
 	python::object nrpModule(python::import(PYTHON_MODULE_NAME_STR));
+
+	appendPythonPath(TEST_PYTHON_MODULE_PATH);
 	python::object testModule(python::import(TEST_PYTHON_MODULE_NAME_STR));
-//	python::object transceiverFcnModule(python::import("transceiver_function"));
 
 	python::dict globals(main.attr("__dict__"));
 	globals.update(nrpModule.attr("__dict__"));
