@@ -116,7 +116,25 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 
 # cxxopts: Start Parameter Processing
-add_subdirectory(depends/cxxopts)
+find_package(cxxopts 2.2)
+if(NOT ${cxxopts_FOUND})
+	message("Please wait. Downloading and compiling cxxopts...")
+	FetchContent_Declare(cxxopts
+		GIT_REPOSITORY https://github.com/jarro2783/cxxopts.git
+		GIT_TAG v2.2.1)
+
+	FetchContent_GetProperties(cxxopts)
+	if(NOT cxxopts_POPULATED)
+		FetchContent_Populate(cxxopts)
+
+		set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+		set(CXXOPTS_BUILD_EXAMPLES OFF)
+		set(CXXOPTS_BUILD_TESTS OFF)
+
+		add_subdirectory(${cxxopts_SOURCE_DIR} ${cxxopts_BINARY_DIR})
+		add_library(cxxopts::cxxopts ALIAS cxxopts)
+	endif()
+endif()
 
 # restclient-cpp: REST client library
 find_package(restclient-cpp)

@@ -9,17 +9,18 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(GNUInstallDirs)
 include(ExternalProject)
 
+cmake_policy(SET CMP0077 NEW)
 
 ##########################################
 ## Unit testing library
 option(ENABLE_TESTING "Build tests" ON)
 if(${ENABLE_TESTING})
+	include(GoogleTest)
+
 	option(INSTALL_GTEST "Install google testing framework" OFF)
 	add_subdirectory("depends/googletest")
 	add_library(GTest::GTest ALIAS gtest)
 	add_library(GTest::GTestMain ALIAS gtest_main)
-
-	include(GoogleTest)
 endif()
 
 
@@ -68,6 +69,7 @@ endfunction(add_doxygen_source)
 ## Includes components to create new devices and engines
 add_subdirectory(nrp_general_library)
 
+
 ##########################################
 ## NRP Engines
 
@@ -75,7 +77,7 @@ add_subdirectory(nrp_general_library)
 add_subdirectory(nrp_gazebo_json_engine)
 
 ## Gazebo JSON Engine
-add_subdirectory(nrp_gazebo_mpi_engine)
+#add_subdirectory(nrp_gazebo_mpi_engine)
 
 ## Nest Engine
 add_subdirectory(nrp_nest_json_engine)
@@ -83,6 +85,7 @@ add_subdirectory(nrp_nest_server_engine)
 
 ## Python Engine
 add_subdirectory(nrp_python_json_engine)
+
 
 ##########################################
 ## NRP Simulation

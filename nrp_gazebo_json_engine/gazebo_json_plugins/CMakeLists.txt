@@ -34,7 +34,6 @@ target_link_libraries(${NRP_GAZEBO_COMMUNICATION_PLUGIN}
 	    ${NRP_GAZEBO_LIB_TARGET}
 
 	PRIVATE
-	    cxxopts::cxxopts
 		${NRP_GEN_LIB_TARGET}
 		${GAZEBO_LIBRARIES}
 )
