@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
 	if(argc < 2)
 	{
-		std::cerr << argv[0] << ": Missing argument for server config path" << std::endl;
+		NRPLogger::SPDErrLogDefault(std::string(argv[0]) + ": Missing argument for server config path");
 		return -1;
 	}
 
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	}
 	catch(std::exception &e)
 	{
-		std::cerr << argv[0] << ": Failed to write config file \"" << e.what() << "\"\n";
+		NRPException::logCreate(e, std::string(argv[0]) + ": Failed to write config file");
 		return -3;
 	}
 

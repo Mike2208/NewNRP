@@ -17,6 +17,11 @@ class SPDLogSetup
 		static constexpr std::string_view LoggerName = "nrp_logger";
 
 		/*!
+		 * \brief Shutdown default logger
+		 */
+		static void shutdownDefault();
+
+		/*!
 		 * \brief Constructor. Creates a logger with outputs to both the given filename as well as the console
 		 * \param baseFilename Base Log Output filename.
 		 * The constructor will append the current date, time, and pid to the name. The format is baseFilename + "-%Y-%m-%d-%H:%M:%S-%pid.log"

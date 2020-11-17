@@ -92,15 +92,9 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 	catch(python::error_already_set &)
 	{
 		// If an error occured, return the message to the NRP server without setting the initRunFlag
-		if (PyErr_Occurred())
-		{
-			const auto msg = handle_pyerror();
-			PyErr_Clear();
-
-			std::cerr << msg;
-			return this->formatInitErrorMessage(msg);
-		}
-		PyErr_Clear();
+		const auto msg = handle_pyerror();
+		NRPLogger::SPDErrLogDefault(msg);
+		return this->formatInitErrorMessage(msg);
 	}
 
 	// Read received configuration
@@ -125,14 +119,9 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 		catch(python::error_already_set &)
 		{
 			// If an error occured, return the message to the NRP server without setting the initRunFlag
-			if (PyErr_Occurred())
-			{
-				const auto msg = handle_pyerror();
-				PyErr_Clear();
-
-				std::cerr << msg;
-				return this->formatInitErrorMessage(msg);
-			}
+			const auto msg = handle_pyerror();
+			NRPLogger::SPDErrLogDefault(msg);
+			return this->formatInitErrorMessage(msg);
 		}
 
 		initFile.close();
@@ -174,15 +163,9 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 	catch(python::error_already_set &)
 	{
 		// If an error occured, print the error
-		if (PyErr_Occurred())
-		{
-			const auto msg = handle_pyerror();
-			PyErr_Clear();
-
-			std::cerr << msg;
-			return this->formatInitErrorMessage(msg);
-		}
-		PyErr_Clear();
+		const auto msg = handle_pyerror();
+		NRPLogger::SPDErrLogDefault(msg);
+		return this->formatInitErrorMessage(msg);
 	}
 
 	// Init has run once

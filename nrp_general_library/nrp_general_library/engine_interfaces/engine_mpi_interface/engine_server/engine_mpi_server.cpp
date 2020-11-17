@@ -2,6 +2,7 @@
 
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.h"
 #include "nrp_general_library/utils/mpi_setup.h"
+#include "nrp_general_library/utils/nrp_logger.h"
 #include "nrp_general_library/utils/nrp_exceptions.h"
 
 EngineMPIControl::EngineMPIControl(const PropertyTemplate &props)
@@ -226,7 +227,7 @@ EngineInterface::RESULT EngineMPIServer::registerDeviceController(EngineMPIDevic
 	const auto devCtrlIt = this->_deviceControllers.find(devCtrl->Name);
 	if(devCtrlIt != this->_deviceControllers.end())
 	{
-		std::cerr << "Warning: DeviceController already registered for \"" << devCtrl->Name << "\". Overriding...\n";
+		NRPLogger::SPDWarnLogDefault("Warning: DeviceController already registered for \"" + devCtrl->Name + "\". Overriding...");
 		devCtrlIt->second = devCtrl;
 	}
 	else

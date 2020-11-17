@@ -8,6 +8,11 @@
 #include <unistd.h>
 #include <vector>
 
+void SPDLogSetup::shutdownDefault()
+{
+	spdlog::shutdown();
+}
+
 SPDLogSetup::SPDLogSetup(std::filesystem::path &&baseFilename, FILE *consoleOut, spdlog::level::level_enum logLevel)
 {
 	// Append current date and time to filename
@@ -62,7 +67,7 @@ SPDLogSetup::SPDLogSetup(std::filesystem::path &&baseFilename, FILE *consoleOut,
 
 SPDLogSetup::~SPDLogSetup()
 {
-	spdlog::shutdown();
+	SPDLogSetup::shutdownDefault();
 }
 
 spdlog::logger &SPDLogSetup::nrpLogger() const

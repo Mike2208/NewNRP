@@ -22,7 +22,7 @@ PythonEngineJSONNRPClient::RESULT PythonEngineJSONNRPClient::initialize()
 	{
 		// Write the error message
 		this->_initErrMsg = resp.at(PythonConfig::InitFileErrorMsg.data());
-		std::cerr << this->_initErrMsg << std::endl;
+		NRPLogger::SPDErrLogDefault(this->_initErrMsg);
 
 		return PythonEngineJSONNRPClient::ERROR;
 	}

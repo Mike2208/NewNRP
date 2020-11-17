@@ -22,7 +22,7 @@ NestEngineJSONNRPClient::RESULT NestEngineJSONNRPClient::initialize()
 	{
 		// Write the error message
 		this->_initErrMsg = resp.at(NestConfig::InitFileErrorMsg.data());
-		std::cerr << this->_initErrMsg << std::endl;
+		NRPLogger::SPDErrLogDefault(this->_initErrMsg);
 
 		return NestEngineJSONNRPClient::ERROR;
 	}

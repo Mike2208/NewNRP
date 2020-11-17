@@ -63,8 +63,7 @@ MPI_Comm MPISetup::getParentComm()
 	const auto errc = MPI_Comm_get_parent(&retVal);
 	if(errc != MPI_SUCCESS)
 	{
-		const auto errMsg = "Failed to get parent proces MPI Comm: " + MPISetup::getErrorString(errc);
-		std::cerr << errMsg << "\n";
+		NRPLogger::SPDErrLogDefault("Failed to get parent proces MPI Comm: " + MPISetup::getErrorString(errc));
 
 		retVal = MPI_COMM_NULL;
 	}
@@ -105,8 +104,7 @@ MPISetup::~MPISetup()
 			mpiErrMsg = e.what();
 		}
 
-		const auto errMsg = "MPI Finalize failed: " + mpiErrMsg;
-		std::cerr << errMsg << "\n";
+		NRPLogger::SPDErrLogDefault("MPI Finalize failed: " + mpiErrMsg);
 	}
 }
 

@@ -73,14 +73,14 @@ nlohmann::json PythonJSONServer::initialize(const nlohmann::json &data, EngineJS
 	if(fileName.empty())
 	{
 		const auto errMsg = "No python filename given. Aborting...";
-		std::cerr << errMsg << std::endl;
+		NRPLogger::SPDErrLogDefault(errMsg);
 		return this->formatInitErrorMessage(errMsg);
 	}
 
 	if(!std::filesystem::exists(fileName))
 	{
 		const auto errMsg = "Could not find init file " + fileName;
-		std::cerr << errMsg << std::endl;
+		NRPLogger::SPDErrLogDefault(errMsg);
 		return this->formatInitErrorMessage(errMsg);
 	}
 
@@ -95,14 +95,9 @@ nlohmann::json PythonJSONServer::initialize(const nlohmann::json &data, EngineJS
 	catch(python::error_already_set &)
 	{
 		// If an error occured, return the message to the NRP server without setting the initRunFlag
-		if (PyErr_Occurred())
-		{
-			const auto msg = handle_pyerror();
-			PyErr_Clear();
-
-			std::cerr << msg;
-			return this->formatInitErrorMessage(msg);
-		}
+		const auto msg = handle_pyerror();
+		NRPLogger::SPDErrLogDefault(msg);
+		return this->formatInitErrorMessage(msg);
 	}
 
 	// Check that executed file also
@@ -110,6 +105,7 @@ nlohmann::json PythonJSONServer::initialize(const nlohmann::json &data, EngineJS
 	{
 		PythonJSONServer::_registrationPyServer = nullptr;
 		const auto errMsg = "Failed to initialize Python server. Given python file \"" + fileName + "\" does not register a script";
+		NRPLogger::SPDErrLogDefault(errMsg);
 		return this->formatInitErrorMessage(errMsg);
 	}
 
@@ -122,14 +118,10 @@ nlohmann::json PythonJSONServer::initialize(const nlohmann::json &data, EngineJS
 	catch(python::error_already_set &)
 	{
 		// If an error occured, return the message to the NRP server without setting the initRunFlag
-		if (PyErr_Occurred())
-		{
-			const auto msg = handle_pyerror();
-			PyErr_Clear();
+		const auto msg = handle_pyerror();
+		NRPLogger::SPDErrLogDefault(msg);
+		return this->formatInitErrorMessage(msg);
 
-			std::cerr << msg << std::endl;
-			return this->formatInitErrorMessage(msg);
-		}
 	}
 
 	// Init has run once

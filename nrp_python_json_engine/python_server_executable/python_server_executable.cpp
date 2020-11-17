@@ -1,5 +1,7 @@
 #include "python_server_executable/python_server_executable.h"
 
+#include "nrp_general_library/utils/spdlog_setup.h"
+
 #include <boost/python.hpp>
 #include <csignal>
 
@@ -96,9 +98,10 @@ void PythonServerExecutable::handleSIGTERM(int signal)
 		}
 		catch(std::exception &e)
 		{
-			std::cerr << e.what();
+			NRPException::logCreate(e, "NRP Server shutdown failed after receiving SIGTERM signal");
 		}
 
+		SPDLogSetup::shutdownDefault();
 		exit(signal);
 	}
 }

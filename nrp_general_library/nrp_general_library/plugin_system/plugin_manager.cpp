@@ -28,11 +28,8 @@ EngineLauncherInterface::unique_ptr PluginManager::loadPlugin(const std::string 
 	{
 		const auto dlerr = dlerror();
 
-		std::cerr << "Unable to load plugin library \"" + pluginLibFile + "\"";
-		if(dlerr != nullptr)
-			std::cerr << ": " << dlerr;
+		NRPLogger::SPDErrLogDefault("Unable to load plugin library \"" + pluginLibFile + "\"" + (dlerr ? std::string(": ")+dlerr : ""));
 
-		std::cerr << std::endl;
 		return nullptr;
 	}
 
@@ -43,8 +40,8 @@ EngineLauncherInterface::unique_ptr PluginManager::loadPlugin(const std::string 
 	engine_launch_fcn_t *pLaunchFcn = reinterpret_cast<engine_launch_fcn_t*>(dlsym(pLibHandle, CREATE_NRP_ENGINE_LAUNCHER_FCN_STR));
 	if(pLaunchFcn == nullptr)
 	{
-		std::cerr << "Plugin Library \"" + pluginLibFile + "\" does not contain an engine load creation function" << std::endl;
-		std::cerr << "Register a plugin using CREATE_NRP_ENGINE_LAUNCHER(engine_launcher_name)" << std::endl;
+		NRPLogger::SPDErrLogDefault("Plugin Library \"" + pluginLibFile + "\" does not contain an engine load creation function");
+		NRPLogger::SPDErrLogDefault("Register a plugin using CREATE_NRP_ENGINE_LAUNCHER(engine_launcher_name)");
 
 		return nullptr;
 	}
@@ -61,7 +58,7 @@ PluginManager::~PluginManager()
 		if(dlclose(curLibIt->second) != 0)
 		{
 			const auto errStr = dlerror();
-			std::cerr << "Couldn't unload plugin \"" + curLibIt->first + "\": " << errStr << std::endl;
+			NRPLogger::SPDErrLogDefault("Couldn't unload plugin \"" + curLibIt->first + "\": " + errStr);
 		}
 
 		this->_loadedLibs.erase(curLibIt);

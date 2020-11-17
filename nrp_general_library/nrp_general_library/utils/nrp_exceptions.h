@@ -1,6 +1,8 @@
 #ifndef NRP_EXCEPTIONS_H
 #define NRP_EXCEPTIONS_H
 
+#include "nrp_general_library/utils/nrp_logger.h"
+
 #include <concepts>
 #include <exception>
 #include <iostream>
@@ -35,11 +37,8 @@ class NRPException
 		}
 
 	public:
-		using spdlog_out_fcn_t = void(&)(const std::string&);
-		static constexpr spdlog_out_fcn_t SPDErrLogDefault = spdlog::error<std::string>;
-
 		template<class EXCEPTION>
-		static void logOnce(EXCEPTION &exception, spdlog_out_fcn_t spdlogCall = SPDErrLogDefault)
+		static void logOnce(EXCEPTION &exception, NRPLogger::spdlog_out_fcn_t spdlogCall = NRPLogger::SPDErrLogDefault)
 		{
 			NRPException *const logData = NRPException::nrpException(exception);
 			if(logData == nullptr)
@@ -53,7 +52,7 @@ class NRPException
 
 		template<class EXCEPTION = NRPExceptionNonRecoverable, class LOG_EXCEPTION_T>
 		requires(std::constructible_from<EXCEPTION, const std::string&>)
-		static EXCEPTION logCreate(LOG_EXCEPTION_T &exception, const std::string &msg, spdlog_out_fcn_t spdlogCall = SPDErrLogDefault)
+		static EXCEPTION logCreate(LOG_EXCEPTION_T &exception, const std::string &msg, NRPLogger::spdlog_out_fcn_t spdlogCall = NRPLogger::SPDErrLogDefault)
 		{
 			NRPException::logOnce(exception, spdlogCall);
 
@@ -72,7 +71,7 @@ class NRPException
 		 */
 		template<class EXCEPTION = NRPExceptionNonRecoverable>
 		requires(std::constructible_from<EXCEPTION, const std::string&> || std::same_as<EXCEPTION, void>)
-		static EXCEPTION logCreate(const std::string &msg, spdlog_out_fcn_t spdlogCall = SPDErrLogDefault)
+		static EXCEPTION logCreate(const std::string &msg, NRPLogger::spdlog_out_fcn_t spdlogCall = NRPLogger::SPDErrLogDefault)
 		{
 			std::invoke(spdlogCall, msg);
 			if constexpr (std::constructible_from<EXCEPTION, const std::string&, bool>)
@@ -100,7 +99,7 @@ class NRPException
 };
 
 template<>
-void NRPException::logCreate<void>(const std::string &msg, spdlog_out_fcn_t spdlog_call);
+void NRPException::logCreate<void>(const std::string &msg, NRPLogger::spdlog_out_fcn_t spdlogCall);
 
 
 /*!

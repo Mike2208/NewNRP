@@ -9,9 +9,9 @@ const char *NRPException::what() const _GLIBCXX_TXN_SAFE_DYN _GLIBCXX_NOTHROW
 }
 
 template<>
-void NRPException::logCreate<void>(const std::string &msg, spdlog_out_fcn_t spdlog_call)
+void NRPException::logCreate<void>(const std::string &msg, NRPLogger::spdlog_out_fcn_t spdlogCall)
 {
-	std::invoke(spdlog_call, msg);
+	std::invoke(spdlogCall, msg);
 }
 
 NRPExceptionNonRecoverable::~NRPExceptionNonRecoverable() = default;

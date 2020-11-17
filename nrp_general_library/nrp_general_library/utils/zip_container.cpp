@@ -81,7 +81,7 @@ ZipContainer::ZipFileWrapper::~ZipFileWrapper()
 		if(errCode != 0)
 		{
 			ZipErrorT zErr(errCode);
-			std::cerr << "Zip File could not be closed: " << zip_error_strerror(&zErr) << std::endl;
+			NRPLogger::SPDErrLogDefault(std::string("Zip File could not be closed: ") + zip_error_strerror(&zErr));
 		}
 	}
 }
@@ -112,7 +112,7 @@ ZipContainer::~ZipContainer() noexcept
 			const auto zErr = zip_close(this->_data);
 			if(zErr != 0)
 			{
-				std::cerr << "Could not save Zip Container";
+				NRPLogger::SPDErrLogDefault("Could not save Zip Container");
 
 				zip_discard(this->_data);
 			}
@@ -145,12 +145,7 @@ ZipContainer ZipContainer::compressPath(const std::filesystem::path &path, bool 
 		if(f.is_directory())
 		{
 			if(zip_dir_add(pZArch, fName.c_str(), ZIP_FL_ENC_GUESS) != 0)
-			{
-				const auto errMsg = "Failed to add directory \"" + fName + "\" to zip archive: " + zip_strerror(pZArch);
-
-				std::cerr << errMsg << std::endl;
-				throw std::logic_error(errMsg);
-			}
+				throw NRPException::logCreate("Failed to add directory \"" + fName + "\" to zip archive: " + zip_strerror(pZArch));
 		}
 		else if(f.is_regular_file())
 		{

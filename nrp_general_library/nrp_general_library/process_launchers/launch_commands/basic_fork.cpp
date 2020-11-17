@@ -32,7 +32,7 @@ pid_t BasicFork::launchEngineProcess(const EngineConfigGeneral &engineConfig, co
 		// Setup signal that closes process if parent process quits
 		if(const auto prSig = prctl(PR_SET_PDEATHSIG, SIGHUP) < 0)
 		{
-			// Force quit if signal can't be created
+			// Force quit if signal can't be created (Don't use the logger here, as this is a separate process)
 			std::cerr << "Couldn't create parent kill signal. Error Code: " << prSig << "\nExiting...\n";
 			std::cerr.flush();
 			exit(prSig);
@@ -41,6 +41,7 @@ pid_t BasicFork::launchEngineProcess(const EngineConfigGeneral &engineConfig, co
 		// Force quit if parent pid has changed before PR_SET_PDEATHSIG signal could be setup, preventing race condition
 		if(getppid() != ppid)
 		{
+			// Don't use the logger here, as this is a separate process
 			std::cerr << "Parent process stopped unexpectedly.\nExiting...\n";
 			std::cerr.flush();
 			exit(-1);
@@ -93,6 +94,7 @@ pid_t BasicFork::launchEngineProcess(const EngineConfigGeneral &engineConfig, co
 		// Start engine, stop current execution
 		auto res = execvp(BasicFork::EnvCfgCmd.data(), const_cast<char *const *>(startParamPtrs.data()));
 
+		// Don't use the logger here, as this is a separate process
 		std::cerr << "Couldn't start Engine with cmd \"" << engineConfig.engineProcCmd().data() << "\"\n Error code: " << res << std::endl;
 		std::cerr.flush();
 
@@ -160,6 +162,6 @@ void BasicFork::appendEnvVars(const EngineConfigConst::string_vector_t &envVars)
 	{
 		const std::string envCmd = "export " + envVar;
 		if(system(envCmd.data()) != 0)
-			throw NRPException::logCreate(std::string("Failed to add environment variable:\n") + envVar.data());
+			throw NRPExceptionNonRecoverable(std::string("Failed to add environment variable:\n") + envVar.data());
 	}
 }
