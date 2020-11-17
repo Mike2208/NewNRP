@@ -60,9 +60,23 @@ set(PYTHON_INSTALL_DIR_ABS "${CMAKE_INSTALL_LIBDIR}/${PYTHON_INSTALL_DIR_REL}" C
 
 ##########################################
 ## Log library
-option(SPDLOG_BUILD_SHARED "Create shared libraries for spdlog" ON)
-option(SPDLOG_INSTALL "Configure spdlog install" ON)
-add_subdirectory(depends/spdlog)
+find_package(spdlog 1.8.1)
+if(NOT ${spdlog_FOUND})
+	message("Please wait. Downloading and compiling spdlog...")
+	FetchContent_Declare(spdlog
+		GIT_REPOSITORY https://github.com/gabime/spdlog.git
+		GIT_TAG v1.8.1)
+
+	FetchContent_GetProperties(spdlog)
+	if(NOT spdlog_POPULATED)
+		FetchContent_Populate(spdlog)
+
+		set(SPDLOG_BUILD_SHARED "Create shared libraries for spdlog" ON)
+		set(SPDLOG_INSTALL "Configure spdlog install" ON)
+
+		add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR})
+	endif()
+endif()
 
 
 ##########################################
