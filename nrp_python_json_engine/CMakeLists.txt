@@ -12,7 +12,7 @@ set(LIB_EXPORT_NAME "${LIBRARY_NAME}Targets")
 set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project("${PROJECT_NAME}" VERSION 1.0.0)
 
 include(GNUInstallDirs)
@@ -97,7 +97,6 @@ target_include_directories(${LIBRARY_NAME}
 	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
-		${PYTHON_INCLUDE_DIR}
 
 	PRIVATE
 )

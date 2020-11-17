@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project(NRProject VERSION 1.0.0)
 
 set (CMAKE_CXX_STANDARD 20)
@@ -25,8 +25,7 @@ endif()
 
 ##########################################
 ## Python 3 libraries
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
-find_package(PythonLibs 3 REQUIRED)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 add_compile_definitions(BOOST_ASIO_DISABLE_CONCEPTS)
 find_package(Boost REQUIRED)
