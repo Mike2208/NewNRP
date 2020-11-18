@@ -81,7 +81,7 @@ struct TestTransceiverDevice
 
 	boost::python::object runTf(boost::python::tuple&, boost::python::dict&) override
 	{
-		const auto &outDev = TFInterpreter->outputDeviceData().begin()->second.front();
+		const auto &outDev = TFInterpreter->engineDevices().begin()->second->front();
 		TestInputDevice inDev(TestInputDevice::ID());
 		inDev.TestValue = std::to_string(dynamic_cast<const TestOutputDevice*>(outDev.get())->TestValue);
 

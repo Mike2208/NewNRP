@@ -9,7 +9,7 @@
 SimulationLoop::SimulationLoop(SimulationConfigSharedPtr config, engine_interfaces_t engines)
     : _config(config),
       _engines(engines),
-      _tfManager(SimulationLoop::initTFManager(config))
+      _tfManager(SimulationLoop::initTFManager(config, _engines))
 {
 	TransceiverDeviceInterface::setTFInterpreter(&(this->_tfManager.getInterpreter()));
 
@@ -72,7 +72,7 @@ void SimulationLoop::runLoop(float runLoopTime)
 		{
 			for(auto &engine : processedEngines)
 			{
-				this->_tfManager.setEngineOutputDeviceData(engine->engineName(), engine->getOutputDevices(requestedDeviceIDs));
+				engine->requestOutputDevices(requestedDeviceIDs);
 			}
 		}
 		catch(std::exception &)
@@ -131,9 +131,17 @@ void SimulationLoop::runLoop(float runLoopTime)
 	this->_simTime = loopStopTime;
 }
 
-TransceiverFunctionManager SimulationLoop::initTFManager(const SimulationConfigSharedPtr &simConfig)
+TransceiverFunctionManager SimulationLoop::initTFManager(const SimulationConfigSharedPtr &simConfig, const engine_interfaces_t &engines)
 {
 	TransceiverFunctionManager newManager;
+
+	{
+		TransceiverFunctionInterpreter::engines_devices_t engineDevs;
+		for(const auto &engine : engines)
+			engineDevs.emplace(engine->engineName(), &(engine->getOutputDevices()));
+
+		newManager.getInterpreter().setEngineDevices(std::move(engineDevs));
+	}
 
 	TransceiverDeviceInterface::setTFInterpreter(&newManager.getInterpreter());
 

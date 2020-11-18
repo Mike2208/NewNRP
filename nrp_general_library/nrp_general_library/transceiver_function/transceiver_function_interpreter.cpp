@@ -64,28 +64,9 @@ EngineInterface::device_identifiers_t TransceiverFunctionInterpreter::updateRequ
 	return devIDs;
 }
 
-void TransceiverFunctionInterpreter::setOutputDeviceData(engine_device_outputs_t &&outputDeviceData)
+void TransceiverFunctionInterpreter::setEngineDevices(TransceiverFunctionInterpreter::engines_devices_t &&engineDevices)
 {
-	this->_outputDeviceData = std::move(outputDeviceData);
-}
-
-void TransceiverFunctionInterpreter::setEngineOutputDeviceData(const std::string &engineName, EngineInterface::device_outputs_t &&outputDeviceData)
-{
-	auto engIt = this->_outputDeviceData.find(engineName);
-	if(engIt != this->_outputDeviceData.end())
-		engIt->second = std::move(outputDeviceData);
-	else
-		this->_outputDeviceData.emplace(engineName, std::move(outputDeviceData));
-}
-
-TransceiverFunctionInterpreter::engine_device_outputs_t &TransceiverFunctionInterpreter::outputDeviceData()
-{
-	return this->_outputDeviceData;
-}
-
-const TransceiverFunctionInterpreter::engine_device_outputs_t &TransceiverFunctionInterpreter::outputDeviceData() const
-{
-	return this->_outputDeviceData;
+	this->_engineDevices = std::move(engineDevices);
 }
 
 boost::python::object TransceiverFunctionInterpreter::runSingleTransceiverFunction(const std::string &tfName)

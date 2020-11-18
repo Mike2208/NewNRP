@@ -75,9 +75,10 @@ class SimulationLoop
 		/*!
 		 * \brief Initialize the TF Manager. Reads the TF Configurations from the Simulation Config, and registers the TFs
 		 * \param simConfig Simulation Config
+		 * \param engines Loaded Engines
 		 * \return Returns initialized TransceiverFunctionManager
 		 */
-		static TransceiverFunctionManager initTFManager(const SimulationConfigSharedPtr &simConfig);
+		static TransceiverFunctionManager initTFManager(const SimulationConfigSharedPtr &simConfig, const engine_interfaces_t &engines);
 
 		/*!
 		 * \brief Handle device intputs of specified interface

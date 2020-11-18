@@ -86,7 +86,7 @@ EngineInterface::RESULT EngineMPIServer::handleClientCmd(const EngineMPIControl 
 			return this->runLoopStepHandler(std::get<float>(cmd.info()));
 
 		case EngineMPIControlConst::GET_DEVICES:
-			return this->getOutputDevicesHandler(std::get<int>(cmd.info()));
+			return this->requestOutputDevicesHandler(std::get<int>(cmd.info()));
 
 		case EngineMPIControlConst::SEND_DEVICES:
 			return this->handleInputDevicesHandler(std::get<int>(cmd.info()));
@@ -146,7 +146,7 @@ EngineInterface::RESULT EngineMPIServer::runLoopStepHandler(float timeStep)
 	return retVal;
 }
 
-EngineInterface::RESULT EngineMPIServer::getOutputDevicesHandler(const int numDevices)
+EngineInterface::RESULT EngineMPIServer::requestOutputDevicesHandler(const int numDevices)
 {
 	if(this->_state != PAUSED)
 		throw NRPException::logCreate("Get device data request was sent to unpaused MPI engine. Aborting...");

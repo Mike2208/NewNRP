@@ -168,13 +168,13 @@ class EngineMPIServer
 		EngineInterface::RESULT runLoopStepHandler(float timeStep);
 
 		/*!
-		 * \brief Calls getOutputDevices() and sets _state
+		 * \brief Calls requestOutputDevices() and sets _state
 		 * \param numDevices Number of devices that should be sent
-		 * \return Returns result of getOutputDevices()
+		 * \return Returns result of requestOutputDevices()
 		 * \exception Throws std::runtime_error if sim was not in PAUSED state at call time,
-		 * or any exception getOutputDevices() generates
+		 * or any exception requestOutputDevices() generates
 		 */
-		EngineInterface::RESULT getOutputDevicesHandler(const int numDevices);
+		EngineInterface::RESULT requestOutputDevicesHandler(const int numDevices);
 
 		/*!
 		 * \brief Calls handleInputDevices() and sets _state

@@ -40,8 +40,17 @@ struct TestEngine1
 	RESULT handleInputDevices(const device_inputs_t&) override
 	{	return SUCCESS;	}
 
-	device_outputs_t getOutputDevices(const device_identifiers_t&) override
-	{	return device_outputs_t();	}
+	protected:
+	    device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t &deviceIdentifiers) override
+		{
+			device_outputs_set_t retVal;
+			for(const auto &devID : deviceIdentifiers)
+			{
+				retVal.emplace(new DeviceInterface(devID));
+			}
+
+			return retVal;
+		}
 };
 
 struct TestLauncher1
@@ -93,8 +102,9 @@ struct TestEngine2
 	RESULT handleInputDevices(const device_inputs_t&) override
 	{	return SUCCESS;	}
 
-	device_outputs_t getOutputDevices(const device_identifiers_t&) override
-	{	return device_outputs_t();	}
+	protected:
+	    device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t&) override
+		{	return device_outputs_set_t();	}
 };
 
 struct TestLauncher2

@@ -36,12 +36,20 @@ class TestEngine
 		virtual RESULT waitForStepCompletion(float) override
 		{	return SUCCESS;	}
 
-		virtual device_outputs_t getOutputDevices(const device_identifiers_t &deviceIdentifiers) override
-		{	return device_outputs_t(deviceIdentifiers.size());	}
-
 		virtual RESULT handleInputDevices(const device_inputs_t &) override
 		{	return SUCCESS;	}
 
+	protected:
+		virtual device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t &deviceIdentifiers) override
+		{
+			device_outputs_set_t retVal;
+			for(const auto &devID : deviceIdentifiers)
+			{
+				retVal.emplace(new DeviceInterface(devID));
+			}
+
+			return retVal;
+		}
 };
 
 CREATE_NRP_ENGINE_LAUNCHER(TestEngine::EngineLauncher<"TestEngine">);

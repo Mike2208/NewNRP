@@ -80,12 +80,12 @@ EngineInterface::RESULT NestEngineServerNRPClient::waitForStepCompletion(float t
 	return this->_runStepThread.get();
 }
 
-EngineInterface::device_outputs_t NestEngineServerNRPClient::getOutputDevices(const EngineInterface::device_identifiers_t &deviceIdentifiers)
+EngineInterface::device_outputs_set_t NestEngineServerNRPClient::requestOutputDeviceCallback(const EngineInterface::device_identifiers_t &deviceIdentifiers)
 {
 	const auto serverAddr = this->serverAddress();
 
-	EngineInterface::device_outputs_t retVals;
-	retVals.reserve(deviceIdentifiers.size());
+	EngineInterface::device_outputs_set_t retVals;
+	//retVals.reserve(deviceIdentifiers.size());
 
 	for(const auto &devID : deviceIdentifiers)
 	{
@@ -108,7 +108,7 @@ EngineInterface::device_outputs_t NestEngineServerNRPClient::getOutputDevices(co
 			pDevDat->data().deserialize();
 		}
 
-		retVals.push_back(*devDatIt);
+		retVals.insert(*devDatIt);
 	}
 
 	return retVals;

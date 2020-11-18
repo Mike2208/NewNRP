@@ -69,7 +69,7 @@ nlohmann::json PythonJSONServer::initialize(const nlohmann::json &data, EngineJS
 	const PythonConfig config(data.at(PythonConfig::ConfigType.m_data));
 
 	// Read python script file if present
-	const auto &fileName = config.pythonFileName();
+	const std::filesystem::path fileName = config.pythonFileName();
 	if(fileName.empty())
 	{
 		const auto errMsg = "No python filename given. Aborting...";
@@ -79,7 +79,7 @@ nlohmann::json PythonJSONServer::initialize(const nlohmann::json &data, EngineJS
 
 	if(!std::filesystem::exists(fileName))
 	{
-		const auto errMsg = "Could not find init file " + fileName;
+		const auto errMsg = "Could not find init file " + std::string(fileName);
 		NRPLogger::SPDErrLogDefault(errMsg);
 		return this->formatInitErrorMessage(errMsg);
 	}
@@ -90,7 +90,7 @@ nlohmann::json PythonJSONServer::initialize(const nlohmann::json &data, EngineJS
 	// Read python file
 	try
 	{
-		python::exec_file(python::str(fileName), this->_pyGlobals, this->_pyLocals);
+		python::exec_file(fileName.c_str(), this->_pyGlobals, this->_pyLocals);
 	}
 	catch(python::error_already_set &)
 	{
@@ -104,7 +104,7 @@ nlohmann::json PythonJSONServer::initialize(const nlohmann::json &data, EngineJS
 	if(PythonJSONServer::_registrationPyServer != nullptr)
 	{
 		PythonJSONServer::_registrationPyServer = nullptr;
-		const auto errMsg = "Failed to initialize Python server. Given python file \"" + fileName + "\" does not register a script";
+		const auto errMsg = "Failed to initialize Python server. Given python file \"" + std::string(fileName) + "\" does not register a script";
 		NRPLogger::SPDErrLogDefault(errMsg);
 		return this->formatInitErrorMessage(errMsg);
 	}

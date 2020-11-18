@@ -73,23 +73,6 @@ class EngineJSONNRPClient
 			return enginePID;
 		}
 
-		virtual typename EngineInterface::device_outputs_t getOutputDevices(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
-		{
-			nlohmann::json request;
-			for(const auto &devID : deviceIdentifiers)
-			{
-				if(this->engineName().compare(devID.EngineName) == 0)
-					request.update(this->_dcm.serializeID(devID));
-			}
-
-			// Post request to Engine JSON server
-			const auto resp(EngineJSONNRPClient::sendRequest(this->_serverAddress + "/" + EngineJSONConfigConst::EngineServerGetDevicesRoute.data(),
-			                                                 EngineJSONConfigConst::EngineServerContentType.data(), request.dump(),
-			                                                 "Engine server \"" + this->engineName() + "\" failed during device retrieval"));
-
-			return this->getDeviceInterfacesFromJSON(resp);
-		}
-
 		virtual typename EngineInterface::RESULT handleInputDevices(const typename EngineInterface::device_inputs_t &inputDevices) override
 		{
 			// Convert devices to JSON format
@@ -138,6 +121,23 @@ class EngineJSONNRPClient
 		}
 
 	protected:
+		virtual typename EngineInterface::device_outputs_set_t requestOutputDeviceCallback(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
+		{
+			nlohmann::json request;
+			for(const auto &devID : deviceIdentifiers)
+			{
+				if(this->engineName().compare(devID.EngineName) == 0)
+					request.update(this->_dcm.serializeID(devID));
+			}
+
+			// Post request to Engine JSON server
+			const auto resp(EngineJSONNRPClient::sendRequest(this->_serverAddress + "/" + EngineJSONConfigConst::EngineServerGetDevicesRoute.data(),
+			                                                 EngineJSONConfigConst::EngineServerContentType.data(), request.dump(),
+			                                                 "Engine server \"" + this->engineName() + "\" failed during device retrieval"));
+
+			return this->getDeviceInterfacesFromJSON(resp);
+		}
+
 		/*!
 		 * \brief Send an initialization command
 		 * \param data Data that should be passed to the engine
@@ -280,10 +280,9 @@ class EngineJSONNRPClient
 		 * \param devices JSON data of devices
 		 * \return Returns list of devices
 		 */
-		typename EngineInterface::device_outputs_t getDeviceInterfacesFromJSON(const nlohmann::json &devices) const
+		typename EngineInterface::device_outputs_set_t getDeviceInterfacesFromJSON(const nlohmann::json &devices) const
 		{
-			typename EngineInterface::device_outputs_t interfaces;
-			interfaces.reserve(devices.size());
+			typename EngineInterface::device_outputs_set_t interfaces;
 
 			for(auto curDeviceIterator = devices.begin(); curDeviceIterator != devices.end(); ++curDeviceIterator)
 			{
@@ -297,7 +296,7 @@ class EngineJSONNRPClient
 				{
 					auto deviceID = this->_dcm.getID(curDeviceIterator);
 					deviceID.EngineName = this->engineName();
-					interfaces.push_back(this->getSingleDeviceInterfaceFromJSON<DEVICES...>(curDeviceIterator, deviceID));
+					interfaces.insert(this->getSingleDeviceInterfaceFromJSON<DEVICES...>(curDeviceIterator, deviceID));
 				}
 				catch(std::exception &e)
 				{

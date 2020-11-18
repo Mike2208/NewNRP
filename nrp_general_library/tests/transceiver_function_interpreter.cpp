@@ -78,7 +78,8 @@ TEST(TransceiverFunctionInterpreterTest, TestTransceiverFcnDevices)
 	TransceiverDeviceInterface::setTFInterpreter(interpreter.get());
 
 	std::shared_ptr<TestOutputDevice> dev(new TestOutputDevice(TestOutputDevice::ID()));
-	interpreter->setEngineOutputDeviceData(dev->engineName(), {dev});
+	EngineInterface::device_outputs_t devs({dev});
+	interpreter->setEngineDevices({{dev->engineName(), &devs}});
 
 	// Load and execute simple python function
 	const std::string tfName = "testTF";
@@ -129,7 +130,8 @@ TEST(TransceiverFunctionInterpreterTest, TestTransceiverFunction)
 
 	std::shared_ptr<TestOutputDevice> dev(new TestOutputDevice(TestOutputDevice::ID()));
 	dev->TestValue = 4;
-	interpreter->setEngineOutputDeviceData(dev->engineName(), {dev});
+	EngineInterface::device_outputs_t devs({dev});
+	interpreter->setEngineDevices({{dev->engineName(), &devs}});
 
 	// Load and execute simple python function
 	interpreter->loadTransceiverFunction(tfCfg);

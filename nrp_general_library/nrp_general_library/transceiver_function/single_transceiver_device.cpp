@@ -15,13 +15,13 @@ EngineInterface::device_identifiers_t SingleTransceiverDevice::getRequestedDevic
 
 boost::python::object SingleTransceiverDevice::runTf(boost::python::tuple &args, boost::python::dict &kwargs)
 {
-	const auto outputDeviceData = TransceiverDeviceInterface::TFInterpreter->outputDeviceData();
+	const auto engineDevs = TransceiverDeviceInterface::TFInterpreter->engineDevices();
 
 	bool foundDevID = false;
-	auto engDevicesIt = outputDeviceData.find(this->_deviceID.EngineName);
-	if(engDevicesIt != outputDeviceData.end())
+	auto engDevicesIt = engineDevs.find(this->_deviceID.EngineName);
+	if(engDevicesIt != engineDevs.end())
 	{
-		for(const auto &curDevice : engDevicesIt->second)
+		for(const auto &curDevice : *(engDevicesIt->second))
 		{
 			if(curDevice->id() == this->_deviceID)
 			{
