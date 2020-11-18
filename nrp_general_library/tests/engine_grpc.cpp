@@ -300,7 +300,16 @@ TEST(EngineGrpc, SetDeviceData)
     ASSERT_EQ(deviceController._setMessage.deviceid().devicetype(), deviceType);
     ASSERT_EQ(deviceController._setMessage.deviceid().enginename(), engineName);
 
-    // TODO Add test for failure on server side
+    // Test setting data on a device that wasn't registered in the engine server
+
+    const std::string deviceName2 = "b";
+
+    DeviceIdentifier         devId2(deviceName2, deviceType, engineName);
+    TestGrpcDeviceInterface1 dev2(devId2);
+
+    input_devices.push_back(&dev2);
+
+    ASSERT_THROW(client.handleInputDevices(input_devices), std::runtime_error);
 }
 
 TEST(EngineGrpc, GetDeviceData)
@@ -346,9 +355,20 @@ TEST(EngineGrpc, GetDeviceData)
     ASSERT_EQ(output.at(0)->name(),       deviceName);
     ASSERT_EQ(output.at(0)->type(),       deviceType);
     ASSERT_EQ(output.at(0)->engineName(), engineName);
+
+    // Test setting data on a device that wasn't registered in the engine server
+
+    const std::string deviceName2 = "b";
+
+    DeviceIdentifier         devId2(deviceName2, deviceType, engineName);
+    TestGrpcDeviceInterface1 dev2(devId2);
+
+    deviceIdentifiers.insert(devId2);
+
+    ASSERT_THROW(const auto output = client.getOutputDevices(deviceIdentifiers), std::runtime_error);
 }
 
-TEST(EngineGrpc, GetDeviceData3)
+TEST(EngineGrpc, GetDeviceData2)
 {
     SimulationConfig::config_storage_t config;
 

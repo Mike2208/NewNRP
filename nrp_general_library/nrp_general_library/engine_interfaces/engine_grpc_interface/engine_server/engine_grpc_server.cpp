@@ -202,7 +202,11 @@ void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
         if(devInterface != _devicesControllers.end())
         {
             devInterface->second->setData(r);
-            // TODO Error handling for dev not found
+        }
+        else
+        {
+            const auto errorMessage = "Device " + r.deviceid().devicename() + " is not registered in engine " + this->_engineName;
+            throw std::invalid_argument(errorMessage);
         }
     }
 }
@@ -221,14 +225,18 @@ void EngineGrpcServer::getDeviceData(const EngineGrpc::GetDeviceRequest & reques
         {
             auto r = reply->add_reply();
             devInterface->second->getData(r);
-            // TODO Error handling for dev not found
 
-            // Set device ID data
+            // Set device ID metadata
             // TODO Why is devInterface->second->Name different from devInterface->first name?
 
             r->mutable_deviceid()->set_devicename(devInterface->first);
             r->mutable_deviceid()->set_devicetype(devInterface->second->Type);
             r->mutable_deviceid()->set_enginename(devInterface->second->EngineName);
+        }
+        else
+        {
+            const auto errorMessage = "Device " + request.deviceid(i).devicename() + " is not registered in engine " + this->_engineName;
+            throw std::invalid_argument(errorMessage);
         }
     }
 }
