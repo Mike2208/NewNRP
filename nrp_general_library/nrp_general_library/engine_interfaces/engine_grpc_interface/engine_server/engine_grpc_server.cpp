@@ -153,6 +153,7 @@ void EngineGrpcServer::startServer()
         builder.RegisterService(this);
 
         this->_server = builder.BuildAndStart();
+        // TODO Should we use a memory barrier here?
 		this->_isServerRunning = true;
 	}
 }
@@ -162,6 +163,7 @@ void EngineGrpcServer::shutdownServer()
 	if(this->_isServerRunning)
 	{
 		this->_server->Shutdown();
+        // TODO Should we use a memory barrier here?
 		this->_isServerRunning = false;
 	}
 }
