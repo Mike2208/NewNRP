@@ -25,7 +25,7 @@ class EngineGrpcClient
             std::string serverAddress = this->engineConfig()->engineServerAddress();
 
             _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-            _stub    = EngineGrpc::EngineGrpcServiceInterface::NewStub(_channel);
+            _stub    = EngineGrpc::EngineGrpcService::NewStub(_channel);
 
             _prevEngineTime = 0.0f;
         }
@@ -272,8 +272,8 @@ class EngineGrpcClient
 
     private:
 
-        std::shared_ptr<grpc::Channel>                                _channel;
-        std::unique_ptr<EngineGrpc::EngineGrpcServiceInterface::Stub> _stub;
+        std::shared_ptr<grpc::Channel>                       _channel;
+        std::unique_ptr<EngineGrpc::EngineGrpcService::Stub> _stub;
 
         float _prevEngineTime = 0.0f;
         float _engineTime     = 0.0f;

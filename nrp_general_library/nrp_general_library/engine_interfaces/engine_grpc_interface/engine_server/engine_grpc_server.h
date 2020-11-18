@@ -11,8 +11,7 @@
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
 
-// TODO Rename EngineGrpcServiceInterface to EngineGrpcService. It's not an interface!
-using EngineGrpc::EngineGrpcServiceInterface;
+using EngineGrpc::EngineGrpcService;
 
 /*!
  * \brief Abstract class for Engine server with gRPC support
@@ -21,7 +20,7 @@ using EngineGrpc::EngineGrpcServiceInterface;
  * as middleware. All RPC services are implemented. Derived classes are responsible
  * for implementing simulation initialization, shutdown and run step methods.
  */
-class EngineGrpcServer : public EngineGrpcServiceInterface::Service
+class EngineGrpcServer : public EngineGrpcService::Service
 {
     public:
 
