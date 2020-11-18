@@ -10,7 +10,6 @@
 #include "engine_grpc.grpc.pb.h"
 
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/device_interfaces/grpc_device_conversion_mechanism.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
 
 template<class ENGINE, ENGINE_CONFIG_C ENGINE_CONFIG, DEVICE_C ...DEVICES>
@@ -266,9 +265,6 @@ class EngineGrpcClient
                 throw std::logic_error("Could not process given device of type " + deviceData.deviceid().devicetype());
             }
         }
-
-        //using dcm_t = DeviceConversionMechanism<EngineGrpc::SetDeviceMessage, const EngineGrpc::GetDeviceMessage, DEVICES...>;
-        //dcm_t _dcm;
 
     private:
 
