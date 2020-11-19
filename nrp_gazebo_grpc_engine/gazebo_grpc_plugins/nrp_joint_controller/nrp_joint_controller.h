@@ -23,7 +23,7 @@ namespace gazebo
 			JointDeviceController(const physics::JointPtr &joint, const physics::JointControllerPtr &jointController, const std::string &jointName);
 			virtual ~JointDeviceController() override = default;
 
-			virtual void getData(EngineGrpc::GetDeviceMessage * reply) override;
+			virtual bool getData(EngineGrpc::GetDeviceMessage * reply) override;
 			virtual void setData(const google::protobuf::Message & data) override;
 
 		private:

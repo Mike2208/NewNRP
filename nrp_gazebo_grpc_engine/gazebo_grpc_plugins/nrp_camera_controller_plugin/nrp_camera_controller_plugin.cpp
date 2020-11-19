@@ -11,15 +11,25 @@ gazebo::CameraDeviceController::CameraDeviceController(const std::string &devNam
 
 gazebo::CameraDeviceController::~CameraDeviceController() = default;
 
-void gazebo::CameraDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
+bool gazebo::CameraDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
 {
-	// Render image
-	//this->_camera->Render(true);
+	if(this->_newCamDat)
+	{
+		// If new data is available, send it
+		reply->mutable_camera()->set_imageheight(this->_data.imageHeight());
+		reply->mutable_camera()->set_imagewidth(this->_data.imageWidth());
+		reply->mutable_camera()->set_imagedepth(this->_data.imagePixelSize());
+		reply->mutable_camera()->set_imagedata(this->_imData);
 
-	reply->mutable_camera()->set_imageheight(this->_data.imageHeight());
-	reply->mutable_camera()->set_imagewidth(this->_data.imageWidth());
-	reply->mutable_camera()->set_imagedepth(this->_data.imagePixelSize());
-	reply->mutable_camera()->set_imagedata(this->_imData);
+		this->_newCamDat = false;
+		return true;
+	}
+	else
+	{
+		// If no new data is available, send empty message
+		reply->Clear();
+		return false;
+	}
 }
 
 void gazebo::CameraDeviceController::setData(const google::protobuf::Message & data)

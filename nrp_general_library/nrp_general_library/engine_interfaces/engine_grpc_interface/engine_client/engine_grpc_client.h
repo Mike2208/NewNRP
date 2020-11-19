@@ -205,7 +205,9 @@ class EngineGrpcClient
 
             for(int i = 0; i < reply.reply_size(); i++)
             {
-				interfaces.insert(this->getSingleDeviceInterfaceFromProto<DEVICES...>(reply.reply(i)));
+				// Check whether the requested device has new data
+				if(reply.reply(i).has_deviceid())
+					interfaces.insert(this->getSingleDeviceInterfaceFromProto<DEVICES...>(reply.reply(i)));
             }
 
             return interfaces;

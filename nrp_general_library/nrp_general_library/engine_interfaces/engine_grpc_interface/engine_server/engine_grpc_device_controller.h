@@ -21,9 +21,9 @@ class EngineGrpcDeviceController
 		/*!
 		 * \brief Get device information to be forwarded to the NRP
 		 * \param data Additional data
-		 * \return Returns a json structure containing device information
+		 * \return Returns true when new data is available, false otherwise
 		 */
-		virtual void getData(EngineGrpc::GetDeviceMessage * reply) = 0;
+		virtual bool getData(EngineGrpc::GetDeviceMessage * reply) = 0;
 
 		/*!
 		 * \brief Handle received device data

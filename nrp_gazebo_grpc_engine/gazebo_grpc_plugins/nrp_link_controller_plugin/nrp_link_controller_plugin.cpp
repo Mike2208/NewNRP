@@ -21,7 +21,7 @@ gazebo::LinkDeviceController::LinkDeviceController(const std::string &linkName, 
 
 gazebo::LinkDeviceController::~LinkDeviceController() = default;
 
-void gazebo::LinkDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
+bool gazebo::LinkDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
 {
 	const auto &pose = this->_link->WorldCoGPose();
 
@@ -45,6 +45,8 @@ void gazebo::LinkDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
 	reply->mutable_link()->add_angularvelocity(ToFloat(angVel.X()));
 	reply->mutable_link()->add_angularvelocity(ToFloat(angVel.Y()));
 	reply->mutable_link()->add_angularvelocity(ToFloat(angVel.Z()));
+
+	return true;
 }
 
 void gazebo::LinkDeviceController::setData(const google::protobuf::Message &)

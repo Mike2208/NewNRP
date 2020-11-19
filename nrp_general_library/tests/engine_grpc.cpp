@@ -15,10 +15,11 @@ class TestGrpcDeviceController : public EngineGrpcDeviceController
 
         TestGrpcDeviceController(const DeviceIdentifier &devID) : EngineGrpcDeviceController(devID) {}
 
-        virtual void getData(EngineGrpc::GetDeviceMessage *) override
+		virtual bool getData(EngineGrpc::GetDeviceMessage *) override
         {
             //reply->mutable_deviceid()->set_devicename(_setMessage.deviceid().devicename());
             //reply->mutable_deviceid()->set_devicetype(_setMessage.deviceid().devicetype());
+			return true;
         }
 
         virtual void setData(const google::protobuf::Message & data) override
