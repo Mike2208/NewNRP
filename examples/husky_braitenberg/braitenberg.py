@@ -5,7 +5,7 @@ This file contains the setup of the neuronal network running the Husky experimen
 # pragma: no cover
 
 import nest
-from NRPNestPythonModule import RegisterDevice, CreateDevice
+from NRPNestJSONPythonModule import RegisterDevice, CreateDevice
 
 SENSORPARAMS = {'E_L': -60.5,
                 'C_m': 25.0,

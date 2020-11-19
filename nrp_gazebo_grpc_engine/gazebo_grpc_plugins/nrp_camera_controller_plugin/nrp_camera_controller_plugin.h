@@ -33,6 +33,7 @@ namespace gazebo
 			common::Time _lastSensorUpdateTime = 0;
 
 			PhysicsCamera _data;
+			std::string _imData;
 	};
 
 	class NRPCameraController

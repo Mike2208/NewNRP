@@ -56,7 +56,7 @@ double gazebo::NRPWorldPlugin::runLoopStep(double timeStep)
 
 bool gazebo::NRPWorldPlugin::finishWorldLoading()
 {
-	//std::cout << "Finalizing gazebo loading... Time:" <<  this->_world->SimTime().Double() << "\n";
+	std::cout << "Finalizing gazebo loading... Time:" <<  this->_world->SimTime().Double() << "\n";
 
 	// Force loading of all plugins
 	const auto prevStepSize = this->_world->Physics()->GetMaxStepSize();
@@ -64,7 +64,7 @@ bool gazebo::NRPWorldPlugin::finishWorldLoading()
 	this->startLoop(1);
 	this->_world->Physics()->SetMaxStepSize(prevStepSize);
 
-	//std::cout << "Gazebo loading finalized Time:" <<  this->_world->SimTime().Double() << "\n";
+	std::cout << "Gazebo loading finalized Time:" <<  this->_world->SimTime().Double() << "\n";
 
 	return true;
 }

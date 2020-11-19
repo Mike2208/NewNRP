@@ -1,6 +1,6 @@
 from NRPPythonModule import *
-import NRPGazeboDeviceInterfacePython
-from NRPNestPythonModule import NestDevice
+import NRPGazeboGrpcEnginePython
+from NRPNestJSONPythonModule import NestDevice
 import numpy
 
 @SingleTransceiverDevice(keyword='camera', id=DeviceIdentifier('mouse_right_eye::camera', 'p_camera', 'gazebo'))

@@ -14,7 +14,7 @@ TEST(PluginManagerTest, TestLoadPlugin)
 
 	const char *const pEnvLibPath = getenv("LD_LIBRARY_PATH");
 	ASSERT_NE(pEnvLibPath, nullptr);
-	ASSERT_TRUE(std::string(pEnvLibPath).starts_with(TEST_PLUGIN_DIR));
+	ASSERT_TRUE(std::string(pEnvLibPath).ends_with(TEST_PLUGIN_DIR));
 
 	// Test loading plugin
 	auto engineLauncher = pluginMan.loadPlugin(TEST_NRP_PLUGIN);
