@@ -40,7 +40,10 @@ struct python_property_device_class
 	static auto create(const std::string &class_name, auto init)
 	{
 		namespace python = boost::python;
-		return python_property_device_class::add_property<0>(python_device_class_<PROPERTY_DEVICE>(class_name, init));
+		return python_property_device_class::add_property<0>(python_device_class_<PROPERTY_DEVICE>(class_name, init))
+		        .def("__init__", boost::python::make_constructor(&initFcnEmpty))
+		        .def("__init__", boost::python::make_constructor(&initFcnStr))
+		        .def("__init__", boost::python::make_constructor(&initFcnDevID));
 	}
 
 	/*!
@@ -49,10 +52,21 @@ struct python_property_device_class
 	 */
 	static auto create()
 	{
-		return python_property_device_class::create(PROPERTY_DEVICE::TypeName, boost::python::init<const DeviceIdentifier&>());
+		return python_property_device_class::create(PROPERTY_DEVICE::TypeName, boost::python::no_init);
 	}
 
 	private:
+	    static typename PROPERTY_DEVICE::shared_ptr initFcnEmpty()
+		{	return typename PROPERTY_DEVICE::shared_ptr(new PROPERTY_DEVICE(DeviceIdentifier("", "", std::string(PROPERTY_DEVICE::TypeName))));	}
+
+		static typename PROPERTY_DEVICE::shared_ptr initFcnStr(const std::string &name, const std::string &engineName)
+		{	return typename PROPERTY_DEVICE::shared_ptr(new PROPERTY_DEVICE(DeviceIdentifier(name, engineName, std::string(PROPERTY_DEVICE::TypeName))));	}
+
+		static typename PROPERTY_DEVICE::shared_ptr initFcnDevID(DeviceIdentifier devID)
+		{
+			devID.Type = std::string(PROPERTY_DEVICE::TypeName);
+			return typename PROPERTY_DEVICE::shared_ptr(new PROPERTY_DEVICE(std::move(devID)));
+		}
 
 	    /*!
 		 * \brief Function pointer to a the getProperty call of PROPERTY_DEVICE

@@ -7,7 +7,7 @@ from PIL import Image
 import time
 
 
-@SingleTransceiverDevice(keyword='camera', id=DeviceIdentifier('mouse_right_eye::camera', 'p_camera', 'gazebo'))
+@SingleTransceiverDevice(keyword='camera', id=DeviceIdentifier('mouse_right_eye::camera', 'gazebo'))
 @TransceiverFunction("nest")
 def transceiver_function(camera):
     cam_width = int(round(camera.image_width))
@@ -54,12 +54,12 @@ def transceiver_function(camera):
     print("Right Red: " + str(right_r))
     print("Go On:     " + str(no_r))
 
-    lpg = NestDevice(DeviceIdentifier("lpg", "nest_dev", "nest"))
+    lpg = NestDevice(DeviceIdentifier("lpg", "nest", "nest_dev"))
     lpg.data = {'rate': 2000.0*left_r}
-    rpg = NestDevice(DeviceIdentifier("rpg", "nest_dev", "nest"))
+    rpg = NestDevice(DeviceIdentifier("rpg", "nest", "nest_dev"))
     rpg.data = {'rate': 2000.0*right_r}
 
-    gpg = NestDevice(DeviceIdentifier("gpg", "nest_dev", "nest"))
+    gpg = NestDevice(DeviceIdentifier("gpg", "nest", "nest_dev"))
     gpg.data = {'rate': 75.0*no_r}
 
     print("lpg send: " + str(lpg.data))

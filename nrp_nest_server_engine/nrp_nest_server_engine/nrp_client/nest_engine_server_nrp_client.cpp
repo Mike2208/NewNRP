@@ -104,8 +104,7 @@ EngineInterface::device_outputs_set_t NestEngineServerNRPClient::requestOutputDe
 			if(resp.code != 200)
 				throw std::runtime_error("Failed to get data for device \"" + devID.Name + "\"");
 
-			pDevDat->data().SerializedData = resp.body;
-			pDevDat->data().deserialize();
+			pDevDat->data().deserialize(resp.body);
 		}
 
 		retVals.insert(*devDatIt);
@@ -130,8 +129,7 @@ EngineInterface::RESULT NestEngineServerNRPClient::handleInputDevices(const Engi
 		if(resp.code != 200)
 			throw std::runtime_error("Failed to get data for device \"" + nestDev.id().Name + "\"");
 
-		nestDev.data().SerializedData = resp.body;
-		nestDev.data().deserialize();
+		nestDev.data().deserialize(resp.body);
 
 		auto devIt = this->_nestDevs.find(inDev->id().Name);
 		if(devIt != this->_nestDevs.end())

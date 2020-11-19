@@ -85,6 +85,7 @@ concept DEVICE_C = requires {
         {	T::TypeName	};
         std::derived_from<T, DeviceInterface>;
         std::derived_from<T, PropertyTemplateGeneral>;
+        //std::constructible_from<T, DeviceIdentifier&&>;
         //std::constructible_from<T, DeviceIdentifier&&, typename T::property_template_t &&>;
 };
 

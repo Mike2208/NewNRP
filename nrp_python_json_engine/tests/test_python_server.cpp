@@ -55,12 +55,12 @@ TEST(TestPythonJSONServer, TestFunc)
 	// Test Python Device data deserialization
 	PyObjectDevice dev = JSONDeviceConversionMechanism<>::deserialize<PyObjectDevice>(respParse.begin());
 
-	dev.PyObjectDevice::data().Data = python::dict(dev.PyObjectDevice::data().deserialize());
+	dev.PyObjectDevice::data() = python::dict(dev.PyObjectDevice::data().deserialize(""));
 
 	// TODO: Test Sending data
 
-	ASSERT_EQ(respParse["device1"][PyObjectDeviceConst::Object.m_data].size(), python::len(dev.data().Data));
-	float recTime = python::extract<float>(dev.data().Data["time"]);
+	ASSERT_EQ(respParse["device1"][PyObjectDeviceConst::Object.m_data].size(), python::len(dev.data()));
+	float recTime = python::extract<float>(dev.data()["time"]);
 	ASSERT_EQ(0, recTime);
 
 	pyState.endAllowThreads();

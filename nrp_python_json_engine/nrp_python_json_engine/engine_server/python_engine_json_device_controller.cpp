@@ -22,10 +22,10 @@ nlohmann::json PythonEngineJSONDeviceController<PyObjectDevice>::handleDeviceDat
 
 boost::python::object &PythonEngineJSONDeviceController<PyObjectDevice>::data()
 {
-	return this->_deviceData.data().Data;
+	return this->_deviceData.data();
 }
 
 boost::python::object PythonEngineJSONDeviceController<PyObjectDevice>::data() const
 {
-	return this->_deviceData.data().Data;
+	return this->_deviceData.data();
 }

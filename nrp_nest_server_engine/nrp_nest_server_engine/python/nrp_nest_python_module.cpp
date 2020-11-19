@@ -30,12 +30,10 @@ python::dict GetDevMap()
 }
 
 void setNestData(NestServerDevice &dev, const boost::python::object &data)
-{	dev.data().Data = data;	}
+{	dev.data() = data;	}
 
 const boost::python::object &getNestData(const NestServerDevice &dev)
-{
-	return dev.data().Data;
-}
+{	return dev.data();	}
 
 BOOST_PYTHON_MODULE(NRP_NEST_PYTHON_MODULE)
 {

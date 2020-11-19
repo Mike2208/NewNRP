@@ -15,10 +15,10 @@ NestDeviceInterface::NestDeviceInterface(const DeviceIdentifier &devID, const bo
 
 const boost::python::object &NestDeviceInterface::data() const
 {
-	return PyObjectDevice::data().Data;
+	return PyObjectDevice::data();
 }
 
 boost::python::object &NestDeviceInterface::data()
 {
-	return PyObjectDevice::data().Data;
+	return PyObjectDevice::data();
 }

@@ -6,32 +6,25 @@
 
 namespace python = boost::python;
 
-PyObjectDeviceConst::PyObjData::PyObjData(std::string _serializedData, python::object _data, python::object _jsonEncoder, python::object _jsonDecoder)
-    : SerializedData(_serializedData),
-      Data(_data),
-      JsonEncoder(_jsonEncoder),
-      JsonDecoder(_jsonDecoder)
-{}
-
-PyObjectDeviceConst::PyObjData::PyObjData(std::string _serializedData)
-    : SerializedData(_serializedData)
-{}
+PyObjectDeviceConst::PyObjData::PyObjData(const std::string &serializedData)
+{
+	this->deserialize(serializedData);
+}
 
 PyObjectDeviceConst::PyObjData::PyObjData(boost::python::object _data, boost::python::object _jsonEncoder, boost::python::object _jsonDecoder)
-    : Data(_data),
+    : boost::python::object(_data),
       JsonEncoder(_jsonEncoder),
       JsonDecoder(_jsonDecoder)
 {}
 
-const std::string &PyObjectDeviceConst::PyObjData::serialize() const
+std::string PyObjectDeviceConst::PyObjData::serialize() const
 {
 	try
 	{
 		static python::object jsonDumps = python::import("json").attr("dumps");
 		python::dict kwargs;
 		kwargs["cls"] = this->JsonEncoder;
-		const_cast<PyObjData*>(this)->SerializedData = python::extract<std::string>(python::str(jsonDumps(*python::make_tuple(this->Data), **kwargs)));		
-		return this->SerializedData;
+		return python::extract<std::string>(python::str(jsonDumps(*python::make_tuple(reinterpret_cast<const boost::python::object&>(*this)), **kwargs)));
 	}
 	catch(python::error_already_set&)
 	{
@@ -39,15 +32,15 @@ const std::string &PyObjectDeviceConst::PyObjData::serialize() const
 	}
 }
 
-python::object PyObjectDeviceConst::PyObjData::deserialize() const
+python::object PyObjectDeviceConst::PyObjData::deserialize(const std::string &serializedData)
 {
 	try
 	{
 		static python::object jsonLoads = python::import("json").attr("loads");
 		python::dict kwargs;
 		kwargs["cls"] = this->JsonDecoder;
-		const_cast<PyObjData*>(this)->Data = jsonLoads(*python::make_tuple(this->SerializedData), **kwargs);
-		return this->Data;
+		reinterpret_cast<boost::python::object&>(*this) = jsonLoads(*python::make_tuple(serializedData), **kwargs);
+		return *this;
 	}
 	catch(python::error_already_set&)
 	{
@@ -82,11 +75,11 @@ PyObjectDeviceConst::PyObjData &PyObjectDevice::data()
 void PyObjectDevice::setData(const PyObjectDeviceConst::PyObjData &data)
 {	this->data() = data;	}
 
-boost::python::api::object PyObjectDevice::pyData() const
-{	return this->data().Data;	}
+boost::python::object PyObjectDevice::pyData() const
+{	return this->data();	}
 
-void PyObjectDevice::setPyData(boost::python::api::object data)
-{	this->data().Data = data;	}
+void PyObjectDevice::setPyData(boost::python::object data)
+{	this->data() = data;	}
 
 template<>
 nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PyObjectDeviceConst::PyObjData &property)
@@ -97,9 +90,6 @@ nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PyOb
 template<>
 PyObjectDeviceConst::PyObjData JSONPropertySerializerMethods::deserializeSingleProperty<PyObjectDeviceConst::PyObjData>(const nlohmann::json &data, const std::string_view &name)
 {
-	auto retVal = PyObjectDeviceConst::PyObjData(data[name.data()].dump());
-	retVal.deserialize();
-
-	return retVal;
+	return PyObjectDeviceConst::PyObjData(data[name.data()].dump());
 }
 

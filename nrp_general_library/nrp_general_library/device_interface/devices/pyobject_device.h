@@ -10,33 +10,30 @@
 struct PyObjectDeviceConst
 {
 	struct PyObjData
+	        : public boost::python::object
 	{
-		std::string SerializedData;
-		boost::python::object Data;
-
-		boost::python::object JsonEncoder;
-		boost::python::object JsonDecoder;
+		boost::python::object JsonEncoder = defaultEncoder();
+		boost::python::object JsonDecoder = defaultDecoder();
 
 		PyObjData() = default;
-		PyObjData(std::string _serializedData, boost::python::object _data, boost::python::object _jsonEncoder = PyObjData::defaultEncoder(), boost::python::object _jsonDecoder = PyObjData::defaultDecoder());
-		PyObjData(std::string _serializedData);
+		PyObjData(const std::string &serializedData);
 		PyObjData(boost::python::object _data, boost::python::object _jsonEncoder = PyObjData::defaultEncoder(), boost::python::object _jsonDecoder = PyObjData::defaultDecoder());
 
-		const std::string &serialize() const;
-		boost::python::object deserialize() const;
+		std::string serialize() const;
+		boost::python::object deserialize(const std::string &serializedData);
 
 		private:
 		    static boost::python::object defaultEncoder();
 			static boost::python::object defaultDecoder();
 	};
 
-	static constexpr FixedString Object = "object";
+	static constexpr FixedString Object = "data";
 
 	using PyPropNames = PropNames<Object>;
 };
 
 class PyObjectDevice
-        : public Device<PyObjectDevice, "py_obj", PyObjectDeviceConst::PyPropNames,
+        : public Device<PyObjectDevice, "PythonDevice", PyObjectDeviceConst::PyPropNames,
                         PyObjectDeviceConst::PyObjData>,
           public PyObjectDeviceConst
 {
