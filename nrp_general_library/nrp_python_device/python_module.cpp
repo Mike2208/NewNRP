@@ -2,7 +2,7 @@
 
 #include "nrp_general_library/config/cmake_constants.h"
 
-#include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
+#include "nrp_general_library/device_interface/devices/pyobject_device.h"
 
 #include "nrp_general_library/transceiver_function/transceiver_function.h"
 #include "nrp_general_library/transceiver_function/transceiver_device_interface.h"
@@ -62,8 +62,8 @@ BOOST_PYTHON_MODULE(PYTHON_MODULE_NAME)
 	register_ptr_to_python<DeviceInterfaceSharedPtr>();
 	register_ptr_to_python<DeviceInterfaceConstSharedPtr>();
 
-	class_<PythonObjectDeviceInterface, bases<DeviceInterface> >("PythonDevice", init<const DeviceIdentifier&, boost::python::object>())
-	        .add_property("data", &PythonObjectDeviceInterface::pyData, &PythonObjectDeviceInterface::setPyData);
+	class_<PyObjectDevice, bases<DeviceInterface> >("PythonDevice", init<const DeviceIdentifier&, boost::python::object>())
+	        .add_property("data", &PyObjectDevice::pyData, &PyObjectDevice::setPyData);
 
 	class_<TransceiverDeviceInterfaceWrapper, boost::noncopyable>("TransceiverDeviceInterface", init<>())
 	        .def("__call__", &TransceiverDeviceInterface::pySetup<TransceiverDeviceInterface>)

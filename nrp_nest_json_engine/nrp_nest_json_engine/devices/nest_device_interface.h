@@ -1,7 +1,7 @@
 #ifndef NEST_JSON_DEVICE_INTERFACE_H
 #define NEST_JSON_DEVICE_INTERFACE_H
 
-#include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
+#include "nrp_general_library/device_interface/devices/pyobject_device.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 #include "nrp_general_library/utils/serializers/python_dict_property_serializer.h"
 
@@ -11,7 +11,7 @@
  *	\brief NEST Device
  */
 class NestDeviceInterface
-        : public PythonObjectDeviceInterface
+        : public PyObjectDevice
 {
 	public:
 		static constexpr std::string_view TypeName = "nest_dev";

@@ -1,7 +1,7 @@
 #ifndef PYTHON_ENGINE_JSON_DEVICE_CONTROLLER_H
 #define PYTHON_ENGINE_JSON_DEVICE_CONTROLLER_H
 
-#include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
+#include "nrp_general_library/device_interface/devices/pyobject_device.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 #include "nrp_general_library/utils/serializers/python_dict_property_serializer.h"
@@ -12,7 +12,7 @@ template<DEVICE_C DEVICE>
 class PythonEngineJSONDeviceController;
 
 template<>
-class PythonEngineJSONDeviceController<PythonObjectDeviceInterface>
+class PythonEngineJSONDeviceController<PyObjectDevice>
         : public EngineJSONDeviceController
 {
 	public:
@@ -34,7 +34,7 @@ class PythonEngineJSONDeviceController<PythonObjectDeviceInterface>
 		/*!
 		 * \brief Device Data. Used to convert to/from JSON and python dict
 		 */
-		PythonObjectDeviceInterface _deviceData;
+		PyObjectDevice _deviceData;
 };
 
 #endif // PYTHON_ENGINE_JSON_DEVICE_CONTROLLER_H

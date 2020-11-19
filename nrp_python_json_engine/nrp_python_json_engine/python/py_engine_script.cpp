@@ -24,8 +24,8 @@ void PyEngineScript::registerDevice(std::string deviceName)
 	assert(this->_pServer != nullptr);
 
 	//std::cout << "Creating device controller for \"" + deviceName + "\"\n";
-	PtrTemplates<PythonEngineJSONDeviceController<PythonObjectDeviceInterface>>::shared_ptr
-	        newController(new PythonEngineJSONDeviceController<PythonObjectDeviceInterface>(DeviceIdentifier(deviceName, PythonObjectDeviceInterface::TypeName.data(), "")));
+	PtrTemplates<PythonEngineJSONDeviceController<PyObjectDevice>>::shared_ptr
+	        newController(new PythonEngineJSONDeviceController<PyObjectDevice>(DeviceIdentifier(deviceName, PyObjectDevice::TypeName.data(), "")));
 
 	//std::cout << "Adding device controller for \"" + deviceName + "\"\n";
 	this->_deviceControllers.push_back(newController);

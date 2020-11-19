@@ -1,7 +1,7 @@
 #ifndef PYTHON_JSON_SERVER_H
 #define PYTHON_JSON_SERVER_H
 
-#include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
+#include "nrp_general_library/device_interface/devices/pyobject_device.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 

@@ -35,8 +35,8 @@ struct DeviceIdentifier
 	DeviceIdentifier(const std::string &_name, const std::string &_type, const std::string &_engineName);
 	DeviceIdentifier() = default;
 
-	bool operator==(const DeviceIdentifier &other) const;
-	bool operator<(const DeviceIdentifier &other) const;
+	bool operator== (const DeviceIdentifier &) const = default;
+	auto operator<=>(const DeviceIdentifier &) const = default;
 };
 
 /*!
@@ -82,8 +82,10 @@ using DeviceInterfaceConstSharedPtr = DeviceInterface::const_shared_ptr;
 
 template<class T>
 concept DEVICE_C = requires {
-        std::derived_from<T, DeviceInterface>;
         {	T::TypeName	};
+        std::derived_from<T, DeviceInterface>;
+        std::derived_from<T, PropertyTemplateGeneral>;
+        //std::constructible_from<T, DeviceIdentifier&&, typename T::property_template_t &&>;
 };
 
 /*!
@@ -112,19 +114,22 @@ class Device
 
 		/*!
 		 * \brief Constructor
+		 * \tparam DEV_ID_T DeviceIdentifier type
 		 * \tparam PROPERTIES_T Property types to pass along to PropertyTemplate constructor
 		 * \param devID Device ID
 		 * \param props Properties to pass along to PropertyTemplate constructor
 		 */
-		template<class ...PROPERTIES_T>
-		Device(const DeviceIdentifier &devID, PROPERTIES_T &&...props)
-		    : DeviceInterface(devID),
+		template<class DEV_ID_T, class ...PROPERTIES_T>
+		requires(std::same_as<std::remove_cvref_t<DEV_ID_T>, DeviceIdentifier>)
+		Device(DEV_ID_T &&devID, PROPERTIES_T &&...props)
+		    : DeviceInterface(std::forward<DEV_ID_T>(devID)),
 		      property_template_t(std::forward<PROPERTIES_T>(props)...)
 		{
 			// Make sure DEVICE class is derived from DeviceInterface
 			static_assert(DEVICE_C<DEVICE>, "DEVICE does not fulfill concept requirements");
 		};
 };
+
 
 /*! \page devices Devices
 

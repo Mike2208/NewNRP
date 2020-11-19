@@ -1,5 +1,5 @@
-#ifndef PYTHON_OBJECT_DEVICE_INTERFACE_H
-#define PYTHON_OBJECT_DEVICE_INTERFACE_H
+#ifndef PYOBJECT_DEVICE_H
+#define PYOBJECT_DEVICE_H
 
 #include "nrp_general_library/device_interface/device_interface.h"
 #include "nrp_general_library/utils/property_template.h"
@@ -7,7 +7,7 @@
 
 #include <boost/python.hpp>
 
-struct PythonObjectDeviceInterfaceConst
+struct PyObjectDeviceConst
 {
 	struct PyObjData
 	{
@@ -35,23 +35,20 @@ struct PythonObjectDeviceInterfaceConst
 	using PyPropNames = PropNames<Object>;
 };
 
-class PythonObjectDeviceInterface
-        : public DeviceInterface,
-          public PropertyTemplate<PythonObjectDeviceInterface, PythonObjectDeviceInterfaceConst::PyPropNames, PythonObjectDeviceInterfaceConst::PyObjData>,
-          public PythonObjectDeviceInterfaceConst
+class PyObjectDevice
+        : public Device<PyObjectDevice, "py_obj", PyObjectDeviceConst::PyPropNames,
+                        PyObjectDeviceConst::PyObjData>,
+          public PyObjectDeviceConst
 {
 	public:
-		static constexpr std::string_view TypeName = "py_obj";
+		PyObjectDevice(const DeviceIdentifier &id, const nlohmann::json &data);
 
-		PythonObjectDeviceInterface(const DeviceIdentifier &id, const nlohmann::json &data);
-
-		template<class ...DATA_T>
-		PythonObjectDeviceInterface(const DeviceIdentifier &id, DATA_T &&...data)
-		    : DeviceInterface(id),
-		      PropertyTemplate(std::forward<DATA_T>(data)...)
+		template<class DEVID_T, class ...DATA_T>
+		PyObjectDevice(DEVID_T &&id, DATA_T &&...data)
+		    : Device(std::forward<DEVID_T>(id), std::forward<DATA_T>(data)...)
 		{}
 
-		virtual ~PythonObjectDeviceInterface() override = default;
+		virtual ~PyObjectDevice() override = default;
 
 		const PyObjData &data() const;
 		PyObjData &data();
@@ -63,9 +60,9 @@ class PythonObjectDeviceInterface
 };
 
 template<>
-nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PythonObjectDeviceInterfaceConst::PyObjData &property);
+nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PyObjectDeviceConst::PyObjData &property);
 
 template<>
-PythonObjectDeviceInterfaceConst::PyObjData JSONPropertySerializerMethods::deserializeSingleProperty<PythonObjectDeviceInterfaceConst::PyObjData>(const nlohmann::json &data, const std::string_view &name);
+PyObjectDeviceConst::PyObjData JSONPropertySerializerMethods::deserializeSingleProperty<PyObjectDeviceConst::PyObjData>(const nlohmann::json &data, const std::string_view &name);
 
-#endif // PYTHON_OBJECT_DEVICE_INTERFACE_H
+#endif // PYOBJECT_DEVICE_H

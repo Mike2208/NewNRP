@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
+#include "nrp_general_library/device_interface/devices/pyobject_device.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 #include "nrp_python_json_engine/engine_server/python_json_server.h"
 #include "tests/test_env_cmake.h"
@@ -53,13 +53,13 @@ TEST(TestPythonJSONServer, TestFunc)
 	return;
 
 	// Test Python Device data deserialization
-	PythonObjectDeviceInterface dev = JSONDeviceConversionMechanism<>::deserialize<PythonObjectDeviceInterface>(respParse.begin());
+	PyObjectDevice dev = JSONDeviceConversionMechanism<>::deserialize<PyObjectDevice>(respParse.begin());
 
-	dev.PythonObjectDeviceInterface::data().Data = python::dict(dev.PythonObjectDeviceInterface::data().deserialize());
+	dev.PyObjectDevice::data().Data = python::dict(dev.PyObjectDevice::data().deserialize());
 
 	// TODO: Test Sending data
 
-	ASSERT_EQ(respParse["device1"][PythonObjectDeviceInterfaceConst::Object.m_data].size(), python::len(dev.data().Data));
+	ASSERT_EQ(respParse["device1"][PyObjectDeviceConst::Object.m_data].size(), python::len(dev.data().Data));
 	float recTime = python::extract<float>(dev.data().Data["time"]);
 	ASSERT_EQ(0, recTime);
 

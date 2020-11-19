@@ -4,21 +4,21 @@
 #include <iostream>
 
 NestDeviceInterface::NestDeviceInterface(const DeviceIdentifier &devID, const nlohmann::json &json)
-    : PythonObjectDeviceInterface(devID, JSONPropertySerializer<NestDeviceInterface>::readProperties(json, boost::python::dict()))
-{	this->PythonObjectDeviceInterface::data().JsonEncoder = boost::python::import(NRP_NEST_PYTHON_MODULE_STR).attr("__dict__")["NumpyEncoder"];	}
+    : PyObjectDevice(devID, JSONPropertySerializer<NestDeviceInterface>::readProperties(json, boost::python::dict()))
+{	this->PyObjectDevice::data().JsonEncoder = boost::python::import(NRP_NEST_PYTHON_MODULE_STR).attr("__dict__")["NumpyEncoder"];	}
 
 NestDeviceInterface::NestDeviceInterface(const DeviceIdentifier &devID, const boost::python::object &data)
-    : PythonObjectDeviceInterface(devID, data)
+    : PyObjectDevice(devID, data)
 {
-	this->PythonObjectDeviceInterface::data().JsonEncoder = boost::python::import(NRP_NEST_PYTHON_MODULE_STR).attr("__dict__")["NumpyEncoder"];
+	this->PyObjectDevice::data().JsonEncoder = boost::python::import(NRP_NEST_PYTHON_MODULE_STR).attr("__dict__")["NumpyEncoder"];
 }
 
 const boost::python::object &NestDeviceInterface::data() const
 {
-	return PythonObjectDeviceInterface::data().Data;
+	return PyObjectDevice::data().Data;
 }
 
 boost::python::object &NestDeviceInterface::data()
 {
-	return PythonObjectDeviceInterface::data().Data;
+	return PyObjectDevice::data().Data;
 }

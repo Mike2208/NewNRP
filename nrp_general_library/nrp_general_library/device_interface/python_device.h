@@ -28,7 +28,7 @@ auto python_device_class_(const std::string &class_name, auto init)
  * \brief Struct to create Python classes for a device with a PropertyTemplate<...> base class
  * \tparam PROPERTY_DEVICE Device type for which to create Python class
  */
-template<PROPERTY_TEMPLATE_C PROPERTY_DEVICE>
+template<DEVICE_C PROPERTY_DEVICE>
 struct python_property_device_class
 {
 	/*!
@@ -41,6 +41,15 @@ struct python_property_device_class
 	{
 		namespace python = boost::python;
 		return python_property_device_class::add_property<0>(python_device_class_<PROPERTY_DEVICE>(class_name, init));
+	}
+
+	/*!
+	 * \brief Creates a Python class object using default options
+	 * \return Returns python class object
+	 */
+	static auto create()
+	{
+		return python_property_device_class::create(PROPERTY_DEVICE::TypeName, boost::python::init<const DeviceIdentifier&>());
 	}
 
 	private:

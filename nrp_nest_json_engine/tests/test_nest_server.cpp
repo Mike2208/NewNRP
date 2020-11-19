@@ -48,7 +48,7 @@ TEST(TestNestJSONServer, TestFunc)
 	auto resp = RestClient::post(cfg.engineServerAddress() + "/" + EngineJSONConfigConst::EngineServerGetDevicesRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), req.dump());
 	respParse = nlohmann::json::parse(resp.body);
 
-	const std::string jsonDat = respParse["voltmeter"][PythonObjectDeviceInterfaceConst::Object.m_data]["element_type"].get<std::string>();
+	const std::string jsonDat = respParse["voltmeter"][PyObjectDeviceConst::Object.m_data]["element_type"].get<std::string>();
 	ASSERT_STREQ(jsonDat.data(), "recorder");
 
 	pyState.endAllowThreads();
@@ -56,11 +56,11 @@ TEST(TestNestJSONServer, TestFunc)
 	// Test Nest Device data deserialization
 	NestDeviceInterface dev = JSONDeviceConversionMechanism<>::deserialize<NestDeviceInterface>(respParse.begin());
 
-	dev.PythonObjectDeviceInterface::data().Data = python::dict(dev.PythonObjectDeviceInterface::data().deserialize());
+	dev.PyObjectDevice::data().Data = python::dict(dev.PyObjectDevice::data().deserialize());
 
 	// TODO: Test Sending data
 
-	ASSERT_EQ(respParse["voltmeter"][PythonObjectDeviceInterfaceConst::Object.m_data].size(), python::len(dev.data()));
+	ASSERT_EQ(respParse["voltmeter"][PyObjectDeviceConst::Object.m_data].size(), python::len(dev.data()));
 	ASSERT_EQ(jsonDat, std::string(python::extract<std::string>(dev.data()["element_type"])));
 
 	server.shutdownServer();

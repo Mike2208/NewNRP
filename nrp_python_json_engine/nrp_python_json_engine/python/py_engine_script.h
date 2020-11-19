@@ -1,7 +1,7 @@
 #ifndef PY_ENGINE_SCRIPT_H
 #define PY_ENGINE_SCRIPT_H
 
-#include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
+#include "nrp_general_library/device_interface/devices/pyobject_device.h"
 #include "nrp_general_library/utils/ptr_templates.h"
 #include "nrp_python_json_engine/engine_server/python_json_server.h"
 
