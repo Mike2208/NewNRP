@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include <engine_grpc.grpc.pb.h>
+#include <nrp_grpc_library/engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
@@ -324,7 +324,7 @@ TEST(EngineGrpc, GetDeviceData2)
     EngineInterface::device_identifiers_t deviceIdentifiers;
     deviceIdentifiers.insert(devId);
 
-    const auto output = client.getOutputDevices(deviceIdentifiers);
+	const auto output = client.requestOutputDevices(deviceIdentifiers);
 
     ASSERT_EQ(output.size(), 1);
     ASSERT_EQ(output.at(0)->name(),       deviceName);
@@ -372,7 +372,7 @@ TEST(EngineGrpc, GetDeviceData3)
     deviceIdentifiers.insert(devId1);
     deviceIdentifiers.insert(devId2);
 
-    const auto output = client.getOutputDevices(deviceIdentifiers);
+	const auto output = client.requestOutputDevices(deviceIdentifiers);
 
     ASSERT_EQ(output.size(), 2);
     ASSERT_EQ(output.at(0)->engineName(), engineName);

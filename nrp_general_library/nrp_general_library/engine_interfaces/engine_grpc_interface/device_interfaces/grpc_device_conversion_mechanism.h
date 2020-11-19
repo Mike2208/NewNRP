@@ -1,7 +1,7 @@
 #ifndef GRPC_DEVICE_CONVERSION_MECHANISM_H
 #define GRPC_DEVICE_CONVERSION_MECHANISM_H
 
-#include <engine_grpc.grpc.pb.h>
+#include <nrp_grpc_library/engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/device_interface/device_conversion_mechanism.h"
 

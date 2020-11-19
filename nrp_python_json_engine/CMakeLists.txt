@@ -66,8 +66,6 @@ endif()
 ##########################################
 ## Header configuration
 
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/../proto")
-
 # General Python Header defines
 set(PYTHON_CMAKE_HEADER_CONFIG_FILE "nrp_python_json_engine/config/cmake_constants.h.in")
 set(NRP_PYTHON_CMAKE_INSTALL_BINDIR "${NRP_PYTHON_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")

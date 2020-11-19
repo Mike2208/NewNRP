@@ -140,8 +140,8 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 	target_link_libraries(${TEST_NAME}
 		PUBLIC
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
-		GTest::GTest
-		GTest::GTestMain
+		GTest::gtest
+		GTest::gtest_main
 		NRPGazeboPlugins::NRPGazeboJointControllerPlugin
 		NRPGazeboPlugins::NRPGazeboLinkControllerPlugin
 		NRPGazeboPlugins::NRPGazeboCameraControllerPlugin

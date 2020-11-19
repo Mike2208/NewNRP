@@ -110,7 +110,7 @@ class NRPMPIClient
 			return dynamic_cast<const MPISpawn*>(this->_process->launchCommand())->getIntercomm();
 		}
 
-		EngineInterface::device_outputs_t requestOutputDeviceCallback(const EngineInterface::device_identifiers_t &deviceIdentifiers) override
+		EngineInterface::device_outputs_set_t requestOutputDeviceCallback(const EngineInterface::device_identifiers_t &deviceIdentifiers) override
 		{
 			EngineMPIControl devCmd(EngineMPIControl::GET_DEVICES, (int)deviceIdentifiers.size());
 			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, devCmd);
@@ -130,12 +130,10 @@ class NRPMPIClient
 			}
 
 			// Receive device data
-			EngineInterface::device_outputs_t retVal;
-			retVal.reserve(mpiDeserializers.size());
-
+			EngineInterface::device_outputs_set_t retVal;
 			for(auto &deserializer : mpiDeserializers)
 			{
-				retVal.emplace_back(MPICommunication::template recvDeviceByType<false, DEVICES...>(this->_comm, (int)EngineMPIControlConst::DEVICE_TAG, deserializer));
+				retVal.emplace(MPICommunication::template recvDeviceByType<false, DEVICES...>(this->_comm, (int)EngineMPIControlConst::DEVICE_TAG, deserializer));
 			}
 
 			return retVal;

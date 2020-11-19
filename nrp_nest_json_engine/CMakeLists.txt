@@ -62,13 +62,12 @@ ExternalProject_Add(nest-simulator
 
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${NRP_NEST_INSTALL_PREFIX} -Dwith-mpi=ON -Dwith-python=ON
 
-	UPDATE_COMMAND ""
+	#UPDATE_COMMAND ""
 )
 
 
 ##########################################
 ## Header configuration
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/../proto")
 
 # General Nest Header defines
 set(NEST_CMAKE_HEADER_CONFIG_FILE "nrp_nest_json_engine/config/cmake_constants.h.in")

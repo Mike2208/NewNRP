@@ -195,8 +195,6 @@ endif()
 
 set(NRP_CLEAR_ENV "NRP_CLEAR_ENV")
 
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/../proto")
-
 # General Header defines
 configure_file("nrp_general_library/config/cmake_constants.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/config/cmake_constants.h" @ONLY)
 
@@ -230,7 +228,7 @@ target_link_libraries(${LIBRARY_NAME}
 		spdlog::spdlog
 		${PROTOBUF_LIBRARIES}
 		${GRPC_LIBRARIES}
-		NRPProtoLibrary::NRPProtoLibrary
+		NRPGRPCLibrary::NRPGRPCLibrary
 
 	PRIVATE
 	    MPI4Py::MPI4Py
