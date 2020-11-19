@@ -26,7 +26,7 @@
 
 #define TEST_MPI_COMMUNICATION_PROC "@CMAKE_CURRENT_BINARY_DIR@/@TEST_MPI_COMMUNICATION@"
 #define TEST_MPI_COMM_STR "teststr"
-#define TEST_MPI_COMM_DEVID DeviceIdentifier("name", "type", "engine")
+#define TEST_MPI_COMM_DEVID DeviceIdentifier("name", "engine", "type")
 #define TEST_MPI_COMM_DEV1 TestDevice1(3, "ret", boost::python::dict())
 
 #endif // TEST_ENV_CMAKE_H

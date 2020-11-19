@@ -5,7 +5,7 @@ PhysicsJointConst::FloatNan::FloatNan(float val)
 {}
 
 PhysicsJoint::PhysicsJoint(const std::string &name)
-    : PhysicsJoint(DeviceIdentifier(name, TypeName.data(), ""))
+    : PhysicsJoint(DeviceIdentifier(name, "", TypeName.data()))
 {}
 
 PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id)

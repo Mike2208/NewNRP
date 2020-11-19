@@ -15,7 +15,7 @@
 using namespace nlohmann;
 
 gazebo::JointDeviceController::JointDeviceController(const physics::JointPtr &joint, const gazebo::physics::JointControllerPtr &jointController, const std::string &jointName)
-    : EngineMPIDeviceController(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), "")),
+    : EngineMPIDeviceController(DeviceIdentifier(jointName, "", PhysicsJoint::TypeName.data())),
       _joint(joint),
       _jointController(jointController),
       _jointData(static_cast<const DeviceIdentifier&>(*this))

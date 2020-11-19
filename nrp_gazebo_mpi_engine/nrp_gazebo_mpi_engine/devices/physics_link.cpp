@@ -2,7 +2,7 @@
 
 
 PhysicsLink::PhysicsLink(const std::string &name)
-    : PhysicsLink(DeviceIdentifier(name, TypeName.data(), ""))
+    : PhysicsLink(DeviceIdentifier(name, "", TypeName.data()))
 {}
 
 PhysicsLink::PhysicsLink(const DeviceIdentifier &id)

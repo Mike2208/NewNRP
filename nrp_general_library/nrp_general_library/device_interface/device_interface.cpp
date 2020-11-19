@@ -1,16 +1,16 @@
 #include "nrp_general_library/device_interface/device_interface.h"
 
 
-DeviceIdentifier::DeviceIdentifier(const std::string &_name, const std::string &_type, const std::string &_engineName)
-    : Name(_name), Type(_type), EngineName(_engineName)
+DeviceIdentifier::DeviceIdentifier(const std::string &_name, const std::string &_engineName, const std::string &_type)
+    : Name(_name), EngineName(_engineName), Type(_type)
 {}
 
 DeviceInterface::DeviceInterface(const DeviceIdentifier &id)
     : _id(id)
 {}
 
-DeviceInterface::DeviceInterface(const std::string &name, const std::string &type, const std::string &engineName)
-    : _id(name, type, engineName)
+DeviceInterface::DeviceInterface(const std::string &name, const std::string &engineName, const std::string &type)
+    : _id(name, engineName, type)
 {}
 
 const std::string &DeviceInterface::name() const

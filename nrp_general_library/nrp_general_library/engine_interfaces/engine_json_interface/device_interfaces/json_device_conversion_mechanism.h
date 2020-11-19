@@ -49,7 +49,7 @@ struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator,
 		try
 		{
 			const auto &dataVal = data.value();
-			return DeviceIdentifier(data.key(), dataVal[JSONTypeID.data()], dataVal[JSONEngineNameID.data()]);
+			return DeviceIdentifier(data.key(), dataVal[JSONEngineNameID.data()], dataVal[JSONTypeID.data()]);
 		}
 		catch(std::exception &e)
 		{

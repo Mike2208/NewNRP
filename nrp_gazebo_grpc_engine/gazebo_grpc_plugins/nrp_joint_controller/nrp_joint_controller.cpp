@@ -14,10 +14,10 @@
 using namespace nlohmann;
 
 gazebo::JointDeviceController::JointDeviceController(const physics::JointPtr &joint, const gazebo::physics::JointControllerPtr &jointController, const std::string &jointName)
-    : EngineGrpcDeviceController(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), "")),
+    : EngineGrpcDeviceController(DeviceIdentifier(jointName, "", PhysicsJoint::TypeName.data())),
       _joint(joint),
       _jointController(jointController),
-      _jointData(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), ""))
+      _jointData(DeviceIdentifier(jointName, "", PhysicsJoint::TypeName.data()))
 {}
 
 bool gazebo::JointDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)

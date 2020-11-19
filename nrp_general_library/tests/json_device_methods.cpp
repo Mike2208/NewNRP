@@ -32,7 +32,7 @@ TEST(JSONDeviceMethodsTest, IDFunctions)
 	nlohmann::json data;
 	data["int"] = 6;
 	data["string"] = "otherData";
-	TestJSONDeviceInterface dev1(DeviceIdentifier("dev2", "type2", "engine"), (const nlohmann::json&) data);
+	TestJSONDeviceInterface dev1(DeviceIdentifier("dev2", "engine", "type2"), (const nlohmann::json&) data);
 
 	// Test serialization
 	const nlohmann::json serializedData = dcm_t::serializeID(dev1.id());
@@ -57,7 +57,7 @@ TEST(JSONDeviceMethodsTest, ConversionFunctions)
 	nlohmann::json data;
 	data["int"] = 6;
 	data["string"] = "otherData";
-	TestJSONDeviceInterface dev1(DeviceIdentifier("dev2", "type2", "engine"), (const nlohmann::json&) data);
+	TestJSONDeviceInterface dev1(DeviceIdentifier("dev2", "engine", "type2"), (const nlohmann::json&) data);
 
 	// Test serialization
 	const nlohmann::json serializedData = dcm_t::serialize(dev1);

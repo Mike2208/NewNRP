@@ -13,7 +13,7 @@ inline float ToFloat(const T &val)
 }
 
 gazebo::LinkDeviceController::LinkDeviceController(const std::string &linkName, const gazebo::physics::LinkPtr &link)
-    : EngineMPIDeviceController(DeviceIdentifier(linkName, PhysicsLink::TypeName.data(), "")),
+    : EngineMPIDeviceController(DeviceIdentifier(linkName, "", PhysicsLink::TypeName.data())),
       _data(linkName),
       _link(link)
 {}

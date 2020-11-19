@@ -23,16 +23,16 @@ struct DeviceIdentifier
 	std::string Name;
 
 	/*!
-	 * \brief Device Type
-	 */
-	std::string Type;
-
-	/*!
 	 * \brief Corresponding engine
 	 */
 	std::string EngineName;
 
-	DeviceIdentifier(const std::string &_name, const std::string &_type, const std::string &_engineName);
+	/*!
+	 * \brief Device Type
+	 */
+	std::string Type;
+
+	DeviceIdentifier(const std::string &_name, const std::string &_engineName, const std::string &_type);
 	DeviceIdentifier() = default;
 
 	bool operator== (const DeviceIdentifier &) const = default;
@@ -51,7 +51,7 @@ class DeviceInterface
 
 		DeviceInterface() = default;
 		DeviceInterface(const DeviceIdentifier &id);
-		DeviceInterface(const std::string &name, const std::string &type, const std::string &engineName);
+		DeviceInterface(const std::string &name, const std::string &engineName, const std::string &type);
 		virtual ~DeviceInterface() = default;
 
 		const std::string &name() const;

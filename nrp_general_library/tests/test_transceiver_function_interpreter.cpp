@@ -27,7 +27,7 @@ TestInputDevice::~TestInputDevice() = default;
 
 DeviceIdentifier TestOutputDevice::ID()
 {
-	return DeviceIdentifier("out", "type", "engine");
+	return DeviceIdentifier("out", "engine", "type");
 }
 
 TestOutputDevice::TestOutputDevice()
@@ -36,7 +36,7 @@ TestOutputDevice::TestOutputDevice()
 
 DeviceIdentifier TestInputDevice::ID()
 {
-	return DeviceIdentifier("in", "type", "engine");
+	return DeviceIdentifier("in", "engine", "type");
 }
 
 TestInputDevice::TestInputDevice()

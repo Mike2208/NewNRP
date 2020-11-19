@@ -51,7 +51,7 @@ struct DeviceConversionMechanism<EngineGrpc::SetDeviceMessage, const EngineGrpc:
 
     static DeviceIdentifier getID(const EngineGrpc::GetDeviceMessage &data)
     {
-        return DeviceIdentifier(data.deviceid().devicename(), data.deviceid().devicetype(), data.deviceid().enginename());
+		return DeviceIdentifier(data.deviceid().devicename(), data.deviceid().enginename(), data.deviceid().devicetype());
     }
 };
 

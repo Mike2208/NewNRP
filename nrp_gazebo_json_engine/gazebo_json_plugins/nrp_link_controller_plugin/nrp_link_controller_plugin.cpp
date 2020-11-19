@@ -14,7 +14,7 @@ inline float ToFloat(const T &val)
 }
 
 gazebo::LinkDeviceController::LinkDeviceController(const std::string &linkName, const gazebo::physics::LinkPtr &link)
-    : EngineJSONDeviceController(DeviceIdentifier(linkName, PhysicsLink::TypeName.data(), "")),
+    : EngineJSONDeviceController(DeviceIdentifier(linkName, "", PhysicsLink::TypeName.data())),
       _data(linkName),
       _link(link)
 {}

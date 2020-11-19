@@ -15,10 +15,10 @@
 using namespace nlohmann;
 
 gazebo::JointDeviceController::JointDeviceController(const physics::JointPtr &joint, const gazebo::physics::JointControllerPtr &jointController, const std::string &jointName)
-    : EngineJSONDeviceController(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), "")),
+    : EngineJSONDeviceController(DeviceIdentifier(jointName, "", PhysicsJoint::TypeName.data())),
       _joint(joint),
       _jointController(jointController),
-      _jointData(DeviceIdentifier(jointName, PhysicsJoint::TypeName.data(), ""))
+      _jointData(DeviceIdentifier(jointName, "", PhysicsJoint::TypeName.data()))
 {}
 
 json gazebo::JointDeviceController::getDeviceInformation(const json::const_iterator &)

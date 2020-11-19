@@ -3,7 +3,7 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
 gazebo::CameraDeviceController::CameraDeviceController(const std::string &devName, const rendering::CameraPtr &camera, const sensors::SensorPtr &parent)
-    : EngineMPIDeviceController(DeviceIdentifier(devName, PhysicsCamera::TypeName.data(), "")),
+    : EngineMPIDeviceController(DeviceIdentifier(devName, "", PhysicsCamera::TypeName.data())),
       _camera(camera),
       _parentSensor(parent),
       _data(camera->ScopedName())

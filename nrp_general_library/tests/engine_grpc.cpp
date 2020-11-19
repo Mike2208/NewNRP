@@ -203,7 +203,7 @@ TEST(EngineGrpc, RegisterDevices)
 {
     TestEngineGrpcServer server;
 
-    TestGrpcDeviceController dev1(DeviceIdentifier("dev1", "test", "test"));
+	TestGrpcDeviceController dev1(DeviceIdentifier("dev1", "test", "test"));
 
     ASSERT_EQ(server.getNumRegisteredDevices(), 0);
     server.registerDevice("dev1", &dev1);
@@ -221,7 +221,7 @@ TEST(EngineGrpc, SetDeviceData1)
 
     const std::string deviceName = "device";
 
-    TestGrpcDeviceController device(DeviceIdentifier("test", "test", "test"));
+	TestGrpcDeviceController device(DeviceIdentifier("test", "test", "test"));
 
     EngineGrpc::SetDeviceRequest request;
     auto r = request.add_request();
@@ -251,7 +251,7 @@ TEST(EngineGrpc, SetDeviceData2)
 
     client.engineName() = engineName;
 
-    DeviceIdentifier         devId(deviceName, deviceType, engineName);
+	DeviceIdentifier         devId(deviceName, engineName, deviceType);
     TestGrpcDeviceInterface1 dev1(devId);             // Client side
     TestGrpcDeviceController deviceController(devId); // Server side
 
@@ -273,7 +273,7 @@ TEST(EngineGrpc, GetDeviceData1)
     const std::string deviceType = "TestType";
     const std::string engineName = "TestEngine";
 
-    TestGrpcDeviceController device(DeviceIdentifier("dev1", deviceType, engineName));
+	TestGrpcDeviceController device(DeviceIdentifier("dev1", engineName, deviceType));
 
     EngineGrpc::SetDeviceRequest setRequest;
     EngineGrpc::GetDeviceRequest getRequest;
@@ -311,7 +311,7 @@ TEST(EngineGrpc, GetDeviceData2)
 
     client.engineName() = engineName;
 
-    DeviceIdentifier         devId(deviceName, deviceType, engineName);
+	DeviceIdentifier         devId(deviceName, engineName, deviceType);
     TestGrpcDeviceInterface2 dev1(devId);             // Client side
     TestGrpcDeviceController deviceController(devId); // Server side
 
@@ -353,8 +353,8 @@ TEST(EngineGrpc, GetDeviceData3)
 
     client.engineName() = engineName;
 
-    DeviceIdentifier         devId1(deviceName1, deviceType1, engineName);
-    DeviceIdentifier         devId2(deviceName2, deviceType2, engineName);
+	DeviceIdentifier         devId1(deviceName1, engineName, deviceType1);
+	DeviceIdentifier         devId2(deviceName2, engineName, deviceType2);
     TestGrpcDeviceInterface1 dev1(devId1);              // Client side
     TestGrpcDeviceInterface2 dev2(devId2);              // Client side
     TestGrpcDeviceController deviceController1(devId1); // Server side

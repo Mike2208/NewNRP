@@ -1,7 +1,7 @@
 from NRPPythonModule import *
 from NRPGeneralPythonTestModule import TestInputDevice, TestOutputDevice
 
-@SingleTransceiverDevice(keyword='device', id=DeviceIdentifier('out', 'type', 'engine'))
+@SingleTransceiverDevice(keyword='device', id=DeviceIdentifier('out', 'engine', 'type'))
 @TransceiverFunction("engine")
 def transceiver_function(device):
     test_val = device.test_value

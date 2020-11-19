@@ -219,8 +219,8 @@ class EngineGrpcClient
             if(DEVICE::TypeName.compare(deviceData.deviceid().devicetype()) == 0)
             {
                 DeviceIdentifier devId(deviceData.deviceid().devicename(),
-                                       deviceData.deviceid().devicetype(),
-                                       deviceData.deviceid().enginename());
+				                       deviceData.deviceid().enginename(),
+				                       deviceData.deviceid().devicetype());
 
                 DeviceInterfaceSharedPtr newDevice(new DEVICE(devId, deviceData));
                 // TODO Why is this done here?
