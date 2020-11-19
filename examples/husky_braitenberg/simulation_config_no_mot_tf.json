@@ -6,7 +6,7 @@
 		{
 			"EngineType": "gazebo_grpc",
 			"EngineName": "gazebo",
-			"EngineProcCmd": "gazebo",
+			"EngineProcCmd__Comment": "gazebo",
 			"ServerAddress": "localhost:9100",
 			"GazeboWorldFile": "husky_world_2.sdf"
 		},
