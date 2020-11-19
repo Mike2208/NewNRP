@@ -54,7 +54,7 @@ set(TEST_SRC_FILES
 set(NRP_NEST_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 ExternalProject_Add(nest-simulator
 	GIT_REPOSITORY https://github.com/nest/nest-simulator.git
-	GIT_TAG master
+	GIT_TAG c354d429e60ddb35a61ad02e3a070477e5026fa8
 	GIT_PROGRESS true
 
 	PREFIX ${CMAKE_CURRENT_BINARY_DIR}/nest-simulator
