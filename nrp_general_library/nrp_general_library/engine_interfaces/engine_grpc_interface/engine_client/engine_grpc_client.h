@@ -16,6 +16,35 @@ template<class ENGINE, ENGINE_CONFIG_C ENGINE_CONFIG, DEVICE_C ...DEVICES>
 class EngineGrpcClient
     : public Engine<ENGINE, ENGINE_CONFIG>
 {
+    enum class EngineCommands: int
+    {
+        Init,
+        Shutdown,
+        RunLoopStep,
+        GetDevice,
+        SetDevice,
+        NumCommands,
+    };
+
+    virtual unsigned getCommandTimeoutMs(EngineCommands command)
+    {
+        static constexpr unsigned timeoutsMs[static_cast<int>(EngineCommands::NumCommands)] =
+        {
+            500,
+            500,
+            500,
+            500,
+            500,
+        };
+
+        return timeoutsMs[static_cast<int>(command)];
+    }
+
+    std::chrono::system_clock::time_point GetCommandDeadline(EngineCommands command)
+    {
+        return std::chrono::system_clock::now() + std::chrono::milliseconds(getCommandTimeoutMs(command));
+    }
+
     public:
 
         EngineGrpcClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
@@ -48,6 +77,8 @@ class EngineGrpcClient
             EngineGrpc::InitReply    reply;
             grpc::ClientContext      context;
 
+            context.set_deadline(GetCommandDeadline(EngineCommands::Init));
+
             request.set_json(data.dump());
 
             grpc::Status status = _stub->init(&context, request, &reply);
@@ -65,6 +96,8 @@ class EngineGrpcClient
             EngineGrpc::ShutdownReply   reply;
             grpc::ClientContext         context;
 
+            context.set_deadline(GetCommandDeadline(EngineCommands::Shutdown));
+
             request.set_json(data.dump());
 
             grpc::Status status = _stub->shutdown(&context, request, &reply);
@@ -80,7 +113,9 @@ class EngineGrpcClient
         {
             EngineGrpc::RunLoopStepRequest request;
             EngineGrpc::RunLoopStepReply   reply;
-            grpc::ClientContext       context;
+            grpc::ClientContext            context;
+
+            context.set_deadline(GetCommandDeadline(EngineCommands::RunLoopStep));
 
             request.set_timestep(timeStep);
 
@@ -149,6 +184,8 @@ class EngineGrpcClient
             EngineGrpc::SetDeviceReply   reply;
             grpc::ClientContext          context;
 
+            context.set_deadline(GetCommandDeadline(EngineCommands::SetDevice));
+
             for(const auto &device : inputDevices)
             {
                 if(device->engineName().compare(this->engineName()) == 0)
@@ -202,6 +239,8 @@ class EngineGrpcClient
             EngineGrpc::GetDeviceRequest request;
             EngineGrpc::GetDeviceReply   reply;
             grpc::ClientContext          context;
+
+            context.set_deadline(GetCommandDeadline(EngineCommands::GetDevice));
 
             for(const auto &devID : deviceIdentifiers)
             {
