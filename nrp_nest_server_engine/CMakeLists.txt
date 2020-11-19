@@ -62,7 +62,7 @@ set(TEST_SRC_FILES
 
 ##########################################
 ## Header configuration
-
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/../proto")
 # General Nest Header defines
 set(NEST_CMAKE_HEADER_CONFIG_FILE "nrp_nest_server_engine/config/cmake_constants.h.in")
 set(NRP_NEST_CMAKE_INSTALL_BINDIR "${NRP_NEST_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")

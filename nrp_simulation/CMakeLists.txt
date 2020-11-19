@@ -164,7 +164,7 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 		PUBLIC
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
 		NRPNestJSONEngine::NRPNestJSONEngine
-		NRPGazeboJSONEngine::NRPGazeboJSONEngine
+		NRPGazeboGrpcEngine::NRPGazeboGrpcEngine
 		GTest::gtest
 		GTest::gtest_main)
 

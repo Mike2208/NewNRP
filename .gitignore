@@ -7,4 +7,7 @@ CMakeLists.txt.*
 __pycache__
 *.pyc
 .stignore
+test_env_cmake.h
 /uninstall.sh
+.vscode
+.orig

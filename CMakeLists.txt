@@ -93,6 +93,7 @@ function(add_doxygen_source directory)
 	set_property(GLOBAL PROPERTY DOXYGEN_SOURCE_LIST "${tmp}")
 endfunction(add_doxygen_source)
 
+add_subdirectory(proto)
 
 ##########################################
 ## General NRP library
@@ -106,8 +107,11 @@ add_subdirectory(nrp_general_library)
 ## Gazebo JSON Engine
 add_subdirectory(nrp_gazebo_json_engine)
 
-## Gazebo JSON Engine
-#add_subdirectory(nrp_gazebo_mpi_engine)
+## Gazebo gRPC Engine
+add_subdirectory(nrp_gazebo_grpc_engine)
+
+## Gazebo MPI Engine
+add_subdirectory(nrp_gazebo_mpi_engine)
 
 ## Nest Engine
 add_subdirectory(nrp_nest_json_engine)
@@ -119,7 +123,7 @@ add_subdirectory(nrp_python_json_engine)
 
 ##########################################
 ## NRP Simulation
-set(NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS "NRPGazeboJSONEngine.so;NRPNestJSONEngine.so"
+set(NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS "NRPGazeboGrpcEngine.so;NRPNestJSONEngine.so"
 	CACHE STRING "Default engines which will always be available in the NRP server")
 add_subdirectory(nrp_simulation)
 

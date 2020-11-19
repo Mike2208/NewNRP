@@ -30,6 +30,9 @@ set(LIB_SRC_FILES
 	nrp_general_library/device_interface/devices/python_object_device_interface.cpp
 	nrp_general_library/device_interface/python_device.cpp
 	nrp_general_library/engine_interfaces/engine_interface.cpp
+	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.cpp
+	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.cpp
+	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_client/engine_grpc_client.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.cpp
@@ -98,6 +101,7 @@ set(TEST_SRC_FILES
 	tests/engine_json_server.cpp
 	tests/engine_json_nrp_client.cpp
 	tests/engine_launcher_manager.cpp
+	tests/engine_grpc.cpp
 	tests/json_device_methods.cpp
 	tests/json_property_serializer.cpp
 	#tests/mpi_communication.cpp
@@ -191,6 +195,8 @@ endif()
 
 set(NRP_CLEAR_ENV "NRP_CLEAR_ENV")
 
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/../proto")
+
 # General Header defines
 configure_file("nrp_general_library/config/cmake_constants.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/config/cmake_constants.h" @ONLY)
 
@@ -222,6 +228,9 @@ target_link_libraries(${LIBRARY_NAME}
 		Python3::Python
 		restclient-cpp::restclient-cpp
 		spdlog::spdlog
+		${PROTOBUF_LIBRARIES}
+		${GRPC_LIBRARIES}
+		NRPProtoLibrary::NRPProtoLibrary
 
 	PRIVATE
 	    MPI4Py::MPI4Py
