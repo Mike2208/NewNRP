@@ -5,7 +5,7 @@ This file contains the setup of the neuronal network running the Husky experimen
 # pragma: no cover
 
 import nest
-from NRPNestPythonModule import RegisterDevice, CreateDevice
+from NRPNestJSONPythonModule import RegisterDevice, CreateDevice
 
 SENSORPARAMS = {'E_L': -60.5,
                 'C_m': 25.0,
@@ -51,7 +51,6 @@ CIRCUIT = population
 
 SYN = {'weight': WEIGHT_RED_TO_ACTOR, 'delay': DELAY}
 nest.Connect(CIRCUIT[2:3], CIRCUIT[7:8], 'all_to_all', SYN)
-nest.Connect(CIRCUIT[2:3], CIRCUIT[7:8], 'all_to_all', SYN)
 nest.Connect(CIRCUIT[3:4], CIRCUIT[6:7], 'all_to_all', SYN)
 
 SYN = {'weight': -WEIGHT_RED_TO_GO_ON, 'delay': DELAY}
@@ -79,5 +78,5 @@ nest.Connect(rpg, CIRCUIT[slice(1, 4, 2)])
 nest.Connect(gpg, CIRCUIT[4])
 
 # Register wheel outputs
-RegisterDevice('lwn', CIRCUIT[5])
-RegisterDevice('rwn', CIRCUIT[6])
+RegisterDevice('lwn', CIRCUIT[6])
+RegisterDevice('rwn', CIRCUIT[7])

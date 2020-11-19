@@ -76,7 +76,7 @@ grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * , const EngineGrp
     }
     catch(const std::exception &e)
     {
-        std::cerr << "Error while executing runLoopStep\n";
+		std::cerr << "Error while executing setDevice\n";
         std::cerr << e.what();
 
         return grpc::Status::CANCELLED;
@@ -93,7 +93,7 @@ grpc::Status EngineGrpcServer::getDevice(grpc::ServerContext * , const EngineGrp
     }
     catch(const std::exception &e)
     {
-        std::cerr << "Error while executing runLoopStep\n";
+		std::cerr << "Error while executing getDevice\n";
         std::cerr << e.what();
 
         return grpc::Status::CANCELLED;

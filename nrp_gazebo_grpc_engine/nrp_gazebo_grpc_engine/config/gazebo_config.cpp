@@ -86,6 +86,8 @@ EngineConfigConst::string_vector_t GazeboConfig::allEngineProcStartParams() cons
 	startParams.push_back(GazeboConfig::GazeboPluginArg.data());
 	startParams.push_back(NRP_GAZEBO_COMMUNICATION_PLUGIN);
 
+	startParams.push_back("--verbose");
+
 	// Add RNG Seed
 	startParams.push_back(GazeboConfig::GazeboRNGSeedArg.data());
 	startParams.push_back(std::to_string(this->gazeboRNGSeed()));

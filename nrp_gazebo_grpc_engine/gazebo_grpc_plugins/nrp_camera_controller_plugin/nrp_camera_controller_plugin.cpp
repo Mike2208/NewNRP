@@ -14,12 +14,12 @@ gazebo::CameraDeviceController::~CameraDeviceController() = default;
 void gazebo::CameraDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
 {
 	// Render image
-	this->_camera->Render(true);
+	//this->_camera->Render(true);
 
-	reply->mutable_camera()->set_imageheight(this->_camera->ImageHeight());
-	reply->mutable_camera()->set_imagewidth(this->_camera->ImageWidth());
-	reply->mutable_camera()->set_imagedepth(this->_camera->ImageDepth());
-	reply->mutable_camera()->set_imagedata(reinterpret_cast<char const *>(this->_camera->ImageData()));
+	reply->mutable_camera()->set_imageheight(this->_data.imageHeight());
+	reply->mutable_camera()->set_imagewidth(this->_data.imageWidth());
+	reply->mutable_camera()->set_imagedepth(this->_data.imagePixelSize());
+	reply->mutable_camera()->set_imagedata(this->_imData);
 }
 
 void gazebo::CameraDeviceController::setData(const google::protobuf::Message & data)
@@ -33,7 +33,7 @@ void gazebo::CameraDeviceController::updateCamData(const unsigned char *image, u
 
 	if(sensorUpdateTime > this->_lastSensorUpdateTime)
 	{
-		std::cout << "Updating camera data\n";
+		//std::cout << "Updating camera data\n";
 		this->_lastSensorUpdateTime = sensorUpdateTime;
 
 		// Set headers
@@ -42,8 +42,11 @@ void gazebo::CameraDeviceController::updateCamData(const unsigned char *image, u
 		this->_data.setImagePixelSize(depth);
 
 		const auto imageSize = width*height*depth;
-		this->_data.imageData().resize(imageSize);
-		memcpy(this->_data.imageData().data(), image, imageSize);
+		//this->_data.imageData().resize(imageSize);
+		//memcpy(this->_data.imageData().data(), image, imageSize);
+
+		this->_imData.resize(imageSize);
+		memcpy(this->_imData.data(), image, imageSize);
 	}
 }
 

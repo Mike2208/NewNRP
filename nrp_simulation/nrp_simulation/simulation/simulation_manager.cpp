@@ -151,7 +151,7 @@ void SimulationManager::initSimulationLoop(const EngineLauncherManagerConstShare
 	spdlog::info("Initializing simulation loop");
 	this->_loop.reset(new SimulationLoop(this->createSimLoop(engineLauncherManager, processLauncherManager)));
 
-	sleep(2);
+	sleep(10);
 
 	this->_loop->initLoop();
 }

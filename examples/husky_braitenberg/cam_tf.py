@@ -1,7 +1,11 @@
 from NRPPythonModule import *
-import NRPGazeboDeviceInterfacePython
-from NRPNestPythonModule import NestDevice
+import NRPGazeboGrpcEnginePython
+from NRPNestJSONPythonModule import NestDevice
 import numpy
+import numpy as np
+from PIL import Image
+import time
+
 
 @SingleTransceiverDevice(keyword='camera', id=DeviceIdentifier('mouse_right_eye::camera', 'p_camera', 'gazebo'))
 @TransceiverFunction("nest")
@@ -35,6 +39,17 @@ def transceiver_function(camera):
         right_r = 2.0 * right_r / img_s
         no_r = no_r / img_s
 
+    if False and cam_height > 0 and cam_width > 0:
+        array = np.zeros( (cam_height, cam_width, 3), dtype=np.uint8 )
+        for i in range(0, 3*cam_height*cam_width):
+            array.flat[i] = camera.image_data[i]
+            #if camera.image_data[3*i+1] < 30 and camera.image_data[3*i+2] < 30:
+            #    array.flat[3*i] = camera.image_data[3*i]
+        
+        img = Image.fromarray( array )
+        img.show()
+        time.sleep(10)
+
     print("Left Red:  " + str(left_r))
     print("Right Red: " + str(right_r))
     print("Go On:     " + str(no_r))
@@ -46,7 +61,7 @@ def transceiver_function(camera):
 
     gpg = NestDevice(DeviceIdentifier("gpg", "nest_dev", "nest"))
     gpg.data = {'rate': 75.0*no_r}
-   
+
     print("lpg send: " + str(lpg.data))
 
     return [ rpg, lpg, gpg ]

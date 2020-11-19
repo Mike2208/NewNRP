@@ -51,8 +51,8 @@ void gazebo::JointDeviceController::setData(const google::protobuf::Message & da
 		this->_joint->SetForce(0, this->_jointData.effort());
 }
 
-gazebo::NRPJointController::PIDConfig::PIDConfig(PID _pid, gazebo::NRPJointController::PIDConfig::PID_TYPE _type)
-    : gazebo::common::PID(_pid), Type(_type)
+gazebo::NRPJointController::PIDConfig::PIDConfig(PID &&_pid, gazebo::NRPJointController::PIDConfig::PID_TYPE _type)
+    : gazebo::common::PID(std::move(_pid)), Type(_type)
 {}
 
 gazebo::NRPJointController::PIDConfig::PID_TYPE gazebo::NRPJointController::PIDConfig::convertStringToType(std::string type)
@@ -72,7 +72,7 @@ gazebo::NRPJointController::~NRPJointController() = default;
 
 void gazebo::NRPJointController::Load(gazebo::physics::ModelPtr model, sdf::ElementPtr sdf)
 {
-	std::map<std::string, PIDConfig> jointConfigs;
+	std::map<std::string, double> jointTargets;
 
 	// Iterate over sdf configurations
 	try
@@ -96,16 +96,16 @@ void gazebo::NRPJointController::Load(gazebo::physics::ModelPtr model, sdf::Elem
 			PIDConfig jointConfig(common::PID(pJointPID->Get<double>("P"), pJointPID->Get<double>("I"), pJointPID->Get<double>("D")),
 			                      PIDConfig::convertStringToType(pJointPID->Get<std::string>("Type")));
 
-			// Set target
+			// Save target
 			const auto defTarget = jointConfig.Type == PIDConfig::POSITION ? pJoint->Position(0) : pJoint->GetVelocity(0);
-			jointConfig.SetCmd(NRPJointController::getOptionalValue<double>(pJointPID, "Target", defTarget));
+			jointTargets.emplace(jointName, NRPJointController::getOptionalValue<double>(pJointPID, "Target", defTarget));
 
 			// Set I max and min vals
 			jointConfig.SetIMax(NRPJointController::getOptionalValue<double>(pJointPID, "IMax", 0));
 			jointConfig.SetIMin(NRPJointController::getOptionalValue<double>(pJointPID, "IMin", 0));
 
 			// Save config for later
-			jointConfigs.emplace(jointName, jointConfig);
+			this->_jointConfigs.emplace(jointName, jointConfig);
 
 			pJointPID = pJointPID->GetNextElement();
 		}
@@ -126,15 +126,21 @@ void gazebo::NRPJointController::Load(gazebo::physics::ModelPtr model, sdf::Elem
 		const auto jointName = joint->GetScopedName();
 
 		// Check for existing PID Config
-		auto pidConfigIterator = jointConfigs.find(joint->GetName());
-		if(pidConfigIterator != jointConfigs.end())
+		auto pidConfigIterator = this->_jointConfigs.find(joint->GetName());
+		if(pidConfigIterator != this->_jointConfigs.end())
 		{
 			// Apply configuration
 			const auto &pidConfig = pidConfigIterator->second;
 			if(pidConfig.Type == PIDConfig::PID_TYPE::POSITION)
+			{
 				jointControllerPtr->SetPositionPID(jointName, pidConfig);
+				jointControllerPtr->SetPositionTarget(jointName, jointTargets.at(joint->GetName()));
+			}
 			else if(pidConfig.Type == PIDConfig::PID_TYPE::VELOCITY)
+			{
 				jointControllerPtr->SetVelocityPID(jointName, pidConfig);
+				jointControllerPtr->SetVelocityTarget(jointName, jointTargets.at(joint->GetName()));
+			}
 			else
 			{	/* TODO: Handle invalid controller type (Should already have been done with PIDConfig::convertStringToType, but maybe make sure here as well?) */}
 		}
