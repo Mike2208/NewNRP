@@ -6,12 +6,14 @@
 
 #define TEST_TRANSCEIVER_FCN_FILE_NAME "@CMAKE_CURRENT_SOURCE_DIR@/tests/test_files/transceiver_function.py"
 #define TEST_INVALID_TRANSCEIVER_FCN_FILE_NAME "@CMAKE_CURRENT_SOURCE_DIR@/tests/test_files/invalid_transceiver_function.py"
+#define TEST_SIMPLE_TRANSCEIVER_FCN_MODULE_PATH "@CMAKE_CURRENT_SOURCE_DIR@/tests/test_files"
 
 #define TEST_PLUGIN_DIR "@CMAKE_CURRENT_BINARY_DIR@"
 #define TEST_NRP_PLUGIN "@TEST_NRP_PLUGIN@.so"
 
 #define TEST_PYTHON_MODULE_NAME @TEST_PYTHON_MODULE_NAME@
 #define TEST_PYTHON_MODULE_NAME_STR "@TEST_PYTHON_MODULE_NAME@"
+#define TEST_PYTHON_MODULE_PATH "@CMAKE_CURRENT_BINARY_DIR@"
 
 #define TEST_NRP_PROCESS_EXEC "@CMAKE_CURRENT_BINARY_DIR@/@TEST_NRP_PROCESS_EXEC@"
 
@@ -24,7 +26,7 @@
 
 #define TEST_MPI_COMMUNICATION_PROC "@CMAKE_CURRENT_BINARY_DIR@/@TEST_MPI_COMMUNICATION@"
 #define TEST_MPI_COMM_STR "teststr"
-#define TEST_MPI_COMM_DEVID DeviceIdentifier("name", "type", "engine")
+#define TEST_MPI_COMM_DEVID DeviceIdentifier("name", "engine", "type")
 #define TEST_MPI_COMM_DEV1 TestDevice1(3, "ret", boost::python::dict())
 
 #endif // TEST_ENV_CMAKE_H

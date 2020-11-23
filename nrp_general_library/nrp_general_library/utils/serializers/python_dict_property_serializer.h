@@ -1,7 +1,9 @@
 #ifndef PYTHON_DICT_PROPERTY_SERIALIZER_H
 #define PYTHON_DICT_PROPERTY_SERIALIZER_H
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/property_template.h"
+#include "nrp_general_library/utils/python_error_handler.h"
 #include "nrp_general_library/utils/serializers/property_serializer.h"
 
 #include <boost/python.hpp>
@@ -26,10 +28,9 @@ class ObjectPropertySerializerMethods<boost::python::dict>
 			{
 				return boost::python::extract<PROPERTY>(data[name.data()]);
 			}
-			catch(const boost::python::error_already_set &)
+			catch(boost::python::error_already_set &)
 			{
-				boost::python::handle_exception();
-				throw std::out_of_range(std::string("Couldn't find dict element ") + name.data() + " while deserializing object");
+				throw NRPExceptionMissingProperty(std::string("Couldn't find dict element ") + name.data() + " while deserializing object: " + handle_pyerror());
 			}
 		}
 

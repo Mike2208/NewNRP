@@ -1,6 +1,7 @@
 #include "nrp_simulation/simulation/simulation_manager.h"
 
 #include "nrp_general_library/utils/file_finder.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_simulation/config/cmake_conf.h"
 
 #include <iostream>
@@ -42,7 +43,7 @@ nlohmann::json SimulationParams::parseJSONFile(const std::string &fileName)
 	{
 		cfgFile >> cfgJSON;
 	}
-	catch (const std::exception &e)
+	catch(std::exception &e)
 	{
 		throw std::invalid_argument("Error: Could not parse config file " + fileName + "\n" + e.what());
 	}
@@ -84,7 +85,7 @@ SimulationManager SimulationManager::createFromParams(const cxxopts::ParseResult
 
 	try
 	{	servCfgFileName = args[SimulationParams::ParamServCfgFile.data()].as<SimulationParams::ParamServCfgFileT>();	}
-	catch (const std::domain_error&)
+	catch(std::domain_error&)
 	{
 		servCfgFileName = FileFinder::findFile(NRP_SERVER_CONFIG_FILE_NAME, NRP_SERVER_CONFIG_DIRS);
 		if(servCfgFileName.empty())
@@ -100,7 +101,7 @@ SimulationManager SimulationManager::createFromParams(const cxxopts::ParseResult
 	{
 		simCfgFileName = args[SimulationParams::ParamSimCfgFile.data()].as<SimulationParams::ParamSimCfgFileT>();
 	}
-	catch(const std::domain_error&)
+	catch(std::domain_error&)
 	{
 		// If no simulation file name is present, return empty config
 		return SimulationManager(serverConfig, simConfig);
@@ -253,12 +254,7 @@ SimulationLoop SimulationManager::createSimLoop(const EngineLauncherManagerConst
 		nlohmann::json engineData = static_cast<const nlohmann::json &>(engineConfig);
 		auto engineTypeIterator = engineData.find(EngineConfigConst::EngineType.m_data);
 		if(engineTypeIterator == engineData.end())
-		{
-			const auto errMsg = "Improperly formatted engine config. Couldn't find EngineType specification";
-			spdlog::error(errMsg);
-
-			throw std::invalid_argument(errMsg);
-		}
+			throw NRPException::logCreate("Improperly formatted engine config. Couldn't find EngineType specification");
 
 		// Get engine launcher associated with type
 		const std::string engineType = *engineTypeIterator;
@@ -276,12 +272,9 @@ SimulationLoop SimulationManager::createSimLoop(const EngineLauncherManagerConst
 		{
 			engines.push_back(engineLauncher->launchEngine(engineConfig, processLauncherManager->createProcessLauncher(this->_serverConfig->processLauncherType())));
 		}
-		catch(const std::exception &e)
+		catch(std::exception &e)
 		{
-			spdlog::error("Failed to launch engine interface \"" + engineLauncher->engineType() + "\"");
-			spdlog::error(e.what());
-
-			throw;
+			throw NRPException::logCreate(e, "Failed to launch engine interface \"" + engineLauncher->engineType() + "\"");
 		}
 	}
 

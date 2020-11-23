@@ -6,6 +6,7 @@
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_registration_server.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/restclient_setup.h"
 
 #include <nlohmann/json.hpp>
@@ -63,35 +64,13 @@ class EngineJSONNRPClient
 			{
 				const auto serverAddr = this->waitForRegistration(20, 1);
 				if(serverAddr.empty())
-				{
-					const auto errMsg = "Error while waiting for engine \"" + this->engineName() + "\" to register its address. Did not receive a reply";
-					std::cerr << errMsg << std::endl;
-
-					throw std::runtime_error(errMsg);
-				}
+					throw NRPException::logCreate("Error while waiting for engine \"" + this->engineName() + "\" to register its address. Did not receive a reply");
 
 				this->engineConfig()->engineServerAddress() = serverAddr;
 				this->_serverAddress = serverAddr;
 			}
 
 			return enginePID;
-		}
-
-		virtual typename EngineInterface::device_outputs_t getOutputDevices(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
-		{
-			nlohmann::json request;
-			for(const auto &devID : deviceIdentifiers)
-			{
-				if(this->engineName().compare(devID.EngineName) == 0)
-					request.update(this->_dcm.serializeID(devID));
-			}
-
-			// Post request to Engine JSON server
-			const auto resp(EngineJSONNRPClient::sendRequest(this->_serverAddress + "/" + EngineJSONConfigConst::EngineServerGetDevicesRoute.data(),
-			                                                 EngineJSONConfigConst::EngineServerContentType.data(), request.dump(),
-			                                                 "Engine server \"" + this->engineName() + "\" failed during device retrieval"));
-
-			return this->getDeviceInterfacesFromJSON(resp);
 		}
 
 		virtual typename EngineInterface::RESULT handleInputDevices(const typename EngineInterface::device_inputs_t &inputDevices) override
@@ -142,6 +121,23 @@ class EngineJSONNRPClient
 		}
 
 	protected:
+		virtual typename EngineInterface::device_outputs_set_t requestOutputDeviceCallback(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
+		{
+			nlohmann::json request;
+			for(const auto &devID : deviceIdentifiers)
+			{
+				if(this->engineName().compare(devID.EngineName) == 0)
+					request.update(this->_dcm.serializeID(devID));
+			}
+
+			// Post request to Engine JSON server
+			const auto resp(EngineJSONNRPClient::sendRequest(this->_serverAddress + "/" + EngineJSONConfigConst::EngineServerGetDevicesRoute.data(),
+			                                                 EngineJSONConfigConst::EngineServerContentType.data(), request.dump(),
+			                                                 "Engine server \"" + this->engineName() + "\" failed during device retrieval"));
+
+			return this->getDeviceInterfacesFromJSON(resp);
+		}
+
 		/*!
 		 * \brief Send an initialization command
 		 * \param data Data that should be passed to the engine
@@ -241,12 +237,9 @@ class EngineJSONNRPClient
 
 				return nlohmann::json::parse(resp.body);
 			}
-			catch (const std::exception &e)
+			catch(std::exception &e)
 			{
-				std::cerr << "Communication with engine server failed\n";
-				std::cerr << e.what() << std::endl;
-
-				throw;
+				throw NRPException::logCreate(e, "Communication with engine server failed");
 			}
 		}
 
@@ -271,21 +264,13 @@ class EngineJSONNRPClient
 			{
 				engineTime = resp[EngineJSONConfigConst::EngineTimeName.data()];
 			}
-			catch (const std::exception &e)
+			catch(std::exception &e)
 			{
-				std::cerr << "Error while parsing the return value of the run_step of " + this->engineName() << std::endl;
-				std::cerr << e.what() << std::endl;
-
-				throw;
+				throw NRPException::logCreate(e, "Error while parsing the return value of the run_step of \"" + this->engineName() + "\"");
 			}
 
 			if(engineTime < 0)
-			{
-				const auto errMsg = "Error during execution of engine " + this->engineName();
-				std::cerr << errMsg << std::endl;
-
-				throw std::runtime_error(errMsg);
-			}
+				throw NRPException::logCreate("Error during execution of engine \"" + this->engineName() + "\"");
 
 			return engineTime;
 		}
@@ -295,10 +280,9 @@ class EngineJSONNRPClient
 		 * \param devices JSON data of devices
 		 * \return Returns list of devices
 		 */
-		typename EngineInterface::device_outputs_t getDeviceInterfacesFromJSON(const nlohmann::json &devices) const
+		typename EngineInterface::device_outputs_set_t getDeviceInterfacesFromJSON(const nlohmann::json &devices) const
 		{
-			typename EngineInterface::device_outputs_t interfaces;
-			interfaces.reserve(devices.size());
+			typename EngineInterface::device_outputs_set_t interfaces;
 
 			for(auto curDeviceIterator = devices.begin(); curDeviceIterator != devices.end(); ++curDeviceIterator)
 			{
@@ -312,14 +296,12 @@ class EngineJSONNRPClient
 				{
 					auto deviceID = this->_dcm.getID(curDeviceIterator);
 					deviceID.EngineName = this->engineName();
-					interfaces.push_back(this->getSingleDeviceInterfaceFromJSON<DEVICES...>(curDeviceIterator, deviceID));
+					interfaces.insert(this->getSingleDeviceInterfaceFromJSON<DEVICES...>(curDeviceIterator, deviceID));
 				}
-				catch(const std::exception &e)
+				catch(std::exception &e)
 				{
 					// TODO: Handle json device parsing error
-					std::cerr << e.what();
-
-					throw;
+					throw NRPException::logCreate(e, "Failed to parse JSON Device Interface");
 				}
 			}
 
@@ -353,7 +335,7 @@ class EngineJSONNRPClient
 			if constexpr (sizeof...(REMAINING_DEVICES) > 0)
 			    return this->getSingleDeviceInterfaceFromJSON<REMAINING_DEVICES...>(deviceData, deviceID);
 			else
-			    throw std::logic_error("Could not process given device of type " + deviceID.Type);
+			    throw NRPException::logCreate("Could not process given device of type " + deviceID.Type);
 		}
 
 		/*!
@@ -377,7 +359,7 @@ class EngineJSONNRPClient
 			if constexpr (sizeof...(REMAINING_DEVICES) > 0)
 			{	return this->getJSONFromSingleDeviceInterface<REMAINING_DEVICES...>(device);	}
 			else
-			{	throw std::logic_error("Could not process given device of type " + device.type());	}
+			{	throw NRPException::logCreate("Could not process given device of type " + device.type());	}
 		}
 };
 

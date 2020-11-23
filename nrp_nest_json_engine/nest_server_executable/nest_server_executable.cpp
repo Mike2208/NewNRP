@@ -1,5 +1,7 @@
 #include "nest_server_executable/nest_server_executable.h"
 
+#include "nrp_general_library/utils/spdlog_setup.h"
+
 #include <boost/python.hpp>
 #include <csignal>
 
@@ -94,11 +96,12 @@ void NestServerExecutable::handleSIGTERM(int signal)
 		{
 			NestServerExecutable::shutdown();
 		}
-		catch(const std::exception &e)
+		catch(std::exception &e)
 		{
-			std::cerr << e.what();
+			NRPException::logCreate(e, "NRP Nest Server shutdown failed after receiving SIGTERM signal");
 		}
 
+		SPDLogSetup::shutdownDefault();
 		exit(signal);
 	}
 }

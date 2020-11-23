@@ -2,7 +2,7 @@
 #define BASIC_FORK_H
 
 #include "nrp_general_library/config/engine_config.h"
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 #include "nrp_general_library/process_launchers/launch_commands/launch_command.h"
 
 class BasicFork

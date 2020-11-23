@@ -1,5 +1,7 @@
 #include "nrp_general_library/utils/zip_container.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <assert.h>
 #include <exception>
 #include <filesystem>
@@ -45,12 +47,7 @@ struct ZipWrapper
 	void closeAndSaveZip()
 	{
 		if(zip_close(this->_zip) != 0)
-		{
-			const auto errMsg = std::string("Could not save Zip Container: ") + zip_strerror(this->_zip);
-
-			std::cerr << errMsg << std::endl;
-			throw std::logic_error(errMsg);
-		}
+			throw NRPException::logCreate(std::string("Could not save Zip Container: ") + zip_strerror(this->_zip));
 
 		this->_zip = nullptr;
 	}
@@ -84,7 +81,7 @@ ZipContainer::ZipFileWrapper::~ZipFileWrapper()
 		if(errCode != 0)
 		{
 			ZipErrorT zErr(errCode);
-			std::cerr << "Zip File could not be closed: " << zip_error_strerror(&zErr) << std::endl;
+			NRPLogger::SPDErrLogDefault(std::string("Zip File could not be closed: ") + zip_error_strerror(&zErr));
 		}
 	}
 }
@@ -115,7 +112,7 @@ ZipContainer::~ZipContainer() noexcept
 			const auto zErr = zip_close(this->_data);
 			if(zErr != 0)
 			{
-				std::cerr << "Could not save Zip Container";
+				NRPLogger::SPDErrLogDefault("Could not save Zip Container");
 
 				zip_discard(this->_data);
 			}
@@ -138,12 +135,7 @@ ZipContainer ZipContainer::compressPath(const std::filesystem::path &path, bool 
 	zip_source_t *pZSource = zip_source_buffer_create(nullptr, 0, 0, &zErr);
 	ZipWrapper pZArch = zip_open_from_source(pZSource, ZIP_TRUNCATE, &zErr);
 	if(pZArch == nullptr)
-	{
-		const auto errMsg = std::string("Failed to open temporary file for archive: ") + zip_error_strerror(&zErr);
-
-		std::cerr << errMsg << std::endl;
-		throw std::logic_error(errMsg);
-	}
+		throw NRPException::logCreate(std::string("Failed to open temporary file for archive: ") + zip_error_strerror(&zErr));
 
 	// Set string of directory structure that should be removed
 	for(const auto &f : fs::recursive_directory_iterator(path, fs::directory_options::follow_directory_symlink))
@@ -153,31 +145,16 @@ ZipContainer ZipContainer::compressPath(const std::filesystem::path &path, bool 
 		if(f.is_directory())
 		{
 			if(zip_dir_add(pZArch, fName.c_str(), ZIP_FL_ENC_GUESS) != 0)
-			{
-				const auto errMsg = "Failed to add directory \"" + fName + "\" to zip archive: " + zip_strerror(pZArch);
-
-				std::cerr << errMsg << std::endl;
-				throw std::logic_error(errMsg);
-			}
+				throw NRPException::logCreate("Failed to add directory \"" + fName + "\" to zip archive: " + zip_strerror(pZArch));
 		}
 		else if(f.is_regular_file())
 		{
 			ZipSourceWrapper pZSource = zip_source_file(pZArch, f.path().c_str(), 0, 0);
 			if(pZSource == nullptr)
-			{
-				const auto errMsg = "Failed to add file \"" + fName + "\" to zip archive: " + zip_strerror(pZArch);
-
-				std::cerr << errMsg << std::endl;
-				throw std::logic_error(errMsg);
-			}
+				throw NRPException::logCreate("Failed to add file \"" + fName + "\" to zip archive: " + zip_strerror(pZArch));
 
 			if(zip_file_add(pZArch, fName.c_str(), pZSource, ZIP_FL_ENC_GUESS) < 0)
-			{
-				const auto errMsg = "Failed to add file \"" + fName + "\" to zip archive: " + zip_strerror(pZArch);
-
-				std::cerr << errMsg << std::endl;
-				throw std::logic_error(errMsg);
-			}
+				throw NRPException::logCreate("Failed to add file \"" + fName + "\" to zip archive: " + zip_strerror(pZArch));
 		}
 	}
 
@@ -194,12 +171,7 @@ std::vector<uint8_t> ZipContainer::getCompressedData() const
 
 	ZipWrapper pZArch = zip_open_from_source(pZSource, ZIP_TRUNCATE, &zErr);
 	if(pZArch == nullptr)
-	{
-		const auto errMsg = std::string("Failed to open temporary file for archive: ") + zip_error_strerror(&zErr);
-
-		std::cerr << errMsg << std::endl;
-		throw std::logic_error(errMsg);
-	}
+		throw NRPException::logCreate(std::string("Failed to open temporary file for archive: ") + zip_error_strerror(&zErr));
 
 	// Add _data to new zip archive
 	ZipContainer::addZipToZip(pZArch, this->_data);
@@ -239,12 +211,7 @@ void ZipContainer::extractZipFiles(std::string path) const
 		// Get File Stats
 		struct zip_stat zStat;
 		if(zip_stat_index(pZip, cI, 0, &zStat) != 0)
-		{
-			const auto errMsg = std::string("Failed to read file stats from Zip Archive: ") + zip_strerror(pZip);
-
-			std::cerr << errMsg << std::endl;
-			throw std::logic_error(errMsg);
-		}
+			throw NRPException::logCreate(std::string("Failed to read file stats from Zip Archive: ") + zip_strerror(pZip));
 
 		const auto nLen = strlen(zStat.name);
 		if(zStat.name[nLen-1] == '/')
@@ -258,12 +225,7 @@ void ZipContainer::extractZipFiles(std::string path) const
 			// Get File Descriptor for reading file
 			ZipFileWrapper zFile = zip_fopen_index(pZip, cI, 0);
 			if(zFile == nullptr)
-			{
-				const auto errMsg = std::string("Failed to read file from Zip Archive: ") + zip_strerror(pZip);
-
-				std::cerr << errMsg << std::endl;
-				throw std::logic_error(errMsg);
-			}
+				throw NRPException::logCreate(std::string("Failed to read file from Zip Archive: ") + zip_strerror(pZip));
 
 			// Create File
 			std::fstream file(path+zStat.name, std::ios::out | std::ios::binary | std::ios::trunc);
@@ -276,22 +238,12 @@ void ZipContainer::extractZipFiles(std::string path) const
 
 				// Extract file data
 				if(zip_fread(zFile, buffer, copySize) != 0)
-				{
-					const auto errMsg = std::string("Failure while reading zip file: ") + zStat.name;
-
-					std::cerr << errMsg << std::endl;
-					throw std::logic_error(errMsg);
-				}
+					throw NRPException::logCreate(std::string("Failure while reading zip file: ") + zStat.name);
 
 				// Write file data
 				file.write(reinterpret_cast<const char*>(buffer), copySize);
 				if(file.fail())
-				{
-					const auto errMsg = std::string("Failure while extracting zip file: ") + zStat.name;
-
-					std::cerr << errMsg << std::endl;
-					throw std::logic_error(errMsg);
-				}
+					throw NRPException::logCreate(std::string("Failure while extracting zip file: ") + zStat.name);
 
 				remSize -= copySize;
 			}
@@ -308,10 +260,7 @@ void ZipContainer::saveToDestination(const std::string &dest) const
 	if(pZArch == nullptr)
 	{
 		ZipErrorT zErr(cErr);
-		const auto errMsg = "Failed to create empty zip archive at \"" + dest + "\": " + zip_error_strerror(&zErr);
-
-		std::cerr << errMsg << std::endl;
-		throw std::logic_error(errMsg);
+		throw NRPException::logCreate("Failed to create empty zip archive at \"" + dest + "\": " + zip_error_strerror(&zErr));
 	}
 
 	ZipContainer::addZipToZip(pZArch, this->_data);
@@ -325,12 +274,7 @@ zip_t *ZipContainer::createZip(const void *data, zip_uint64_t length)
 	ZipErrorT zErr;
 	zip_source_t *pZipSource = zip_source_buffer_create(0, 0, 0, &zErr);
 	if(pZipSource == nullptr)
-	{
-		const auto errMsg = std::string("Failed to create Zip buffer from data: ") + zip_error_strerror(&zErr);
-
-		std::cerr << errMsg << std::endl;
-		throw std::logic_error(errMsg);
-	}
+		throw NRPException::logCreate(std::string("Failed to create Zip buffer from data: ") + zip_error_strerror(&zErr));
 
 	// Copy data to buffer managed by ZipContainer
 	if(int cErr = zip_source_begin_write(pZipSource) < 0 ||
@@ -340,21 +284,13 @@ zip_t *ZipContainer::createZip(const void *data, zip_uint64_t length)
 		zErr = ZipErrorT(cErr);
 		const std::string zErrMsg = cErr == 0 ? zip_error_strerror(zip_source_error(pZipSource)) : zip_error_strerror(&zErr);
 
-		const auto errMsg = "Failed to copy Zip data to buffer: " + zErrMsg;
-
-		std::cerr << errMsg << std::endl;
-		throw std::logic_error(errMsg);
+		throw NRPException::logCreate("Failed to copy Zip data to buffer: " + zErrMsg);
 	}
 
 	// Create zip struct. Will take ownership of pZipSource and delete on close
 	zip_t *pZip = zip_open_from_source(pZipSource, 0, &zErr);
 	if(pZip == nullptr)
-	{
-		const auto errMsg = std::string("Error while reading Zip buffer data: ") + zip_error_strerror(&zErr);
-
-		std::cerr << errMsg << std::endl;
-		throw std::logic_error(errMsg);
-	}
+		throw NRPException::logCreate(std::string("Error while reading Zip buffer data: ") + zip_error_strerror(&zErr));
 
 	return pZip;
 }
@@ -368,10 +304,7 @@ zip_t *ZipContainer::openZipArchive(const std::string &path, bool readOnly)
 	if(retVal == nullptr)
 	{
 		ZipErrorT zErr(cErr);
-		const auto errMsg = "Failed to open zip archive at \"" + path + "\": " + zip_error_strerror(&zErr);
-
-		std::cerr << errMsg << std::endl;
-		throw std::logic_error(errMsg);
+		throw NRPException::logCreate("Failed to open zip archive at \"" + path + "\": " + zip_error_strerror(&zErr));
 	}
 
 	return retVal;
@@ -393,12 +326,7 @@ void ZipContainer::addZipToZip(zip_t *dest, zip_t *src)
 	{
 		zip_source_t *pZSource = zip_source_zip(dest, src, cI, 0, 0, -1);
 		if(pZSource == nullptr)
-		{
-			const auto errMsg = std::string("Failed to save zip archive: ") + zip_strerror(dest);
-
-			std::cerr << errMsg << std::endl;
-			throw std::logic_error(errMsg);
-		}
+			throw NRPException::logCreate(std::string("Failed to save zip archive: ") + zip_strerror(dest));
 	}
 }
 

@@ -1,6 +1,6 @@
 #include "nrp_nest_json_engine/config/nest_config.h"
 
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 
 const size_t NestConfigConst::DefNestRNGSeed = static_cast<size_t>(time(nullptr));
 

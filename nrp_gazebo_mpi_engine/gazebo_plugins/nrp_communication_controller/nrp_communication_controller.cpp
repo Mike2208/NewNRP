@@ -1,5 +1,7 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <nlohmann/json.hpp>
 
 using namespace nlohmann;
@@ -38,8 +40,7 @@ EngineInterface::RESULT NRPCommunicationController::initialize(const std::string
 	}
 	catch(std::exception &e)
 	{
-		const auto errMsg = std::string("Unable to parse initialization data: ") + e.what();
-		std::cerr << errMsg << std::endl;
+		NRPException::logCreate(e, "Unable to parse initialization data");
 		return EngineInterface::ERROR;
 	}
 
@@ -71,24 +72,16 @@ EngineInterface::RESULT NRPCommunicationController::shutdown(const std::string &
 EngineInterface::step_result_t NRPCommunicationController::runLoopStep(float timeStep)
 {
 	if(this->_stepController == nullptr)
-	{
-		const auto err = std::out_of_range("Tried to run loop while the controller has not yet been initialized");
-		std::cerr << err.what() << std::endl;
-
-		throw err;
-	}
+		throw NRPException::logCreate("Tried to run loop while the controller has not yet been initialized");
 
 	try
 	{
 		// Execute loop step (Note: The _deviceLock mutex has already been set by EngineJSONServer::runLoopStepHandler, so no calls to reading/writing from/to devices is possible at this moment)
 		this->_stepController->runLoopStep(static_cast<double>(timeStep));
 	}
-	catch(const std::exception &e)
+	catch(std::exception &e)
 	{
-		const auto errMsg = std::string("Error during Gazebo stepping: ") + e.what();
-		std::cerr << errMsg << std::endl;
-
-		throw std::runtime_error(e.what());
+		throw NRPException::logCreate(e, "Error during Gazebo stepping");
 	}
 
 	return EngineInterface::SUCCESS;
@@ -97,12 +90,7 @@ EngineInterface::step_result_t NRPCommunicationController::runLoopStep(float tim
 float NRPCommunicationController::getSimTime() const
 {
 	if(this->_stepController == nullptr)
-	{
-		const auto err = std::out_of_range("Tried to run loop while the controller has not yet been initialized");
-		std::cerr << err.what() << std::endl;
-
-		throw err;
-	}
+		throw NRPException::logCreate("Tried to run loop while the controller has not yet been initialized");
 
 	return this->_stepController->getSimTime();
 }

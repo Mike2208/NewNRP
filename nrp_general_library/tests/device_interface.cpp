@@ -10,7 +10,7 @@ TEST(DeviceIdentifierTest, Constructor)
 	const std::string deviceType1("deviceType1");
 	const std::string engineType1("engine1");
 
-	DeviceIdentifier identifier1(deviceName1, deviceType1, engineType1);
+	DeviceIdentifier identifier1(deviceName1, engineType1, deviceType1);
 
 	ASSERT_STREQ(identifier1.Name.data(), deviceName1.data());
 	ASSERT_STREQ(identifier1.Type.data(), deviceType1.data());
@@ -27,8 +27,8 @@ TEST(DeviceIdentifierTest, Operators)
 	const std::string deviceType2("deviceType2");
 	const std::string engineType2("engine2");
 
-	DeviceIdentifier identifier1(deviceName1, deviceType1, engineType1);
-	DeviceIdentifier identifier2(deviceName2, deviceType2, engineType2);
+	DeviceIdentifier identifier1(deviceName1, engineType1, deviceType1);
+	DeviceIdentifier identifier2(deviceName2, engineType2, deviceType2);
 
 	DeviceIdentifier identifier3 = identifier1;
 
@@ -54,7 +54,7 @@ TEST(DeviceInterfaceTest, Constructor)
 	const std::string deviceType2("deviceType2");
 	const std::string engineType2("engine2");
 
-	DeviceInterface interface(deviceName1, deviceType1, engineType1);
+	DeviceInterface interface(deviceName1, engineType1, deviceType1);
 
 	ASSERT_STREQ(interface.name().data(), deviceName1.data());
 	ASSERT_STREQ(interface.type().data(), deviceType1.data());
@@ -69,7 +69,7 @@ TEST(DeviceInterfaceTest, Constructor)
 	interface.setEngineName(engineType2);
 	ASSERT_STREQ(interface.engineName().data(), engineType2.data());
 
-	const DeviceIdentifier id1(deviceName1, deviceType1, engineType1);
+	const DeviceIdentifier id1(deviceName1, engineType1, deviceType1);
 	interface.setID(id1);
 
 	ASSERT_STREQ(interface.name().data(), id1.Name.data());

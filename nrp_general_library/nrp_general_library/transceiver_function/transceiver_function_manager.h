@@ -43,12 +43,6 @@ class TransceiverFunctionManager
 		 */
 		EngineInterface::device_identifiers_t updateRequestedDeviceIDs() const;
 
-		inline void setOutputDeviceData(TransceiverFunctionInterpreter::engine_device_outputs_t &&deviceOutputs)
-		{	return this->_tfInterpreter.setOutputDeviceData(std::move(deviceOutputs));	}
-
-		inline void setEngineOutputDeviceData(const std::string &engineName, EngineInterface::device_outputs_t &&deviceOutputs)
-		{	return this->_tfInterpreter.setEngineOutputDeviceData(engineName, std::move(deviceOutputs));	}
-
 		/*!
 		 * \brief Load TF from given configuration
 		 * \param tfConfig TF Configuration

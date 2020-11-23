@@ -27,12 +27,26 @@ concept ENGINE_C = requires (EngineConfigConst::config_storage_t &config, Proces
 class EngineInterface
         : public PtrTemplates<EngineInterface>
 {
+		/*! \brief DeviceInterfaceConstSharedPtr comparison. Used for set sorting */
+		struct CompareDevInt : public std::less<>
+		{
+			public: bool operator()(const DeviceInterfaceConstSharedPtr &lhs, const DeviceInterfaceConstSharedPtr &rhs) const
+			{	return lhs->name() < rhs->name();	}
+
+			public: bool operator()(const DeviceInterfaceConstSharedPtr &lhs, const std::string &name) const
+			{	return lhs->name() < name;	}
+
+			public: bool operator()(const std::string &name, const DeviceInterfaceConstSharedPtr &rhs) const
+			{	return name < rhs->name();	}
+		};
+
 	public:
 		enum RESULT
 		{	ERROR, SUCCESS	};
 
 		using device_identifiers_t = std::set<DeviceIdentifier>;
 		using device_outputs_t = std::vector<DeviceInterfaceConstSharedPtr>;
+		using device_outputs_set_t = std::set<DeviceInterfaceConstSharedPtr, CompareDevInt>;
 		using device_inputs_t = std::vector<DeviceInterface*>;
 
 		using step_result_t = RESULT;
@@ -101,11 +115,18 @@ class EngineInterface
 		virtual RESULT waitForStepCompletion(float timeOut) = 0;
 
 		/*!
-		 * \brief Gets requested output devices from physics simulator
+		 * \brief Gets requested output devices from physics simulator.
+		 * Uses requestOutputDeviceCallback override for actual communication and stores received data in _deviceCache
 		 * \param deviceNames All requested names. NOTE: can also include IDs of other engines. A check must be added that only the corresponding IDs are retrieved
 		 * \return Returns all requested output devices
 		 */
-		virtual device_outputs_t getOutputDevices(const device_identifiers_t &deviceIdentifiers) = 0;
+		const device_outputs_t &requestOutputDevices(const device_identifiers_t &deviceIdentifiers);
+
+		/*!
+		 * \brief get cached Engine OutputDevices
+		 */
+		constexpr const device_outputs_t &getOutputDevices() const
+		{	return this->_deviceCache;	}
 
 		/*!
 		 * \brief Handles received input devices
@@ -117,9 +138,27 @@ class EngineInterface
 	protected:
 
 		/*!
+		 * \brief Gets requested output devices from physics simulator
+		 * \param deviceNames All requested names. NOTE: can also include IDs of other engines. A check must be added that only the corresponding IDs are retrieved
+		 * \return Returns all requested output devices
+		 */
+		virtual device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t &deviceIdentifiers) = 0;
+
+		/*!
 		 * \brief Process Launcher. Will be used to stop process at end
 		 */
 		ProcessLauncherInterface::unique_ptr _process;
+
+		/*!
+		 * \brief Engine device cache. Stores retrieved devices
+		 */
+		device_outputs_t _deviceCache;
+
+		/*!
+		 * \brief Insert sorted devices into _deviceCache
+		 * \param devs Devices to insert
+		 */
+		void insertSorted(device_outputs_set_t &&devs);
 };
 
 using EngineInterfaceSharedPtr = EngineInterface::shared_ptr;
@@ -240,7 +279,7 @@ client running inside the NRPSimulation. As such, all Engines must at least supp
 - LaunchEngine: A function to launch the engine process. This will usually in some way use the ProcessLauncherInterface
 - Initialize: A function that initializes the engine after launch
 - RunLoopStep: A function that will advance the engine for a given timestep
-- GetOutputDevices: A function to retrieve Device data from the Engine
+- RequestOutputDevices: A function to retrieve Device data from the Engine
 - HandleInputDevices: A function to handle incoming Device data
 - Shutdown: A function that gracefully stops the Engine
 

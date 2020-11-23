@@ -70,37 +70,6 @@ class NRPMPIClient
 			return EngineInterface::SUCCESS;
 		}
 
-		EngineInterface::device_outputs_t getOutputDevices(const EngineInterface::device_identifiers_t &deviceIdentifiers) override
-		{
-			EngineMPIControl devCmd(EngineMPIControl::GET_DEVICES, (int)deviceIdentifiers.size());
-			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, devCmd);
-
-			std::vector<MPIDeviceData> mpiDeserializers;
-			mpiDeserializers.reserve(deviceIdentifiers.size());
-
-
-			// Send device identifiers
-			for(const auto &devID : deviceIdentifiers)
-			{
-				if(devID.EngineName == this->engineName())
-				{
-					MPICommunication::sendDeviceID(this->_comm, EngineMPIControlConst::DEVICE_TAG, devID);
-					mpiDeserializers.emplace_back(MPIDeviceData(devID));
-				}
-			}
-
-			// Receive device data
-			EngineInterface::device_outputs_t retVal;
-			retVal.reserve(mpiDeserializers.size());
-
-			for(auto &deserializer : mpiDeserializers)
-			{
-				retVal.emplace_back(MPICommunication::template recvDeviceByType<false, DEVICES...>(this->_comm, (int)EngineMPIControlConst::DEVICE_TAG, deserializer));
-			}
-
-			return retVal;
-		}
-
 		EngineInterface::RESULT handleInputDevices(const EngineInterface::device_inputs_t &inputDevices) override
 		{
 			EngineMPIControl devCmd(EngineMPIControl::SEND_DEVICES, (int)inputDevices.size());
@@ -134,12 +103,40 @@ class NRPMPIClient
 		{
 			if(this->_process->launchCommand()->launchType() != MPISpawn::LaunchType.data())
 			{
-				const auto errMsg = "Gazebo engine \"" + this->engineConfigGeneral()->engineName() + "\" was not created by an MPISpawn. Unable to get MPI Intercomm";
-				std::cerr << errMsg << "\n";
-				throw std::runtime_error(errMsg);
+				throw NRPException::logCreate("Gazebo engine \"" + this->engineConfigGeneral()->engineName() +
+				                              "\" was not created by an MPISpawn. Unable to get MPI Intercomm");
 			}
 
 			return dynamic_cast<const MPISpawn*>(this->_process->launchCommand())->getIntercomm();
+		}
+
+		EngineInterface::device_outputs_set_t requestOutputDeviceCallback(const EngineInterface::device_identifiers_t &deviceIdentifiers) override
+		{
+			EngineMPIControl devCmd(EngineMPIControl::GET_DEVICES, (int)deviceIdentifiers.size());
+			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, devCmd);
+
+			std::vector<MPIDeviceData> mpiDeserializers;
+			mpiDeserializers.reserve(deviceIdentifiers.size());
+
+
+			// Send device identifiers
+			for(const auto &devID : deviceIdentifiers)
+			{
+				if(devID.EngineName == this->engineName())
+				{
+					MPICommunication::sendDeviceID(this->_comm, EngineMPIControlConst::DEVICE_TAG, devID);
+					mpiDeserializers.emplace_back(MPIDeviceData(devID));
+				}
+			}
+
+			// Receive device data
+			EngineInterface::device_outputs_set_t retVal;
+			for(auto &deserializer : mpiDeserializers)
+			{
+				retVal.emplace(MPICommunication::template recvDeviceByType<false, DEVICES...>(this->_comm, (int)EngineMPIControlConst::DEVICE_TAG, deserializer));
+			}
+
+			return retVal;
 		}
 
 

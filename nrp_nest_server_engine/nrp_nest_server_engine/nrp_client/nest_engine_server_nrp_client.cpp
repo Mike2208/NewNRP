@@ -1,5 +1,6 @@
 #include "nrp_nest_server_engine/nrp_client/nest_engine_server_nrp_client.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/restclient_setup.h"
 
 #include <chrono>
@@ -79,12 +80,12 @@ EngineInterface::RESULT NestEngineServerNRPClient::waitForStepCompletion(float t
 	return this->_runStepThread.get();
 }
 
-EngineInterface::device_outputs_t NestEngineServerNRPClient::getOutputDevices(const EngineInterface::device_identifiers_t &deviceIdentifiers)
+EngineInterface::device_outputs_set_t NestEngineServerNRPClient::requestOutputDeviceCallback(const EngineInterface::device_identifiers_t &deviceIdentifiers)
 {
 	const auto serverAddr = this->serverAddress();
 
-	EngineInterface::device_outputs_t retVals;
-	retVals.reserve(deviceIdentifiers.size());
+	EngineInterface::device_outputs_set_t retVals;
+	//retVals.reserve(deviceIdentifiers.size());
 
 	for(const auto &devID : deviceIdentifiers)
 	{
@@ -103,11 +104,10 @@ EngineInterface::device_outputs_t NestEngineServerNRPClient::getOutputDevices(co
 			if(resp.code != 200)
 				throw std::runtime_error("Failed to get data for device \"" + devID.Name + "\"");
 
-			pDevDat->data().SerializedData = resp.body;
-			pDevDat->data().deserialize();
+			pDevDat->data().deserialize(resp.body);
 		}
 
-		retVals.push_back(*devDatIt);
+		retVals.insert(*devDatIt);
 	}
 
 	return retVals;
@@ -129,8 +129,7 @@ EngineInterface::RESULT NestEngineServerNRPClient::handleInputDevices(const Engi
 		if(resp.code != 200)
 			throw std::runtime_error("Failed to get data for device \"" + nestDev.id().Name + "\"");
 
-		nestDev.data().SerializedData = resp.body;
-		nestDev.data().deserialize();
+		nestDev.data().deserialize(resp.body);
 
 		auto devIt = this->_nestDevs.find(inDev->id().Name);
 		if(devIt != this->_nestDevs.end())

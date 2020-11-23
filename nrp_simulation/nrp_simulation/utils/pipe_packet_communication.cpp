@@ -1,5 +1,7 @@
 #include "nrp_simulation/utils/pipe_packet_communication.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <assert.h>
 #include <iostream>
 #include <limits>
@@ -15,9 +17,7 @@ PipeCommPacket PipeCommPacket::readPipePacket(PipePacketCommunication &comm, uin
 	if(const auto readBytes = comm.readP(&packet, PipeCommPacket::HeaderSize, numTries, waitTime) < (ssize_t)PipeCommPacket::HeaderSize)
 	{
 		if(readBytes > 0)
-		{
-			std::cerr << "Read only part of a packet's static header";
-		}
+			NRPLogger::SPDWarnLogDefault("Read only part of a packet's static header");
 
 		packet.ID = 0;
 		return packet;
@@ -29,9 +29,7 @@ PipeCommPacket PipeCommPacket::readPipePacket(PipePacketCommunication &comm, uin
 	if(const auto readBytes = comm.readP(packet.Command.data(), packet.CommandLength, numTries, waitTime) < (ssize_t)packet.CommandLength)
 	{
 		if(readBytes > 0)
-		{
-			std::cerr << "Read only part of a packet's command";
-		}
+			NRPLogger::SPDWarnLogDefault("Read only part of a packet's command");
 
 		packet.ID = 0;
 		return packet;
@@ -43,9 +41,7 @@ PipeCommPacket PipeCommPacket::readPipePacket(PipePacketCommunication &comm, uin
 	if(const auto readBytes = comm.readP(packet.Data.data(), packet.Data.size(), numTries, waitTime) < (ssize_t)packet.Data.size())
 	{
 		if(readBytes > 0)
-		{
-			std::cerr << "Read only part of a packet's data";
-		}
+			NRPLogger::SPDWarnLogDefault("Read only part of a packet's data");
 
 		packet.ID = 0;
 		return packet;
@@ -61,19 +57,19 @@ bool PipeCommPacket::writePipePacket(PipePacketCommunication &comm, PipeCommPack
 
 	if(comm.writeP(&packet, PipeCommPacket::HeaderSize, numTries, waitTime) < (ssize_t)PipeCommPacket::HeaderSize)
 	{
-		std::cerr << "Failed to write packet header with ID " << packet.ID << std::endl;
+		NRPLogger::SPDErrLogDefault("Failed to write packet header with ID " + std::to_string(packet.ID));
 		return false;
 	}
 
 	if(comm.writeP(packet.Command.data(), packet.CommandLength, numTries, waitTime) < (ssize_t)packet.CommandLength)
 	{
-		std::cerr << "Failed to write packet command \"" << packet.Command << "\"\n";
+		NRPLogger::SPDErrLogDefault("Failed to write packet command \"" + packet.Command + "\"");
 		return false;
 	}
 
 	if(comm.writeP(packet.Data.data(), packet.DataLength, numTries, waitTime) < (ssize_t)packet.DataLength)
 	{
-		std::cerr << "Failed to write packet data" << std::endl;
+		NRPLogger::SPDErrLogDefault("Failed to write packet data");
 		return false;
 	}
 
@@ -100,12 +96,7 @@ void PipePacketCommunication::blockResetSignal(uint16_t confirmSignalOffsetNum)
 	const auto signal = PipePacketCommunication::generateSigset(resetSignal);
 
 	if(sigprocmask(SIG_BLOCK, &signal, nullptr) != 0)
-	{
-		const auto errMsg = "Could not block proc communication signal " + std::to_string(resetSignal) + ":\n" + strerror(errno);
-		std::cerr << errMsg << std::endl;
-
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate("Could not block proc communication signal " + std::to_string(resetSignal) + ":" + strerror(errno));
 }
 
 void PipePacketCommunication::startServerAsync()
@@ -230,12 +221,7 @@ void PipePacketCommunication::commHandler()
 	const auto signal = PipePacketCommunication::generateSigset(sigNum);
 	const auto sigFd = signalfd(-1, &signal, SFD_NONBLOCK);
 	if(sigFd < 0)
-	{
-		const auto errMsg = std::string("Could not create signalfd:\n") + strerror(errno);
-		std::cerr << errMsg << std::endl;
-
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate(std::string("Could not create signalfd: ") + strerror(errno));
 
 	auto outIter = this->_outPackets.begin();
 
@@ -265,7 +251,7 @@ void PipePacketCommunication::commHandler()
 			while(outIter != this->_outPackets.end() && sentPackets < CommWritePackets)
 			{
 				if(!PipeCommPacket::writePipePacket(*this, *outIter, CommWriteTries, CommWriteWaitTime))
-					std::cerr << "Unable to send packet with ID " << outIter->ID << std::endl;
+					NRPLogger::SPDErrLogDefault("Unable to send packet with ID " + std::to_string(outIter->ID));
 				else
 					outIter++;
 
@@ -287,12 +273,7 @@ void PipePacketCommunication::commHandler()
 			{
 				readBytes = read(sigFd, reinterpret_cast<uint8_t*>(&signalDat)+readData, SigSize - readData);
 				if(readBytes < 0)
-				{
-					const auto errMsg = std::string("Unable to read from signalfd:\n") + strerror(errno);
-					std::cerr << errMsg << std::endl;
-
-					throw std::runtime_error(errMsg);
-				}
+					throw NRPException::logCreate(std::string("Unable to read from signalfd: ") + strerror(errno));
 
 				readData += static_cast<size_t>(readBytes);
 			}
@@ -319,7 +300,7 @@ void PipePacketCommunication::commHandler()
 				}
 
 				if(!packFound)
-					std::cerr << "Received signal receipt for unsent ID " << signalDat.ssi_int << std::endl;
+					NRPLogger::SPDWarnLogDefault("Received signal receipt for unsent ID " + std::to_string(signalDat.ssi_int));
 			}
 		}
 	}

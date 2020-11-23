@@ -96,7 +96,7 @@ can be seen by the TransceiverFunction decorator, this TF is linked to engine py
 \code{.py}
 from NRPPythonModule import *
 
-@SingleTransceiverDevice(keyword='device1', id=DeviceIdentifier('device1', 'py_obj', 'python_1'))
+@SingleTransceiverDevice(keyword='device1', id=DeviceIdentifier('device1', 'python_1', 'py_obj'))
 @TransceiverFunction("python_2")
 def transceiver_function(device1):
 	rec_device1 = PythonDevice(device1.id, device1.data)

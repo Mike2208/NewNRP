@@ -1,7 +1,7 @@
 #include "nrp_gazebo_grpc_engine/config/gazebo_config.h"
 
 #include "nrp_gazebo_grpc_engine/config/nrp_gazebo_cmake_constants.h"
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 
 #include <iostream>
 
@@ -85,6 +85,8 @@ EngineConfigConst::string_vector_t GazeboConfig::allEngineProcStartParams() cons
 	// Add gazebo communication system plugin
 	startParams.push_back(GazeboConfig::GazeboPluginArg.data());
 	startParams.push_back(NRP_GAZEBO_COMMUNICATION_PLUGIN);
+
+	startParams.push_back("--verbose");
 
 	// Add RNG Seed
 	startParams.push_back(GazeboConfig::GazeboRNGSeedArg.data());

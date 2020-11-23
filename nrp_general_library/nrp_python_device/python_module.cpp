@@ -1,8 +1,8 @@
 #include "nrp_python_device/python_module.h"
 
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 
-#include "nrp_general_library/device_interface/devices/python_object_device_interface.h"
+#include "nrp_general_library/device_interface/devices/pyobject_device.h"
 
 #include "nrp_general_library/transceiver_function/transceiver_function.h"
 #include "nrp_general_library/transceiver_function/transceiver_device_interface.h"
@@ -12,29 +12,29 @@
 
 #include <boost/python.hpp>
 
-using namespace boost::python;
+namespace python = boost::python;
 
 using DeviceIdentifiers = EngineInterface::device_identifiers_t;
 
 struct TransceiverDeviceInterfaceWrapper
-        : TransceiverDeviceInterface, wrapper<TransceiverDeviceInterface>
+        : TransceiverDeviceInterface, python::wrapper<TransceiverDeviceInterface>
 {
-	boost::python::object runTf(boost::python::tuple &args, boost::python::dict &kwargs) override
+	python::object runTf(python::tuple &args, python::dict &kwargs) override
 	{
-		if(override runTf = this->get_override("runTf"))
+		if(python::override runTf = this->get_override("runTf"))
 			return runTf(*args, **kwargs);
 
 		return TransceiverDeviceInterface::runTf(args, kwargs);
 	}
 
-	boost::python::object defaultRunTf(boost::python::tuple &args, boost::python::dict &kwargs)
+	python::object defaultRunTf(python::tuple &args, python::dict &kwargs)
 	{
 		return TransceiverDeviceInterface::runTf(args, kwargs);
 	}
 
 	EngineInterface::device_identifiers_t getRequestedDeviceIDs() const override
 	{
-		if(override getReqIDs = this->get_override("_getRequestedDeviceIDs"))
+		if(python::override getReqIDs = this->get_override("_getRequestedDeviceIDs"))
 			return getReqIDs();
 
 		return TransceiverDeviceInterface::getRequestedDeviceIDs();
@@ -46,12 +46,37 @@ struct TransceiverDeviceInterfaceWrapper
 	}
 };
 
+inline std::shared_ptr<DeviceIdentifier> genDevID(const std::string &name, const std::string &engineName)
+{
+	return std::shared_ptr<DeviceIdentifier>(new DeviceIdentifier(name, engineName, ""));
+}
+
+inline python::object getPyPropData(const PyObjectDeviceConst::PyObjData &dat)
+{	return dat;	}
+
+inline void setPyPropData(PyObjectDeviceConst::PyObjData &dat, const python::object &val)
+{	dat = val;	}
+
+
+inline python::object getPyDevData(const PyObjectDevice &dat)
+{	return dat.data();	}
+
+inline void setPyDevData(PyObjectDevice &dat, const python::object &val)
+{	dat.data() = val;	}
+
+
+using namespace boost::python;
+
 BOOST_PYTHON_MODULE(PYTHON_MODULE_NAME)
 {
-	class_<DeviceIdentifier>("DeviceIdentifier", init<const std::string&, const std::string&, const std::string&>())
+	class_<DeviceIdentifier>("DeviceIdentifier", init<const std::string&, const std::string &, const std::string&>((arg("name"), arg("engine_name"), arg("type") = std::string())))
+	        .def("__init__", make_constructor(&genDevID))
 	        .def_readwrite("name", &DeviceIdentifier::Name)
 	        .def_readwrite("type", &DeviceIdentifier::Type)
 	        .def_readwrite("engine_name", &DeviceIdentifier::EngineName);
+
+	register_ptr_to_python<std::shared_ptr<DeviceIdentifier> >();
+	register_ptr_to_python<std::shared_ptr<const DeviceIdentifier> >();
 
 	class_<DeviceInterface>("DeviceInterface", init<const std::string &, const std::string&, const std::string&>())
 	        .add_property("name", make_function(&DeviceInterface::name, return_value_policy<copy_const_reference>()), &DeviceInterface::setName)
@@ -62,8 +87,11 @@ BOOST_PYTHON_MODULE(PYTHON_MODULE_NAME)
 	register_ptr_to_python<DeviceInterfaceSharedPtr>();
 	register_ptr_to_python<DeviceInterfaceConstSharedPtr>();
 
-	class_<PythonObjectDeviceInterface, bases<DeviceInterface> >("PythonDevice", init<const DeviceIdentifier&, boost::python::object>())
-	        .add_property("data", &PythonObjectDeviceInterface::pyData, &PythonObjectDeviceInterface::setPyData);
+	class_<PyObjectDeviceConst::PyObjData>("PyObjData", init<boost::python::object>())
+	        .add_property("data", &getPyPropData, &setPyPropData);
+
+	python_property_device_class<PyObjectDevice>::create()
+	        .add_property(PyObjectDevice::Object.m_data, &getPyDevData, &setPyDevData);
 
 	class_<TransceiverDeviceInterfaceWrapper, boost::noncopyable>("TransceiverDeviceInterface", init<>())
 	        .def("__call__", &TransceiverDeviceInterface::pySetup<TransceiverDeviceInterface>)

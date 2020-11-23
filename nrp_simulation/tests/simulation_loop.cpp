@@ -21,7 +21,7 @@ TEST(SimulationLoopTest, InitTFManager)
 	PythonInterpreterState pyState(1, const_cast<char**>(&procName));
 
 	SimulationConfigSharedPtr config(new SimulationConfig(simConfig));
-	ASSERT_NO_THROW(auto tfManager = SimulationLoop::initTFManager(config));
+	ASSERT_NO_THROW(auto tfManager = SimulationLoop::initTFManager(config, {}));
 }
 
 TEST(SimulationLoopTest, Constructor)

@@ -51,7 +51,7 @@ class TransceiverFunctionInterpreter
 
 	public:
 		using device_list_t = boost::python::list;
-		using engine_device_outputs_t = std::multimap<std::string, EngineInterface::device_outputs_t>;
+		using engines_devices_t = std::map<std::string, const EngineInterface::device_outputs_t*>;
 
 		/*!
 		 * \brief Result of a single TF run
@@ -99,20 +99,16 @@ class TransceiverFunctionInterpreter
 		EngineInterface::device_identifiers_t updateRequestedDeviceIDs() const;
 
 		/*!
-		 * \brief After executing engine loops and getting output data, make said data available for TFs
-		 * \param deviceOutputData Device Data received from engines
+		 * \brief Set EngineInterface pointers. Used by TransceiverFunctions to access devices
+		 * \param engines Mapping from engine name to engine ptr
 		 */
-		void setOutputDeviceData(engine_device_outputs_t &&outputDeviceData);
+		void setEngineDevices(engines_devices_t &&engineDevices);
 
 		/*!
-		 * \brief After executing single engine thread, set its output data
-		 * \param engineName Name of engine
-		 * \param outputDeviceData Output devices of said engine
+		 * \brief Access engine map
 		 */
-		void setEngineOutputDeviceData(const std::string &engineName, EngineInterface::device_outputs_t &&outputDeviceData);
-
-		engine_device_outputs_t &outputDeviceData();
-		const engine_device_outputs_t &outputDeviceData() const;
+		constexpr const engines_devices_t &engineDevices() const
+		{	return this->_engineDevices;	}
 
 		/*!
 		 * \brief Execute one transfer function.
@@ -180,9 +176,9 @@ class TransceiverFunctionInterpreter
 		transceiver_function_datas_t _transceiverFunctions;
 
 		/*!
-		 * \brief Output devices retrieved from the engines
+		 * \brief Engine Map. From engine name to devices
 		 */
-		engine_device_outputs_t _outputDeviceData;
+		engines_devices_t _engineDevices;
 
 		/*!
 		 * \brief Pointer to newly created TransceiverFunction

@@ -49,11 +49,7 @@ EngineJSONServer::EngineJSONServer(const std::string &engineAddress, const std::
 	if(!engineName.empty())
 	{
 		if(!EngineJSONRegistrationServer::sendClientEngineRequest(clientAddress, engineName, this->_serverAddress, 20, 1))
-		{
-			const auto errMsg = std::string("Error while trying to register engine \"") + engineName + "\" at " + clientAddress;
-			std::cerr << errMsg << std::endl;
-			throw std::runtime_error(errMsg);
-		}
+			throw NRPException::logCreate(std::string("Error while trying to register engine \"") + engineName + "\" at " + clientAddress);
 	}
 }
 
@@ -111,12 +107,7 @@ void EngineJSONServer::shutdownServer()
 	{
 		EngineJSONServer::lock_t devLock(this->_deviceLock, std::defer_lock);
 		if(!devLock.try_lock_for(ShutdownWaitTime))
-		{
-			const auto errMsg = "Couldn't get device lock for shutdown";
-			std::cerr << errMsg << std::endl;
-
-			throw std::logic_error(errMsg);
-		}
+			throw NRPException::logCreate("Couldn't get device lock for shutdown");
 
 		this->_pEndpoint->shutdown();
 		this->_serverRunning = false;
@@ -196,10 +187,9 @@ nlohmann::json EngineJSONServer::setDeviceData(const nlohmann::json &reqData)
 		{
 			jres[devName] = (devInterface == this->_devicesControllers.end()) ? "" : devInterface->second->handleDeviceData(devDataIterator.value());
 		}
-		catch(const std::exception&)
+		catch(std::exception &e)
 		{
-			std::cerr << "Couldn't handle device " + devName << std::endl;
-			throw;
+			throw NRPException::logCreate(e, "Couldn't handle device " + devName);
 		}
 	}
 
@@ -225,13 +215,12 @@ nlohmann::json EngineJSONServer::parseRequest(const Pistache::Rest::Request &req
 	{
 		jrequest = json::parse(req.body());
 	}
-	catch(const std::exception &)
+	catch(std::exception &e)
 	{
-		std::cerr << "Failed while parsing JSON object:" << std::endl;
-		std::cerr << jrequest << std::endl;
+		auto err = NRPException::logCreate("Failed while parsing JSON object " + std::string(jrequest) + ": " + e.what());
 
 		res.send(Pistache::Http::Code::Bad_Request);
-		throw;
+		throw err;
 	}
 
 	return jrequest;
@@ -250,11 +239,10 @@ void EngineJSONServer::setDeviceHandler(const Pistache::Rest::Request &req, Pist
 	{
 		jrequest = json::parse(req.body());
 	}
-	catch(const std::exception &)
+	catch(std::exception &e)
 	{
 		// TODO: Catch json parse error
-		std::cerr << "Failed while parsing JSON object:" << std::endl;
-		std::cerr << jrequest << std::endl;
+		NRPException::logCreate(e, "Failed while parsing JSON object: " + std::string(jrequest));
 
 		res.send(Pistache::Http::Code::Bad_Request);
 		throw;
@@ -264,11 +252,11 @@ void EngineJSONServer::setDeviceHandler(const Pistache::Rest::Request &req, Pist
 	{
 		res.send(Pistache::Http::Code::Ok, this->setDeviceData(jrequest).dump());
 	}
-	catch(const std::exception &)
+	catch(std::exception &e)
 	{
 		// Send back error code if device could not be set
 		res.send(Pistache::Http::Code::Internal_Server_Error);
-		throw;
+		throw NRPException::logCreate(e.what());
 	}
 }
 
@@ -278,10 +266,9 @@ const std::string &EngineJSONServer::getIteratorKey(const nlohmann::json::const_
 	{
 		return jsonIterator.key();
 	}
-	catch(const std::exception &)
+	catch(std::exception &e)
 	{
-		std::cerr << "No Key available for this JSON object" << std::endl;
-		throw;
+		throw NRPException::logCreate(e, "No Key available for this JSON object");
 	}
 }
 
@@ -294,14 +281,12 @@ void EngineJSONServer::runLoopStepHandler(const Pistache::Rest::Request &req, Pi
 	{
 		timeStep = jrequest.at(EngineJSONConfigConst::EngineTimeStepName.data());
 	}
-	catch(const std::exception &e)
+	catch(std::exception &e)
 	{
-		// TODO: Catch runLoopStep JSON parse error
-		std::cerr << "Couldn't parse RunLoopStep JSON request: \n" << jrequest << std::endl;
-		std::cerr << e.what();
+		const auto err = NRPException::logCreate("Couldn't parse RunLoopStep JSON request " + std::string(jrequest) + ": " + e.what());
 
 		res.send(Pistache::Http::Code::Bad_Request);
-		throw;
+		throw err;
 	}
 
 	try
@@ -312,13 +297,12 @@ void EngineJSONServer::runLoopStepHandler(const Pistache::Rest::Request &req, Pi
 		const auto retJson(nlohmann::json({{EngineJSONConfigConst::EngineTimeName.data(), this->runLoopStep(timeStep)}}));
 		res.send(Pistache::Http::Code::Ok, retJson.dump());
 	}
-	catch(const std::exception &e)
+	catch(std::exception &e)
 	{
-		std::cerr << "Error while executing loop step\n";
-		std::cerr << e.what();
+		const auto err = NRPException::logCreate(std::string("Error while executing loop step: ") + e.what());
 
 		res.send(Pistache::Http::Code::Internal_Server_Error);
-		throw;
+		throw err;
 	}
 }
 
@@ -335,13 +319,12 @@ void EngineJSONServer::initializeHandler(const Pistache::Rest::Request &req, Pis
 		// Run initialization function
 		jresp = this->initialize(jrequest, lock);
 	}
-	catch(const std::exception &e)
+	catch(std::exception &e)
 	{
-		std::cerr << "Error while executing initialization\n";
-		std::cerr << e.what();
+		const auto err = NRPException::logCreate(std::string("Error while executing initialization: ") + e.what());
 
 		res.send(Pistache::Http::Code::Internal_Server_Error);
-		throw;
+		throw err;
 	}
 
 	// Return init response
@@ -361,13 +344,12 @@ void EngineJSONServer::shutdownHandler(const Pistache::Rest::Request &req, Pista
 		// Run shutdown function
 		jresp = this->shutdown(jrequest);
 	}
-	catch(const std::exception &e)
+	catch(std::exception &e)
 	{
-		std::cerr << "Error while executing initialization\n";
-		std::cerr << e.what();
+		const auto err = NRPException::logCreate(std::string("Error while executing shutdown: ") + e.what());
 
 		res.send(Pistache::Http::Code::Internal_Server_Error);
-		throw;
+		throw err;
 	}
 
 	// Return shutdown response

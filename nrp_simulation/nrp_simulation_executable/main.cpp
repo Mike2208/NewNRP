@@ -1,6 +1,7 @@
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 #include "nrp_general_library/plugin_system/plugin_manager.h"
 #include "nrp_general_library/process_launchers/process_launcher_manager.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 #include "nrp_general_library/utils/restclient_setup.h"
 #include "nrp_simulation/config/cmake_conf.h"
@@ -15,12 +16,7 @@ void loadPlugins(const char *libName, PluginManager &pluginManager, const Engine
 	// Extract plugin file name and load it
 	auto engineLauncher = pluginManager.loadPlugin(libName);
 	if(engineLauncher == nullptr)
-	{
-		const auto errMsg = std::string("Failed to load engine launcher from plugin \"") + libName + "\"";
-		std::cerr << errMsg << std::endl;
-
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate(std::string("Failed to load engine launcher from plugin \"") + libName + "\"");
 
 	// Register launcher
 	engines->registerLauncher(EngineLauncherInterfaceSharedPtr(engineLauncher.release()));
@@ -37,7 +33,7 @@ int main(int argc, char *argv[])
 	{
 		startParamPtr.reset(new cxxopts::ParseResult(optParser.parse(argc, argv)));
 	}
-	catch(const cxxopts::OptionParseException &e)
+	catch(cxxopts::OptionParseException &e)
 	{
 		// If options aren't well formed, output help and exit
 		std::cout << e.what() << std::endl;

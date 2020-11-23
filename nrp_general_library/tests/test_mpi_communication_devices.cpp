@@ -1,7 +1,7 @@
 #include "tests/test_mpi_communication_devices.h"
 
 TestDevice1::TestDevice1(int intVal, std::string strVal, boost::python::object pyVal)
-    : DeviceInterface("", TypeName, ""),
+    : DeviceInterface("", "", TypeName),
       PropertyTemplate(intVal, strVal, pyVal)
 {}
 

@@ -3,7 +3,7 @@
 import numpy
 import nest
 import nest.voltage_trace
-from NRPNestPythonModule import CreateDevice
+from NRPNestJSONPythonModule import CreateDevice
 
 numpy.random.random()
 

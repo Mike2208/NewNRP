@@ -10,3 +10,4 @@ __pycache__
 test_env_cmake.h
 /uninstall.sh
 .vscode
+.orig

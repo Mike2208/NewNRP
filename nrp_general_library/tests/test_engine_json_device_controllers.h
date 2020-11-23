@@ -22,7 +22,7 @@ struct TestJSONDeviceInterface1
 	{}
 
 	TestJSONDeviceInterface1(const std::string &name, const nlohmann::json &data)
-	    : TestJSONDeviceInterface1(DeviceIdentifier(name, TypeName.data(), "test_engine1"), data)
+	    : TestJSONDeviceInterface1(DeviceIdentifier(name, "test_engine1", TypeName.data()), data)
 	{}
 
 	virtual ~TestJSONDeviceInterface1() override = default;
@@ -82,7 +82,7 @@ struct TestJSONDeviceInterface2
 	{}
 
 	TestJSONDeviceInterface2(const std::string &name, const nlohmann::json &data)
-	    : TestJSONDeviceInterface2(DeviceIdentifier(name, TypeName.data(), "test_engine2"), data)
+	    : TestJSONDeviceInterface2(DeviceIdentifier(name, "test_engine2", TypeName.data()), data)
 	{}
 
 	virtual ~TestJSONDeviceInterface2() override = default;
@@ -143,7 +143,7 @@ struct TestJSONDeviceInterfaceThrow
 	{}
 
 	TestJSONDeviceInterfaceThrow(const std::string &name, const nlohmann::json &data)
-	    : TestJSONDeviceInterfaceThrow(DeviceIdentifier(name, TypeName.data(), "test_engine"), data)
+	    : TestJSONDeviceInterfaceThrow(DeviceIdentifier(name, "test_engine", TypeName.data()), data)
 	{}
 
 	virtual ~TestJSONDeviceInterfaceThrow() override = default;

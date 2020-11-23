@@ -1,6 +1,8 @@
 #include "nrp_general_library/transceiver_function/transceiver_function_interpreter.h"
 
 #include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
+#include "nrp_general_library/utils/python_error_handler.h"
 
 #include <iostream>
 
@@ -62,28 +64,9 @@ EngineInterface::device_identifiers_t TransceiverFunctionInterpreter::updateRequ
 	return devIDs;
 }
 
-void TransceiverFunctionInterpreter::setOutputDeviceData(engine_device_outputs_t &&outputDeviceData)
+void TransceiverFunctionInterpreter::setEngineDevices(TransceiverFunctionInterpreter::engines_devices_t &&engineDevices)
 {
-	this->_outputDeviceData = std::move(outputDeviceData);
-}
-
-void TransceiverFunctionInterpreter::setEngineOutputDeviceData(const std::string &engineName, EngineInterface::device_outputs_t &&outputDeviceData)
-{
-	auto engIt = this->_outputDeviceData.find(engineName);
-	if(engIt != this->_outputDeviceData.end())
-		engIt->second = std::move(outputDeviceData);
-	else
-		this->_outputDeviceData.emplace(engineName, std::move(outputDeviceData));
-}
-
-TransceiverFunctionInterpreter::engine_device_outputs_t &TransceiverFunctionInterpreter::outputDeviceData()
-{
-	return this->_outputDeviceData;
-}
-
-const TransceiverFunctionInterpreter::engine_device_outputs_t &TransceiverFunctionInterpreter::outputDeviceData() const
-{
-	return this->_outputDeviceData;
+	this->_engineDevices = std::move(engineDevices);
 }
 
 boost::python::object TransceiverFunctionInterpreter::runSingleTransceiverFunction(const std::string &tfName)
@@ -93,9 +76,7 @@ boost::python::object TransceiverFunctionInterpreter::runSingleTransceiverFuncti
 
 	// If TF doesn't exist yet, throw error
 	if(tfDataIterator == this->_transceiverFunctions.end())
-	{
-		throw std::invalid_argument("TF with name " + tfName + "not loaded");
-	}
+		throw NRPException::logCreate("TF with name " + tfName + "not loaded");
 
 	return this->runSingleTransceiverFunction(tfDataIterator->second);
 }
@@ -110,10 +91,7 @@ boost::python::api::object TransceiverFunctionInterpreter::runSingleTransceiverF
 	}
 	catch(boost::python::error_already_set &)
 	{
-		PyErr_Print();
-		PyErr_Clear();
-
-		throw std::runtime_error("Python error occured during execution of TF \"" + tfData.Name + "\"");
+		throw NRPException::logCreate("Python error occured during execution of TF \"" + tfData.Name + "\": " + handle_pyerror());
 	}
 }
 
@@ -136,26 +114,22 @@ TransceiverFunctionInterpreter::transceiver_function_datas_t::iterator Transceiv
 	{
 		boost::python::exec_file(transceiverFunction.fileName().data(), this->_globalDict, this->_globalDict);
 	}
-	catch(const boost::python::error_already_set &)
+	catch(boost::python::error_already_set &)
 	{
-		PyErr_Print();
+		const auto err = NRPException::logCreate("Loading of TransceiverFunction file \"" + transceiverFunction.fileName() + "\" failed: " + handle_pyerror());
+
 		if(this->_newTFIt != this->_transceiverFunctions.end())
 		{
 			this->_transceiverFunctions.erase(this->_newTFIt);
 			this->_newTFIt = this->_transceiverFunctions.end();
 		}
 
-		throw;
+		throw err;
 	}
 
 	// Check that load resulted in a TF
 	if(this->_newTFIt == this->_transceiverFunctions.end())
-	{
-		const auto errMsg = std::string("No TF found for ") + transceiverFunction.name();
-		std::cerr << errMsg << std::endl;
-
-		throw std::invalid_argument(errMsg);
-	}
+		throw NRPException::logCreate("No TF found for " + transceiverFunction.name());
 
 	// Update transfer function params
 	this->_newTFIt->second.DeviceIDs      = this->_newTFIt->second.TransceiverFunction->updateRequestedDeviceIDs(EngineInterface::device_identifiers_t());

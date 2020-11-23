@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project(NRProject VERSION 1.0.0)
 
 set (CMAKE_CXX_STANDARD 20)
@@ -8,25 +8,41 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(GNUInstallDirs)
 include(ExternalProject)
+include(FetchContent)
 
+cmake_policy(SET CMP0077 NEW)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 ##########################################
 ## Unit testing library
 option(ENABLE_TESTING "Build tests" ON)
 if(${ENABLE_TESTING})
-	option(INSTALL_GTEST "Install google testing framework" OFF)
-	add_subdirectory("depends/googletest")
-	add_library(GTest::GTest ALIAS gtest)
-	add_library(GTest::GTestMain ALIAS gtest_main)
-
 	include(GoogleTest)
+
+	find_package(GTest 1.10 QUIET)
+	if(NOT ${GTest_FOUND})
+		message("Please wait. Downloading GTest...")
+		FetchContent_Declare(GTest
+			GIT_REPOSITORY https://github.com/google/googletest.git
+			GIT_TAG v1.10.x)
+
+		FetchContent_GetProperties(GTest)
+		if(NOT GTest_POPULATED)
+			FetchContent_Populate(GTest)
+
+			set(INSTALL_GTEST OFF)
+			add_subdirectory(${gtest_SOURCE_DIR} ${gtest_BINARY_DIR})
+
+			add_library(GTest::gtest ALIAS gtest)
+			add_library(GTest::gtest_main ALIAS gtest_main)
+		endif()
+	endif()
 endif()
 
 
 ##########################################
 ## Python 3 libraries
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
-find_package(PythonLibs 3 REQUIRED)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 add_compile_definitions(BOOST_ASIO_DISABLE_CONCEPTS)
 find_package(Boost REQUIRED)
@@ -44,9 +60,23 @@ set(PYTHON_INSTALL_DIR_ABS "${CMAKE_INSTALL_LIBDIR}/${PYTHON_INSTALL_DIR_REL}" C
 
 ##########################################
 ## Log library
-option(SPDLOG_BUILD_SHARED "Create shared libraries for spdlog" ON)
-option(SPDLOG_INSTALL "Configure spdlog install" ON)
-add_subdirectory(depends/spdlog)
+find_package(spdlog 1.8.1 QUIET)
+if(NOT ${spdlog_FOUND})
+	message("Please wait. Downloading spdlog...")
+	FetchContent_Declare(spdlog
+		GIT_REPOSITORY https://github.com/gabime/spdlog.git
+		GIT_TAG v1.8.1)
+
+	FetchContent_GetProperties(spdlog)
+	if(NOT spdlog_POPULATED)
+		FetchContent_Populate(spdlog)
+
+		set(SPDLOG_BUILD_SHARED ON)
+		set(SPDLOG_INSTALL ON)
+
+		add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR})
+	endif()
+endif()
 
 
 ##########################################
@@ -70,6 +100,7 @@ add_subdirectory(proto)
 ## Includes components to create new devices and engines
 add_subdirectory(nrp_general_library)
 
+
 ##########################################
 ## NRP Engines
 
@@ -87,7 +118,8 @@ add_subdirectory(nrp_nest_json_engine)
 add_subdirectory(nrp_nest_server_engine)
 
 ## Python Engine
-add_subdirectory(nrp_python_device_interface)
+add_subdirectory(nrp_python_json_engine)
+
 
 ##########################################
 ## NRP Simulation

@@ -3,7 +3,7 @@
 #include "nrp_general_library/utils/python_error_handler.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 
-#include "nrp_nest_json_engine/config/nrp_nest_cmake_constants.h"
+#include "nrp_nest_json_engine/config/cmake_constants.h"
 #include "nrp_nest_json_engine/engine_server/nest_engine_device_controller.h"
 #include "nrp_nest_json_engine/python/create_device_class.h"
 
@@ -68,13 +68,10 @@ float NestJSONServer::runLoopStep(float timeStep)
 		this->_pyNest["Run"](runTime);
 		return NestJSONServer::convertMillToSec(python::extract<float>(this->_pyNest["GetKernelStatus"]("time")));
 	}
-	catch(python::error_already_set &e)
+	catch(python::error_already_set &)
 	{
 		// If an error occured, print the error
-		PyErr_Print();
-		PyErr_Clear();
-
-		throw e;
+		throw NRPException::logCreate("Failed to run Nest step: " + handle_pyerror());
 	}
 }
 
@@ -95,15 +92,9 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 	catch(python::error_already_set &)
 	{
 		// If an error occured, return the message to the NRP server without setting the initRunFlag
-		if (PyErr_Occurred())
-		{
-			const auto msg = handle_pyerror();
-			PyErr_Clear();
-
-			std::cerr << msg;
-			return this->formatInitErrorMessage(msg);
-		}
-		PyErr_Clear();
+		const auto msg = handle_pyerror();
+		NRPLogger::SPDErrLogDefault(msg);
+		return this->formatInitErrorMessage(msg);
 	}
 
 	// Read received configuration
@@ -117,13 +108,8 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 	if(!initFileName.empty())
 	{
 		std::fstream initFile(initFileName, std::ios_base::in);
-		if(!initFile.is_open())
-		{
-			const auto errMsg = "Could not find init file " + initFileName;
-			std::cerr << errMsg;
-			throw std::invalid_argument(errMsg);
-		}
-		initFile.close();
+		if(!initFile.good())
+			return this->formatInitErrorMessage("Could not find init file " + initFileName);
 
 		// Execute Init File
 		try
@@ -133,15 +119,12 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 		catch(python::error_already_set &)
 		{
 			// If an error occured, return the message to the NRP server without setting the initRunFlag
-			if (PyErr_Occurred())
-			{
-				const auto msg = handle_pyerror();
-				PyErr_Clear();
-
-				std::cerr << msg;
-				return this->formatInitErrorMessage(msg);
-			}
+			const auto msg = handle_pyerror();
+			NRPLogger::SPDErrLogDefault(msg);
+			return this->formatInitErrorMessage(msg);
 		}
+
+		initFile.close();
 	}
 
 	nlohmann::json jsonDevMap;
@@ -166,7 +149,7 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 			python::object devNodes = this->_devMap[devKey];
 
 			auto devController = std::shared_ptr<NestEngineJSONDeviceController<NestDeviceInterface> >(new
-			            NestEngineJSONDeviceController<NestDeviceInterface>(DeviceIdentifier(devName, NestDeviceInterface::TypeName.data(), config.engineName()),
+			            NestEngineJSONDeviceController<NestDeviceInterface>(DeviceIdentifier(devName, config.engineName(), NestDeviceInterface::TypeName.data()),
 												 devNodes, this->_pyNest));
 
 			this->_deviceControllerPtrs.push_back(devController);
@@ -180,15 +163,9 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 	catch(python::error_already_set &)
 	{
 		// If an error occured, print the error
-		if (PyErr_Occurred())
-		{
-			const auto msg = handle_pyerror();
-			PyErr_Clear();
-
-			std::cerr << msg;
-			return this->formatInitErrorMessage(msg);
-		}
-		PyErr_Clear();
+		const auto msg = handle_pyerror();
+		NRPLogger::SPDErrLogDefault(msg);
+		return this->formatInitErrorMessage(msg);
 	}
 
 	// Init has run once

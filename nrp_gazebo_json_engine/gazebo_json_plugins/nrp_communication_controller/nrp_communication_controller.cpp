@@ -1,5 +1,7 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <nlohmann/json.hpp>
 
 using namespace nlohmann;
@@ -39,24 +41,16 @@ void NRPCommunicationController::registerStepController(GazeboStepController *st
 float NRPCommunicationController::runLoopStep(float timeStep)
 {
 	if(this->_stepController == nullptr)
-	{
-		auto err = std::out_of_range("Tried to run loop while the controller has not yet been initialized");
-		std::cerr << err.what();
-
-		throw err;
-	}
+		throw NRPException::logCreate("Tried to run loop while the controller has not yet been initialized");
 
 	try
 	{
 		// Execute loop step (Note: The _deviceLock mutex has already been set by EngineJSONServer::runLoopStepHandler, so no calls to reading/writing from/to devices is possible at this moment)
 		return this->_stepController->runLoopStep(static_cast<double>(timeStep));
 	}
-	catch(const std::exception &e)
+	catch(std::exception &e)
 	{
-		std::cerr << "Error during Gazebo stepping\n";
-		std::cerr << e.what();
-
-		throw;
+		throw NRPException::logCreate(e, "Error during Gazebo stepping");
 	}
 }
 

@@ -1,7 +1,7 @@
 #ifndef NRP_CAMERA_CONTROLLER_PLUGIN_H
 #define NRP_CAMERA_CONTROLLER_PLUGIN_H
 
-#include "engine_grpc.grpc.pb.h"
+#include <nrp_grpc_library/engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
 
@@ -20,7 +20,7 @@ namespace gazebo
 			CameraDeviceController(const std::string &devName, const rendering::CameraPtr &camera, const sensors::SensorPtr &parent);
 			virtual ~CameraDeviceController() override;
 
-			virtual void getData(EngineGrpc::GetDeviceMessage * reply) override;
+			virtual bool getData(EngineGrpc::GetDeviceMessage * reply) override;
 			virtual void setData(const google::protobuf::Message & data) override;
 
 			void updateCamData(const unsigned char *image, unsigned int width, unsigned int height, unsigned int depth);
@@ -34,6 +34,7 @@ namespace gazebo
 
 			PhysicsCamera _data;
 			std::string _imData;
+			bool _newCamDat = true;
 	};
 
 	class NRPCameraController

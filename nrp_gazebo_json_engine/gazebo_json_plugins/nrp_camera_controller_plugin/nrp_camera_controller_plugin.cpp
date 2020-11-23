@@ -3,7 +3,7 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
 gazebo::CameraDeviceController::CameraDeviceController(const std::string &devName, const rendering::CameraPtr &camera, const sensors::SensorPtr &parent)
-    : EngineJSONDeviceController(DeviceIdentifier(devName, PhysicsCamera::TypeName.data(), "")),
+    : EngineJSONDeviceController(DeviceIdentifier(devName, "", PhysicsCamera::TypeName.data())),
       _camera(camera),
       _parentSensor(parent),
       _data(camera->ScopedName())
@@ -50,7 +50,7 @@ void gazebo::CameraDeviceController::updateCamData(const unsigned char *image, u
 
 	if(sensorUpdateTime > this->_lastSensorUpdateTime)
 	{
-		std::cout << "Updating camera data\n";
+		//std::cout << "Updating camera data\n";
 		this->_lastSensorUpdateTime = sensorUpdateTime;
 
 		// Set headers

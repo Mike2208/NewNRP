@@ -127,7 +127,7 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	// Check timeout if no server is running
 	SimulationConfig::config_storage_t config;
 	TestEngineJSONNRPClient fakeClient("localhost:" + std::to_string(server.serverPort()), config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
-	ASSERT_THROW(fakeClient.initialize(), std::domain_error);
+	ASSERT_THROW(fakeClient.initialize(), NRPExceptionNonRecoverable);
 
 	// Start server, test init
 	server.startServerAsync();
@@ -142,22 +142,22 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 
 	// Test device retrieval
 	TestEngineJSONNRPClient::device_identifiers_t devIDs({dev1.id(), dev2.id(), devThrow.id()});
-	auto devices = client.getOutputDevices(devIDs);
+	auto devices = client.requestOutputDevices(devIDs);
 
 	// Only two devices (dev1, dev2) should be retrieved, as they are associated with the correct EngineName
 	ASSERT_EQ(devices.size(), 2);
 
 	// Assign correct devices, order can be arbitrary
 	const DeviceInterface *retDev1BasePtr = nullptr, *retDev2BasePtr = nullptr;
-	if(devices.front()->id() == dev1.id())
+	if(devices.begin()->get()->id() == dev1.id())
 	{
-		retDev1BasePtr = devices.front().get();
-		retDev2BasePtr = devices.back().get();
+		retDev1BasePtr = devices.begin()->get();
+		retDev2BasePtr = (++devices.begin())->get();
 	}
-	else if(devices.front()->id() == dev2.id())
+	else if(devices.begin()->get()->id() == dev2.id())
 	{
-		retDev2BasePtr = devices.front().get();
-		retDev1BasePtr = devices.back().get();
+		retDev2BasePtr = devices.begin()->get();
+		retDev1BasePtr = (++devices.begin())->get();
 	}
 
 	ASSERT_NE(retDev1BasePtr, nullptr);

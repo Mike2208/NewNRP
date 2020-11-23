@@ -1,6 +1,7 @@
 #ifndef JSON_PROPERTY_SERIALIZER_H
 #define JSON_PROPERTY_SERIALIZER_H
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/property_template.h"
 #include "nrp_general_library/utils/serializers/property_serializer.h"
 
@@ -28,7 +29,7 @@ class ObjectPropertySerializerMethods<nlohmann::json>
 			if(dataIterator != data.end())
 				return *dataIterator;
 			else
-				throw std::out_of_range(std::string("Couldn't find JSON attribute ") + name.data() + " during deserialization");
+				throw NRPExceptionMissingProperty(std::string("Couldn't find JSON attribute \"") + name.data() + "\" during deserialization");
 		}
 
 		static void emplaceSingleObject(nlohmann::json &data, const std::string_view &name, nlohmann::json &&singleObject)

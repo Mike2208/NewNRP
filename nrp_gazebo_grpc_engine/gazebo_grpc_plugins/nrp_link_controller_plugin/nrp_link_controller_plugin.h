@@ -18,7 +18,7 @@ namespace gazebo
 			LinkDeviceController(const std::string &linkName, const physics::LinkPtr &link);
 			virtual ~LinkDeviceController() override;
 
-			virtual void getData(EngineGrpc::GetDeviceMessage * reply) override;
+			virtual bool getData(EngineGrpc::GetDeviceMessage * reply) override;
 			virtual void setData(const google::protobuf::Message & data) override;
 
 		private:

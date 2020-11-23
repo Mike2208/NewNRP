@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project(NRPGazeboPlugins VERSION 0.0.1 LANGUAGES CXX)
 
 include(GNUInstallDirs)
@@ -33,7 +33,6 @@ target_link_libraries(${NRP_GAZEBO_COMMUNICATION_PLUGIN}
 	    ${NRP_GAZEBO_LIB_TARGET}
 
 	PRIVATE
-	    cxxopts::cxxopts
 		MPI::MPI_CXX
 		${NRP_GEN_LIB_TARGET}
 		${GAZEBO_LIBRARIES}

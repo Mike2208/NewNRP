@@ -27,7 +27,6 @@ NRPCommunicationController &NRPCommunicationController::resetInstance(const std:
 {
 	NRPCommunicationController::_instance.reset(new NRPCommunicationController(serverURL, engineName, registrationURL));
 	return NRPCommunicationController::getInstance();
-
 }
 
 void NRPCommunicationController::registerStepController(GazeboStepController *stepController)

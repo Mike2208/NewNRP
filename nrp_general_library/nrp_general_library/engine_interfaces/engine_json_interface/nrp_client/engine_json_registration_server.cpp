@@ -26,8 +26,8 @@ void EngineJSONRegistrationServer::RequestHandler::onRequest(const Pistache::Htt
 	}
 	catch(std::exception &e)
 	{
-		const auto errMsg = std::string("Error while handling engine registration request:\n") + e.what();
-		std::cerr << errMsg << std::endl;
+		const auto errMsg = std::string("Error while handling engine registration request: ") + e.what();
+		const auto exc = NRPException::logCreate(e, errMsg);
 		response.send(Pistache::Http::Code::Bad_Request, errMsg);
 	}
 

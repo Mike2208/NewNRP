@@ -1,5 +1,7 @@
 #include "nrp_general_library/utils/wchar_t_converter.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <assert.h>
 #include <iostream>
 #include <stdexcept>
@@ -21,11 +23,7 @@ WCharTConverter::WCharTConverter(int argc, const char *const *argv)
 		const auto wstrLen = mbsrtowcs(nullptr, &curString, 0, &ps);
 
 		if(wstrLen == static_cast<size_t>(-1))
-		{
-			const auto errMsg = "Could not convert argument " + std::to_string(i) + " \"" + curString + "\" to wstring";
-			std::cerr << errMsg << std::endl;
-			throw std::invalid_argument(errMsg);
-		}
+			throw NRPException::logCreate("Could not convert argument " + std::to_string(i) + " \"" + curString + "\" to wstring");
 
 		// Reserve enough space in wstring
 		curWString.resize(wstrLen+1);

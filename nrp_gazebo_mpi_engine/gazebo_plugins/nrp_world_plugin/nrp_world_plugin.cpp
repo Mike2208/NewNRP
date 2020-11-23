@@ -1,6 +1,7 @@
 #include "nrp_world_plugin/nrp_world_plugin.h"
 
 #include "nrp_communication_controller/nrp_communication_controller.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 #include <gazebo/physics/PhysicsEngine.hh>
 #include <gazebo/physics/World.hh>
@@ -41,12 +42,9 @@ double gazebo::NRPWorldPlugin::runLoopStep(double timeStep)
 	{
 		this->startLoop(std::max(static_cast<unsigned int>(timeStep/this->_world->Physics()->GetMaxStepSize()), (unsigned int)1));
 	}
-	catch(const std::exception &e)
+	catch(std::exception &e)
 	{
-		std::cerr << "Error while executing gazebo step\n";
-		std::cerr << e.what();
-
-		throw;
+		throw NRPException::logCreate(e, "Error while executing gazebo step");
 	}
 
 	//std::cout << "NRPWorldPlugin: Finished loop step. Time:" <<  this->_world->SimTime().Double() << "\n";

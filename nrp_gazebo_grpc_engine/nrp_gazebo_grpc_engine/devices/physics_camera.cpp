@@ -1,7 +1,7 @@
 #include "nrp_gazebo_grpc_engine/devices/physics_camera.h"
 
 PhysicsCamera::PhysicsCamera(const std::string &name)
-    : PhysicsCamera(DeviceIdentifier(name, TypeName.data(), ""))
+    : PhysicsCamera(DeviceIdentifier(name, "", TypeName.data()))
 {}
 
 PhysicsCamera::PhysicsCamera(const DeviceIdentifier &id)

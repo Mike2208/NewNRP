@@ -1,6 +1,7 @@
 #include "nrp_general_library/utils/mpi_setup.h"
 
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/serializers/mpi_property_serializer_methods.h"
 
 // Include mpi before mpi4py
@@ -28,11 +29,7 @@ MPISetup *MPISetup::initializeOnce(int argc, char **argv, bool sendPID)
 		{
 			MPI_Comm parentComm = MPISetup::getParentComm();
 			if(parentComm == MPI_COMM_NULL)
-			{
-				const auto errMsg = "No parent PID intercommunicator found. Has this process been launched via MPI_Comm_spawn()?";
-				std::cerr << errMsg << "\n";
-				throw std::runtime_error(errMsg);
-			}
+				throw NRPException::logCreate("No parent PID intercommunicator found. Has this process been launched via MPI_Comm_spawn()?");
 
 			retVal->sendPID(parentComm, 0);
 		}
@@ -54,11 +51,7 @@ std::string MPISetup::getErrorString(int MPIErrorCode)
 	retVal.resize(resLen);
 
 	if(MPI_Error_string(MPIErrorCode, retVal.data(), &resLen) != 0)
-	{
-		const auto errMsg = "Failed to read MPI Error Code " + std::to_string(MPIErrorCode);
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate("Failed to read MPI Error Code " + std::to_string(MPIErrorCode));
 
 	return retVal;
 }
@@ -70,13 +63,14 @@ MPI_Comm MPISetup::getParentComm()
 	const auto errc = MPI_Comm_get_parent(&retVal);
 	if(errc != MPI_SUCCESS)
 	{
-		const auto errMsg = "Failed to get parent proces MPI Comm: " + MPISetup::getErrorString(errc);
-		std::cerr << errMsg << "\n";
+		NRPLogger::SPDErrLogDefault("Failed to get parent proces MPI Comm: " + MPISetup::getErrorString(errc));
 
 		retVal = MPI_COMM_NULL;
 	}
 	else
+	{
 		assert(retVal != MPI_COMM_NULL);
+	}
 
 	return retVal;
 }
@@ -110,8 +104,7 @@ MPISetup::~MPISetup()
 			mpiErrMsg = e.what();
 		}
 
-		const auto errMsg = "MPI Finalize failed: " + mpiErrMsg;
-		std::cerr << errMsg << "\n";
+		NRPLogger::SPDErrLogDefault("MPI Finalize failed: " + mpiErrMsg);
 	}
 }
 
@@ -119,19 +112,11 @@ MPISetup::MPISetup(int argc, char **argv)
 {
 	const int errc = MPI_Init(&argc, &argv);
 	if(errc != 0)
-	{
-		const auto errMsg = "Failed to initialize MPI: " + getErrorString(errc);
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate("Failed to initialize MPI: " + getErrorString(errc));
 
 	// Initialize MPI4Py
 	if(import_mpi4py__MPI() != 0)
-	{
-		const auto errMsg = "Failed to initialize MPI4Py";
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate("Failed to initialize MPI4Py");
 
 	MPISinglePropertySerializer<boost::python::object>::setPyMPICommFcn(reinterpret_cast<void*>(PyMPIComm_New));
 }

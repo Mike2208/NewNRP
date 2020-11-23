@@ -38,9 +38,7 @@ std::string gazebo::NRPCommunicationPlugin::commThreadFcn() noexcept
 		}
 		catch(std::exception &e)
 		{
-			const auto errMsg = std::string("MPI Communication Failure: ") + e.what();
-			std::cerr << errMsg << std::endl;
-			return errMsg;
+			return NRPException::logCreate(e, "MPI Communication Failure").what();
 		}
 	}
 	while(mpiComm.getEngineState() != EngineMPIServer::STOPPED);

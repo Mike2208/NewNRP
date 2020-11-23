@@ -2,6 +2,7 @@
 
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.h"
 #include "nrp_general_library/utils/mpi_setup.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 #include <chrono>
 #include <exception>
@@ -66,17 +67,14 @@ pid_t MPISpawn::launchEngineProcess(const EngineConfigGeneral &engineConfig, con
 	{
 		const auto errMsg = "Failed to launch engine \"" + engineConfig.engineName() + "\" with command \"" + engineConfig.engineProcCmd() + "\": "
 		        + MPISetup::getErrorString(errc);
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate(errMsg);
 	}
 
 	// Get child pid
 	try{	this->_enginePID = MPISetup::getInstance()->recvPID(this->_intercomm, 0);	}
 	catch(std::exception &e)
 	{
-		const auto errMsg = "Failed to communicate with engine \"" + engineConfig.engineName() + "\" after launch: " + e.what();
-		std::cerr << errMsg << "\n";
-		throw std::runtime_error(errMsg);
+		throw NRPException::logCreate(e, "Failed to communicate with engine \"" + engineConfig.engineName() + "\" after launch");
 	}
 
 	return this->_enginePID;
@@ -146,10 +144,6 @@ void MPISpawn::appendEnvVars(const EngineConfigConst::string_vector_t &envVars)
 
 		const std::string envCmd = "export " + envVar;
 		if(system(envCmd.data()) != 0)
-		{
-			const auto errMsg = std::string("Failed to add environment variable:\n") + envVar.data();
-			std::cerr << errMsg << std::endl;
-			throw std::logic_error(errMsg);
-		}
+			throw NRPException::logCreate(std::string("Failed to add environment variable:\n") + envVar.data());
 	}
 }

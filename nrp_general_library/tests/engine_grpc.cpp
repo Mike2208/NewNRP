@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "engine_grpc.grpc.pb.h"
+#include <nrp_grpc_library/engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
@@ -21,10 +21,11 @@ class TestGrpcDeviceController : public EngineGrpcDeviceController
 
         TestGrpcDeviceController(const DeviceIdentifier &devID) : EngineGrpcDeviceController(devID) {}
 
-        virtual void getData(EngineGrpc::GetDeviceMessage *) override
+        virtual bool getData(EngineGrpc::GetDeviceMessage *) override
         {
             //reply->mutable_deviceid()->set_devicename(_setMessage.deviceid().devicename());
             //reply->mutable_deviceid()->set_devicetype(_setMessage.deviceid().devicetype());
+            return true;
         }
 
         virtual void setData(const google::protobuf::Message & data) override
@@ -424,7 +425,7 @@ TEST(EngineGrpc, GetDeviceData)
 
     // The gRPC server isn't running, so the getOutputDevices command should fail
 
-    ASSERT_THROW(client.getOutputDevices(deviceIdentifiers), std::runtime_error);
+    ASSERT_THROW(client.requestOutputDevices(deviceIdentifiers), std::runtime_error);
 
     // Normal command execution
 
@@ -432,7 +433,7 @@ TEST(EngineGrpc, GetDeviceData)
     testSleep(1500);
     client.handleInputDevices(input_devices);
 
-    const auto output = client.getOutputDevices(deviceIdentifiers);
+    const auto output = client.requestOutputDevices(deviceIdentifiers);
 
     ASSERT_EQ(output.size(), 1);
     ASSERT_EQ(output.at(0)->name(),       deviceName);
@@ -448,7 +449,7 @@ TEST(EngineGrpc, GetDeviceData)
 
     deviceIdentifiers.insert(devId2);
 
-    ASSERT_THROW(client.getOutputDevices(deviceIdentifiers), std::runtime_error);
+    ASSERT_THROW(client.requestOutputDevices(deviceIdentifiers), std::runtime_error);
 
     // TODO Add test for getData timeout
 }
@@ -493,7 +494,7 @@ TEST(EngineGrpc, GetDeviceData2)
     deviceIdentifiers.insert(devId1);
     deviceIdentifiers.insert(devId2);
 
-    const auto output = client.getOutputDevices(deviceIdentifiers);
+    const auto output = client.requestOutputDevices(deviceIdentifiers);
 
     ASSERT_EQ(output.size(), 2);
     ASSERT_EQ(output.at(0)->engineName(), engineName);

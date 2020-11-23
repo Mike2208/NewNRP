@@ -1,6 +1,8 @@
 #include "nrp_general_library/transceiver_function/transceiver_function_manager.h"
 #include "nrp_general_library/transceiver_function/transceiver_function_interpreter.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <iostream>
 
 TransceiverFunctionManager::TransceiverFunctionSettings::TransceiverFunctionSettings(const TransceiverFunctionConfigSharedPtr &config)
@@ -22,11 +24,7 @@ void TransceiverFunctionManager::loadTF(const TransceiverFunctionConfigSharedPtr
 	auto storedConfigIterator = this->_tfSettings.find(tfConfig);
 	auto loadedTF = this->_tfInterpreter.findTF(tfConfig->name());
 	if(loadedTF != this->_tfInterpreter.loadedTFs().end() || storedConfigIterator != this->_tfSettings.end())
-	{
-		const auto errMsg = "TF with name " + tfConfig->name() + "already loaded";
-		std::cerr << errMsg << std::endl;
-		throw std::invalid_argument(errMsg);
-	}
+		throw NRPException::logCreate("TF with name " + tfConfig->name() + "already loaded");
 
 	this->_tfSettings.insert(tfConfig);
 	this->_tfInterpreter.loadTransceiverFunction(*tfConfig);

@@ -7,6 +7,7 @@
  *  See MPISinglePropertySerializer for details on how to implement de-/serialization methods
  */
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/serializers/mpi_property_serializer.h"
 
 template<>
@@ -283,9 +284,7 @@ struct MPISinglePropertySerializer<boost::python::object> : public MPISingleProp
 		}
 		catch(python::error_already_set&)
 		{
-			const auto errStr = "Error while serializing python object with MPI: \n" + handle_pyerror();
-			std::cerr << errStr << "\n";
-			throw std::runtime_error(errStr);
+			throw NRPException::logCreate("Error while serializing python object with MPI: \n" + handle_pyerror());
 		}
 	}
 

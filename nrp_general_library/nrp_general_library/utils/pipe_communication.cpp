@@ -1,5 +1,7 @@
 #include "nrp_general_library/utils/pipe_communication.h"
 
+#include "nrp_general_library/utils/nrp_exceptions.h"
+
 #include <assert.h>
 #include <fcntl.h>
 #include <iostream>
@@ -8,11 +10,7 @@
 PipeCommunication::PipeCommunication()
 {
 	if(pipe(this->_pipe) == -1)
-	{
-		const auto errMsg = "Failed to create pipe";
-		std::cerr << errMsg << std::endl;
-		throw std::runtime_error(errMsg);
-	}
+		throw NRPException::logCreate("Failed to create pipe");
 
 	int flags = fcntl(this->_pipe[0], F_GETFL, 0);
 	fcntl(this->_pipe[0], F_SETFL, flags | O_NONBLOCK);

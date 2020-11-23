@@ -3,7 +3,7 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
 gazebo::CameraDeviceController::CameraDeviceController(const std::string &devName, const rendering::CameraPtr &camera, const sensors::SensorPtr &parent)
-    : EngineGrpcDeviceController(DeviceIdentifier(devName, PhysicsCamera::TypeName.data(), "")),
+    : EngineGrpcDeviceController(DeviceIdentifier(devName, "", PhysicsCamera::TypeName.data())),
       _camera(camera),
       _parentSensor(parent),
       _data(camera->ScopedName())
@@ -11,15 +11,25 @@ gazebo::CameraDeviceController::CameraDeviceController(const std::string &devNam
 
 gazebo::CameraDeviceController::~CameraDeviceController() = default;
 
-void gazebo::CameraDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
+bool gazebo::CameraDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
 {
-	// Render image
-	//this->_camera->Render(true);
+	if(this->_newCamDat)
+	{
+		// If new data is available, send it
+		reply->mutable_camera()->set_imageheight(this->_data.imageHeight());
+		reply->mutable_camera()->set_imagewidth(this->_data.imageWidth());
+		reply->mutable_camera()->set_imagedepth(this->_data.imagePixelSize());
+		reply->mutable_camera()->set_imagedata(this->_imData);
 
-	reply->mutable_camera()->set_imageheight(this->_data.imageHeight());
-	reply->mutable_camera()->set_imagewidth(this->_data.imageWidth());
-	reply->mutable_camera()->set_imagedepth(this->_data.imagePixelSize());
-	reply->mutable_camera()->set_imagedata(this->_imData);
+		this->_newCamDat = false;
+		return true;
+	}
+	else
+	{
+		// If no new data is available, send empty message
+		reply->Clear();
+		return false;
+	}
 }
 
 void gazebo::CameraDeviceController::setData(const google::protobuf::Message & data)
@@ -33,7 +43,7 @@ void gazebo::CameraDeviceController::updateCamData(const unsigned char *image, u
 
 	if(sensorUpdateTime > this->_lastSensorUpdateTime)
 	{
-		std::cout << "Updating camera data\n";
+		//std::cout << "Updating camera data\n";
 		this->_lastSensorUpdateTime = sensorUpdateTime;
 
 		// Set headers

@@ -2,6 +2,7 @@
 
 #include "nrp_communication_controller/nrp_communication_controller.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_opts_parser.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 void gazebo::NRPCommunicationPlugin::Load(int argc, char **argv)
 {
@@ -20,10 +21,7 @@ void gazebo::NRPCommunicationPlugin::Load(int argc, char **argv)
 	}
 	catch(cxxopts::OptionException &e)
 	{
-		const auto errMsg = std::string("Failed to parse options: \n") + e.what();
-		std::cerr << errMsg << std::endl;
-
-		throw;
+		throw NRPException::logCreate(e, "Failed to parse options");
 	}
 
 	// Create server with given URL

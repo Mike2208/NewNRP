@@ -2,13 +2,14 @@
 
 #include "nrp_general_library/config/engine_config.h"
 #include "nrp_general_library/config/transceiver_function_config.h"
+#include "nrp_general_library/utils/nrp_exceptions.h"
 
 #include <iostream>
 
 SimulationLoop::SimulationLoop(SimulationConfigSharedPtr config, engine_interfaces_t engines)
     : _config(config),
       _engines(engines),
-      _tfManager(SimulationLoop::initTFManager(config))
+      _tfManager(SimulationLoop::initTFManager(config, _engines))
 {
 	TransceiverDeviceInterface::setTFInterpreter(&(this->_tfManager.getInterpreter()));
 
@@ -27,10 +28,7 @@ void SimulationLoop::initLoop()
 		}
 		catch(std::exception &e)
 		{
-			const auto errMsg = "Failed to initialize engine \"" + engine->engineName() + "\": " + e.what();
-
-			std::cerr << errMsg << std::endl;
-			throw std::runtime_error(errMsg);
+			throw NRPException::logCreate(e, "Failed to initialize engine \"" + engine->engineName() + "\"");
 		}
 	}
 }
@@ -74,10 +72,10 @@ void SimulationLoop::runLoop(float runLoopTime)
 		{
 			for(auto &engine : processedEngines)
 			{
-				this->_tfManager.setEngineOutputDeviceData(engine->engineName(), engine->getOutputDevices(requestedDeviceIDs));
+				engine->requestOutputDevices(requestedDeviceIDs);
 			}
 		}
-		catch(const std::exception &)
+		catch(std::exception &)
 		{
 			// TODO: Handle failure on output device retrieval
 			throw;
@@ -133,9 +131,17 @@ void SimulationLoop::runLoop(float runLoopTime)
 	this->_simTime = loopStopTime;
 }
 
-TransceiverFunctionManager SimulationLoop::initTFManager(const SimulationConfigSharedPtr &simConfig)
+TransceiverFunctionManager SimulationLoop::initTFManager(const SimulationConfigSharedPtr &simConfig, const engine_interfaces_t &engines)
 {
 	TransceiverFunctionManager newManager;
+
+	{
+		TransceiverFunctionInterpreter::engines_devices_t engineDevs;
+		for(const auto &engine : engines)
+			engineDevs.emplace(engine->engineName(), &(engine->getOutputDevices()));
+
+		newManager.getInterpreter().setEngineDevices(std::move(engineDevs));
+	}
 
 	TransceiverDeviceInterface::setTFInterpreter(&newManager.getInterpreter());
 

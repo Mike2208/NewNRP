@@ -56,8 +56,10 @@ class NestEngineServerNRPClient
 		virtual step_result_t runLoopStep(float timeStep) override;
 		virtual RESULT waitForStepCompletion(float timeOut) override;
 
-		virtual device_outputs_t getOutputDevices(const device_identifiers_t &deviceIdentifiers) override;
 		virtual RESULT handleInputDevices(const device_inputs_t &inputDevices) override;
+
+	protected:
+		virtual device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t &deviceIdentifiers) override;
 
 	private:
 		std::future<EngineInterface::RESULT> _runStepThread;

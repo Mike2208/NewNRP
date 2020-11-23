@@ -7,7 +7,7 @@
 #include <grpcpp/support/time.h>
 #include <nlohmann/json.hpp>
 
-#include "engine_grpc.grpc.pb.h"
+#include <nrp_grpc_library/engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
@@ -234,45 +234,15 @@ class EngineGrpcClient
             }
         }
 
-        virtual typename EngineInterface::device_outputs_t getOutputDevices(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
+        typename EngineInterface::device_outputs_set_t getDeviceInterfacesFromProto(const EngineGrpc::GetDeviceReply & reply)
         {
-            EngineGrpc::GetDeviceRequest request;
-            EngineGrpc::GetDeviceReply   reply;
-            grpc::ClientContext          context;
-
-            context.set_deadline(GetCommandDeadline(EngineCommands::GetDevice));
-
-            for(const auto &devID : deviceIdentifiers)
-            {
-                if(this->engineName().compare(devID.EngineName) == 0)
-                {
-                    auto r = request.add_deviceid();
-
-                    r->set_devicename(devID.Name);
-                    r->set_devicetype(devID.Type);
-                    r->set_enginename(devID.EngineName);
-                }
-            }
-
-            grpc::Status status = _stub->getDevice(&context, request, &reply);
-
-            if(!status.ok())
-            {
-                const auto errMsg = "Engine server getOutputDevices failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
-                throw std::runtime_error(errMsg);
-            }
-
-            return this->getDeviceInterfacesFromProto(reply);
-        }
-
-        typename EngineInterface::device_outputs_t getDeviceInterfacesFromProto(const EngineGrpc::GetDeviceReply & reply)
-        {
-            typename EngineInterface::device_outputs_t interfaces;
-            interfaces.reserve(reply.reply_size());
+            typename EngineInterface::device_outputs_set_t interfaces;
 
             for(int i = 0; i < reply.reply_size(); i++)
             {
-                interfaces.push_back(this->getSingleDeviceInterfaceFromProto<DEVICES...>(reply.reply(i)));
+                // Check whether the requested device has new data
+				if(reply.reply(i).has_deviceid())
+					interfaces.insert(this->getSingleDeviceInterfaceFromProto<DEVICES...>(reply.reply(i)));
             }
 
             return interfaces;
@@ -304,6 +274,36 @@ class EngineGrpcClient
                 throw std::logic_error("Could not process given device of type " + deviceData.deviceid().devicetype());
             }
         }
+
+	protected:
+		virtual typename EngineInterface::device_outputs_set_t requestOutputDeviceCallback(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
+		{
+			EngineGrpc::GetDeviceRequest request;
+			EngineGrpc::GetDeviceReply   reply;
+			grpc::ClientContext          context;
+
+			for(const auto &devID : deviceIdentifiers)
+			{
+				if(this->engineName().compare(devID.EngineName) == 0)
+				{
+					auto r = request.add_deviceid();
+
+					r->set_devicename(devID.Name);
+					r->set_devicetype(devID.Type);
+					r->set_enginename(devID.EngineName);
+				}
+			}
+
+			grpc::Status status = _stub->getDevice(&context, request, &reply);
+
+			if(!status.ok())
+			{
+				const auto errMsg = "Engine server getOutputDevices failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
+				throw std::runtime_error(errMsg);
+			}
+
+			return this->getDeviceInterfacesFromProto(reply);
+		}
 
     private:
 

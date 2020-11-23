@@ -1,10 +1,19 @@
 #include <gtest/gtest.h>
 
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 #include "tests/test_transceiver_function_interpreter.h"
 #include "tests/test_env_cmake.h"
 
 using namespace boost;
+
+void appendPythonPath(const std::string &path)
+{
+	boost::python::handle pathH(boost::python::borrowed(PySys_GetObject("path")));
+	boost::python::list paths(pathH);
+	paths.append(path);
+
+	PySys_SetObject("path", paths.ptr());
+}
 
 TEST(TransceiverFunctionInterpreterTest, TestSimplePythonFcn)
 {
@@ -13,12 +22,15 @@ TEST(TransceiverFunctionInterpreterTest, TestSimplePythonFcn)
 	python::dict globals(main.attr("__dict__"));
 	try
 	{
+		// Append simple_function path to search
+		appendPythonPath(TEST_SIMPLE_TRANSCEIVER_FCN_MODULE_PATH);
+
+		// Load simple function
 		python::object simpleFcn(python::import("simple_fcn"));
-		python::incref(simpleFcn.ptr());
 		globals.update(simpleFcn.attr("__dict__"));
 		globals["simple_fcn"]();
 	}
-	catch(const boost::python::error_already_set &)
+	catch(boost::python::error_already_set &)
 	{
 		PyErr_Print();
 		PyErr_Clear();
@@ -43,7 +55,7 @@ TEST(TransceiverFunctionInterpreterTest, TestSimplePythonFcn)
 	ASSERT_EQ(boost::python::extract<int>(res), 3);
 
 	// Test invalid TF name
-	ASSERT_THROW(interpreter->runSingleTransceiverFunction("invalidTFName"), std::invalid_argument);
+	ASSERT_THROW(interpreter->runSingleTransceiverFunction("invalidTFName"), NRPExceptionNonRecoverable);
 
 	TransceiverDeviceInterface::setTFInterpreter(nullptr);
 }
@@ -53,6 +65,8 @@ TEST(TransceiverFunctionInterpreterTest, TestTransceiverFcnDevices)
 	Py_Initialize();
 	python::object main(python::import("__main__"));
 	python::object nrpModule(python::import(PYTHON_MODULE_NAME_STR));
+
+	appendPythonPath(TEST_PYTHON_MODULE_PATH);
 	python::object testModule(python::import(TEST_PYTHON_MODULE_NAME_STR));
 
 	python::dict globals(main.attr("__dict__"));
@@ -64,7 +78,8 @@ TEST(TransceiverFunctionInterpreterTest, TestTransceiverFcnDevices)
 	TransceiverDeviceInterface::setTFInterpreter(interpreter.get());
 
 	std::shared_ptr<TestOutputDevice> dev(new TestOutputDevice(TestOutputDevice::ID()));
-	interpreter->setEngineOutputDeviceData(dev->engineName(), {dev});
+	EngineInterface::device_outputs_t devs({dev});
+	interpreter->setEngineDevices({{dev->engineName(), &devs}});
 
 	// Load and execute simple python function
 	const std::string tfName = "testTF";
@@ -93,8 +108,9 @@ TEST(TransceiverFunctionInterpreterTest, TestTransceiverFunction)
 	Py_Initialize();
 	python::object main(python::import("__main__"));
 	python::object nrpModule(python::import(PYTHON_MODULE_NAME_STR));
+
+	appendPythonPath(TEST_PYTHON_MODULE_PATH);
 	python::object testModule(python::import(TEST_PYTHON_MODULE_NAME_STR));
-//	python::object transceiverFcnModule(python::import("transceiver_function"));
 
 	python::dict globals(main.attr("__dict__"));
 	globals.update(nrpModule.attr("__dict__"));
@@ -114,7 +130,8 @@ TEST(TransceiverFunctionInterpreterTest, TestTransceiverFunction)
 
 	std::shared_ptr<TestOutputDevice> dev(new TestOutputDevice(TestOutputDevice::ID()));
 	dev->TestValue = 4;
-	interpreter->setEngineOutputDeviceData(dev->engineName(), {dev});
+	EngineInterface::device_outputs_t devs({dev});
+	interpreter->setEngineDevices({{dev->engineName(), &devs}});
 
 	// Load and execute simple python function
 	interpreter->loadTransceiverFunction(tfCfg);

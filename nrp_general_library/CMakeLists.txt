@@ -12,7 +12,7 @@ set(LIB_EXPORT_NAME "${LIBRARY_NAME}Targets")
 set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project("${PROJECT_NAME}" VERSION 1.0.0)
 
 include(GNUInstallDirs)
@@ -27,7 +27,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/config/transceiver_function_config.cpp
 	nrp_general_library/device_interface/device_conversion_mechanism.cpp
 	nrp_general_library/device_interface/device_interface.cpp
-	nrp_general_library/device_interface/devices/python_object_device_interface.cpp
+	nrp_general_library/device_interface/devices/pyobject_device.cpp
 	nrp_general_library/device_interface/python_device.cpp
 	nrp_general_library/engine_interfaces/engine_interface.cpp
 	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.cpp
@@ -73,9 +73,12 @@ set(LIB_SRC_FILES
 	nrp_general_library/utils/fixed_string.cpp
 	nrp_general_library/utils/mpi_communication.cpp
 	nrp_general_library/utils/mpi_setup.cpp
+	nrp_general_library/utils/nrp_exceptions.cpp
+	nrp_general_library/utils/nrp_logger.cpp
 	nrp_general_library/utils/pipe_communication.cpp
 	nrp_general_library/utils/python_error_handler.cpp
 	nrp_general_library/utils/python_interpreter_state.cpp
+	nrp_general_library/utils/spdlog_setup.cpp
 	nrp_general_library/utils/wchar_t_converter.cpp
 	nrp_general_library/utils/zip_container.cpp
 )
@@ -115,30 +118,61 @@ set(TEST_SRC_FILES
 ## Dependencies
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(FetchContent)
 
 # cxxopts: Start Parameter Processing
-add_subdirectory(depends/cxxopts)
+find_package(cxxopts 2.2 QUIET)
+if(NOT ${cxxopts_FOUND})
+	message("Please wait. Downloading cxxopts...")
+	FetchContent_Declare(cxxopts
+		GIT_REPOSITORY https://github.com/jarro2783/cxxopts.git
+		GIT_TAG v2.2.1)
+
+	FetchContent_GetProperties(cxxopts)
+	if(NOT cxxopts_POPULATED)
+		FetchContent_Populate(cxxopts)
+
+		set(CXXOPTS_BUILD_EXAMPLES OFF)
+		set(CXXOPTS_BUILD_TESTS OFF)
+
+		add_subdirectory(${cxxopts_SOURCE_DIR} ${cxxopts_BINARY_DIR})
+		add_library(cxxopts::cxxopts ALIAS cxxopts)
+	endif()
+endif()
 
 # restclient-cpp: REST client library
-add_subdirectory(depends/restclient-cpp)
+find_package(restclient-cpp QUIET)
+if(NOT ${restclient-cpp_FOUND})
+	message("Please wait. Downloading restclient-cpp...")
+	FetchContent_Declare(restclient-cpp
+		GIT_REPOSITORY https://github.com/mrtazz/restclient-cpp.git
+		GIT_TAG c140e62ecc793533ad40794c17d2982121aebc0b)
+
+	FetchContent_GetProperties(restclient-cpp)
+	if(NOT restclient-cpp_POPULATED)
+		FetchContent_Populate(restclient-cpp)
+		add_subdirectory(${restclient-cpp_SOURCE_DIR} ${restclient-cpp_BINARY_DIR})
+		target_include_directories(restclient-cpp
+			INTERFACE "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+	endif()
+endif()
 add_library(restclient-cpp::restclient-cpp ALIAS restclient-cpp)
 
 # pistache: REST server library
 find_package(Pistache REQUIRED)
 
 # nlohmann_json: JSON library
-find_package(nlohmann_json 3.9.0)
+find_package(nlohmann_json 3.9.0 QUIET)
 if(NOT ${nlohmann_json_FOUND})
-	message("Please wait. Downloading and compiling a newer version of nlohmann_json...")
-	include(FetchContent)
+	message("Please wait. Downloading a newer version of nlohmann_json...")
 	FetchContent_Declare(json
 		GIT_REPOSITORY https://github.com/nlohmann/json.git
-		    GIT_TAG v3.9.0)
+		GIT_TAG v3.9.0)
 
 	FetchContent_GetProperties(json)
 	if(NOT json_POPULATED)
 		FetchContent_Populate(json)
-	  	add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
+		add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
 	endif()
 endif()
 
@@ -162,7 +196,7 @@ endif()
 set(NRP_CLEAR_ENV "NRP_CLEAR_ENV")
 
 # General Header defines
-configure_file("nrp_general_library/config_headers/nrp_cmake_constants.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/nrp_general_library/config_headers/nrp_cmake_constants.h" @ONLY)
+configure_file("nrp_general_library/config/cmake_constants.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/config/cmake_constants.h" @ONLY)
 
 # Python Module defines
 configure_file("nrp_python_device/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
@@ -175,8 +209,7 @@ configure_file("cmake/set_env_exec.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/set_env_e
 # NRPGeneralLibrary
 add_library("${LIBRARY_NAME}" SHARED ${LIB_SRC_FILES})
 add_library(${NAMESPACE_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
-target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
-target_compile_options(${LIBRARY_NAME} PUBLIC $<$<CXX_COMPILER_ID:GNU>:-fconcepts>)
+target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra -fconcepts-diagnostics-depth=3>)
 
 set(NRP_GEN_LIB_TARGET "${NAMESPACE_NAME}::${LIBRARY_NAME}" CACHE INTERNAL "NRP General Library target")
 set(NRP_PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" CACHE INTERNAL "NRP Plugin Installation Directory")
@@ -189,12 +222,13 @@ target_link_libraries(${LIBRARY_NAME}
 		nlohmann_json::nlohmann_json
 		pistache
 		PkgConfig::LibZip
-		${PYTHON_LIBRARIES}
+		Python3::Module
+		Python3::Python
 		restclient-cpp::restclient-cpp
 		spdlog::spdlog
 		${PROTOBUF_LIBRARIES}
 		${GRPC_LIBRARIES}
-		NRPProtoLibrary::NRPProtoLibrary
+		NRPGRPCLibrary::NRPGRPCLibrary
 
 	PRIVATE
 	    MPI4Py::MPI4Py
@@ -202,9 +236,9 @@ target_link_libraries(${LIBRARY_NAME}
 
 target_include_directories(${LIBRARY_NAME}
 	PUBLIC 
-	    $<INSTALL_INTERFACE:include>
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>		
-		${PYTHON_INCLUDE_DIR}
+	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
 
 	PRIVATE
 )
@@ -220,8 +254,6 @@ if(NOT ${PYTHON_MODULE_SRC_FILES} STREQUAL "")
 
 	target_include_directories(${PYTHON_MODULE_NAME}
 		PUBLIC
-		    $<INSTALL_INTERFACE:include>
-			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	)
 
     target_link_libraries(${PYTHON_MODULE_NAME}
@@ -279,7 +311,7 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 
 	# Create testing env files
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/test_env.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/test_env.sh" @ONLY)
-	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h" @ONLY)
+	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/tests/test_env_cmake.h" @ONLY)
 
 	# Create testing executable
 	enable_testing()
@@ -288,8 +320,8 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 		PUBLIC
 		MPICommDevices
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
-		GTest::GTest
-		GTest::GTestMain
+		GTest::gtest
+		GTest::gtest_main
 		${TEST_PYTHON_MODULE_NAME})
 
 	gtest_discover_tests(${TEST_NAME}
@@ -326,9 +358,9 @@ install(EXPORT ${LIB_EXPORT_NAME}
 )
 
 # Install headers
-install(DIRECTORY ${HEADER_DIRECTORY}
+install(DIRECTORY "${HEADER_DIRECTORY}" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}"
 	DESTINATION
-	    ${CMAKE_INSTALL_INCLUDEDIR}/${HEADER_DIRECTORY}
+	    ${CMAKE_INSTALL_INCLUDEDIR}
 	FILES_MATCHING
 	    PATTERN "*.h"
 		PATTERN "*.hpp"

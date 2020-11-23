@@ -99,7 +99,7 @@ TEST(TestGazeboEngine, CameraPlugin)
 	//ASSERT_EQ(engine->runLoopStep(1.0f), EngineInterface::RESULT::SUCCESS);
 	//ASSERT_EQ(engine->waitForStepCompletion(5.0f), EngineInterface::RESULT::SUCCESS);
 
-	auto devices = engine->getOutputDevices({DeviceIdentifier("nrp_camera::camera", PhysicsCamera::TypeName.data(), conf.engineName())});
+	auto devices = engine->requestOutputDevices({DeviceIdentifier("nrp_camera::camera", conf.engineName(), PhysicsCamera::TypeName.data())});
 	ASSERT_EQ(devices.size(), 1);
 
 	const PhysicsCamera &camDat = dynamic_cast<const PhysicsCamera&>(*(devices[0]));
@@ -156,7 +156,7 @@ TEST(TestGazeboEngine, JointPlugin)
 	//ASSERT_EQ(engine->waitForStepCompletion(5.0f), EngineInterface::RESULT::SUCCESS);
 
 	// Test device data getting
-	auto devices = engine->getOutputDevices({DeviceIdentifier("youbot::base_footprint_joint", PhysicsJoint::TypeName.data(), conf.engineName())});
+	auto devices = engine->requestOutputDevices({DeviceIdentifier("youbot::base_footprint_joint", conf.engineName(), PhysicsJoint::TypeName.data())});
 	ASSERT_EQ(devices.size(), 1);
 
 	const PhysicsJoint *pJointDev = dynamic_cast<const PhysicsJoint*>(devices[0].get());
@@ -204,7 +204,7 @@ TEST(TestGazeboEngine, LinkPlugin)
 	//ASSERT_EQ(engine->waitForStepCompletion(5.0f), EngineInterface::RESULT::SUCCESS);
 
 	// Test device data getting
-	auto devices = engine->getOutputDevices({DeviceIdentifier("link_youbot::base_footprint", PhysicsJoint::TypeName.data(), conf.engineName())});
+	auto devices = engine->requestOutputDevices({DeviceIdentifier("link_youbot::base_footprint", conf.engineName(), PhysicsJoint::TypeName.data())});
 	ASSERT_EQ(devices.size(), 1);
 
 	const PhysicsLink *pLinkDev = dynamic_cast<const PhysicsLink*>(devices[0].get());

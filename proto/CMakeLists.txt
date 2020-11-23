@@ -1,5 +1,5 @@
-set(PROJECT_NAME "NRPProtoLibrary")
-set(HEADER_DIRECTORY "proto")
+set(PROJECT_NAME "NRPGRPCLibrary")
+set(HEADER_DIRECTORY "nrp_grpc_library")
 
 set(NAMESPACE_NAME "${PROJECT_NAME}")
 
@@ -11,10 +11,14 @@ set(LIB_EXPORT_NAME "${LIBRARY_NAME}Targets")
 set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project("${PROJECT_NAME}" VERSION 1.0.0)
 
 include(GNUInstallDirs)
+
+
+##########################################
+## Dependencies
 
 find_package(PkgConfig REQUIRED)
 
@@ -34,26 +38,35 @@ message(STATUS "Using gRPC cpp plugin ${GRPC_CPP_PLUGIN}")
 pkg_check_modules(GRPC REQUIRED grpc++)
 message(STATUS "Using gRPC ${GRPC_VERSION}")
 
+
+##########################################
+## GRPC Generation
+
 # List of protobuf proto files
 get_filename_component(hw_proto "engine_grpc.proto" ABSOLUTE)
 get_filename_component(hw_proto_path "${hw_proto}" PATH)
 
 # Generated sources
-set(proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/engine_grpc.pb.cc")
-set(proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/engine_grpc.pb.h")
-set(grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/engine_grpc.grpc.pb.cc")
-set(grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/engine_grpc.grpc.pb.h")
+set(proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/engine_grpc.pb.cc")
+set(proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/engine_grpc.pb.h")
+set(grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/engine_grpc.grpc.pb.cc")
+set(grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/engine_grpc.grpc.pb.h")
 add_custom_command(
     OUTPUT "${proto_srcs}" "${proto_hdrs}" "${grpc_srcs}" "${grpc_hdrs}"
+	COMMAND "mkdir" ARGS -p "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}"
     COMMAND ${PROTOC}
-    ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
-        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+	ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}"
+	    --cpp_out "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}"
         -I "${hw_proto_path}"
         --plugin=protoc-gen-grpc="${GRPC_CPP_PLUGIN}"
         "${hw_proto}"
 	DEPENDS "${hw_proto}")
 
 set(LIB_SRC_FILES ${proto_srcs} ${grpc_srcs})
+
+
+##########################################
+## Library
 
 add_library("${LIBRARY_NAME}" SHARED ${LIB_SRC_FILES})
 add_library(${NAMESPACE_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
@@ -64,10 +77,9 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 target_include_directories(${LIBRARY_NAME}
     PUBLIC 
         "$<INSTALL_INTERFACE:include>"
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
     
     PRIVATE
-        ${PYTHON_INCLUDE_DIR}
 )
     
 target_link_libraries(${LIBRARY_NAME}
@@ -102,9 +114,9 @@ install(EXPORT ${LIB_EXPORT_NAME}
 )
 
 # Install headers
-install(DIRECTORY ${HEADER_DIRECTORY}
+install(DIRECTORY "${HEADER_DIRECTORY}" "${CMAKE_BINARY_DIR}/include/${HEADER_DIRECTORY}"
 	DESTINATION
-	    ${CMAKE_INSTALL_INCLUDEDIR}/${HEADER_DIRECTORY}
+	    ${CMAKE_INSTALL_INCLUDEDIR}
 	FILES_MATCHING
 	    PATTERN "*.h"
 		PATTERN "*.hpp"

@@ -1,7 +1,7 @@
 #ifndef MPI_SPAWN_H
 #define MPI_SPAWN_H
 
-#include "nrp_general_library/config_headers/nrp_cmake_constants.h"
+#include "nrp_general_library/config/cmake_constants.h"
 #include "nrp_general_library/process_launchers/launch_commands/launch_command.h"
 
 #include <mpi.h>

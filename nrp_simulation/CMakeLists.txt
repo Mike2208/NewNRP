@@ -12,7 +12,7 @@ set(LIB_EXPORT_NAME "${LIBRARY_NAME}Targets")
 set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project("${PROJECT_NAME}" VERSION 1.0.0)
 
 include(GNUInstallDirs)
@@ -71,7 +71,7 @@ set(NRP_SERVER_DEF_MAX_NUM_EXPERIMENTS 5 CACHE STRING "Default server experiment
 list(JOIN NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS "\", \"" NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS_STR)
 
 # General Header defines
-configure_file(nrp_simulation/config/cmake_conf.h.in ${CMAKE_CURRENT_SOURCE_DIR}/nrp_simulation/config/cmake_conf.h @ONLY)
+configure_file("nrp_simulation/config/cmake_conf.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/config/cmake_conf.h" @ONLY)
 
 
 ##########################################
@@ -88,9 +88,9 @@ target_link_libraries(${LIBRARY_NAME}
 
 target_include_directories(${LIBRARY_NAME}
 	PUBLIC 
-		$<INSTALL_INTERFACE:include>
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>		
-		${PYTHON_INCLUDE_DIR}
+	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
 
 	PRIVATE
 )
@@ -106,8 +106,6 @@ if(NOT ${PYTHON_MODULE_SRC_FILES} STREQUAL "")
 
 	target_include_directories(${PYTHON_MODULE_NAME}
 		PUBLIC
-		    $<INSTALL_INTERFACE:include>
-			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	)
 
      target_link_libraries(${PYTHON_MODULE_NAME}
@@ -152,12 +150,12 @@ add_custom_target(NRPServerConf ALL
 ## Tests
 if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 	set(GAZEBO_WORLD_FILE "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/empty_world.sdf")
+	set(TEST_SIM_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/tests/test_files/simulation_config.json")
 
 	# Create testing env files
-	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/simulation_config.json.in"
-		"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/simulation_config.json" @ONLY)
+	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/simulation_config.json.in"	"${TEST_SIM_CONFIG_FILE}" @ONLY)
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/test_env.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/test_env.sh" @ONLY)
-	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h" @ONLY)
+	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/tests/test_env_cmake.h" @ONLY)
 
 	# Create testing executable
 	enable_testing()
@@ -167,8 +165,8 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
 		NRPNestJSONEngine::NRPNestJSONEngine
 		NRPGazeboGrpcEngine::NRPGazeboGrpcEngine
-		GTest::GTest
-		GTest::GTestMain)
+		GTest::gtest
+		GTest::gtest_main)
 
 	gtest_discover_tests(${TEST_NAME}
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/tests"
@@ -204,9 +202,9 @@ install(EXPORT ${LIB_EXPORT_NAME}
 )
 
 # Install headers
-install(DIRECTORY ${HEADER_DIRECTORY}
+install(DIRECTORY "${HEADER_DIRECTORY}" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}"
 	DESTINATION
-	    ${CMAKE_INSTALL_INCLUDEDIR}/${HEADER_DIRECTORY}
+	    ${CMAKE_INSTALL_INCLUDEDIR}
 	FILES_MATCHING
 	    PATTERN "*.h"
 		PATTERN "*.hpp"
