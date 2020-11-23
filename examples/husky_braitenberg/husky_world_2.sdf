@@ -4,7 +4,7 @@
       <pose>7.485 -12.379 17.2198 0 -0 0</pose>
       <diffuse>0.7 0.7 0.7 1</diffuse>
       <specular>0.2 0.2 0.2 1</specular>
-      <direction>0 0 -1</direction>
+      <direction>0 0.1 -0.9</direction>
       <attenuation>
         <range>1000</range>
         <constant>0.9</constant>
