@@ -23,7 +23,7 @@ boost::python::object SingleTransceiverDevice::runTf(boost::python::tuple &args,
 	{
 		for(const auto &curDevice : *(engDevicesIt->second))
 		{
-			if(curDevice->id() == this->_deviceID)
+			if(curDevice->id().Name == this->_deviceID.Name)
 			{
 				kwargs[this->_keyword] = curDevice;
 
