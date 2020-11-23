@@ -128,7 +128,7 @@
           </geometry>
         </visual>
         <sensor name='camera' type='camera'>
-		  <plugin name="nrp_camera" filename="NRPGazeboJSONCameraControllerPlugin.so"/>
+		  <plugin name="nrp_camera" filename="NRPGazeboGrpcCameraControllerPlugin.so"/>
           <camera>
             <horizontal_fov>1.047</horizontal_fov>
             <image>
@@ -185,6 +185,6 @@
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
-    <plugin name="nrp_world_plugin" filename="NRPGazeboJSONWorldPlugin.so"/>
+    <plugin name="nrp_world_plugin" filename="NRPGazeboGrpcWorldPlugin.so"/>
   </world>
 </sdf>

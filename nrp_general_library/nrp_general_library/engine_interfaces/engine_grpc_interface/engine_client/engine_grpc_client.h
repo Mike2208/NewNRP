@@ -30,7 +30,7 @@ class EngineGrpcClient
     {
         static constexpr unsigned timeoutsMs[static_cast<int>(EngineCommands::NumCommands)] =
         {
-            500,
+            20000,
             500,
             500,
             500,

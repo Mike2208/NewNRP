@@ -60,6 +60,8 @@ TEST(TestGazeboEngine, WorldPlugin)
 
 	ASSERT_NE(engine, nullptr);
 
+	sleep(1);
+
 	ASSERT_EQ(engine->initialize(), EngineInterface::RESULT::SUCCESS);
 
 	ASSERT_EQ(engine->runLoopStep(1.0f), EngineInterface::RESULT::SUCCESS);
@@ -89,6 +91,8 @@ TEST(TestGazeboEngine, CameraPlugin)
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);
+
+	sleep(1);
 
 	ASSERT_EQ(engine->initialize(), EngineInterface::RESULT::SUCCESS);
 
@@ -144,6 +148,8 @@ TEST(TestGazeboEngine, JointPlugin)
 
 	ASSERT_NE(engine, nullptr);
 
+	sleep(1);
+
 	ASSERT_EQ(engine->initialize(), EngineInterface::RESULT::SUCCESS);
 
 	//ASSERT_EQ(engine->runLoopStep(1.0f), EngineInterface::RESULT::SUCCESS);
@@ -189,6 +195,8 @@ TEST(TestGazeboEngine, LinkPlugin)
 	        launcher.launchEngine(confHolder, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NE(engine, nullptr);
+
+	sleep(1);
 
 	ASSERT_EQ(engine->initialize(), EngineInterface::RESULT::SUCCESS);
 
