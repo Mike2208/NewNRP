@@ -23,6 +23,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/config/config_formats/json_config_properties.cpp
 	nrp_general_library/config/config_storage.cpp
 	nrp_general_library/config/engine_config.cpp
+	nrp_general_library/config/simple_engine_config.cpp
 	nrp_general_library/config/simulation_config.cpp
 	nrp_general_library/config/transceiver_function_config.cpp
 	nrp_general_library/device_interface/device_conversion_mechanism.cpp

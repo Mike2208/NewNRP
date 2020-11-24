@@ -39,7 +39,7 @@ class PythonConfig
 {
 	public:
 		// Default engine values. Copies from EngineConfigConst
-		static constexpr std::string_view DefEngineType = "python";
+		static constexpr FixedString DefEngineType = "python_json";
 		static constexpr std::string_view DefEngineName = "python_engine";
 		//static const string_vector_t DefEngineProcEnvParams;
 		static constexpr std::string_view DefEngineProcCmd = NRP_PYTHON_EXECUTABLE_PATH;

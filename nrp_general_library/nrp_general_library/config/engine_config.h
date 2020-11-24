@@ -145,6 +145,11 @@ class EngineConfig
 		using json_config_properties_t = EngineConfigConst::ECfgProps<CONFIG, PROP_NAMES, PROPERTIES...>;
 
 		template<class ...T>
+		EngineConfig(config_storage_t &data, T &&...properties)
+		    : EngineConfig(data.Data, std::forward<T>(properties)...)
+		{	data.Config = dynamic_cast<CONFIG*>(this);	}
+
+		template<class ...T>
 		EngineConfig(const nlohmann::json &data, T &&...properties)
 		    : json_config_properties_t(data,
 		                               CONFIG::DefEngineType.data(),

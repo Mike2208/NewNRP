@@ -24,8 +24,6 @@ class GazeboEngineGrpcNRPClient
         : public EngineGrpcClient<GazeboEngineGrpcNRPClient, GazeboConfig, PhysicsCamera, PhysicsJoint, PhysicsLink>
 {
 	public:
-		static constexpr FixedString DefEngineName = "gazebo_grpc";
-
 		GazeboEngineGrpcNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~GazeboEngineGrpcNRPClient() override = default;
 
@@ -34,7 +32,7 @@ class GazeboEngineGrpcNRPClient
 		virtual RESULT shutdown() override;
 };
 
-using GazeboEngineGrpcLauncher = GazeboEngineGrpcNRPClient::EngineLauncher<GazeboEngineGrpcNRPClient::DefEngineName>;
+using GazeboEngineGrpcLauncher = GazeboEngineGrpcNRPClient::EngineLauncher<GazeboConfig::DefEngineType>;
 
 CREATE_NRP_ENGINE_LAUNCHER(GazeboEngineGrpcLauncher);
 

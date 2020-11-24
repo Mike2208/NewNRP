@@ -7,9 +7,9 @@ The NewNRP documentation is divided into the following concepts:
 - \subpage engines "Engines". User-defined external processes. Execute components of simulation
 - \subpage devices "Devices". User-defined data structures. Used to exchange data between engine server/clients
 
-The available engine types are listed \ref engine_types "here".
+The currently available engine types are listed \ref engine_types "here".
 
-The software supports the following engines:
+We support the following engines natively:
 - \ref gazebo_json_engine "Gazebo JSON Engine": Gazebo physics simulator
 - \ref nest_json_engine "NEST JSON Engine": NEST neuron simulator
 - \ref python_json_engine "Gazebo JSON Engine": Python-based simulator. Executes a user-defined python script
@@ -21,4 +21,7 @@ The NewNRP relies on several components to run:
 - \ref config "Configuration Files". Used to read/write configuration files
 - \ref plugin_system "Plugin System". Used to dynamically load Engines during NRPSimulation startup
 - \ref process_launchers "Process Launchers". Used to launch processes appropriately. Will alter behavior depending on computer type (e.g. local machine, HPC, ...)
+
+Should you be interested in creating your own engine for an as-of-yet unsupported simulator, we provide a small tutorial \ref tutorial_engine_creation "here".
+
 */

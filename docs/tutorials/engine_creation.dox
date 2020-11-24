@@ -1,0 +1,63 @@
+/*! \defgroup tutorial_engine_creation Creating a new engine
+
+The NRP facilitates communication between differing simulator types. We aim to achieve predictable behavior even in cases where simulators with different execution schemes are deployed. 
+This requires a strict engine interface, which will properly synchronize runtime and data exchange. 
+
+The NRP has adapted a sever-client approach to this problem. Each simulator runs in its own process, as its a server. The CLE manages synchronization, and accesses each engine as a client.
+Data exchange is facilitated via \ref Device "Devices". Therefore, a developer wishing to create a new engine must supply five components, an EngineConfig, an EngineClient, an EngineServer, a process launcher, and device structures.
+
+Please note that, should you wish to integrate a new Engine based on Python, we already supply a PythonJSONEngine, which can execute arbitrary python scripts.
+
+To simplify the development process of these components, we have supplied base classes that can be used with minimal modifications. In the following sections, we will go through each of the components and detail how they can be implemented.
+
+
+\subsection tutorial_engine_creation_engine_client Creating an EngineConfig
+
+Engines must be configurable by users. This is accomplished via the EngineConfig class. Should your engine require no configuration, we suggest using the already provided SimpleEngineConfig class. This offers only minimal configuration options.
+
+To create your own configuration, your class must inherit from EngineConfig. Here is an example of how this might look:
+
+\subsubsection tutorial_engine_creation_engine_client_example Example
+
+\dontinclude engine_config_example.h
+
+Add EngineConfig header:
+\skipline #include
+
+Create a new config class, which inherits from EngineConfig. This example also adds two new user-definable input fields called "Address" and "Port".
+
+\skip EngineConfigExample
+\until {
+
+Define Engine type and name
+
+\until DefEngineName
+
+Define the Engine server executable that will be started in a new process
+
+\skipline DefEngineProcCmd
+
+Constructor, should pass default arguments for new user-definable input fields as a comma-separated list of parameters to the EngineConfig base class. In this case, we're passing "http://localhost" and 8080 as default values, which will be used should users not explicitly override them in simulation_config.json
+
+\skip EngineConfigExample
+\until }
+
+Add functions to access new properties
+
+\skip address
+\until };
+
+\subsection tutorial_engine_creation_engine_client Creating an EngineClient
+
+An EngineClient is used by the CLE to interface with a simulator via an EngineServer. A communication protocol is required to facilitate data exchange. We provide a set of predefined protocol implementations \ref engine_types "here".
+In most cases, using one of these as a base template suffices and greatly reduces development efforts. Should you be unsure, we recommend using the EngineGrpcClient as a base template.
+
+A new engine client must inherit from the EngineClient class. As such, it must implement the following functions:
+
+
+\subsection tutorial_engine_creation_engine_server Creating an EngineServer
+
+An EngineServer runs in its own process, executes the simulation, and exchanges data with the CLE via the EngineClient. To interface with said client, a communication protocol is required.
+We provide a set of predefined protocol implementations \ref engine_types "here". In most cases, using one of these as a base template suffices and greatly reduces development efforts. We recommend using the EngineGrpcServer
+
+*/

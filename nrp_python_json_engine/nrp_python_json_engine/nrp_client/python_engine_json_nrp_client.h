@@ -22,8 +22,6 @@ class PythonEngineJSONNRPClient
 		static constexpr size_t _killWait = 10;
 
 	public:
-		static constexpr FixedString DefEngineName = "python_json";
-
 		PythonEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~PythonEngineJSONNRPClient() override;
 
@@ -38,7 +36,7 @@ class PythonEngineJSONNRPClient
 		std::string _initErrMsg = "";
 };
 
-using PythonEngineJSONLauncher = PythonEngineJSONNRPClient::EngineLauncher<PythonEngineJSONNRPClient::DefEngineName>;
+using PythonEngineJSONLauncher = PythonEngineJSONNRPClient::EngineLauncher<PythonConfig::DefEngineType>;
 
 
 CREATE_NRP_ENGINE_LAUNCHER(PythonEngineJSONLauncher);

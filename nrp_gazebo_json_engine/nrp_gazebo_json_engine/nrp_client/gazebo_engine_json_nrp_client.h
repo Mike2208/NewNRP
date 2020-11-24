@@ -24,8 +24,6 @@ class GazeboEngineJSONNRPClient
         : public EngineJSONNRPClient<GazeboEngineJSONNRPClient, GazeboConfig, PhysicsCamera, PhysicsJoint, PhysicsLink>
 {
 	public:
-		static constexpr FixedString DefEngineName = "gazebo_json";
-
 		GazeboEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~GazeboEngineJSONNRPClient() override = default;
 
@@ -34,7 +32,7 @@ class GazeboEngineJSONNRPClient
 		virtual RESULT shutdown() override;
 };
 
-using GazeboEngineJSONLauncher = GazeboEngineJSONNRPClient::EngineLauncher<GazeboEngineJSONNRPClient::DefEngineName>;
+using GazeboEngineJSONLauncher = GazeboEngineJSONNRPClient::EngineLauncher<GazeboConfig::DefEngineType>;
 
 CREATE_NRP_ENGINE_LAUNCHER(GazeboEngineJSONLauncher);
 

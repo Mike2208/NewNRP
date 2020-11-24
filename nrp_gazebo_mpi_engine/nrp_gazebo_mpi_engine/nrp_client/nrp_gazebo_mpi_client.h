@@ -24,8 +24,6 @@ class NRPGazeboMPIClient
         : public NRPMPIClient<NRPGazeboMPIClient, GazeboConfig, PhysicsCamera, PhysicsJoint, PhysicsLink>
 {
 	public:
-		static constexpr FixedString DefEngineName = "gazebo_mpi";
-
 		NRPGazeboMPIClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~NRPGazeboMPIClient() override = default;
 
@@ -34,7 +32,7 @@ class NRPGazeboMPIClient
 		//virtual EngineInterface::RESULT shutdown() override;
 };
 
-using GazeboEngineJSONLauncher = NRPGazeboMPIClient::EngineLauncher<NRPGazeboMPIClient::DefEngineName>;
+using GazeboEngineJSONLauncher = NRPGazeboMPIClient::EngineLauncher<GazeboConfig::DefEngineType>;
 
 CREATE_NRP_ENGINE_LAUNCHER(GazeboEngineJSONLauncher);
 

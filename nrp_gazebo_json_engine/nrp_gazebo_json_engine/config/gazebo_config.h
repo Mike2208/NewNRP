@@ -55,7 +55,7 @@ class GazeboConfig
 {
 	public:
 		// Default engine values. Copied from EngineConfigConst
-		static constexpr std::string_view DefEngineType = "gazebo";
+		static constexpr FixedString DefEngineType = "gazebo_json";
 		static constexpr std::string_view DefEngineName = "gazebo_engine";
 		//static const string_vector_t DefEngineProcEnvParams;
 		static constexpr std::string_view DefEngineProcCmd = "/usr/bin/gzserver";
