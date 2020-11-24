@@ -3,6 +3,7 @@
 
 #include "nrp_general_library/utils/property_template.h"
 #include "nrp_general_library/utils/ptr_templates.h"
+#include "nrp_general_library/utils/serializers/property_serializer.h"
 
 #include <concepts>
 #include <string>
@@ -129,6 +130,24 @@ class Device
 			// Make sure DEVICE class is derived from DeviceInterface
 			static_assert(DEVICE_C<DEVICE>, "DEVICE does not fulfill concept requirements");
 		};
+
+		/*!
+		 * \brief Deserialize data into new device
+		 * \tparam DESERIALZER_T Type to deserialize
+		 * \tparam PROPERTIES_T Type of default properties
+		 * \param id Device ID. Type must match device type
+		 * \param data Data to deserialize
+		 * \param props Default values. Used if data does not initialize a certain value
+		 * \return Returns DEVICE
+		 */
+		template<class DESERIALIZER_T, class ...PROPERTIES_T>
+		static DEVICE deserialize(DeviceIdentifier &&id, DESERIALIZER_T &&data, PROPERTIES_T &&...props)
+		{
+			assert(id.Type == DEVICE::TypeName);
+
+			using deser_t = std::remove_cvref_t<DESERIALIZER_T>;
+			return DEVICE(std::move(id), PropertySerializer<deser_t, DEVICE>::readProperties(data, std::forward<PROPERTIES_T>(props)...));
+		}
 };
 
 
