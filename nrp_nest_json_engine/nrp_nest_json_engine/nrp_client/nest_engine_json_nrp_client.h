@@ -23,8 +23,6 @@ class NestEngineJSONNRPClient
 		static constexpr size_t _killWait = 10;
 
 	public:
-		static constexpr FixedString DefEngineName = "nest_json";
-
 		NestEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~NestEngineJSONNRPClient() override;
 
@@ -39,7 +37,7 @@ class NestEngineJSONNRPClient
 		std::string _initErrMsg = "";
 };
 
-using NestEngineJSONLauncher = NestEngineJSONNRPClient::EngineLauncher<NestEngineJSONNRPClient::DefEngineName>;
+using NestEngineJSONLauncher = NestEngineJSONNRPClient::EngineLauncher<NestConfig::DefEngineType>;
 
 
 CREATE_NRP_ENGINE_LAUNCHER(NestEngineJSONLauncher);

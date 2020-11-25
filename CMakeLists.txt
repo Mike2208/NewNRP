@@ -138,8 +138,13 @@ add_subdirectory(nrp_simulation)
 
 ##########################################
 ## Doxygen
+set(DOXYGEN_EXAMPLE_PATH ${DOXYGEN_EXAMPLE_PATH} "docs/examples")
+
 get_property(DOXYGEN_SOURCES GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
 doxygen_add_docs(doxygen
 	${DOXYGEN_SOURCES}
-	"docs/main_page.dox" "docs/engine_types.dox"
+	"docs/main_page.dox"
+	"docs/engine_types.dox"
+	"docs/tutorials/engine_creation.dox"
+	"docs/tutorials/grpc_engine_creation.dox"
 	COMMENT "Generating documentation")

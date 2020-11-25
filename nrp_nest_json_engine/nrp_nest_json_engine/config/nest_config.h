@@ -65,7 +65,7 @@ class NestConfig
 {
 	public:
 		// Default engine values. Copies from EngineConfigConst
-		static constexpr std::string_view DefEngineType = "nest";
+		static constexpr FixedString DefEngineType = "nest_json";
 		static constexpr std::string_view DefEngineName = "nest_engine";
 		//static const string_vector_t DefEngineProcEnvParams;
 		static constexpr std::string_view DefEngineProcCmd = NRP_NEST_EXECUTABLE_PATH;
