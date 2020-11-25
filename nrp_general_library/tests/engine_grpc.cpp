@@ -359,7 +359,7 @@ TEST(EngineGrpc, SetDeviceData)
 
     client.engineName() = engineName;
 
-    DeviceIdentifier         devId(deviceName, deviceType, engineName);
+    DeviceIdentifier         devId(deviceName, engineName, deviceType);
     TestGrpcDeviceInterface1 dev1(devId);             // Client side
     TestGrpcDeviceController deviceController(devId); // Server side
 
@@ -385,7 +385,7 @@ TEST(EngineGrpc, SetDeviceData)
 
     const std::string deviceName2 = "b";
 
-    DeviceIdentifier         devId2(deviceName2, deviceType, engineName);
+    DeviceIdentifier         devId2(deviceName2, engineName, deviceType);
     TestGrpcDeviceInterface1 dev2(devId2);
 
     input_devices.push_back(&dev2);
@@ -412,7 +412,7 @@ TEST(EngineGrpc, GetDeviceData)
 
     client.engineName() = engineName;
 
-    DeviceIdentifier         devId(deviceName, deviceType, engineName);
+    DeviceIdentifier         devId(deviceName, engineName, deviceType);
     TestGrpcDeviceInterface2 dev1(devId);             // Client side
     TestGrpcDeviceController deviceController(devId); // Server side
 
@@ -444,7 +444,7 @@ TEST(EngineGrpc, GetDeviceData)
 
     const std::string deviceName2 = "b";
 
-    DeviceIdentifier         devId2(deviceName2, deviceType, engineName);
+    DeviceIdentifier         devId2(deviceName2, engineName, deviceType);
     TestGrpcDeviceInterface1 dev2(devId2);
 
     deviceIdentifiers.insert(devId2);
@@ -474,8 +474,8 @@ TEST(EngineGrpc, GetDeviceData2)
 
     client.engineName() = engineName;
 
-    DeviceIdentifier         devId1(deviceName1, deviceType1, engineName);
-    DeviceIdentifier         devId2(deviceName2, deviceType2, engineName);
+    DeviceIdentifier         devId1(deviceName1, engineName, deviceType1);
+    DeviceIdentifier         devId2(deviceName2, engineName, deviceType2);
     TestGrpcDeviceInterface1 dev1(devId1);              // Client side
     TestGrpcDeviceInterface2 dev2(devId2);              // Client side
     TestGrpcDeviceController deviceController1(devId1); // Server side
