@@ -146,7 +146,8 @@ class Device
 			assert(id.Type == DEVICE::TypeName);
 
 			using deser_t = std::remove_cvref_t<DESERIALIZER_T>;
-			return DEVICE(std::move(id), PropertySerializer<deser_t, DEVICE>::readProperties(data, std::forward<PROPERTIES_T>(props)...));
+			return DEVICE(std::move(id), PropertySerializer<deser_t, DEVICE>::template readProperties(std::forward<DESERIALIZER_T>(data),
+			                                                                                          std::forward<PROPERTIES_T>(props)...));
 		}
 };
 

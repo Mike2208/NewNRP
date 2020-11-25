@@ -1,0 +1,20 @@
+/*! \page todos ToDos
+
+ToDos:
+
+- In SimulationLoop, remove the bool return value from the EngineInterface calls. Use exception catches to check for failures
+  - EngineInterface functions should no longer return bool values. Instead, they should throw and NRPException(Non)Recoverable on fail
+  - SimulationLoop will then no longer have to check return values, only catch excpeptions
+- Current simulation time is measured with a float type. Redo it with a integer based struct to prevent rounding errors.
+- Reimplement current engine devices to use the Device<> class
+  - Rename devices, remove the Interface suffix
+  - Use the python_property_device_class to define the Python classes
+  - Rename device TypeName to have same name as devices
+- Reimplement current engine devices to use standard constructors Device(DeviceIdentifier&&, Device::property_template_t &&props)
+- Move EngineInterfaces into separate subdirectories, to be compiled as separate targets
+- Rename EngineInterface to EngineClientInterface, rename Engine<> to EngineClient<>
+- Rename Gazebo... classes to their respective to GazeboJSON... and GazeboGrpc... classes
+- Rename Nest... classes to their respective NestServer... and NestJSON... classes
+- Create some kind of Nest download target. That way, multiple engines can add it as a dependency
+
+*/

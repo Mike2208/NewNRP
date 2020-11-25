@@ -138,13 +138,21 @@ add_subdirectory(nrp_simulation)
 
 ##########################################
 ## Doxygen
-set(DOXYGEN_EXAMPLE_PATH ${DOXYGEN_EXAMPLE_PATH} "docs/examples")
+set(DOXYGEN_GENERATE_LATEX YES)
+set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doxygen")
+set(DOXYGEN_EXAMPLE_PATH
+	${DOXYGEN_EXAMPLE_PATH}
+	"docs/examples"
+	"docs/example_engine")
+
+add_subdirectory("docs/example_engine" EXCLUDE_FROM_ALL)
 
 get_property(DOXYGEN_SOURCES GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
 doxygen_add_docs(doxygen
 	${DOXYGEN_SOURCES}
-	"docs/main_page.dox"
 	"docs/engine_types.dox"
+	"docs/main_page.dox"
+	"docs/todos.dox"
 	"docs/tutorials/engine_creation.dox"
 	"docs/tutorials/grpc_engine_creation.dox"
 	COMMENT "Generating documentation")

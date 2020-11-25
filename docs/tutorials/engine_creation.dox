@@ -9,29 +9,90 @@ Data exchange is facilitated via \ref Device "Devices". Therefore, a developer w
 Please note that, should you wish to integrate a new Engine based on Python, we already supply a PythonJSONEngine, which can execute arbitrary python scripts.
 
 To simplify the development process of these components, we have supplied base classes that can be used with minimal modifications. In the following sections, we will go through each of the components and detail how they can be implemented.
+The example code is located under docs/example_engine.
 
 
-\subsection tutorial_engine_creation_engine_client Creating an EngineConfig
+\subsection tutorial_engine_creation_cmake Setting up CMake
 
-Engines must be configurable by users. This is accomplished via the EngineConfig class. Should your engine require no configuration, we suggest using the already provided SimpleEngineConfig class. This offers only minimal configuration options.
+We use CMake to manage project compilation. A detailed explanation of our setup can be found \ref cmake_project "here".
+\ref tutorial_engine_creation_engine_cmake_example_explanation "This example" creates all necessary libraries and executables for a new engine.
 
-To create your own configuration, your class must inherit from EngineConfig. Here is an example of how this might look:
+
+\subsection tutorial_engine_creation_engine_config Creating an EngineConfig
+
+Engines must be configurable by users. This is accomplished via the EngineConfig class. Should your engine require no configuration, we suggest using the already provided SimpleEngineConfig class. This offers only minimal configuration options:
+
+    using EngineConfigExample = SimpleEngineConfig<"example_engine">;
+
+Alternatively, to create your own configuration, your class must inherit from EngineConfig. Here is an example of how this might look:
+
+\subsubsection tutorial_engine_creation_engine_config_example Example
+
+\include nrp_example_engine/config/example_config.h
+
+An explanation of the code can be found \ref tutorial_engine_creation_engine_config_example_explanation "here".
+
+
+\subsection tutorial_engine_creation_engine_device Creating Devices
+
+To properly exchange data between the NRP and simulations, both systems must agree on data formats. Device structures are used for this purpose. They can be adapted to serialize and deserialize arbitrary data, and send information over communication protocol.
+Their precise makeup is described \ref devices "here". Below we have listed a simple example. This device stores an integer and a string, which can be de-/serialized by the EngineClient and EngineServer.
+
+\subsubsection tutorial_engine_creation_engine_device_example Example
+
+\include nrp_example_engine/devices/example_device.h
+
+An explanation of the code can be found \ref tutorial_engine_creation_engine_device_example_explanation "here".
+
+
+\subsection tutorial_engine_creation_engine_client Creating an EngineClient
+
+An EngineClient is used by the CLE to interface with a simulator via an EngineServer. A communication protocol is required to facilitate data exchange. We provide a set of predefined protocol implementations \ref engine_types "here".
+In most cases, using one of these as a base template suffices and greatly reduces development efforts. Should you be unsure, we recommend using the EngineGrpcClient as a base template.
+
+A new engine client must inherit from the EngineClient class. As such, it may look as shown below. A detailed function description can be found in \ref EngineInterface.
 
 \subsubsection tutorial_engine_creation_engine_client_example Example
 
-\dontinclude engine_config_example.h
+\include nrp_example_engine/nrp_client/example_engine_client.h
+
+An explanation of the code can be found \ref tutorial_engine_creation_engine_client_example_explanation "here".
+
+
+\subsection tutorial_engine_creation_engine_proc_launcher Creating a new ProcessLauncher
+
+The NRP runs multiple simulators. To keep their runtime environment separate, each simulator runs in its own process. At startup, the NRP forks an additional process for each engine. 
+This is the purpose of the ProcessLauncher. Usually, developers can use the default launcher and won't have to implement their own. However, should the need arise, a developer can define his own LaunchCommand.
+We recommend using the BasicFork class as a starting template, and modify it to fit the specific engine's needs.
+
+
+\subsection tutorial_engine_creation_engine_server Creating an EngineServer
+
+An EngineServer runs in its own process, executes the simulation, and exchanges data with the CLE via the EngineClient. To interface with said client, a communication protocol is required.
+We provide a set of predefined protocol implementations \ref engine_types "here".
+
+The EngineServer must define a main() function to execute.
+
+\include example_engine_server_executable/main.cpp
+
+*/
+
+
+/**********************************************************************************************************************************************************************************************************/
+/*! \defgroup tutorial_engine_creation_engine_config_example_explanation Explanation of ExampleConfig
+\dontinclude nrp_example_engine/config/example_config.h
 
 Add EngineConfig header:
 \skipline #include
 
 Create a new config class, which inherits from EngineConfig. This example also adds two new user-definable input fields called "Address" and "Port".
 
-\skip EngineConfigExample
+\skip ExampleConfig
 \until {
 
-Define Engine type and name
+Define Engine type, name, and config. Should this engine require a unique process launching scheme, redefine the DefEngineLaunchCmd as stated in the \"\ref tutorial_engine_creation_engine_proc_launcher\" section
 
-\until DefEngineName
+\until DefEngineLaunchCmd
 
 Define the Engine server executable that will be started in a new process
 
@@ -39,25 +100,138 @@ Define the Engine server executable that will be started in a new process
 
 Constructor, should pass default arguments for new user-definable input fields as a comma-separated list of parameters to the EngineConfig base class. In this case, we're passing "http://localhost" and 8080 as default values, which will be used should users not explicitly override them in simulation_config.json
 
-\skip EngineConfigExample
+\skip ExampleConfig
 \until }
 
 Add functions to access new properties
 
 \skip address
 \until };
-
-\subsection tutorial_engine_creation_engine_client Creating an EngineClient
-
-An EngineClient is used by the CLE to interface with a simulator via an EngineServer. A communication protocol is required to facilitate data exchange. We provide a set of predefined protocol implementations \ref engine_types "here".
-In most cases, using one of these as a base template suffices and greatly reduces development efforts. Should you be unsure, we recommend using the EngineGrpcClient as a base template.
-
-A new engine client must inherit from the EngineClient class. As such, it must implement the following functions:
+*/
 
 
-\subsection tutorial_engine_creation_engine_server Creating an EngineServer
+/**********************************************************************************************************************************************************************************************************/
+/*! \defgroup tutorial_engine_creation_engine_client_example_explanation Explanation of ExampleEngineClient
+\dontinclude nrp_example_engine/nrp_client/example_engine_client.h
 
-An EngineServer runs in its own process, executes the simulation, and exchanges data with the CLE via the EngineClient. To interface with said client, a communication protocol is required.
-We provide a set of predefined protocol implementations \ref engine_types "here". In most cases, using one of these as a base template suffices and greatly reduces development efforts. We recommend using the EngineGrpcServer
+Add base Engine client header
+\skip #include
+\until engine_interface
+
+Create new client class, derived from the base engine. Include ExampleConfig into template to link the configuration class to this client.
+
+\skip class
+\until {
+
+Add standard constructor. Pass arguments to base engine class
+
+\until {}
+
+Override initialization and shutdown functions. They should send commands to the engine server to initialize/shutdown its simulator. A more in-depth explanation can be found in \ref EngineInterface.
+
+\skip initialize
+\until shutdown
+
+Manage simulation execution. These functions are used to execute the EngineServer's simulation asynchronously and wait for it to complete.
+
+\skip getEngineTime
+\until waitForStepCompletion
+\until }
+\until }
+\until }
+
+Handle sending and receiving of devices. The handleInputDevices function takes a list of \ref DeviceInterface "DeviceInterfaces" and sends them to the EngineServer, which will then process them.
+The requestOutputDeviceCallback takes a list of \ref DeviceIdentifier "DeviceIdentifiers", and requests their data from the EngineServer.
+
+\skip handleInputDevices
+\until requestOutputDeviceCallback
+
+Add variables to track runtime of this Engine's simulation as well as the runLoopStep thread.
+
+\skip private
+\until };
+
+Create an engine launcher. This launcher will use the default process launcher available to fork the EngineServer process on startup.
+The CREATE_NRP_ENGINE_LAUNCHER() macro generates a C function, which allows the ExampleEngine to be included as a plugin.
+
+\skip ExampleEngineLauncher
+\until CREATE_NRP_ENGINE_LAUNCHER
+*/
+
+
+/**********************************************************************************************************************************************************************************************************/
+/*! \defgroup tutorial_engine_creation_engine_device_example_explanation Explanation of ExampleDevice
+\dontinclude nrp_example_engine/devices/example_device.h
+
+Add Device header
+
+\skipline #include
+
+Define new device as derivation of Device. Add two properties, one for an integer, the other for a string. Note that they are labeled "number" and "string" with the PropNames template
+
+\skip class
+\until {
+
+Add standard constructor. Base class deals with proper construction. Note the parameters passed to property_template_t, which define default property values. If no default values are required, they can be omitted
+
+\until {}
+
+Add deserialization function. This overrides a function in the base Device class and adds default property values. If no default values are required, this function can be omitted
+
+\until }
+
+Add functions to ease access to properties
+
+\until };
+
+*/
+
+
+/**********************************************************************************************************************************************************************************************************/
+/*! \defgroup tutorial_engine_creation_engine_cmake_example_explanation Explanation of CMakeLists.txt
+
+\include CMakeLists.txt
+
+\subsection Explanation
+\dontinclude CMakeLists.txt
+
+Create basic variable definitions. These will be used in the code later on
+
+\until LIB_VERSION_NAME
+
+List Cpp compile files. LIB_SRC_FILES should contain files required by the new EngineClient and EngineServer, PYTHON_MODULE_SRC_FILES should contain files required for integrating devices into TransceiverFunctions,
+and EXEC_SRC_FILES should contain files required by the forked EngineServer process, in particular the source file containing the main() function.
+
+\skip # List library
+\until TEST_SRC_FILES
+\until )
+
+Create configuration files. These files use CMake variables to insert compile-time information into the source code, mainly things such as the install location, library names, ...
+
+\skip Header configuration
+\until python
+
+Add a library target. This instructs CMake to create a library object containing the source files defined in LIB_SRC_FILES. In addition, it links the new library to ${NRP_GEN_LIB_TARGET}, which is NRPGeneralLibrary.so, the base NRP library.
+
+\skip ## NRPExampleEngineLibrary
+\until target_include_directories
+\until PRIVATE
+\until )
+
+Add a python module target. With this, a new library will be created which can be used as a python module. The proceeding install code will install the new module at the correct location, so that it can be accessed by \ref TransceiverFunction "TransceiverFunctions".
+
+\skip ## NRPExamplePythonModule
+\until endif
+
+Add an executable target. This will compile a new executable which can be executed in a forked process to run an EngineServer along with a simulation.
+
+\skip ## NRPExampleServerExecutable
+\until endif
+
+Add installation instructions. After compilation, this will instruct CMake on the correct location to install header files as well as all newly generated libraries, executables, and python modules.
+
+\skip ## Installation
+\until DESTINATION ${INSTALL_CONFIGDIR}
+\until )
 
 */
