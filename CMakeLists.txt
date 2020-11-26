@@ -146,6 +146,7 @@ set(DOXYGEN_EXAMPLE_PATH
 	"docs/example_engine")
 
 add_subdirectory("docs/example_engine" EXCLUDE_FROM_ALL)
+add_subdirectory("docs/example_json_engine" EXCLUDE_FROM_ALL)
 
 get_property(DOXYGEN_SOURCES GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
 doxygen_add_docs(doxygen
@@ -155,4 +156,5 @@ doxygen_add_docs(doxygen
 	"docs/todos.dox"
 	"docs/tutorials/engine_creation.dox"
 	"docs/tutorials/grpc_engine_creation.dox"
+	"docs/tutorials/json_engine_creation.dox"
 	COMMENT "Generating documentation")

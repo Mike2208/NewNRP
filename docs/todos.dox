@@ -11,6 +11,8 @@ ToDos:
   - Use the python_property_device_class to define the Python classes
   - Rename device TypeName to have same name as devices
 - Reimplement current engine devices to use standard constructors Device(DeviceIdentifier&&, Device::property_template_t &&props)
+- Remove DeviceConversionMechanism. Just use Device::deserialize and PropertySerializers instead
+- Rewrite EngineJSONDeviceController to use classes as inputs/outputs instead of json
 - Move EngineInterfaces into separate subdirectories, to be compiled as separate targets
 - Rename EngineInterface to EngineClientInterface, rename Engine<> to EngineClient<>
 - Rename Gazebo... classes to their respective to GazeboJSON... and GazeboGrpc... classes
