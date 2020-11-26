@@ -43,8 +43,8 @@ struct EngineConfigConst
 	/*!
 	 * \brief Engine Timeout (in seconds). How long the simulator should wait for the completion of the engine runStep. 0 or negative values are interpreted as no timeout
 	 */
-	static constexpr FixedString EngineRunStepTimeout = "EngineTimeout";
-	static constexpr float DefEngineRunStepTimeout = 0;
+	static constexpr FixedString EngineCommandTimeout = "EngineCommandTimeout";
+	static constexpr float DefEngineCommandTimeout = 0;
 
 	/*!
 	 * \brief Engine Process Environment Parameters
@@ -64,7 +64,7 @@ struct EngineConfigConst
 	static constexpr FixedString EngineProcStartParams = "EngineProcStartParams";
 	static const string_vector_t DefEngineProcStartParams;
 
-	using ECfgPropNames = PropNames<EngineType, EngineName, EngineLaunchCmd, EngineTimestep, EngineRunStepTimeout, EngineProcEnvParams, EngineProcStartParams, EngineProcCmd>;
+	using ECfgPropNames = PropNames<EngineType, EngineName, EngineLaunchCmd, EngineTimestep, EngineCommandTimeout, EngineProcEnvParams, EngineProcStartParams, EngineProcCmd>;
 
 	template<class CONFIG, class PROP_NAMES, class ...PROPERTIES>
 	using ECfgProps = JSONConfigProperties<CONFIG, MultiPropNames<EngineConfigConst::ECfgPropNames, PROP_NAMES>,
@@ -102,8 +102,8 @@ class EngineConfigGeneral
 		/*!
 		 * \brief Get maximmum time the engine runstep may take (in seconds)
 		 */
-		virtual const float &engineRunStepTimeout() const = 0;
-		float &engineRunStepTimeout();
+		virtual const float &engineCommandTimeout() const = 0;
+		float &engineCommandTimeout();
 
 		/*!
 		 * \brief Get Engine Process Environment variables
@@ -156,7 +156,7 @@ class EngineConfig
 		                               CONFIG::DefEngineName.data(),
 		                               CONFIG::DefEngineLaunchCmd.data(),
 		                               CONFIG::DefEngineTimestep,
-		                               CONFIG::DefEngineRunStepTimeout,
+		                               CONFIG::DefEngineCommandTimeout,
 		                               CONFIG::DefEngineProcEnvParams,
 		                               CONFIG::DefEngineProcStartParams,
 		                               CONFIG::DefEngineProcCmd.data(),
@@ -181,8 +181,8 @@ class EngineConfig
 		float &engineTimestep()
 		{	return this->EngineConfigGeneral::engineTimestep();	}
 
-		const float &engineRunStepTimeout() const override final
-		{	return this->template getPropertyByName<EngineRunStepTimeout>();	}
+		const float &engineCommandTimeout() const override final
+		{	return this->template getPropertyByName<EngineCommandTimeout>();	}
 
 		float &engineRunStepTimeout()
 		{	return this->EngineConfigGeneral::engineRunStepTimeout();	}

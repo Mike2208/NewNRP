@@ -16,33 +16,19 @@ template<class ENGINE, ENGINE_CONFIG_C ENGINE_CONFIG, DEVICE_C ...DEVICES>
 class EngineGrpcClient
     : public Engine<ENGINE, ENGINE_CONFIG>
 {
-    enum class EngineCommands: int
+    void prepareRpcContext(grpc::ClientContext * context)
     {
-        Init,
-        Shutdown,
-        RunLoopStep,
-        GetDevice,
-        SetDevice,
-        NumCommands,
-    };
+        auto timeout = this->engineConfig()->engineCommandTimeout();
 
-    virtual unsigned getCommandTimeoutMs(EngineCommands command)
-    {
-        static constexpr unsigned timeoutsMs[static_cast<int>(EngineCommands::NumCommands)] =
+        if(timeout > 0)
         {
-            20000,
-            500,
-            500,
-            500,
-            500,
-        };
+            // Timeouts of less than 1ms will be rounded up to 1ms
+            // TODO Should we use integers for timeout in the config?
 
-        return timeoutsMs[static_cast<int>(command)];
-    }
+            unsigned timeoutMs = (timeout < 0.001) ? 1 : static_cast<unsigned>(timeout * 1000);
 
-    std::chrono::system_clock::time_point GetCommandDeadline(EngineCommands command)
-    {
-        return std::chrono::system_clock::now() + std::chrono::milliseconds(getCommandTimeoutMs(command));
+            context->set_deadline(std::chrono::system_clock::now() + std::chrono::milliseconds(timeoutMs));
+        }
     }
 
     public:
@@ -51,6 +37,7 @@ class EngineGrpcClient
             : Engine<ENGINE, ENGINE_CONFIG>(config, std::move(launcher))
         {
             std::string serverAddress = this->engineConfig()->engineServerAddress();
+            this->
 
             _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
             _stub    = EngineGrpc::EngineGrpcService::NewStub(_channel);
@@ -77,7 +64,7 @@ class EngineGrpcClient
             EngineGrpc::InitReply    reply;
             grpc::ClientContext      context;
 
-            context.set_deadline(GetCommandDeadline(EngineCommands::Init));
+            prepareRpcContext(&context);
 
             request.set_json(data.dump());
 
@@ -96,7 +83,7 @@ class EngineGrpcClient
             EngineGrpc::ShutdownReply   reply;
             grpc::ClientContext         context;
 
-            context.set_deadline(GetCommandDeadline(EngineCommands::Shutdown));
+            prepareRpcContext(&context);
 
             request.set_json(data.dump());
 
@@ -115,7 +102,7 @@ class EngineGrpcClient
             EngineGrpc::RunLoopStepReply   reply;
             grpc::ClientContext            context;
 
-            context.set_deadline(GetCommandDeadline(EngineCommands::RunLoopStep));
+            prepareRpcContext(&context);
 
             request.set_timestep(timeStep);
 
@@ -184,7 +171,7 @@ class EngineGrpcClient
             EngineGrpc::SetDeviceReply   reply;
             grpc::ClientContext          context;
 
-            context.set_deadline(GetCommandDeadline(EngineCommands::SetDevice));
+            prepareRpcContext(&context);
 
             for(const auto &device : inputDevices)
             {

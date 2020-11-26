@@ -224,7 +224,7 @@ TEST(EngineGrpc, InitCommand)
 TEST(EngineGrpc, InitCommandTimeout)
 {
     TestEngineGrpcServer               server;
-    SimulationConfig::config_storage_t config;
+    SimulationConfig::config_storage_t config(nlohmann::json({{"EngineCommandTimeout", 0.0005}}));
     TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
     nlohmann::json jsonMessage;
@@ -269,7 +269,7 @@ TEST(EngineGrpc, ShutdownCommand)
 TEST(EngineGrpc, ShutdownCommandTimeout)
 {
     TestEngineGrpcServer               server;
-    SimulationConfig::config_storage_t config;
+    SimulationConfig::config_storage_t config(nlohmann::json({{"EngineCommandTimeout", 1}}));
     TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
     nlohmann::json jsonMessage;
@@ -322,7 +322,7 @@ TEST(EngineGrpc, RunLoopStepCommand)
 TEST(EngineGrpc, runLoopStepCommandTimeout)
 {
     TestEngineGrpcServer               server;
-    SimulationConfig::config_storage_t config;
+    SimulationConfig::config_storage_t config(nlohmann::json({{"EngineCommandTimeout", 1}}));
     TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
     // Test runLoopStep command timeout
