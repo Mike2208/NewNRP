@@ -1,5 +1,5 @@
-set(PROJECT_NAME "NRPGeneralLibrary")
-set(HEADER_DIRECTORY "nrp_general_library")
+set(PROJECT_NAME "NRPJSONEngineProtocol")
+set(HEADER_DIRECTORY "nrp_json_engine_protocol")
 
 set(NAMESPACE_NAME "${PROJECT_NAME}")
 
@@ -35,6 +35,22 @@ set(LIB_SRC_FILES
 	nrp_general_library/device_interface/python_device.cpp
 	nrp_general_library/engine_interfaces/engine_device_controller.cpp
 	nrp_general_library/engine_interfaces/engine_interface.cpp
+	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.cpp
+	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.cpp
+	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_client/engine_grpc_client.cpp
+	nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.cpp
+	nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.cpp
+	nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_serializer.cpp
+	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.cpp
+	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.cpp
+	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_opts_parser.cpp
+	nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_nrp_client.cpp
+	nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_registration_server.cpp
+	nrp_general_library/engine_interfaces/engine_mpi_interface/config/engine_mpi_config.cpp
+	nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.cpp
+	nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_device_controller.cpp
+	nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_server.cpp
+	nrp_general_library/engine_interfaces/engine_mpi_interface/nrp_client/nrp_mpi_client.cpp
 	nrp_general_library/engine_interfaces/engine_launcher_manager.cpp
 	nrp_general_library/plugin_system/plugin.cpp
 	nrp_general_library/plugin_system/plugin_manager.cpp
@@ -55,6 +71,8 @@ set(LIB_SRC_FILES
 	nrp_general_library/utils/ptr_templates.cpp
 	nrp_general_library/utils/restclient_setup.cpp
 	nrp_general_library/utils/serializers/json_property_serializer.cpp
+	nrp_general_library/utils/serializers/mpi_property_serializer.cpp
+	nrp_general_library/utils/serializers/mpi_property_serializer_methods.cpp
 	nrp_general_library/utils/serializers/property_serializer.cpp
 	nrp_general_library/utils/serializers/property_serializer_general.cpp
 	nrp_general_library/utils/serializers/python_dict_property_serializer.cpp

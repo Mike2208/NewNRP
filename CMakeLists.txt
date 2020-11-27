@@ -102,6 +102,11 @@ add_subdirectory(nrp_general_library)
 
 
 ##########################################
+## NRP Communication Protocols
+add_subdirectory(nrp_base_engines/nrp_json_engine_base)
+
+
+##########################################
 ## NRP Engines
 
 ## Gazebo JSON Engine
