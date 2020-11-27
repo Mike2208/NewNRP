@@ -1,7 +1,7 @@
 #ifndef PHYSICS_JOINT_H
 #define PHYSICS_JOINT_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
 class PhysicsJoint;
@@ -27,10 +27,7 @@ struct PhysicsJointConst
 	static constexpr FixedString Velocity = "vel";
 	static constexpr FixedString Effort = "eff";
 
-	static constexpr std::string_view TypeName = "p_joint";
-
 	using JPropNames = PropNames<Position, Velocity, Effort>;
-	using JProps = PropertyTemplate<PhysicsJoint, PhysicsJointConst::JPropNames, PhysicsJointConst::FloatNan, PhysicsJointConst::FloatNan, PhysicsJointConst::FloatNan>;
 };
 
 /*!
@@ -38,13 +35,16 @@ struct PhysicsJointConst
  */
 class PhysicsJoint
         : public PhysicsJointConst,
-          public DeviceInterface,
-          public PhysicsJointConst::JProps
+          public Device<PhysicsJoint, "PhysicsJoint", PhysicsJointConst::JPropNames, PhysicsJointConst::FloatNan, PhysicsJointConst::FloatNan, PhysicsJointConst::FloatNan>
 {
 	public:
-		PhysicsJoint(const std::string &name);
-		PhysicsJoint(const DeviceIdentifier &id);
-		PhysicsJoint(const DeviceIdentifier &id, const nlohmann::json &data);
+		PhysicsJoint(DeviceIdentifier &&devID, property_template_t &&props = property_template_t(NAN, NAN, NAN))
+		    : Device(std::move(devID), std::move(props))
+		{}
+
+		template<class DESERIALIZE_T>
+		static auto deserializeProperties(DESERIALIZE_T &&data)
+		{	return Device::deserializeProperties(std::forward<DESERIALIZE_T>(data), NAN, NAN, NAN);	}
 
 		float position() const;
 		void setPosition(float position);

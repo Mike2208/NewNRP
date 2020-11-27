@@ -2,8 +2,8 @@
 #define PYTHON_ENGINE_JSON_DEVICE_CONTROLLER_H
 
 #include "nrp_general_library/device_interface/devices/pyobject_device.h"
-#include "nrp_general_library/engine_interfaces/engine_device_controller.h"
-#include "nrp_general_library/utils/serializers/json_property_serializer.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_serializer.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
 #include "nrp_general_library/utils/serializers/python_dict_property_serializer.h"
 
 #include <boost/python.hpp>
@@ -21,7 +21,7 @@ class PythonEngineJSONDeviceController<PyObjectDevice>
 		virtual ~PythonEngineJSONDeviceController() override = default;
 
 		virtual void handleDeviceDataCallback(PyObjectDevice &&data) override;
-		virtual const PyObjectDevice &getDeviceInformationCallback() override;
+		virtual const PyObjectDevice *getDeviceInformationCallback() override;
 
 		/*!
 		 * \brief Get python object referenced by this controller

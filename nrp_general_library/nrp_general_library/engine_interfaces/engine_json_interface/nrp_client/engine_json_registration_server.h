@@ -1,7 +1,7 @@
 #ifndef ENGINE_JSON_REGISTRATION_SERVER_H
 #define ENGINE_JSON_REGISTRATION_SERVER_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 
 #include <pistache/router.h>
 #include <pistache/endpoint.h>

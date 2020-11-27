@@ -106,23 +106,25 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	const auto engineName = "engine1";
 	const auto falseEngineName = "engineFalse";
 
-	TestJSONDevice1 dev1("device1", nlohmann::json({"data", 1}));
-	TestJSONDevice2 dev2("device2", nlohmann::json({"data", 2}));
-	TestJSONDeviceThrow devThrow("deviceThrow", nlohmann::json({"data", -1}));
+	auto data = nlohmann::json({"data", 1});
+	auto dev1 = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDevice1>(TestJSONDevice1::createID("device1", "engine_name_1"), data.begin());
+	data = nlohmann::json({"data", 2});
+	auto dev2 = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDevice2>(TestJSONDevice2::createID("device2", "engine_name_2"), data.begin());
+	data = nlohmann::json({"data", -1});
+	auto devThrow = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDeviceThrow>(TestJSONDeviceThrow::createID("deviceThrow", "engine_throw"), data.begin());
 
-	dev1.EngineName = engineName;
 	dev1.setEngineName(engineName);
-	dev2.EngineName = engineName;
 	dev2.setEngineName(engineName);
-	devThrow.EngineName = falseEngineName;
 	devThrow.setEngineName(falseEngineName);
 
 	dev1.data() = 3;
 	dev2.data() = 5;
 
-	// Register devices to server
-	server.registerDevice(dev1.name(), &dev1);
-	server.registerDevice(dev2.name(), &dev2);
+	// Register device controllers
+	auto dev1Ctrl = TestJSONDevice1Controller(DeviceIdentifier(dev1.id()));
+	server.registerDevice(dev1.name(), &dev1Ctrl);
+	auto dev2Ctrl = TestJSONDevice2Controller(DeviceIdentifier(dev2.id()));
+	server.registerDevice(dev2.name(), &dev2Ctrl);
 
 	// Check timeout if no server is running
 	SimulationConfig::config_storage_t config;

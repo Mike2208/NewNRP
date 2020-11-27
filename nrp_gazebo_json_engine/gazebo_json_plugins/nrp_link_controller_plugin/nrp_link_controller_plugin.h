@@ -12,19 +12,13 @@ namespace gazebo
 	 * \brief Interface for links
 	 */
 	class LinkDeviceController
-	        : public EngineJSONDeviceController
+	        : public EngineJSONDeviceController<PhysicsLink>
 	{
 		public:
 			LinkDeviceController(const std::string &linkName, const physics::LinkPtr &link);
-			virtual ~LinkDeviceController() override;
 
-			/*!
-			 * \brief Gets link device information, namely link pose and velocity
-			 * \param data Not used
-			 * \return Returns link information as JSON
-			 */
-			virtual nlohmann::json getDeviceInformation(const nlohmann::json::const_iterator &data) override;
-			virtual nlohmann::json handleDeviceData(const nlohmann::json &data) override;
+			virtual void handleDeviceDataCallback(PhysicsLink &&data) override;
+			virtual const PhysicsLink *getDeviceInformationCallback() override;
 
 		private:
 			/*!
@@ -42,12 +36,9 @@ namespace gazebo
 	        : public gazebo::ModelPlugin
 	{
 		public:
-			virtual ~NRPLinkControllerPlugin();
-
 			virtual void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
 
 		private:
-
 			std::list<LinkDeviceController> _linkInterfaces;
 	};
 

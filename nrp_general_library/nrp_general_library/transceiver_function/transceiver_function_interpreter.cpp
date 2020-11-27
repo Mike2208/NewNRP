@@ -1,6 +1,6 @@
 #include "nrp_general_library/transceiver_function/transceiver_function_interpreter.h"
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/python_error_handler.h"
 

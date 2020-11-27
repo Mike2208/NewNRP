@@ -1,7 +1,7 @@
 #ifndef PHYSICS_JOINT_H
 #define PHYSICS_JOINT_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
 class PhysicsJoint;

@@ -1,19 +1,5 @@
 #include "nrp_gazebo_json_engine/devices/physics_camera.h"
 
-PhysicsCamera::PhysicsCamera(const std::string &name)
-    : PhysicsCamera(DeviceIdentifier(name, "", TypeName.data()))
-{}
-
-PhysicsCamera::PhysicsCamera(const DeviceIdentifier &id)
-    : DeviceInterface(id),
-      PropertyTemplate(0, 0, 0, std::vector<unsigned char>({}))
-{}
-
-PhysicsCamera::PhysicsCamera(const DeviceIdentifier &id, const nlohmann::json &data)
-    : DeviceInterface(id),
-      PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, 0, 0, 0, std::vector<unsigned char>({})))
-{}
-
 uint32_t PhysicsCamera::imageHeight() const
 {
 	return this->getPropertyByName<ImageHeight>();

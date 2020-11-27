@@ -1,7 +1,7 @@
 #ifndef PHYSICS_LINK_H
 #define PHYSICS_LINK_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 
 class PhysicsLink;
 

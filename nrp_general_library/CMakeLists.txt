@@ -28,9 +28,10 @@ set(LIB_SRC_FILES
 	nrp_general_library/config/transceiver_function_config.cpp
 	nrp_general_library/device_interface/device_conversion_mechanism.cpp
 	nrp_general_library/device_interface/device_interface.cpp
-	nrp_general_library/device_interface/devices/pyobject_device.cpp
+	nrp_general_library/device_interface/device.cpp
 	nrp_general_library/device_interface/device_serializer.cpp
 	nrp_general_library/device_interface/device_serializer_methods.cpp
+	nrp_general_library/device_interface/devices/pyobject_device.cpp
 	nrp_general_library/device_interface/python_device.cpp
 	nrp_general_library/engine_interfaces/engine_device_controller.cpp
 	nrp_general_library/engine_interfaces/engine_interface.cpp
@@ -39,6 +40,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_client/engine_grpc_client.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.cpp
+	nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_serializer.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.cpp
 	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_opts_parser.cpp
@@ -64,6 +66,7 @@ set(LIB_SRC_FILES
 	nrp_general_library/transceiver_function/transceiver_function_interpreter.cpp
 	nrp_general_library/transceiver_function/transceiver_function_manager.cpp
 	nrp_general_library/transceiver_function/transceiver_function_sorted_results.cpp
+	nrp_general_library/utils/concepts.cpp
 	nrp_general_library/utils/property_template.cpp
 	nrp_general_library/utils/ptr_templates.cpp
 	nrp_general_library/utils/restclient_setup.cpp

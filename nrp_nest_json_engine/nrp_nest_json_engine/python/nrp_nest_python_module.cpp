@@ -39,7 +39,7 @@ BOOST_PYTHON_MODULE(NRP_NEST_PYTHON_MODULE)
 	// Import General NRP Python Module
 	python::import(PYTHON_MODULE_NAME_STR);
 
-	python_property_device_class<NestDevice>::create("NestDevice", python::init<const DeviceIdentifier&>())
+	python_property_device_class<NestDevice>::create()
 	        .add_property("data", python::make_function(get_data_fcn, python::return_value_policy<python::copy_const_reference>()), &setNestData);
 
 	// Setup CreateDevice and import Nest

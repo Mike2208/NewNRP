@@ -8,23 +8,17 @@ using namespace testing;
 using dcm_t = DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator>;
 using std::string_view_literals::operator""sv;
 
-struct TestJSONDeviceInterface
-        : public DeviceInterface,
-          public PropertyTemplate<TestJSONDeviceInterface, PropNames<"int", "string">, int, std::string>
+struct TestJSONDevice
+        : public Device<TestJSONDevice, "type", PropNames<"int", "string">, int, std::string>
 {
-	static constexpr FixedString TypeName = "type";
-
-	template<class ...T>
-	TestJSONDeviceInterface(const DeviceIdentifier &id, const nlohmann::json &data, T &&...properties)
-	    : DeviceInterface(id),
-	      PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, std::forward<T>(properties)...))
+	template<DEV_ID_C DEV_ID_T, SAME_AS_C<property_template_t> PROP_T>
+	TestJSONDevice(DEV_ID_T &&id, PROP_T &&props)
+	    : Device(std::forward<DEV_ID_T>(id), std::forward<PROP_T>(props))
 	{}
 
-	template<class ...T>
-	TestJSONDeviceInterface(const DeviceIdentifier &id, T &&...properties)
-	    : DeviceInterface(id),
-	      PropertyTemplate(std::forward<T>(properties)...)
-	{}
+	template<class DESERIALIZER_T>
+	static auto deserializeProperties(DESERIALIZER_T &&data)
+	{	return Device::deserializeProperties(std::forward<DESERIALIZER_T>(data));	}
 };
 
 TEST(JSONDeviceMethodsTest, IDFunctions)
@@ -32,7 +26,7 @@ TEST(JSONDeviceMethodsTest, IDFunctions)
 	nlohmann::json data;
 	data["int"] = 6;
 	data["string"] = "otherData";
-	TestJSONDeviceInterface dev1(DeviceIdentifier("dev2", "engine", "type2"), (const nlohmann::json&) data);
+	TestJSONDevice dev1(DeviceIdentifier("dev2", "engine", "type2"), (const nlohmann::json&) data);
 
 	// Test serialization
 	const nlohmann::json serializedData = dcm_t::serializeID(dev1.id());
@@ -57,7 +51,7 @@ TEST(JSONDeviceMethodsTest, ConversionFunctions)
 	nlohmann::json data;
 	data["int"] = 6;
 	data["string"] = "otherData";
-	TestJSONDeviceInterface dev1(DeviceIdentifier("dev2", "engine", "type2"), (const nlohmann::json&) data);
+	TestJSONDevice dev1(DeviceIdentifier("dev2", "engine", "type2"), (const nlohmann::json&) data);
 
 	// Test serialization
 	const nlohmann::json serializedData = dcm_t::serialize(dev1);
@@ -66,11 +60,11 @@ TEST(JSONDeviceMethodsTest, ConversionFunctions)
 	ASSERT_STREQ(serializedData.begin().key().data(), dev1.name().data());
 	ASSERT_STREQ(serializedData.front().at(dcm_t::JSONTypeID.data()).get<std::string>().data(), dev1.type().data());
 	ASSERT_STREQ(serializedData.front().at(dcm_t::JSONEngineNameID.data()).get<std::string>().data(), dev1.engineName().data());
-	ASSERT_EQ(serializedData.front().at("int").get<int>(), (dev1.getPropertyByName<"int", int>()));
-	ASSERT_STREQ(serializedData.front().at("string").get<std::string>().data(), (dev1.getPropertyByName<"string", std::string>().data()));
+	ASSERT_EQ(serializedData.front().at("int").get<int>(), (dev1.getPropertyByName<"int">()));
+	ASSERT_STREQ(serializedData.front().at("string").get<std::string>().data(), (dev1.getPropertyByName<"string">().data()));
 
-	auto deserializedDev = dcm_t::deserialize<TestJSONDeviceInterface>(serializedData.begin());
+	auto deserializedDev = dcm_t::deserialize<TestJSONDevice>(serializedData.begin());
 	ASSERT_EQ(dev1.id(), deserializedDev.id());
-	ASSERT_EQ((dev1.getPropertyByName<"int", int>()), (deserializedDev.getPropertyByName<"int", int>()));
-	ASSERT_STREQ((dev1.getPropertyByName<"string", std::string>().data()), (deserializedDev.getPropertyByName<"string", std::string>().data()));
+	ASSERT_EQ((dev1.getPropertyByName<"int">()), (deserializedDev.getPropertyByName<"int">()));
+	ASSERT_STREQ((dev1.getPropertyByName<"string">().data()), (deserializedDev.getPropertyByName<"string">().data()));
 }

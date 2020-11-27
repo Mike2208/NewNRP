@@ -4,7 +4,7 @@
 // TODO This is not the correct header, look for protobuf::Message header
 #include <nrp_grpc_library/engine_grpc.grpc.pb.h>
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 
 class EngineGrpcDeviceController
         : public DeviceIdentifier,

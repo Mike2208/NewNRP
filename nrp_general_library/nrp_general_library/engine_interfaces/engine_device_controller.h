@@ -2,6 +2,8 @@
 #define ENGINE_DEVICE_CONTROLLER_H
 
 #include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device_serializer.h"
+#include "nrp_general_library/device_interface/device_serializer_methods.h"
 #include "nrp_general_library/utils/function_traits.h"
 #include "nrp_general_library/utils/ptr_templates.h"
 
@@ -15,7 +17,7 @@ class EngineDeviceControllerInterface
           public PtrTemplates<EngineDeviceControllerInterface<SERIALIZATION> >
 {
 	public:
-		using deserialization_t = typename ObjectPropertySerializerMethods<SERIALIZATION>::deserialization_t;
+		using deserialization_t = typename DeviceSerializerMethods<SERIALIZATION>::deserialization_t;
 
 		/*!
 		 * \brief Constructor
@@ -44,7 +46,6 @@ template<class SERIALIZATION, DEVICE_C DEVICE>
 class EngineDeviceController
         : public EngineDeviceControllerInterface<SERIALIZATION>
 {
-		using property_serializer_t = PropertySerializer<SERIALIZATION, DEVICE>;
 		using deserialization_t = typename EngineDeviceControllerInterface<SERIALIZATION>::deserialization_t;
 
 	public:
@@ -52,16 +53,19 @@ class EngineDeviceController
 		    : EngineDeviceControllerInterface<SERIALIZATION>(std::move(id))
 		{}
 
-		virtual ~EngineDeviceController() override = default;
-
 		virtual SERIALIZATION getDeviceInformation() override final
 		{
-			return property_serializer_t::template serializeProperties(this->getDeviceInformationCallback());
+			const auto *const pDevDat = this->getDeviceInformationCallback();
+			if(pDevDat != nullptr)
+				return DeviceSerializerMethods<SERIALIZATION>::template serialize(*pDevDat);
+			else
+				return emptyValue();
 		}
 
-		virtual void handleDeviceData(deserialization_t data) override final
+		virtual void handleDeviceData(deserialization_t &&data) override final
 		{
-			return this->handleDeviceDataCallback(DEVICE::template deserialize(DeviceIdentifier(*this), std::forward<deserialization_t>(data)));
+			return this->handleDeviceDataCallback(DeviceSerializerMethods<SERIALIZATION>::template deserialize<DEVICE>(DeviceIdentifier(*this),
+			                                                                                                           std::forward<deserialization_t>(data)));
 		}
 
 	protected:
@@ -73,9 +77,15 @@ class EngineDeviceController
 
 		/*!
 		 * \brief Get device information to be forwarded to the NRP
-		 * \return Returns a Device containing device information
+		 * \return Returns a Device containing device information. If no new data available, return nullptr
 		 */
-		virtual const DEVICE &getDeviceInformationCallback() = 0;
+		virtual const DEVICE *getDeviceInformationCallback() = 0;
+
+		/*!
+		 * \brief Get an empty value. This is used if getDeviceInformationCallback() has no new data available
+		 */
+		static SERIALIZATION emptyValue()
+		{	return SERIALIZATION();	}
 };
 
 

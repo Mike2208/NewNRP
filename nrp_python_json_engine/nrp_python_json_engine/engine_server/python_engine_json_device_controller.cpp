@@ -12,9 +12,9 @@ void PythonEngineJSONDeviceController<PyObjectDevice>::handleDeviceDataCallback(
 	this->_deviceData = std::move(data);
 }
 
-const PyObjectDevice &PythonEngineJSONDeviceController<PyObjectDevice>::getDeviceInformationCallback()
+const PyObjectDevice *PythonEngineJSONDeviceController<PyObjectDevice>::getDeviceInformationCallback()
 {
-	return this->_deviceData;
+	return &(this->_deviceData);
 }
 
 boost::python::object &PythonEngineJSONDeviceController<PyObjectDevice>::data()

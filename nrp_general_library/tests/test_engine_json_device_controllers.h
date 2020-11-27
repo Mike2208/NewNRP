@@ -1,7 +1,7 @@
 #ifndef TEST_ENGINGE_JSON_DEVICE_INTERFACE_H
 #define TEST_ENGINGE_JSON_DEVICE_INTERFACE_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
@@ -17,8 +17,8 @@ struct TestJSONDevice1
 	{}
 
 	template<class SERIALIZER_T>
-	static TestJSONDevice1 deserialize(DeviceIdentifier &&devID, SERIALIZER_T &&data)
-	{	return Device::deserialize(std::move(devID), data, 0);	}
+	static auto deserializeProperties(SERIALIZER_T &&data)
+	{	return Device::deserializeProperties(std::forward<SERIALIZER_T>(data), 0);	}
 
 	const int &data() const
 	{	return this->getPropertyByName<"data">();	}
@@ -33,14 +33,15 @@ struct TestJSONDevice1Controller
 	public:
 		template<class ...T>
 		TestJSONDevice1Controller (T &&...params)
-		    : EngineJSONDeviceController<TestJSONDevice1>(std::forward<T>(params)...)
+		    : EngineJSONDeviceController<TestJSONDevice1>(std::forward<T>(params)...),
+		      _dev(DeviceIdentifier(*this))
 		{}
 
 		void handleDeviceDataCallback(TestJSONDevice1 &&data)
 		{	this->_dev = std::move(data);	}
 
-		const TestJSONDevice1 &getDeviceInformationCallback()
-		{	return this->_dev;	}
+		const TestJSONDevice1 *getDeviceInformationCallback()
+		{	return &(this->_dev);	}
 
 	private:
 		TestJSONDevice1 _dev;
@@ -71,14 +72,15 @@ struct TestJSONDevice2Controller
 	public:
 		template<class ...T>
 		TestJSONDevice2Controller (T &&...params)
-		    : EngineJSONDeviceController<TestJSONDevice2>(std::forward<T>(params)...)
+		    : EngineJSONDeviceController<TestJSONDevice2>(std::forward<T>(params)...),
+		      _dev(DeviceIdentifier(*this))
 		{}
 
 		void handleDeviceDataCallback(TestJSONDevice2 &&data)
 		{	this->_dev = std::move(data);	}
 
-		const TestJSONDevice2 &getDeviceInformationCallback()
-		{	return this->_dev;	}
+		const TestJSONDevice2 *getDeviceInformationCallback()
+		{	return &(this->_dev);	}
 
 	private:
 		TestJSONDevice2 _dev;
@@ -110,13 +112,14 @@ struct TestJSONDeviceThrowController
 	public:
 		template<class ...T>
 		TestJSONDeviceThrowController(T &&...params)
-		    : EngineJSONDeviceController<TestJSONDeviceThrow>(std::forward<T>(params)...)
+		    : EngineJSONDeviceController<TestJSONDeviceThrow>(std::forward<T>(params)...),
+		      _dev(DeviceIdentifier(*this))
 		{}
 
 		void handleDeviceDataCallback(TestJSONDeviceThrow &&)
 		{	throw std::invalid_argument("Error");;	}
 
-		const TestJSONDeviceThrow &getDeviceInformationCallback()
+		const TestJSONDeviceThrow *getDeviceInformationCallback()
 		{	throw std::domain_error("Error");	}
 
 	private:

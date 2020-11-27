@@ -1,7 +1,7 @@
 #ifndef PYTHON_DEVICE_H
 #define PYTHON_DEVICE_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/property_template.h"
 
 #include <boost/python.hpp>

@@ -1,7 +1,7 @@
 #ifndef PHYSICS_CAMERA_H
 #define PHYSICS_CAMERA_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/property_template.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
@@ -31,12 +31,9 @@ struct PhysicsCameraConst
 	 */
 	static constexpr FixedString ImageData = "im_data";
 
-	static constexpr std::string_view TypeName = "p_camera";
-
 	using cam_data_t = std::vector<unsigned char>;
 
 	using JPropNames = PropNames<ImageHeight, ImageWidth, ImagePixelSize, ImageData>;
-	using JProps = PropertyTemplate<PhysicsCamera, PhysicsCameraConst::JPropNames, uint32_t, uint32_t, uint8_t, cam_data_t >;
 };
 
 /*!
@@ -44,10 +41,17 @@ struct PhysicsCameraConst
  */
 class PhysicsCamera
         : public PhysicsCameraConst,
-          public DeviceInterface,
-          public PhysicsCameraConst::JProps
+          public Device<PhysicsCamera, "PhysicsCamera", PhysicsCameraConst::JPropNames, uint32_t, uint32_t, uint8_t, PhysicsCameraConst::cam_data_t>
 {
 	public:
+		PhysicsCamera(DeviceIdentifier &&devID, property_template_t &&props = property_template_t(0, 0, 0, std::vector<unsigned char>({})))
+		    : Device(std::move(devID), std::move(props))
+		{}
+
+		template<class DESERIALIZE_T>
+		static auto deserializeProperties(DESERIALIZE_T &&data)
+		{	return Device::deserializeProperties(std::forward<DESERIALIZE_T>(data), 0, 0, 0, std::vector<unsigned char>({}));	}
+
 		PhysicsCamera(const std::string &name);
 		PhysicsCamera(const DeviceIdentifier &id);
 		PhysicsCamera(const DeviceIdentifier &id, const nlohmann::json &data);

@@ -14,14 +14,15 @@ inline float ToFloat(const T &val)
 }
 
 gazebo::LinkDeviceController::LinkDeviceController(const std::string &linkName, const gazebo::physics::LinkPtr &link)
-    : EngineJSONDeviceController(DeviceIdentifier(linkName, "", PhysicsLink::TypeName.data())),
-      _data(linkName),
+    : EngineJSONDeviceController<PhysicsLink>(_data.createID(linkName, "")),
+      _data(_data.createID(linkName, "")),
       _link(link)
 {}
 
-gazebo::LinkDeviceController::~LinkDeviceController() = default;
+void gazebo::LinkDeviceController::handleDeviceDataCallback(PhysicsLink &&data)
+{}
 
-json gazebo::LinkDeviceController::getDeviceInformation(const json::const_iterator &)
+const PhysicsLink *gazebo::LinkDeviceController::getDeviceInformationCallback()
 {
 	const auto &pose = this->_link->WorldCoGPose();
 	this->_data.setPosition({ ToFloat(pose.Pos().X()), ToFloat(pose.Pos().Y()), ToFloat(pose.Pos().Z())	});
@@ -33,15 +34,8 @@ json gazebo::LinkDeviceController::getDeviceInformation(const json::const_iterat
 	const auto &angVel = this->_link->WorldAngularVel();
 	this->_data.setAngVel({ ToFloat(angVel.X()), ToFloat(angVel.Y()), ToFloat(angVel.Z())	});
 
-	return JSONPropertySerializer<PhysicsLink>::serializeProperties(this->_data, nlohmann::json());
+	return &(this->_data);
 }
-
-json gazebo::LinkDeviceController::handleDeviceData(const json &)
-{
-	return json();
-}
-
-gazebo::NRPLinkControllerPlugin::~NRPLinkControllerPlugin() = default;
 
 void gazebo::NRPLinkControllerPlugin::Load(gazebo::physics::ModelPtr model, sdf::ElementPtr)
 {

@@ -1,7 +1,7 @@
 #ifndef ENGINE_JSON_NRP_CLIENT_H
 #define ENGINE_JSON_NRP_CLIENT_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"

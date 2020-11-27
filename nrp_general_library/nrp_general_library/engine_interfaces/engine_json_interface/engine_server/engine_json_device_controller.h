@@ -2,7 +2,9 @@
 #define ENGINE_JSON_DEVICE_CONTROLLER_H
 
 #include "nrp_general_library/engine_interfaces/engine_device_controller.h"
-#include "nrp_general_library/utils/serializers/json_property_serializer.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_serializer.h"
+
+using EngineJSONDeviceControllerInterface = EngineDeviceControllerInterface<nlohmann::json>;
 
 template<DEVICE_C DEVICE>
 using EngineJSONDeviceController = EngineDeviceController<nlohmann::json, DEVICE>;

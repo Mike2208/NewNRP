@@ -159,7 +159,7 @@ TEST(TestGazeboEngine, JointPlugin)
 	// Test device data setting
 	const auto newTargetPos = 2.0f;
 
-	PhysicsJoint newJointDev(pJointDev->id());
+	PhysicsJoint newJointDev(DeviceIdentifier(pJointDev->id()));
 	newJointDev.setEffort(NAN);
 	newJointDev.setVelocity(NAN);
 	newJointDev.setPosition(newTargetPos);

@@ -58,16 +58,19 @@ TEST(EngineJSONServerTest, Functions)
 {
 	TestEngineJSONServer server;
 
-	auto dev1 = TestJSONDevice1::deserialize(TestJSONDevice1::createID("device1", "engine_name_1"), nlohmann::json({"data", 1}));
-	auto dev2 = TestJSONDevice2::deserialize(TestJSONDevice2::createID("device2", "engine_name_2"), nlohmann::json({"data", 2}));
-	auto devThrow = TestJSONDeviceThrow::deserialize(TestJSONDeviceThrow::createID("deviceThrow", "engine_throw"), nlohmann::json({"data", -1}));
+	auto data = nlohmann::json({"data", 1});
+	auto dev1 = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDevice1>(TestJSONDevice1::createID("device1", "engine_name_1"), data.begin());
+	data = nlohmann::json({"data", 2});
+	auto dev2 = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDevice2>(TestJSONDevice2::createID("device2", "engine_name_2"), data.begin());
+	data = nlohmann::json({"data", -1});
+	auto devThrow = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDeviceThrow>(TestJSONDeviceThrow::createID("deviceThrow", "engine_throw"), data.begin());
 
 	// Register device controllers
-	auto dev1Ctrl = TestJSONDevice1Controller(dev1.id());
+	auto dev1Ctrl = TestJSONDevice1Controller(DeviceIdentifier(dev1.id()));
 	server.registerDevice(dev1.name(), &dev1Ctrl);
-	auto dev2Ctrl = TestJSONDevice2Controller(dev2.id());
+	auto dev2Ctrl = TestJSONDevice2Controller(DeviceIdentifier(dev2.id()));
 	server.registerDevice(dev2.name(), &dev2Ctrl);
-	auto devThrowCtrl = TestJSONDeviceThrowController(devThrow.id());
+	auto devThrowCtrl = TestJSONDeviceThrowController(DeviceIdentifier(devThrow.id()));
 	server.registerDevice(devThrow.name(), &devThrowCtrl);
 
 	// Set Data
@@ -78,16 +81,16 @@ TEST(EngineJSONServerTest, Functions)
 	ASSERT_STREQ(retData.find("fakeDevice")->get<std::string>().data(), "");
 	ASSERT_EQ(retData.size(), 1);
 
-	nlohmann::json data;
-	data.update(dev1.serialize());
-	data.update(dev2.serialize());
+	data.clear();
+	data.update(DeviceSerializerMethods<nlohmann::json>::serialize(dev1));
+	data.update(DeviceSerializerMethods<nlohmann::json>::serialize(dev2));
 	retData = server.setDeviceData(data);
 	ASSERT_STREQ(retData["device1"]["handledData1"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice1::TypeName.data());
 	ASSERT_STREQ(retData["device2"]["handledData2"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice2::TypeName.data());
 	ASSERT_EQ(retData.size(), 2);
 
 	data.clear();
-	data.update(devThrow.convertDeviceToJSON(devThrow));
+	data.update(DeviceSerializerMethods<nlohmann::json>::serialize(devThrow));
 	ASSERT_THROW(server.setDeviceData(data), NRPExceptionNonRecoverable);
 
 	// Get Data
@@ -119,21 +122,27 @@ TEST(EngineJSONServerTest, HttpRequests)
 	const std::string address = "localhost:5432";
 	TestEngineJSONServer server(address);
 
-	TestJSONDevice1 dev1("device1", nlohmann::json({"data", 1}));
-	TestJSONDevice2 dev2("device2", nlohmann::json({"data", 2}));
-	TestJSONDeviceThrow devThrow("deviceThrow", nlohmann::json({"data", -1}));
+	auto data = nlohmann::json({"data", 1});
+	auto dev1 = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDevice1>(TestJSONDevice1::createID("device1", "engine_name_1"), data.begin());
+	data = nlohmann::json({"data", 2});
+	auto dev2 = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDevice2>(TestJSONDevice2::createID("device2", "engine_name_2"), data.begin());
+	data = nlohmann::json({"data", -1});
+	auto devThrow = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDeviceThrow>(TestJSONDeviceThrow::createID("deviceThrow", "engine_throw"), data.begin());
 
-	// Register devices
-	server.registerDevice(dev1.name(), &dev1);
-	server.registerDevice(dev2.name(), &dev2);
-	server.registerDevice(devThrow.name(), &devThrow);
+	// Register device controllers
+	auto dev1Ctrl = TestJSONDevice1Controller(DeviceIdentifier(dev1.id()));
+	server.registerDevice(dev1.name(), &dev1Ctrl);
+	auto dev2Ctrl = TestJSONDevice2Controller(DeviceIdentifier(dev2.id()));
+	server.registerDevice(dev2.name(), &dev2Ctrl);
+	auto devThrowCtrl = TestJSONDeviceThrowController(DeviceIdentifier(devThrow.id()));
+	server.registerDevice(devThrow.name(), &devThrowCtrl);
 
 	ASSERT_FALSE(server.isServerRunning());
 	server.startServerAsync();
 	ASSERT_TRUE(server.isServerRunning());
 
 	// Init command
-	nlohmann::json data;
+	data.clear();
 	data.emplace("init", nlohmann::json());
 	auto resp = RestClient::post(address + "/" + EngineJSONConfigConst::EngineServerInitializeRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), data.dump());
 	nlohmann::json retData = nlohmann::json::parse(resp.body);
@@ -157,8 +166,8 @@ TEST(EngineJSONServerTest, HttpRequests)
 
 	// Run set server command
 	data.clear();
-	data.update(dev1.convertDeviceToJSON(dev1));
-	data.update(dev2.convertDeviceToJSON(dev2));
+	data.update(DeviceSerializerMethods<nlohmann::json>::serialize(dev1));
+	data.update(DeviceSerializerMethods<nlohmann::json>::serialize(dev2));
 	resp = RestClient::post(address + "/" + EngineJSONConfigConst::EngineServerSetDevicesRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), data.dump());
 	retData = nlohmann::json::parse(resp.body);
 	ASSERT_STREQ(retData["device1"]["handledData1"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice1::TypeName.data());

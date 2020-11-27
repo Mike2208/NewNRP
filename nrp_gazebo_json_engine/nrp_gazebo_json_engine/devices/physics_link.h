@@ -1,7 +1,7 @@
 #ifndef PHYSICS_LINK_H
 #define PHYSICS_LINK_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
 class PhysicsLink;
@@ -23,24 +23,21 @@ struct PhysicsLinkConst
 		static constexpr FixedString AngularVelocity = "ang_vel";
 		static constexpr vec3_t DefAngularVelocity = {0,0,0};
 
-		static constexpr std::string_view TypeName = "p_link";
-
 		using JPropNames = PropNames<Position, Rotation, LinearVelocity, AngularVelocity>;
-		using JProps = PropertyTemplate<PhysicsLink, PhysicsLinkConst::JPropNames,
-		                                std::array<float, 3>, std::array<float, 4>, std::array<float, 3>, std::array<float, 3> >;
 };
 
 class PhysicsLink
         : public PhysicsLinkConst,
-          public DeviceInterface,
-          public PhysicsLinkConst::JProps
+          public Device<PhysicsLink, "PhysicsLink", PhysicsLinkConst::JPropNames, std::array<float, 3>, std::array<float, 4>, std::array<float, 3>, std::array<float, 3> >
 {
-		using json_property_serializer_t = JSONPropertySerializer<JProps>;
-
 	public:
-		PhysicsLink(const std::string &name);
-		PhysicsLink(const DeviceIdentifier &id);
-		PhysicsLink(const DeviceIdentifier &id, const nlohmann::json &data);
+		PhysicsLink(DeviceIdentifier &&devID, property_template_t &&props = property_template_t(DefPosition, DefRotation, DefLinearVelocity, DefAngularVelocity))
+		    : Device(std::move(devID), std::move(props))
+		{}
+
+		template<class DESERIALIZE_T>
+		static auto deserializeProperties(DESERIALIZE_T &&data)
+		{	return Device::deserializeProperties(std::forward<DESERIALIZE_T>(data), DefPosition, DefRotation, DefLinearVelocity, DefAngularVelocity);	}
 
 		const vec3_t &position() const;
 		void setPosition(const vec3_t &position);

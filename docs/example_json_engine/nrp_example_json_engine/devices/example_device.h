@@ -1,7 +1,7 @@
 #ifndef EXAMPLE_DEVICE_H
 #define EXAMPLE_DEVICE_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 
 class ExampleDevice
         : public Device<ExampleDevice, "ExampleDevice", PropNames<"number", "string">, int, std::string>

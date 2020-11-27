@@ -3,7 +3,7 @@
 nlohmann::json DeviceSerializerMethods<nlohmann::json>::serializeID(const DeviceIdentifier &devID)
 {	return nlohmann::json({{ devID.Name, {{ JSONTypeID.data(), devID.Type }, { JSONEngineNameID.data(), devID.EngineName }} }});	}
 
-DeviceIdentifier DeviceSerializerMethods<nlohmann::json>::deserializeID(deserializtion_t data)
+DeviceIdentifier DeviceSerializerMethods<nlohmann::json>::deserializeID(deserialization_t data)
 {
 	try
 	{

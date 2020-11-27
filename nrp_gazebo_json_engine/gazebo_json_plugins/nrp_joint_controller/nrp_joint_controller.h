@@ -16,16 +16,15 @@ namespace gazebo
 	 * \brief Interface for a single joint
 	 */
 	class JointDeviceController
-	        : public EngineJSONDeviceController
+	        : public EngineJSONDeviceController<PhysicsJoint>
 	{
 			using fcn_ptr_t = void(physics::JointPtr, double, int);
 
 		public:
 			JointDeviceController(const physics::JointPtr &joint, const physics::JointControllerPtr &jointController, const std::string &jointName);
-			virtual ~JointDeviceController() override = default;
 
-			virtual nlohmann::json getDeviceInformation(const nlohmann::json::const_iterator &data) override;
-			virtual nlohmann::json handleDeviceData(const nlohmann::json &data) override;
+			virtual void handleDeviceDataCallback(PhysicsJoint &&data) override;
+			virtual const PhysicsJoint *getDeviceInformationCallback() override;
 
 		private:
 			/*!

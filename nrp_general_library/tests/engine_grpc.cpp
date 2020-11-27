@@ -48,39 +48,29 @@ class TestEngineJSONConfig
 };
 
 class TestGrpcDeviceInterface1
-    : public DeviceInterface
+    : public Device<TestGrpcDeviceInterface1, "test_type1", PropNames<> >
 {
     public:
-
-        static constexpr std::string_view TypeName = "test_type1";
-
-        TestGrpcDeviceInterface1(const DeviceIdentifier &devID)
-            : DeviceInterface(devID)
+		TestGrpcDeviceInterface1(DeviceIdentifier &&devID)
+		    : Device(std::move(devID))
         {}
 
-        TestGrpcDeviceInterface1(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &)
-            : TestGrpcDeviceInterface1(devID)
-        {
-            // TODO
-        }
+		TestGrpcDeviceInterface1(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &)
+		    : TestGrpcDeviceInterface1(DeviceIdentifier(devID))
+		{}
 };
 
 class TestGrpcDeviceInterface2
-    : public DeviceInterface
+    : public Device<TestGrpcDeviceInterface2, "test_type2", PropNames<> >
 {
     public:
+		TestGrpcDeviceInterface2(DeviceIdentifier &&devID)
+		    : Device(std::move(devID))
+		{}
 
-        static constexpr std::string_view TypeName = "test_type2";
-
-        TestGrpcDeviceInterface2(const DeviceIdentifier &devID)
-            : DeviceInterface(devID)
-        {}
-
-        TestGrpcDeviceInterface2(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &)
-            : TestGrpcDeviceInterface2(devID)
-        {
-            // TODO
-        }
+		TestGrpcDeviceInterface2(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &)
+		    : TestGrpcDeviceInterface2(DeviceIdentifier(devID))
+		{}
 };
 
 class TestEngineGrpcClient
@@ -90,8 +80,6 @@ class TestEngineGrpcClient
         TestEngineGrpcClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
             : EngineGrpcClient(config, std::move(launcher))
         {}
-
-        virtual ~TestEngineGrpcClient() override = default;
 
         RESULT initialize() override
         {
@@ -360,8 +348,8 @@ TEST(EngineGrpc, SetDeviceData)
     client.engineName() = engineName;
 
     DeviceIdentifier         devId(deviceName, engineName, deviceType);
-    TestGrpcDeviceInterface1 dev1(devId);             // Client side
-    TestGrpcDeviceController deviceController(devId); // Server side
+	TestGrpcDeviceInterface1 dev1((DeviceIdentifier(devId)));             // Client side
+	TestGrpcDeviceController deviceController((DeviceIdentifier(devId))); // Server side
 
     server.registerDevice(deviceName, &deviceController);
 
@@ -413,8 +401,8 @@ TEST(EngineGrpc, GetDeviceData)
     client.engineName() = engineName;
 
     DeviceIdentifier         devId(deviceName, engineName, deviceType);
-    TestGrpcDeviceInterface2 dev1(devId);             // Client side
-    TestGrpcDeviceController deviceController(devId); // Server side
+	TestGrpcDeviceInterface2 dev1((DeviceIdentifier(devId)));             // Client side
+	TestGrpcDeviceController deviceController((DeviceIdentifier(devId))); // Server side
 
     server.registerDevice(deviceName, &deviceController);
 
@@ -476,8 +464,8 @@ TEST(EngineGrpc, GetDeviceData2)
 
     DeviceIdentifier         devId1(deviceName1, engineName, deviceType1);
     DeviceIdentifier         devId2(deviceName2, engineName, deviceType2);
-    TestGrpcDeviceInterface1 dev1(devId1);              // Client side
-    TestGrpcDeviceInterface2 dev2(devId2);              // Client side
+	TestGrpcDeviceInterface1 dev1((DeviceIdentifier(devId1)));              // Client side
+	TestGrpcDeviceInterface2 dev2((DeviceIdentifier(devId2)));              // Client side
     TestGrpcDeviceController deviceController1(devId1); // Server side
     TestGrpcDeviceController deviceController2(devId2); // Server side
 

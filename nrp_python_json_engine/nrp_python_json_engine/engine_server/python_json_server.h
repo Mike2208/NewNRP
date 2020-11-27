@@ -78,7 +78,7 @@ class PythonJSONServer
 		/*!
 		 * \brief List of device ptrs. Used to manage controller deletion
 		 */
-		std::list<EngineJSONDeviceController::shared_ptr> _deviceControllerPtrs;
+		std::list<EngineDeviceControllerInterface<nlohmann::json>::shared_ptr> _deviceControllerPtrs;
 
 		/*!
 		 *	\brief GIL Lock state

@@ -2,7 +2,7 @@
 #include "nrp_gazebo_mpi_engine/devices/physics_joint.h"
 #include "nrp_gazebo_mpi_engine/devices/physics_link.h"
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/config/cmake_constants.h"
 
 #include "nrp_gazebo_mpi_engine/config/cmake_constants.h"

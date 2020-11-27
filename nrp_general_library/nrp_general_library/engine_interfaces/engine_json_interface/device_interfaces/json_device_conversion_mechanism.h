@@ -2,6 +2,7 @@
 #define JSON_DEVICE_CONVERSION_MECHANISM_H
 
 #include "nrp_general_library/device_interface/device_conversion_mechanism.h"
+#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_serializer.h"
 #include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
@@ -36,7 +37,7 @@ struct DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator,
 
 	template<DEVICE_C DEVICE>
 	static DEVICE deserialize(const nlohmann::json::const_iterator &data)
-	{	return DEVICE(static_cast<const DeviceIdentifier&>(getID(data)), static_cast<const nlohmann::json&>(data.value()));	}
+	{	return DEVICE(getID(data),  DEVICE::deserializeProperties(data.value()));	}
 
 	template<DEVICE_C DEVICE>
 	static constexpr bool IsDeserializable = std::is_invocable_v<decltype(deserialize<DEVICE>), const nlohmann::json::const_iterator&>;

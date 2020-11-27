@@ -12,14 +12,13 @@
 namespace gazebo
 {
 	class CameraDeviceController
-	        : public EngineJSONDeviceController
+	        : public EngineJSONDeviceController<PhysicsCamera>
 	{
 		public:
 			CameraDeviceController(const std::string &devName, const rendering::CameraPtr &camera, const sensors::SensorPtr &parent);
-			virtual ~CameraDeviceController() override;
 
-			virtual nlohmann::json getDeviceInformation(const nlohmann::json::const_iterator &data) override;
-			virtual nlohmann::json handleDeviceData(const nlohmann::json &data) override;
+			virtual void handleDeviceDataCallback(PhysicsCamera &&data) override;
+			virtual const PhysicsCamera *getDeviceInformationCallback() override;
 
 			void updateCamData(const unsigned char *image, unsigned int width, unsigned int height, unsigned int depth);
 
@@ -31,15 +30,15 @@ namespace gazebo
 			common::Time _lastSensorUpdateTime = 0;
 
 			PhysicsCamera _data;
+
+			bool _newDataAvailable = true;
 	};
 
 	class NRPCameraController
 	        : public CameraPlugin
 	{
 		public:
-			virtual ~NRPCameraController();
-
-			virtual void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf);
+			virtual void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 			void OnNewFrame(const unsigned char *image, unsigned int width, unsigned int height, unsigned int depth, const std::string &format) override;
 

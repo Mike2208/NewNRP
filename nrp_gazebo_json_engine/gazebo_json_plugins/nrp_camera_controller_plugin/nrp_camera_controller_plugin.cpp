@@ -3,45 +3,24 @@
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
 gazebo::CameraDeviceController::CameraDeviceController(const std::string &devName, const rendering::CameraPtr &camera, const sensors::SensorPtr &parent)
-    : EngineJSONDeviceController(DeviceIdentifier(devName, "", PhysicsCamera::TypeName.data())),
+    : EngineJSONDeviceController<PhysicsCamera>(_data.createID(devName, "")),
       _camera(camera),
       _parentSensor(parent),
-      _data(camera->ScopedName())
+      _data(_data.createID(camera->ScopedName(), ""))
 {}
 
-gazebo::CameraDeviceController::~CameraDeviceController() = default;
+void gazebo::CameraDeviceController::handleDeviceDataCallback(PhysicsCamera &&)
+{}
 
-nlohmann::json gazebo::CameraDeviceController::getDeviceInformation(const nlohmann::json::const_iterator&)
+const PhysicsCamera *gazebo::CameraDeviceController::getDeviceInformationCallback()
 {
-	// Render image
-//	try{this->_camera->Render(false);}
-//	catch(std::exception &e)
-//	{
-//		std::cerr << "Error during camera rendering:\n" << e.what() << "\n";
-//		std::cerr << "Last recorded image at: " << this->_camera->LastRenderWallTime() << "\n";
-//		//throw;
+	if(this->_newDataAvailable)
+	{
+		this->_newDataAvailable = false;
+		return &this->_data;
+	}
 
-//		return JSONPropertySerializer<PhysicsCamera>::serializeProperties(this->_data, nlohmann::json());
-//	}
-
-	// Data updated via updateCamData()
-	return JSONPropertySerializer<PhysicsCamera>::serializeProperties(this->_data, nlohmann::json());
-
-	// Save image data
-//	const unsigned char *img_data = this->_camera->ImageData();
-//	const unsigned char *const img_data_end = img_data + this->_camera->ImageByteSize();
-//	auto img = nlohmann::json::array();
-//	for (; img_data < img_data_end; ++img_data)
-//	{
-//		img.push_back(*img_data);
-//	}
-
-//	retVal[PhysicsCamera::ImageData.m_data] = std::move(img);
-}
-
-nlohmann::json gazebo::CameraDeviceController::handleDeviceData(const nlohmann::json &data)
-{
-	return nlohmann::json();
+	return nullptr;
 }
 
 void gazebo::CameraDeviceController::updateCamData(const unsigned char *image, unsigned int width, unsigned int height, unsigned int depth)
@@ -61,10 +40,10 @@ void gazebo::CameraDeviceController::updateCamData(const unsigned char *image, u
 		const auto imageSize = width*height*depth;
 		this->_data.imageData().resize(imageSize);
 		memcpy(this->_data.imageData().data(), image, imageSize);
+
+		this->_newDataAvailable = true;
 	}
 }
-
-gazebo::NRPCameraController::~NRPCameraController() = default;
 
 void gazebo::NRPCameraController::Load(gazebo::sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {

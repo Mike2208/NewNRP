@@ -1,7 +1,7 @@
 #ifndef ENGINE_MPI_DEVICE_CONTROLLER_H
 #define ENGINE_MPI_DEVICE_CONTROLLER_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.h"
 #include "nrp_general_library/utils/nrp_exceptions.h"

@@ -6,20 +6,6 @@ PhysicsJointConst::FloatNan::FloatNan(float val)
     : _val(val)
 {}
 
-PhysicsJoint::PhysicsJoint(const std::string &name)
-    : PhysicsJoint(DeviceIdentifier(name, "", TypeName.data()))
-{}
-
-PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id)
-    : DeviceInterface(id),
-      PropertyTemplate(NAN, NAN, NAN)
-{}
-
-PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id, const nlohmann::json &data)
-    : DeviceInterface(id),
-      PropertyTemplate(JSONPropertySerializer<PropertyTemplate>::readProperties(data, NAN, NAN, NAN))
-{}
-
 float PhysicsJoint::position() const
 {
 	return this->getPropertyByName<Position>();

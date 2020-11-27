@@ -93,7 +93,7 @@ class PyEngineScript
 		/*!
 		 * \brief Device Controllers
 		 */
-		std::list<EngineJSONDeviceController::shared_ptr> _deviceControllers;
+		std::list<EngineJSONDeviceControllerInterface::shared_ptr> _deviceControllers;
 
 		/*!
 		 * \brief Map from keyword to device data

@@ -185,7 +185,7 @@ nlohmann::json EngineJSONServer::setDeviceData(const nlohmann::json &reqData)
 		// If device not found, return empty string, else return result of handling device
 		try
 		{
-			devInterface->second->handleDeviceData(devDataIterator.value());
+			devInterface->second->handleDeviceData(devDataIterator);
 			jres[devName] = "";
 		}
 		catch(std::exception &e)

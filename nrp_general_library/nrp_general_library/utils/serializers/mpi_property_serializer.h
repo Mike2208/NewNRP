@@ -1,7 +1,7 @@
 #ifndef MPI_property_SERIALIZER_H
 #define MPI_property_SERIALIZER_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/python_error_handler.h"
 #include "nrp_general_library/utils/serializers/property_serializer.h"
 

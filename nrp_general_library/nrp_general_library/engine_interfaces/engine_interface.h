@@ -2,7 +2,7 @@
 #define ENGINE_INTERFACE_H
 
 #include "nrp_general_library/config/engine_config.h"
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/process_launchers/process_launcher.h"
 #include "nrp_general_library/utils/fixed_string.h"
 #include "nrp_general_library/utils/ptr_templates.h"

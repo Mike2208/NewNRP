@@ -17,7 +17,7 @@ class DeviceSerializerMethods<nlohmann::json>
 		using PROP_SERIALIZER = nlohmann::json;
 
 		using prop_deserialization_t = typename ObjectPropertySerializerMethods<PROP_SERIALIZER>::deserialization_t;
-		using deserializtion_t = const nlohmann::json::const_iterator&;
+		using deserialization_t = const nlohmann::json::const_iterator&;
 
 		template<DEVICE_C DEVICE>
 		static nlohmann::json serialize(const DEVICE &dev)
@@ -30,13 +30,12 @@ class DeviceSerializerMethods<nlohmann::json>
 		static nlohmann::json serializeID(const DeviceIdentifier &devID);
 
 		template<DEVICE_C DEVICE>
-		static DEVICE deserialize(DeviceIdentifier &&devID, deserializtion_t data)
-		{	return DEVICE(std::move(devID), DEVICE::deserializeProperties(data));	}
+		static DEVICE deserialize(DeviceIdentifier &&devID, deserialization_t data)
+		{	return DEVICE(std::move(devID), DEVICE::deserializeProperties(data.value()));	}
 
-		static DeviceIdentifier deserializeID(deserializtion_t data);
+		static DeviceIdentifier deserializeID(deserialization_t data);
 };
 
-template<DEVICE_C DEVICE>
-using JSONDeviceSerializer = DeviceSerializer<nlohmann::json, DEVICE>;
+using JSONDeviceSerializerMethods = DeviceSerializerMethods<nlohmann::json>;
 
 #endif // JSON_DEVICE_SERIALIZER_H

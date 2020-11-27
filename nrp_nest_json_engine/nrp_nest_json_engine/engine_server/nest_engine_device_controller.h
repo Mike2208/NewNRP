@@ -17,11 +17,10 @@ class NestEngineJSONDeviceController<NestDevice>
         : public EngineJSONDeviceController<NestDevice>
 {
 	public:
-		NestEngineJSONDeviceController(const DeviceIdentifier &devID, boost::python::object nodeCollection, boost::python::dict nest);
+		NestEngineJSONDeviceController(DeviceIdentifier &&devID, boost::python::object nodeCollection, boost::python::dict nest);
 
-		virtual nlohmann::json getDeviceInformation(const nlohmann::json::const_iterator&) override;
-
-		virtual nlohmann::json handleDeviceData(const nlohmann::json &data) override;
+		virtual void handleDeviceDataCallback(NestDevice &&data) override;
+		virtual const NestDevice *getDeviceInformationCallback() override;
 
         /*!
 		 * \brief Set Nest properties

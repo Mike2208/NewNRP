@@ -1,7 +1,7 @@
 #ifndef ENGINE_JSON_CONFIG_H
 #define ENGINE_JSON_CONFIG_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/config/engine_config.h"
 #include "nrp_general_library/config/simulation_config.h"
 

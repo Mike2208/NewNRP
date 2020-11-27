@@ -15,26 +15,15 @@
 using namespace nlohmann;
 
 gazebo::JointDeviceController::JointDeviceController(const physics::JointPtr &joint, const gazebo::physics::JointControllerPtr &jointController, const std::string &jointName)
-    : EngineJSONDeviceController(DeviceIdentifier(jointName, "", PhysicsJoint::TypeName.data())),
+    : EngineJSONDeviceController<PhysicsJoint>(DeviceIdentifier(jointName, "", PhysicsJoint::TypeName.data())),
       _joint(joint),
       _jointController(jointController),
       _jointData(DeviceIdentifier(jointName, "", PhysicsJoint::TypeName.data()))
 {}
 
-json gazebo::JointDeviceController::getDeviceInformation(const json::const_iterator &)
+void gazebo::JointDeviceController::handleDeviceDataCallback(PhysicsJoint &&data)
 {
-	this->_jointData.setPosition(this->_joint->Position(0));
-	this->_jointData.setVelocity(this->_joint->GetVelocity(0));
-	this->_jointData.setEffort(this->_joint->GetForce(0));
-
-	return JSONPropertySerializer<PhysicsJoint>::serializeProperties(this->_jointData, nlohmann::json());
-}
-
-json gazebo::JointDeviceController::handleDeviceData(const json &data)
-{
-	bool success = true;
-
-	JSONPropertySerializer<PhysicsJoint>::updateProperties(this->_jointData, data);
+	this->_jointData = std::move(data);
 
 //	std::cout << std::to_string(this->_jointData.position()) << std::endl;
 //	std::cout << std::to_string(this->_jointData.velocity()) << std::endl;
@@ -42,16 +31,24 @@ json gazebo::JointDeviceController::handleDeviceData(const json &data)
 
 	const auto &jointName = this->_jointData.name();
 	if(!std::isnan(this->_jointData.position()))
-		success &= this->_jointController->SetPositionTarget(jointName, this->_jointData.position());
+		this->_jointController->SetPositionTarget(jointName, this->_jointData.position());
 
 	if(!std::isnan(this->_jointData.velocity()))
-		success &= this->_jointController->SetVelocityTarget(jointName, this->_jointData.velocity());
+		this->_jointController->SetVelocityTarget(jointName, this->_jointData.velocity());
 
 	if(!std::isnan(this->_jointData.effort()))
 		this->_joint->SetForce(0, this->_jointData.effort());
-
-	return json(success);
 }
+
+const PhysicsJoint *gazebo::JointDeviceController::getDeviceInformationCallback()
+{
+	this->_jointData.setPosition(this->_joint->Position(0));
+	this->_jointData.setVelocity(this->_joint->GetVelocity(0));
+	this->_jointData.setEffort(this->_joint->GetForce(0));
+
+	return &(this->_jointData);
+}
+
 
 gazebo::NRPJointController::PIDConfig::PIDConfig(PID _pid, gazebo::NRPJointController::PIDConfig::PID_TYPE _type)
     : gazebo::common::PID(_pid), Type(_type)
