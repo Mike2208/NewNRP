@@ -86,7 +86,6 @@ target_link_libraries(${LIBRARY_NAME}
     PUBLIC
 )
 
-
 ##########################################
 ## Installation
 

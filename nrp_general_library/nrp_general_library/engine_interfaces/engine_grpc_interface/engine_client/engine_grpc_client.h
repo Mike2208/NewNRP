@@ -10,202 +10,224 @@
 #include <nrp_grpc_library/engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/device_interfaces/grpc_device_conversion_mechanism.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
 
 template<class ENGINE, ENGINE_CONFIG_C ENGINE_CONFIG, DEVICE_C ...DEVICES>
 class EngineGrpcClient
     : public Engine<ENGINE, ENGINE_CONFIG>
 {
-	public:
+    void prepareRpcContext(grpc::ClientContext * context)
+    {
+        auto timeout = this->engineConfig()->engineCommandTimeout();
 
-		EngineGrpcClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
-		    : Engine<ENGINE, ENGINE_CONFIG>(config, std::move(launcher))
-		{
-			std::string serverAddress = this->engineConfig()->engineServerAddress();
+        if(timeout > 0)
+        {
+            // Timeouts of less than 1ms will be rounded up to 1ms
+            // TODO Should we use integers for timeout in the config?
 
-			_channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-			_stub    = EngineGrpc::EngineGrpcServiceInterface::NewStub(_channel);
+            unsigned timeoutMs = (timeout < 0.001) ? 1 : static_cast<unsigned>(timeout * 1000);
 
-			_prevEngineTime = 0.0f;
-		}
+            context->set_deadline(std::chrono::system_clock::now() + std::chrono::milliseconds(timeoutMs));
+        }
+    }
 
-		grpc_connectivity_state getChannelStatus()
-		{
-			return _channel->GetState(false);
-		}
+    public:
 
-		grpc_connectivity_state connect()
-		{
-			_channel->GetState(true);
-			_channel->WaitForConnected(gpr_time_add(
-			gpr_now(GPR_CLOCK_REALTIME), gpr_time_from_seconds(10, GPR_TIMESPAN)));
-			return _channel->GetState(false);
-		}
+        EngineGrpcClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
+            : Engine<ENGINE, ENGINE_CONFIG>(config, std::move(launcher))
+        {
+            std::string serverAddress = this->engineConfig()->engineServerAddress();
+            this->
 
-		void sendInitCommand(const nlohmann::json & data)
-		{
-			EngineGrpc::InitRequest  request;
-			EngineGrpc::InitReply    reply;
-			grpc::ClientContext      context;
+            _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+            _stub    = EngineGrpc::EngineGrpcService::NewStub(_channel);
 
-			request.set_json(data.dump());
+            _prevEngineTime = 0.0f;
+        }
 
-			grpc::Status status = _stub->init(&context, request, &reply);
+        grpc_connectivity_state getChannelStatus()
+        {
+            return _channel->GetState(false);
+        }
 
-			if(!status.ok())
-			{
-				const auto errMsg = "Engine server initialization failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
-				throw std::runtime_error(errMsg);
-			}
-		}
+        grpc_connectivity_state connect()
+        {
+            _channel->GetState(true);
+            _channel->WaitForConnected(gpr_time_add(
+            gpr_now(GPR_CLOCK_REALTIME), gpr_time_from_seconds(10, GPR_TIMESPAN)));
+            return _channel->GetState(false);
+        }
 
-		void sendShutdownCommand(const nlohmann::json & data)
-		{
-			EngineGrpc::ShutdownRequest request;
-			EngineGrpc::ShutdownReply   reply;
-			grpc::ClientContext         context;
+        void sendInitCommand(const nlohmann::json & data)
+        {
+            EngineGrpc::InitRequest  request;
+            EngineGrpc::InitReply    reply;
+            grpc::ClientContext      context;
 
-			request.set_json(data.dump());
+            prepareRpcContext(&context);
 
-			grpc::Status status = _stub->shutdown(&context, request, &reply);
+            request.set_json(data.dump());
 
-			if(!status.ok())
-			{
-				const auto errMsg = "Engine server shutdown failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
-				throw std::runtime_error(errMsg);
-			}
-		}
+            grpc::Status status = _stub->init(&context, request, &reply);
 
-		float sendRunLoopStepCommand(const float timeStep)
-		{
-			EngineGrpc::RunLoopStepRequest request;
-			EngineGrpc::RunLoopStepReply   reply;
-			grpc::ClientContext       context;
+            if(!status.ok())
+            {
+                const auto errMsg = "Engine server initialization failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
+                throw std::runtime_error(errMsg);
+            }
+        }
 
-			request.set_timestep(timeStep);
+        void sendShutdownCommand(const nlohmann::json & data)
+        {
+            EngineGrpc::ShutdownRequest request;
+            EngineGrpc::ShutdownReply   reply;
+            grpc::ClientContext         context;
 
-			grpc::Status status = _stub->runLoopStep(&context, request, &reply);
+            prepareRpcContext(&context);
 
-			if(!status.ok())
-			{
-				const auto errMsg = "Engine server runLoopStep failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
-			   throw std::runtime_error(errMsg);
-			}
+            request.set_json(data.dump());
 
-			const float engineTime = reply.enginetime();
+            grpc::Status status = _stub->shutdown(&context, request, &reply);
 
-			if(engineTime < 0.0f)
-			{
-				const auto errMsg = "Invalid engine time (should be greater than 0): " + std::to_string(engineTime);
-			   throw std::runtime_error(errMsg);
-			}
+            if(!status.ok())
+            {
+                const auto errMsg = "Engine server shutdown failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
+                throw std::runtime_error(errMsg);
+            }
+        }
 
-			if(engineTime < this->_prevEngineTime)
-			{
-				const auto errMsg = "Invalid engine time (should be greater than previous time): " + std::to_string(engineTime) + ", previous: " + std::to_string(this->_prevEngineTime);
-				throw std::runtime_error(errMsg);
-			}
+        float sendRunLoopStepCommand(const float timeStep)
+        {
+            EngineGrpc::RunLoopStepRequest request;
+            EngineGrpc::RunLoopStepReply   reply;
+            grpc::ClientContext            context;
 
-			this->_prevEngineTime = engineTime;
+            prepareRpcContext(&context);
 
-			return engineTime;
-		}
+            request.set_timestep(timeStep);
 
-		float getEngineTime() const override
-		{
-			return this->_engineTime;
-		}
+            grpc::Status status = _stub->runLoopStep(&context, request, &reply);
 
-		virtual typename EngineInterface::step_result_t runLoopStep(float timeStep) override
-		{
-			this->_loopStepThread = std::async(std::launch::async, std::bind(&EngineGrpcClient::sendRunLoopStepCommand, this, timeStep));
-			return EngineInterface::SUCCESS;
-		}
+            if(!status.ok())
+            {
+               const auto errMsg = "Engine server runLoopStep failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
+               throw std::runtime_error(errMsg);
+            }
 
-		virtual typename EngineInterface::RESULT waitForStepCompletion(float timeOut) override
-		{
-			// If thread state is invalid, loop thread has completed and waitForStepCompletion was called once before
-			if(!this->_loopStepThread.valid())
-			{
-				return EngineInterface::SUCCESS;
-			}
+            const float engineTime = reply.enginetime();
 
-			// Wait until timeOut has passed
-			if(timeOut > 0)
-			{
-				if(this->_loopStepThread.wait_for(std::chrono::duration<double>(timeOut)) != std::future_status::ready)
-					return EngineInterface::ERROR;
-			}
-			else
-				this->_loopStepThread.wait();
+            if(engineTime < 0.0f)
+            {
+               const auto errMsg = "Invalid engine time (should be greater than 0): " + std::to_string(engineTime);
+               throw std::runtime_error(errMsg);
+            }
 
-			this->_engineTime = this->_loopStepThread.get();
-			return EngineInterface::SUCCESS;
-		}
+            if(engineTime < this->_prevEngineTime)
+            {
+                const auto errMsg = "Invalid engine time (should be greater than previous time): " + std::to_string(engineTime) + ", previous: " + std::to_string(this->_prevEngineTime);
+                throw std::runtime_error(errMsg);
+            }
 
-		virtual typename EngineInterface::RESULT handleInputDevices(const typename EngineInterface::device_inputs_t &inputDevices) override
-		{
-			EngineGrpc::SetDeviceRequest request;
-			EngineGrpc::SetDeviceReply   reply;
-			grpc::ClientContext          context;
+            this->_prevEngineTime = engineTime;
 
-			for(const auto &device : inputDevices)
-			{
-				if(device->engineName().compare(this->engineName()) == 0)
-				{
-					auto r = request.add_request();
-					this->getProtoFromSingleDeviceInterface<DEVICES...>(*device, r);
-				}
-			}
+            return engineTime;
+        }
 
-			grpc::Status status = _stub->setDevice(&context, request, &reply);
+        float getEngineTime() const override
+        {
+            return this->_engineTime;
+        }
 
-			if(!status.ok())
-			{
-				const auto errMsg = "Engine server handleInputDevices failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
-				throw std::runtime_error(errMsg);
-			}
+        virtual typename EngineInterface::step_result_t runLoopStep(float timeStep) override
+        {
+            this->_loopStepThread = std::async(std::launch::async, std::bind(&EngineGrpcClient::sendRunLoopStepCommand, this, timeStep));
+            return EngineInterface::SUCCESS;
+        }
 
-			return EngineInterface::SUCCESS;
-		}
+        virtual typename EngineInterface::RESULT waitForStepCompletion(float timeOut) override
+        {
+            // If thread state is invalid, loop thread has completed and waitForStepCompletion was called once before
+            if(!this->_loopStepThread.valid())
+            {
+                return EngineInterface::SUCCESS;
+            }
 
-		template<class DEVICE, class ...REMAINING_DEVICES>
-		inline void getProtoFromSingleDeviceInterface(const DeviceInterface &device, EngineGrpc::SetDeviceMessage * request) const
-		{
-			if(DEVICE::TypeName.compare(device.type()) == 0)
-			{
-				request->mutable_deviceid()->set_devicename(device.name());
-				request->mutable_deviceid()->set_devicetype(device.type());
-				request->mutable_deviceid()->set_enginename(device.engineName());
+            // Wait until timeOut has passed
+            if(timeOut > 0)
+            {
+                if(this->_loopStepThread.wait_for(std::chrono::duration<double>(timeOut)) != std::future_status::ready)
+                    return EngineInterface::ERROR;
+            }
+            else
+                this->_loopStepThread.wait();
 
-				device.serialize(request);
+            this->_engineTime = this->_loopStepThread.get();
+            return EngineInterface::SUCCESS;
+        }
 
-				// Early return
+        virtual typename EngineInterface::RESULT handleInputDevices(const typename EngineInterface::device_inputs_t &inputDevices) override
+        {
+            EngineGrpc::SetDeviceRequest request;
+            EngineGrpc::SetDeviceReply   reply;
+            grpc::ClientContext          context;
 
-				return;
-			}
+            prepareRpcContext(&context);
 
-			// If device classess are left to check, go through them. If all device classes have been checked without proper result, throw an error
+            for(const auto &device : inputDevices)
+            {
+                if(device->engineName().compare(this->engineName()) == 0)
+                {
+                    auto r = request.add_request();
+                    this->getProtoFromSingleDeviceInterface<DEVICES...>(*device, r);
+                }
+            }
 
-			if constexpr (sizeof...(REMAINING_DEVICES) > 0)
-			{
-				this->getProtoFromSingleDeviceInterface<REMAINING_DEVICES...>(device, request);
-			}
-			else
-			{
-				throw std::logic_error("Could not process given device of type " + device.type());
-			}
-		}
+            grpc::Status status = _stub->setDevice(&context, request, &reply);
 
-		typename EngineInterface::device_outputs_set_t getDeviceInterfacesFromProto(const EngineGrpc::GetDeviceReply & reply)
-		{
-			typename EngineInterface::device_outputs_set_t interfaces;
-			//interfaces.reserve(reply.reply_size());
+            if(!status.ok())
+            {
+                const auto errMsg = "Engine server handleInputDevices failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
+                throw std::runtime_error(errMsg);
+            }
+
+            return EngineInterface::SUCCESS;
+        }
+
+        template<class DEVICE, class ...REMAINING_DEVICES>
+        inline void getProtoFromSingleDeviceInterface(const DeviceInterface &device, EngineGrpc::SetDeviceMessage * request) const
+        {
+            if(DEVICE::TypeName.compare(device.type()) == 0)
+            {
+                request->mutable_deviceid()->set_devicename(device.name());
+                request->mutable_deviceid()->set_devicetype(device.type());
+                request->mutable_deviceid()->set_enginename(device.engineName());
+
+                device.serialize(request);
+
+                // Early return
+
+                return;
+            }
+
+            // If device classess are left to check, go through them. If all device classes have been checked without proper result, throw an error
+
+            if constexpr (sizeof...(REMAINING_DEVICES) > 0)
+            {
+                this->getProtoFromSingleDeviceInterface<REMAINING_DEVICES...>(device, request);
+            }
+            else
+            {
+                throw std::logic_error("Could not process given device of type " + device.type());
+            }
+        }
+
+        typename EngineInterface::device_outputs_set_t getDeviceInterfacesFromProto(const EngineGrpc::GetDeviceReply & reply)
+        {
+            typename EngineInterface::device_outputs_set_t interfaces;
 
             for(int i = 0; i < reply.reply_size(); i++)
             {
-				// Check whether the requested device has new data
+                // Check whether the requested device has new data
 				if(reply.reply(i).has_deviceid())
 					interfaces.insert(this->getSingleDeviceInterfaceFromProto<DEVICES...>(reply.reply(i)));
             }
@@ -219,12 +241,10 @@ class EngineGrpcClient
             if(DEVICE::TypeName.compare(deviceData.deviceid().devicetype()) == 0)
             {
                 DeviceIdentifier devId(deviceData.deviceid().devicename(),
-				                       deviceData.deviceid().enginename(),
-				                       deviceData.deviceid().devicetype());
+                                       deviceData.deviceid().enginename(),
+                                       deviceData.deviceid().devicetype());
 
                 DeviceInterfaceSharedPtr newDevice(new DEVICE(devId, deviceData));
-                // TODO Why is this done here?
-                newDevice->setEngineName(this->engineName());
 
                 return newDevice;
             }
@@ -239,9 +259,6 @@ class EngineGrpcClient
                 throw std::logic_error("Could not process given device of type " + deviceData.deviceid().devicetype());
             }
         }
-
-        //using dcm_t = DeviceConversionMechanism<EngineGrpc::SetDeviceMessage, const EngineGrpc::GetDeviceMessage, DEVICES...>;
-        //dcm_t _dcm;
 
 	protected:
 		virtual typename EngineInterface::device_outputs_set_t requestOutputDeviceCallback(const typename EngineInterface::device_identifiers_t &deviceIdentifiers) override
@@ -274,12 +291,13 @@ class EngineGrpcClient
 		}
 
     private:
-		std::shared_ptr<grpc::Channel>                                _channel;
-		std::unique_ptr<EngineGrpc::EngineGrpcServiceInterface::Stub> _stub;
 
-		float _prevEngineTime = 0.0f;
-		float _engineTime     = 0.0f;
-		std::future<float> _loopStepThread;
+        std::shared_ptr<grpc::Channel>                       _channel;
+        std::unique_ptr<EngineGrpc::EngineGrpcService::Stub> _stub;
+
+        float _prevEngineTime = 0.0f;
+        float _engineTime     = 0.0f;
+        std::future<float> _loopStepThread;
 };
 
 #endif // ENGINE_GRPC_CLIENT_H

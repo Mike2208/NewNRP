@@ -5,7 +5,19 @@
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
 
-grpc::Status EngineGrpcServer::init(grpc::ServerContext * , const EngineGrpc::InitRequest * request, EngineGrpc::InitReply * reply)
+grpc::Status EngineGrpcServer::handleGrpcError(const std::string & contextMessage, const std::string & errorMessage)
+{
+    std::cerr << contextMessage << std::endl;
+    std::cerr << errorMessage   << std::endl;
+
+    // Pass the error message to the client
+
+    grpc::Status status(grpc::StatusCode::CANCELLED, errorMessage);
+
+    return status;
+}
+
+grpc::Status EngineGrpcServer::init(grpc::ServerContext * , const EngineGrpc::InitRequest * request, EngineGrpc::InitReply *)
 {
     try
     {
@@ -13,21 +25,19 @@ grpc::Status EngineGrpcServer::init(grpc::ServerContext * , const EngineGrpc::In
 
         nlohmann::json requestJson = nlohmann::json::parse(request->json());
 
-        // Run initialization function
-        reply->set_json(this->initialize(requestJson, lock).dump());
+        // Run engine-specific initialization function
+
+        this->initialize(requestJson, lock);
     }
     catch(const std::exception &e)
     {
-        std::cerr << "Error while executing initialization\n";
-        std::cerr << e.what();
-
-        return grpc::Status::CANCELLED;
+        return handleGrpcError("Error while executing initialization", e.what());
     }
 
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * , const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply * reply)
+grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * , const EngineGrpc::ShutdownRequest * request, EngineGrpc::ShutdownReply *)
 {
     try
     {
@@ -35,15 +45,13 @@ grpc::Status EngineGrpcServer::shutdown(grpc::ServerContext * , const EngineGrpc
 
         nlohmann::json requestJson = nlohmann::json::parse(request->json());
 
-        // Run shutdown function
-        reply->set_json(this->shutdown(requestJson).dump());
+        // Run engine-specifi shutdown function
+
+        this->shutdown(requestJson);
     }
     catch(const std::exception &e)
     {
-        std::cerr << "Error while executing shutdown\n";
-        std::cerr << e.what();
-
-        return grpc::Status::CANCELLED;
+        return handleGrpcError("Error while executing shutdown", e.what());
     }
 
     return grpc::Status::OK;
@@ -59,16 +67,13 @@ grpc::Status EngineGrpcServer::runLoopStep(grpc::ServerContext * , const EngineG
     }
     catch(const std::exception &e)
     {
-        std::cerr << "Error while executing runLoopStep\n";
-        std::cerr << e.what();
-
-        return grpc::Status::CANCELLED;
+        return handleGrpcError("Error while executing runLoopStep", e.what());
     }
 
     return grpc::Status::OK;
 }
 
-grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * , const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply * )
+grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * , const EngineGrpc::SetDeviceRequest * request, EngineGrpc::SetDeviceReply *)
 {
     try
     {
@@ -76,10 +81,7 @@ grpc::Status EngineGrpcServer::setDevice(grpc::ServerContext * , const EngineGrp
     }
     catch(const std::exception &e)
     {
-		std::cerr << "Error while executing setDevice\n";
-        std::cerr << e.what();
-
-        return grpc::Status::CANCELLED;
+        return handleGrpcError("Error while executing setDevice", e.what());
     }
 
     return grpc::Status::OK;
@@ -93,15 +95,11 @@ grpc::Status EngineGrpcServer::getDevice(grpc::ServerContext * , const EngineGrp
     }
     catch(const std::exception &e)
     {
-		std::cerr << "Error while executing getDevice\n";
-        std::cerr << e.what();
-
-        return grpc::Status::CANCELLED;
+        return handleGrpcError("Error while executing getDevice", e.what());
     }
 
     return grpc::Status::OK;
 }
-
 
 EngineGrpcServer::EngineGrpcServer()
 {
@@ -155,6 +153,7 @@ void EngineGrpcServer::startServer()
         builder.RegisterService(this);
 
         this->_server = builder.BuildAndStart();
+        // TODO Should we use a memory barrier here?
 		this->_isServerRunning = true;
 	}
 }
@@ -164,6 +163,7 @@ void EngineGrpcServer::shutdownServer()
 	if(this->_isServerRunning)
 	{
 		this->_server->Shutdown();
+        // TODO Should we use a memory barrier here?
 		this->_isServerRunning = false;
 	}
 }
@@ -202,7 +202,11 @@ void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
         if(devInterface != _devicesControllers.end())
         {
             devInterface->second->setData(r);
-            // TODO Error handling for dev not found
+        }
+        else
+        {
+            const auto errorMessage = "Device " + r.deviceid().devicename() + " is not registered in engine " + this->_engineName;
+            throw std::invalid_argument(errorMessage);
         }
     }
 }
@@ -221,14 +225,18 @@ void EngineGrpcServer::getDeviceData(const EngineGrpc::GetDeviceRequest & reques
         {
             auto r = reply->add_reply();
             devInterface->second->getData(r);
-            // TODO Error handling for dev not found
 
-            // Set device ID data
+            // Set device ID metadata
             // TODO Why is devInterface->second->Name different from devInterface->first name?
 
             r->mutable_deviceid()->set_devicename(devInterface->first);
             r->mutable_deviceid()->set_devicetype(devInterface->second->Type);
             r->mutable_deviceid()->set_enginename(devInterface->second->EngineName);
+        }
+        else
+        {
+            const auto errorMessage = "Device " + request.deviceid(i).devicename() + " is not registered in engine " + this->_engineName;
+            throw std::invalid_argument(errorMessage);
         }
     }
 }

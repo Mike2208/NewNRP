@@ -12,8 +12,8 @@ std::string &EngineConfigGeneral::engineLaunchCmd()
 float &EngineConfigGeneral::engineTimestep()
 {	return const_cast<float&>(const_cast<const EngineConfigGeneral*>(this)->engineTimestep());	}
 
-float &EngineConfigGeneral::engineRunStepTimeout()
-{	return const_cast<float&>(const_cast<const EngineConfigGeneral*>(this)->engineRunStepTimeout());	}
+float &EngineConfigGeneral::engineCommandTimeout()
+{	return const_cast<float&>(const_cast<const EngineConfigGeneral*>(this)->engineCommandTimeout());	}
 
 EngineConfigConst::string_vector_t &EngineConfigGeneral::engineProcEnvParams()
 {	return const_cast<string_vector_t&>(const_cast<const EngineConfigGeneral*>(this)->engineProcEnvParams());	}

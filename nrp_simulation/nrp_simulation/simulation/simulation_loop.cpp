@@ -59,7 +59,7 @@ void SimulationLoop::runLoop(float runLoopTime)
 		// Wait for engines to complete execution
 		for(const auto &engine : processedEngines)
 		{
-			if(engine->waitForStepCompletion(engine->engineConfigGeneral()->engineRunStepTimeout()) != EngineInterface::SUCCESS)
+			if(engine->waitForStepCompletion(engine->engineConfigGeneral()->engineCommandTimeout()) != EngineInterface::SUCCESS)
 			{
 				// TODO: Handle loop completion failure
 			}

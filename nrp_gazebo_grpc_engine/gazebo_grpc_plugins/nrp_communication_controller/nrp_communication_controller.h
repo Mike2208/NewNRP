@@ -89,9 +89,9 @@ class NRPCommunicationController
 
 		virtual float runLoopStep(float timeStep) override;
 
-		virtual nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) override;
+		virtual void initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) override;
 
-		virtual nlohmann::json shutdown(const nlohmann::json &data) override;
+		virtual void shutdown(const nlohmann::json &data) override;
 
 		/*!
 		 * \brief Make private for singleton

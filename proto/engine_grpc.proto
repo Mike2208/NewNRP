@@ -2,50 +2,84 @@ syntax = "proto3";
 
 package EngineGrpc;
 
-service EngineGrpcServiceInterface
+/*
+ * Remote Procedure Calls available to the gRPC engine
+ * These are commands that the engine client can send to the engine server
+ */
+service EngineGrpcService
 {
-    rpc init(InitRequest)               returns (InitReply)        {}
-    rpc shutdown(ShutdownRequest)       returns (ShutdownReply)    {}
+    rpc init       (InitRequest)        returns (InitReply)        {}
+    rpc shutdown   (ShutdownRequest)    returns (ShutdownReply)    {}
     rpc runLoopStep(RunLoopStepRequest) returns (RunLoopStepReply) {}
-    rpc setDevice(SetDeviceRequest)     returns (SetDeviceReply)   {}
-    rpc getDevice(GetDeviceRequest)     returns (GetDeviceReply)   {}
+    rpc setDevice  (SetDeviceRequest)   returns (SetDeviceReply)   {}
+    rpc getDevice  (GetDeviceRequest)   returns (GetDeviceReply)   {}
 }
 
+/*
+ * Message sent by client with the init command
+ * Contains initialization configuration in form of a stringified JSON
+ */
 message InitRequest
 {
     string json = 1;
 }
 
+/*
+ * Server's response to the init command
+ */
 message InitReply
 {
-    string json = 1;
+    // Empty
 }
 
+/*
+ * Message sent by client with the shutdown command
+ * Contains additional shutdown parameters in form of a stringified JSON
+ */
 message ShutdownRequest
 {
     string json = 1;
 }
 
+/*
+ * Server's response to the shutdown command
+ */
 message ShutdownReply
 {
-    string json = 1;
+    // Empty
 }
 
+/*
+ * Message sent by client with the runLoopStep command
+ * Contains requested time step of the simulation
+ */
 message RunLoopStepRequest
 {
     float timeStep = 1;
 }
 
+/*
+ * Server's response to the runLoopStep command
+ * Contains current time of the simulation (after running the requested time step)
+ */
 message RunLoopStepReply
 {
     float engineTime = 1;
 }
 
+/*
+ * Message sent by client with the setDevice command
+ * Contains data for multiple devices
+ */
 message SetDeviceRequest
 {
     repeated SetDeviceMessage request = 1;
 }
 
+/*
+ * Data for a single device sent by client with the setDevice command
+ * Contains device metadata and data specific to the device type
+ */
 message SetDeviceMessage
 {
     DeviceIdentifier deviceId = 1;
@@ -55,25 +89,28 @@ message SetDeviceMessage
         GazeboCameraSetData camera = 2;
         GazeboLinkSetData   link   = 3;
         GazeboJointSetData  joint  = 4;
-        NestSetData         nest   = 5;
     }
 }
 
-message NestSetData
-{
-    string json = 1;
-}
-
+/*
+ * Data for gazebo camera device
+ */
 message GazeboCameraSetData
 {
-
+    // Empty
 }
 
+/*
+ * Data for gazebo link device
+ */
 message GazeboLinkSetData
 {
-
+    // Empty
 }
 
+/*
+ * Data for gazebo joint device
+ */
 message GazeboJointSetData
 {
     float position = 1;
@@ -81,34 +118,51 @@ message GazeboJointSetData
     float effort   = 3;
 }
 
+/*
+ * Server's response to the setDevice command
+ */
 message SetDeviceReply
 {
-
+    // Empty
 }
 
+/*
+ * Message sent by client with the getDevice command
+ * Contains metadata of multiple devices
+ */
 message GetDeviceRequest
 {
     repeated DeviceIdentifier deviceId = 1;
 }
 
+/*
+ * Server's response to the getDevice command
+ * Contains data of multiple devices
+ */
 message GetDeviceReply
 {
     repeated GetDeviceMessage reply = 1;
 }
 
+/*
+ * Data of a single device sent by server in response to the getDevice command
+ * Contains device metadata and data specific to the device type
+ */
 message GetDeviceMessage
 {
     DeviceIdentifier deviceId = 1;
 
     oneof data
     {
-        GazeboCamera camera = 2;
-        GazeboLink   link   = 3;
-        GazeboJoint  joint  = 4;
-        Nest         nest   = 5;
+        GazeboCameraGetData camera = 2;
+        GazeboLinkGetData   link   = 3;
+        GazeboJointGetData  joint  = 4;
     }
 }
 
+/*
+ * Device metadata
+ */
 message DeviceIdentifier
 {
     string deviceName = 1;
@@ -116,7 +170,10 @@ message DeviceIdentifier
     string engineName = 3;
 }
 
-message GazeboCamera
+/*
+ * Data coming from gazebo camera device
+ */
+message GazeboCameraGetData
 {
     uint32 imageWidth  = 1;
     uint32 imageHeight = 2;
@@ -124,7 +181,10 @@ message GazeboCamera
     bytes  imageData   = 4;
 }
 
-message GazeboLink
+/*
+ * Data coming from gazebo link device
+ */
+message GazeboLinkGetData
 {
     repeated float position        = 1;
     repeated float rotation        = 2;
@@ -132,16 +192,14 @@ message GazeboLink
     repeated float angularVelocity = 4;
 }
 
-message GazeboJoint
+/*
+ * Data coming from gazebo joint device
+ */
+message GazeboJointGetData
 {
     float position = 1;
     float velocity = 2;
     float effort   = 3;
-}
-
-message Nest
-{
-    string json = 1;
 }
 
 // EOF

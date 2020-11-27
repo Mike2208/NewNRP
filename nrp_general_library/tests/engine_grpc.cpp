@@ -9,17 +9,23 @@
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_client/engine_grpc_client.h"
 #include "nrp_general_library/process_launchers/process_launcher_basic.h"
 
+void testSleep(unsigned sleepMs)
+{
+    std::chrono::milliseconds timespan(sleepMs);
+    std::this_thread::sleep_for(timespan);
+}
+
 class TestGrpcDeviceController : public EngineGrpcDeviceController
 {
     public:
 
         TestGrpcDeviceController(const DeviceIdentifier &devID) : EngineGrpcDeviceController(devID) {}
 
-		virtual bool getData(EngineGrpc::GetDeviceMessage *) override
+        virtual bool getData(EngineGrpc::GetDeviceMessage *) override
         {
             //reply->mutable_deviceid()->set_devicename(_setMessage.deviceid().devicename());
             //reply->mutable_deviceid()->set_devicetype(_setMessage.deviceid().devicetype());
-			return true;
+            return true;
         }
 
         virtual void setData(const google::protobuf::Message & data) override
@@ -110,41 +116,73 @@ class TestEngineGrpcServer
         TestEngineGrpcServer(T &&...properties)
             : EngineGrpcServer(std::forward<T>(properties)...)
         {
-            this->_time = 0.0f;
+            this->_time        = 0.0f;
+            this->_sleepTimeMs = 0;
         }
 
         virtual ~TestEngineGrpcServer() override = default;
 
-        nlohmann::json initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &) override
+        void initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &) override
         {
-            return nlohmann::json({{"status", "success"}, {"original", data}});
+            specialBehaviour();
+
+            if(data.at("throw"))
+            {
+                throw std::runtime_error("Init failed");
+            }
         }
 
-        nlohmann::json shutdown(const nlohmann::json &data) override
+        void shutdown(const nlohmann::json &data) override
         {
-            return nlohmann::json({{"status", "shutdown"}, {"original", data}});
+            specialBehaviour();
+
+            if(data.at("throw"))
+            {
+                throw std::runtime_error("Shutdown failed");
+            }
         }
 
-        float runLoopStep(const float timeStep)
+        void timeoutOnNextCommand(int sleepTimeMs = 1500)
         {
+            this->_sleepTimeMs = sleepTimeMs;
+        }
+
+        float runLoopStep(const float timeStep) override
+        {
+            specialBehaviour();
+
             _time += timeStep;
 
             return _time;
         }
 
+        void resetEngineTime()
+        {
+            this->_time = 0.0f;
+        }
+
     private:
 
+        void specialBehaviour()
+        {
+            if(this->_sleepTimeMs != 0)
+            {
+                testSleep(this->_sleepTimeMs);
+                this->_sleepTimeMs = 0;
+            }
+        }
+
         float _time;
+        int   _sleepTimeMs;
 };
 
 TEST(EngineGrpc, BASIC)
 {
     // TODO This one has a linking issue, fix it!
 
-    /*EngineGrpcServer server;
-
+    /*TestEngineGrpcServer               server;
     SimulationConfig::config_storage_t config;
-    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+    TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
     ASSERT_EQ(client.getChannelStatus(), grpc_connectivity_state::GRPC_CHANNEL_IDLE);
 
@@ -157,45 +195,141 @@ TEST(EngineGrpc, BASIC)
 
 TEST(EngineGrpc, InitCommand)
 {
-    TestEngineGrpcServer server;
+    TestEngineGrpcServer               server;
     SimulationConfig::config_storage_t config;
-    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+    TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
-    ASSERT_THROW(client.sendInitCommand("initCommand"), std::runtime_error);
+    nlohmann::json jsonMessage;
+    jsonMessage["init"]    = true;
+    jsonMessage["throw"]   = false;
+
+    // The gRPC server isn't running, so the init command should fail
+
+    ASSERT_THROW(client.sendInitCommand(jsonMessage), std::runtime_error);
+
+    // Start the server and send the init command. It should succeed
 
     server.startServer();
-    ASSERT_NO_THROW(client.sendInitCommand("initCommand"));
+    // TODO Investigate why this is needed. It seems to be caused by the previous call to sendInitCommand function
+    testSleep(1500);
+    client.sendInitCommand(jsonMessage);
+
+    // Force the server to return an error from the rpc
+    // Check if the client receives an error response on command handling failure
+
+    jsonMessage["throw"] = true;
+    ASSERT_THROW(client.sendInitCommand(jsonMessage), std::runtime_error);
+}
+
+TEST(EngineGrpc, InitCommandTimeout)
+{
+    TestEngineGrpcServer               server;
+    SimulationConfig::config_storage_t config(nlohmann::json({{"EngineCommandTimeout", 0.0005}}));
+    TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+
+    nlohmann::json jsonMessage;
+    jsonMessage["init"]    = true;
+    jsonMessage["throw"]   = false;
+
+    // Test init command timeout
+
+    server.startServer();
+    server.timeoutOnNextCommand();
+    ASSERT_THROW(client.sendInitCommand(jsonMessage), std::runtime_error);
 }
 
 TEST(EngineGrpc, ShutdownCommand)
 {
-    TestEngineGrpcServer server;
+    TestEngineGrpcServer               server;
     SimulationConfig::config_storage_t config;
-    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+    TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 
-    ASSERT_THROW(client.sendShutdownCommand("shutdownCommand"), std::runtime_error);
+    nlohmann::json jsonMessage;
+    jsonMessage["shutdown"] = true;
+    jsonMessage["throw"]    = false;
+
+    // The gRPC server isn't running, so the shutdown command should fail
+
+    ASSERT_THROW(client.sendShutdownCommand(jsonMessage), std::runtime_error);
+
+    // Start the server and send the shutdown command. It should succeed
 
     server.startServer();
-    ASSERT_NO_THROW(client.sendShutdownCommand("shutdownCommand"));
+    // TODO Investigate why this is needed. It seems to be caused by the previous call to sendInitCommand function
+    testSleep(1500);
+    ASSERT_NO_THROW(client.sendShutdownCommand(jsonMessage));
+
+    // Force the server to return an error from the rpc
+    // Check if the client receives an error response on command handling failure
+
+    jsonMessage["throw"] = true;
+    ASSERT_THROW(client.sendShutdownCommand(jsonMessage), std::runtime_error);
+}
+
+TEST(EngineGrpc, ShutdownCommandTimeout)
+{
+    TestEngineGrpcServer               server;
+    SimulationConfig::config_storage_t config(nlohmann::json({{"EngineCommandTimeout", 1}}));
+    TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+
+    nlohmann::json jsonMessage;
+    jsonMessage["shutdown"] = true;
+    jsonMessage["throw"]    = false;
+
+    // Test shutdown command timeout
+
+    server.startServer();
+    server.timeoutOnNextCommand();
+    ASSERT_THROW(client.sendShutdownCommand(jsonMessage), std::runtime_error);
 }
 
 TEST(EngineGrpc, RunLoopStepCommand)
 {
-    TestEngineGrpcServer server;
+    TestEngineGrpcServer               server;
     SimulationConfig::config_storage_t config;
-    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+    TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+
+    // The gRPC server isn't running, so the runLoopStep command should fail
+
+    float timeStep = 0.1f;
+    ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
 
     server.startServer();
 
-    float timeStep = 0.1f;
-    ASSERT_NEAR(client.sendRunLoopStepCommand(timeStep), timeStep, 0.0001);
+    // Engine time should never be smaller than 0
 
+    server.resetEngineTime();
     timeStep = -0.1f;
     ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
 
+    // Normal loop execution, the command should return engine time
+
+    server.resetEngineTime();
+    timeStep = 1.0f;
+    ASSERT_NEAR(client.sendRunLoopStepCommand(timeStep), timeStep, 0.0001);
+
+    // Try to go back in time. The client should raise an error when engine time is decreasing
+
+    server.resetEngineTime();
     timeStep = 2.0f;
     ASSERT_NO_THROW(client.sendRunLoopStepCommand(timeStep));
     timeStep = -1.0f;
+    ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
+
+    // TODO Add test for failure on server side
+}
+
+TEST(EngineGrpc, runLoopStepCommandTimeout)
+{
+    TestEngineGrpcServer               server;
+    SimulationConfig::config_storage_t config(nlohmann::json({{"EngineCommandTimeout", 1}}));
+    TestEngineGrpcClient               client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
+
+    // Test runLoopStep command timeout
+
+    server.startServer();
+    server.timeoutOnNextCommand();
+    float timeStep = 2.0f;
     ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
 }
 
@@ -203,45 +337,19 @@ TEST(EngineGrpc, RegisterDevices)
 {
     TestEngineGrpcServer server;
 
-	TestGrpcDeviceController dev1(DeviceIdentifier("dev1", "test", "test"));
+    TestGrpcDeviceController dev1(DeviceIdentifier("dev1", "test", "test"));
 
     ASSERT_EQ(server.getNumRegisteredDevices(), 0);
     server.registerDevice("dev1", &dev1);
     ASSERT_EQ(server.getNumRegisteredDevices(), 1);
 }
 
-TEST(EngineGrpc, SetDeviceData1)
+TEST(EngineGrpc, SetDeviceData)
 {
     SimulationConfig::config_storage_t config;
 
     TestEngineGrpcServer server;
     TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
-
-    // Only server method
-
-    const std::string deviceName = "device";
-
-	TestGrpcDeviceController device(DeviceIdentifier("test", "test", "test"));
-
-    EngineGrpc::SetDeviceRequest request;
-    auto r = request.add_request();
-    r->mutable_deviceid()->set_devicename(deviceName);
-
-    server.registerDevice(deviceName, &device);
-
-    server.setDeviceData(request);
-
-    ASSERT_EQ(device._setMessage.deviceid().devicename(), deviceName);
-}
-
-TEST(EngineGrpc, SetDeviceData2)
-{
-    SimulationConfig::config_storage_t config;
-
-    TestEngineGrpcServer server;
-    TestEngineGrpcClient client(config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
-
-    // Client sends a request to the server
 
     std::vector<DeviceInterface*> input_devices;
 
@@ -251,7 +359,7 @@ TEST(EngineGrpc, SetDeviceData2)
 
     client.engineName() = engineName;
 
-	DeviceIdentifier         devId(deviceName, engineName, deviceType);
+    DeviceIdentifier         devId(deviceName, engineName, deviceType);
     TestGrpcDeviceInterface1 dev1(devId);             // Client side
     TestGrpcDeviceController deviceController(devId); // Server side
 
@@ -259,42 +367,35 @@ TEST(EngineGrpc, SetDeviceData2)
 
     input_devices.push_back(&dev1);
 
+    // The gRPC server isn't running, so the handleInputDevices command should fail
+
+    ASSERT_THROW(client.handleInputDevices(input_devices), std::runtime_error);
+
+    // Normal command execution
+
     server.startServer();
+    testSleep(1500);
     client.handleInputDevices(input_devices);
 
     ASSERT_EQ(deviceController._setMessage.deviceid().devicename(), deviceName);
+    ASSERT_EQ(deviceController._setMessage.deviceid().devicetype(), deviceType);
+    ASSERT_EQ(deviceController._setMessage.deviceid().enginename(), engineName);
+
+    // Test setting data on a device that wasn't registered in the engine server
+
+    const std::string deviceName2 = "b";
+
+    DeviceIdentifier         devId2(deviceName2, engineName, deviceType);
+    TestGrpcDeviceInterface1 dev2(devId2);
+
+    input_devices.push_back(&dev2);
+
+    ASSERT_THROW(client.handleInputDevices(input_devices), std::runtime_error);
+
+    // TODO Add test for setData timeout
 }
 
-TEST(EngineGrpc, GetDeviceData1)
-{
-    TestEngineGrpcServer server;
-
-    const std::string deviceName = "TestDevice";
-    const std::string deviceType = "TestType";
-    const std::string engineName = "TestEngine";
-
-	TestGrpcDeviceController device(DeviceIdentifier("dev1", engineName, deviceType));
-
-    EngineGrpc::SetDeviceRequest setRequest;
-    EngineGrpc::GetDeviceRequest getRequest;
-    EngineGrpc::GetDeviceReply   getReply;
-    auto req = setRequest.add_request();
-    req->mutable_deviceid()->set_devicename(deviceName);
-
-    auto devId = getRequest.add_deviceid();
-    devId->set_devicename(deviceName);
-
-    server.registerDevice(deviceName, &device);
-
-    server.setDeviceData(setRequest);
-    server.getDeviceData(getRequest, &getReply);
-
-    ASSERT_EQ(getReply.reply(0).deviceid().devicename(), deviceName);
-    ASSERT_EQ(getReply.reply(0).deviceid().devicetype(), deviceType);
-    ASSERT_EQ(getReply.reply(0).deviceid().enginename(), engineName);
-}
-
-TEST(EngineGrpc, GetDeviceData2)
+TEST(EngineGrpc, GetDeviceData)
 {
     SimulationConfig::config_storage_t config;
 
@@ -311,7 +412,7 @@ TEST(EngineGrpc, GetDeviceData2)
 
     client.engineName() = engineName;
 
-	DeviceIdentifier         devId(deviceName, engineName, deviceType);
+    DeviceIdentifier         devId(deviceName, engineName, deviceType);
     TestGrpcDeviceInterface2 dev1(devId);             // Client side
     TestGrpcDeviceController deviceController(devId); // Server side
 
@@ -319,21 +420,41 @@ TEST(EngineGrpc, GetDeviceData2)
 
     input_devices.push_back(&dev1);
 
-    server.startServer();
-    client.handleInputDevices(input_devices);
-
     EngineInterface::device_identifiers_t deviceIdentifiers;
     deviceIdentifiers.insert(devId);
 
-	const auto output = client.requestOutputDevices(deviceIdentifiers);
+    // The gRPC server isn't running, so the getOutputDevices command should fail
+
+    ASSERT_THROW(client.requestOutputDevices(deviceIdentifiers), std::runtime_error);
+
+    // Normal command execution
+
+    server.startServer();
+    testSleep(1500);
+    client.handleInputDevices(input_devices);
+
+    const auto output = client.requestOutputDevices(deviceIdentifiers);
 
     ASSERT_EQ(output.size(), 1);
     ASSERT_EQ(output.at(0)->name(),       deviceName);
     ASSERT_EQ(output.at(0)->type(),       deviceType);
     ASSERT_EQ(output.at(0)->engineName(), engineName);
+
+    // Test setting data on a device that wasn't registered in the engine server
+
+    const std::string deviceName2 = "b";
+
+    DeviceIdentifier         devId2(deviceName2, engineName, deviceType);
+    TestGrpcDeviceInterface1 dev2(devId2);
+
+    deviceIdentifiers.insert(devId2);
+
+    ASSERT_THROW(client.requestOutputDevices(deviceIdentifiers), std::runtime_error);
+
+    // TODO Add test for getData timeout
 }
 
-TEST(EngineGrpc, GetDeviceData3)
+TEST(EngineGrpc, GetDeviceData2)
 {
     SimulationConfig::config_storage_t config;
 
@@ -353,8 +474,8 @@ TEST(EngineGrpc, GetDeviceData3)
 
     client.engineName() = engineName;
 
-	DeviceIdentifier         devId1(deviceName1, engineName, deviceType1);
-	DeviceIdentifier         devId2(deviceName2, engineName, deviceType2);
+    DeviceIdentifier         devId1(deviceName1, engineName, deviceType1);
+    DeviceIdentifier         devId2(deviceName2, engineName, deviceType2);
     TestGrpcDeviceInterface1 dev1(devId1);              // Client side
     TestGrpcDeviceInterface2 dev2(devId2);              // Client side
     TestGrpcDeviceController deviceController1(devId1); // Server side
@@ -373,7 +494,7 @@ TEST(EngineGrpc, GetDeviceData3)
     deviceIdentifiers.insert(devId1);
     deviceIdentifiers.insert(devId2);
 
-	const auto output = client.requestOutputDevices(deviceIdentifiers);
+    const auto output = client.requestOutputDevices(deviceIdentifiers);
 
     ASSERT_EQ(output.size(), 2);
     ASSERT_EQ(output.at(0)->engineName(), engineName);
