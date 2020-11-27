@@ -1,6 +1,7 @@
 #ifndef DEVICE_INTERFACE_H
 #define DEVICE_INTERFACE_H
 
+#include "nrp_general_library/device_interface/device_serializer.h"
 #include "nrp_general_library/utils/property_template.h"
 #include "nrp_general_library/utils/ptr_templates.h"
 #include "nrp_general_library/utils/serializers/property_serializer.h"
@@ -34,6 +35,15 @@ struct DeviceIdentifier
 	std::string Type;
 
 	DeviceIdentifier(const std::string &_name, const std::string &_engineName, const std::string &_type);
+
+	template<class STRING1_T, class STRING2_T, class STRING3_T>
+	requires(std::constructible_from<std::string, STRING1_T> && std::constructible_from<std::string, STRING2_T> && std::constructible_from<std::string, STRING3_T>)
+	DeviceIdentifier(STRING1_T &&_name, STRING2_T &&_engineName, STRING3_T &&_type)
+	    : Name(std::forward<STRING1_T>(_name)),
+	      EngineName(std::forward<STRING2_T>(_engineName)),
+	      Type(std::forward<STRING3_T>(_type))
+	{}
+
 	DeviceIdentifier() = default;
 
 	bool operator== (const DeviceIdentifier &) const = default;
@@ -86,8 +96,8 @@ concept DEVICE_C = requires {
         {	T::TypeName	};
         std::derived_from<T, DeviceInterface>;
         std::derived_from<T, PropertyTemplateGeneral>;
-        //std::constructible_from<T, DeviceIdentifier&&>;
-        //std::constructible_from<T, DeviceIdentifier&&, typename T::property_template_t &&>;
+        std::constructible_from<T, DeviceIdentifier&&>;
+        std::constructible_from<T, DeviceIdentifier&&, typename T::property_template_t &&>;
 };
 
 /*!
@@ -131,23 +141,49 @@ class Device
 			static_assert(DEVICE_C<DEVICE>, "DEVICE does not fulfill concept requirements");
 		};
 
+		static DeviceIdentifier createID(std::string &&name, std::string &&engineName)
+		{	return DeviceIdentifier(std::move(name), std::move(engineName), DEVICE::TypeName);	}
+
 		/*!
 		 * \brief Deserialize data into new device
 		 * \tparam DESERIALZER_T Type to deserialize
-		 * \tparam PROPERTIES_T Type of default properties
 		 * \param id Device ID. Type must match device type
 		 * \param data Data to deserialize
-		 * \param props Default values. Used if data does not initialize a certain value
 		 * \return Returns DEVICE
 		 */
-		template<class DESERIALIZER_T, class ...PROPERTIES_T>
-		static DEVICE deserialize(DeviceIdentifier &&id, DESERIALIZER_T &&data, PROPERTIES_T &&...props)
-		{
-			assert(id.Type == DEVICE::TypeName);
+		template<class DESERIALIZER_T>
+		static DEVICE deserialize(DeviceIdentifier &&id, DESERIALIZER_T &&data)
+		{	return DeviceSerializer<std::remove_cvref_t<DESERIALIZER_T>, DEVICE>::template deserializer(std::move(id), std::forward<DESERIALIZER_T>(data));	}
 
-			using deser_t = std::remove_cvref_t<DESERIALIZER_T>;
-			return DEVICE(std::move(id), PropertySerializer<deser_t, DEVICE>::template readProperties(std::forward<DESERIALIZER_T>(data),
-			                                                                                          std::forward<PROPERTIES_T>(props)...));
+		/*!
+		 * \brief Update device by filling it with deserialized data
+		 * \tparam PROP_DESERIALZER_T Type to deserialize
+		 * \param data Data to deserialize
+		 */
+		template<class PROP_DESERIALIZER_T>
+		void update(PROP_DESERIALIZER_T &&data)
+		{	PropertySerializer<std::remove_cvref_t<PROP_DESERIALIZER_T>, DEVICE>::template updateProperties(*this, std::forward<PROP_DESERIALIZER_T>(data));	}
+
+		/*!
+		 * \brief Serialize device
+		 */
+		template<class SERIALIZER_T>
+		SERIALIZER_T serialize()
+		{	return DeviceSerializer<std::remove_cvref_t<SERIALIZER_T>, DEVICE>::template serialize(*this);	}
+
+		/*!
+		 * \brief Deserialize property data into PropertyTemplate format
+		 * \tparam DESERIALZER_T Type to deserialize
+		 * \tparam PROPERTIES_T Type of default properties
+		 * \param data Property Data to deserialize
+		 * \param props Default values. Used if data does not initialize a certain value
+		 * \return Returns PropertyTemplate of this device
+		 */
+		template<class DESERIALIZER_T, class ...PROPERTIES_T>
+		static typename DEVICE::property_template_t deserializeProperties(DESERIALIZER_T &&data, PROPERTIES_T &&...props)
+		{
+			return PropertySerializer<DESERIALIZER_T, DEVICE>::template readProperties(std::forward<DESERIALIZER_T>(data),
+			                                                                           std::forward<PROPERTIES_T>(props)...);
 		}
 };
 

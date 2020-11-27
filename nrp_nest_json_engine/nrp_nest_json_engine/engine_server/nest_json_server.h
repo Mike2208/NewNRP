@@ -7,7 +7,7 @@
 
 #include "nrp_nest_json_engine/config/nest_config.h"
 
-#include "nrp_nest_json_engine/devices/nest_device_interface.h"
+#include "nrp_nest_json_engine/devices/nest_device.h"
 
 #include "nrp_nest_json_engine/python/create_device_class.h"
 

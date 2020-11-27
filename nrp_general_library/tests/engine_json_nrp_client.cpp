@@ -66,7 +66,7 @@ class TestEngineJSONServer
 };
 
 class TestEngineJSONNRPClient
-        : public EngineJSONNRPClient<TestEngineJSONNRPClient, TestEngineJSONConfig, TestJSONDeviceInterface1, TestJSONDeviceInterface2, TestJSONDeviceInterfaceThrow>
+        : public EngineJSONNRPClient<TestEngineJSONNRPClient, TestEngineJSONConfig, TestJSONDevice1, TestJSONDevice2, TestJSONDeviceThrow>
 {
 	public:
 	template<class ...T>
@@ -106,9 +106,9 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	const auto engineName = "engine1";
 	const auto falseEngineName = "engineFalse";
 
-	TestJSONDeviceInterface1 dev1("device1", nlohmann::json({"data", 1}));
-	TestJSONDeviceInterface2 dev2("device2", nlohmann::json({"data", 2}));
-	TestJSONDeviceInterfaceThrow devThrow("deviceThrow", nlohmann::json({"data", -1}));
+	TestJSONDevice1 dev1("device1", nlohmann::json({"data", 1}));
+	TestJSONDevice2 dev2("device2", nlohmann::json({"data", 2}));
+	TestJSONDeviceThrow devThrow("deviceThrow", nlohmann::json({"data", -1}));
 
 	dev1.EngineName = engineName;
 	dev1.setEngineName(engineName);
@@ -163,8 +163,8 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	ASSERT_NE(retDev1BasePtr, nullptr);
 	ASSERT_NE(retDev2BasePtr, nullptr);
 
-	const auto &retDev1 = dynamic_cast<const TestJSONDeviceInterface1&>(*retDev1BasePtr);
-	const auto &retDev2 = dynamic_cast<const TestJSONDeviceInterface2&>(*retDev2BasePtr);
+	const auto &retDev1 = dynamic_cast<const TestJSONDevice1&>(*retDev1BasePtr);
+	const auto &retDev2 = dynamic_cast<const TestJSONDevice2&>(*retDev2BasePtr);
 
 	ASSERT_EQ(retDev1.data(), dev1.data());
 	ASSERT_EQ(retDev2.data(), dev2.data());

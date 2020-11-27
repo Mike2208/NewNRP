@@ -54,7 +54,7 @@ TEST(TestNestJSONServer, TestFunc)
 	pyState.endAllowThreads();
 
 	// Test Nest Device data deserialization
-	NestDeviceInterface dev = JSONDeviceConversionMechanism<>::deserialize<NestDeviceInterface>(respParse.begin());
+	NestDevice dev = JSONDeviceConversionMechanism<>::deserialize<NestDevice>(respParse.begin());
 
 	dev.PyObjectDevice::data() = python::dict(dev.PyObjectDevice::data().deserialize(""));
 

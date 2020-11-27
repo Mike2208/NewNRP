@@ -127,13 +127,13 @@ std::string EngineJSONServer::serverAddress() const
 	return this->_serverAddress;
 }
 
-void EngineJSONServer::registerDevice(const std::string &deviceName, EngineJSONDeviceController *interface)
+void EngineJSONServer::registerDevice(const std::string &deviceName, controller_t *interface)
 {
 	EngineJSONServer::lock_t lock(this->_deviceLock);
 	return this->registerDeviceNoLock(deviceName, interface);
 }
 
-void EngineJSONServer::registerDeviceNoLock(const std::string &deviceName, EngineJSONDeviceController *interface)
+void EngineJSONServer::registerDeviceNoLock(const std::string &deviceName, controller_t *interface)
 {	this->_devicesControllers.emplace(deviceName, interface);	}
 
 void EngineJSONServer::clearRegisteredDevices()
@@ -160,7 +160,7 @@ nlohmann::json EngineJSONServer::getDeviceData(const nlohmann::json &reqData)
 		{
 			nlohmann::json devData(dcm_t::serializeID(*devInterface->second));
 
-			devData.front().update(devInterface->second->getDeviceInformation(curRequest));
+			devData.front().update(devInterface->second->getDeviceInformation());
 
 			jres.update(std::move(devData));
 		}
@@ -185,7 +185,8 @@ nlohmann::json EngineJSONServer::setDeviceData(const nlohmann::json &reqData)
 		// If device not found, return empty string, else return result of handling device
 		try
 		{
-			jres[devName] = (devInterface == this->_devicesControllers.end()) ? "" : devInterface->second->handleDeviceData(devDataIterator.value());
+			devInterface->second->handleDeviceData(devDataIterator.value());
+			jres[devName] = "";
 		}
 		catch(std::exception &e)
 		{

@@ -5,7 +5,7 @@
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/plugin_system/plugin.h"
 
-#include "nrp_nest_json_engine/devices/nest_device_interface.h"
+#include "nrp_nest_json_engine/devices/nest_device.h"
 
 #include "nrp_nest_json_engine/config/nest_config.h"
 
@@ -15,7 +15,7 @@
  * \brief NRP - Nest Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
  */
 class NestEngineJSONNRPClient
-        : public EngineJSONNRPClient<NestEngineJSONNRPClient, NestConfig, NestDeviceInterface>
+        : public EngineJSONNRPClient<NestEngineJSONNRPClient, NestConfig, NestDevice>
 {
 		/*!
 		 * \brief Number of seconds to wait for Nest to exit cleanly after first SIGTERM signal. Afterwards, send a SIGKILL

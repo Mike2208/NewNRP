@@ -17,6 +17,7 @@ class ObjectPropertySerializerMethods<nlohmann::json>
 {
 	public:
 		using ObjectDeserializer = typename PropertySerializerGeneral::ObjectDeserializer<nlohmann::json>;
+		using deserialization_t = const nlohmann::json&;
 
 		template<class PROPERTY>
 		static nlohmann::json serializeSingleProperty(const PROPERTY &property)

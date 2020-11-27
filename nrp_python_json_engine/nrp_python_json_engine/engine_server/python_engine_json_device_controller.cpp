@@ -2,22 +2,19 @@
 
 #include <iostream>
 
-PythonEngineJSONDeviceController<PyObjectDevice>::PythonEngineJSONDeviceController(const DeviceIdentifier &devID, boost::python::object data)
-    : EngineJSONDeviceController(devID),
+PythonEngineJSONDeviceController<PyObjectDevice>::PythonEngineJSONDeviceController(DeviceIdentifier &&devID, boost::python::object data)
+    : EngineDeviceController<nlohmann::json, PyObjectDevice>(std::move(devID)),
       _deviceData(devID, data)
 {}
 
-nlohmann::json PythonEngineJSONDeviceController<PyObjectDevice>::getDeviceInformation(const nlohmann::json::const_iterator &)
+void PythonEngineJSONDeviceController<PyObjectDevice>::handleDeviceDataCallback(PyObjectDevice &&data)
 {
-	return PropertySerializer<nlohmann::json, typename PyObjectDevice::property_template_t>::serializeProperties(this->_deviceData, nlohmann::json());
+	this->_deviceData = std::move(data);
 }
 
-nlohmann::json PythonEngineJSONDeviceController<PyObjectDevice>::handleDeviceData(const nlohmann::json &data)
+const PyObjectDevice &PythonEngineJSONDeviceController<PyObjectDevice>::getDeviceInformationCallback()
 {
-	// Update properties from data
-	PropertySerializer<nlohmann::json, typename PyObjectDevice::property_template_t>::updateProperties(this->_deviceData, data);
-
-	return nlohmann::json();
+	return this->_deviceData;
 }
 
 boost::python::object &PythonEngineJSONDeviceController<PyObjectDevice>::data()

@@ -29,7 +29,10 @@ set(LIB_SRC_FILES
 	nrp_general_library/device_interface/device_conversion_mechanism.cpp
 	nrp_general_library/device_interface/device_interface.cpp
 	nrp_general_library/device_interface/devices/pyobject_device.cpp
+	nrp_general_library/device_interface/device_serializer.cpp
+	nrp_general_library/device_interface/device_serializer_methods.cpp
 	nrp_general_library/device_interface/python_device.cpp
+	nrp_general_library/engine_interfaces/engine_device_controller.cpp
 	nrp_general_library/engine_interfaces/engine_interface.cpp
 	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.cpp
 	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.cpp

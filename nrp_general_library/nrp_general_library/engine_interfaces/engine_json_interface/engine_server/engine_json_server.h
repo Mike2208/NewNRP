@@ -3,7 +3,7 @@
 
 #include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
 #include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_general_library/engine_interfaces/engine_device_controller.h"
 
 #include <map>
 #include <memory>
@@ -52,6 +52,8 @@ class EngineJSONServer
 	public:
 		using mutex_t = std::timed_mutex;
 		using lock_t = std::unique_lock<EngineJSONServer::mutex_t>;
+
+		using controller_t = EngineDeviceControllerInterface<nlohmann::json>;
 
 		/*!
 		 * \brief Constructor. Tries to bind to a port and register itself with clientAddress
@@ -111,7 +113,7 @@ class EngineJSONServer
 		 * \param deviceName Name of device
 		 * \param interface Pointer to interface
 		 */
-		void registerDevice(const std::string &deviceName, EngineJSONDeviceController *interface);
+		void registerDevice(const std::string &deviceName, controller_t *interface);
 
 		/*!
 		 * \brief Registers a device. Skips locking the mutex.
@@ -119,7 +121,7 @@ class EngineJSONServer
 		 * \param deviceName Name of device
 		 * \param interface Pointer to interface
 		 */
-		void registerDeviceNoLock(const std::string &deviceName, EngineJSONDeviceController *interface);
+		void registerDeviceNoLock(const std::string &deviceName, controller_t *interface);
 
 		/*!
 		 * \brief Run a single loop step
@@ -195,7 +197,7 @@ class EngineJSONServer
 		/*!
 		 * \brief Available devices
 		 */
-		std::map<std::string, EngineJSONDeviceController*> _devicesControllers;
+		std::map<std::string, controller_t*> _devicesControllers;
 
 		/*!
 		 * \brief Set routes used by server

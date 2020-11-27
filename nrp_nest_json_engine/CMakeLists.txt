@@ -21,7 +21,7 @@ include(ExternalProject)
 # List library build files
 set(LIB_SRC_FILES
 	nrp_nest_json_engine/config/nest_config.cpp
-	nrp_nest_json_engine/devices/nest_device_interface.cpp
+	nrp_nest_json_engine/devices/nest_device.cpp
 	nrp_nest_json_engine/engine_server/nest_engine_device_controller.cpp
 	nrp_nest_json_engine/engine_server/nest_json_server.cpp
 	nrp_nest_json_engine/nrp_client/nest_engine_json_nrp_client.cpp

@@ -45,8 +45,6 @@ class PyObjectDevice
 		    : Device(std::forward<DEVID_T>(id), std::forward<DATA_T>(data)...)
 		{}
 
-		virtual ~PyObjectDevice() override = default;
-
 		const PyObjData &data() const;
 		PyObjData &data();
 

@@ -58,14 +58,17 @@ TEST(EngineJSONServerTest, Functions)
 {
 	TestEngineJSONServer server;
 
-	TestJSONDeviceInterface1 dev1("device1", nlohmann::json({"data", 1}));
-	TestJSONDeviceInterface2 dev2("device2", nlohmann::json({"data", 2}));
-	TestJSONDeviceInterfaceThrow devThrow("deviceThrow", nlohmann::json({"data", -1}));
+	auto dev1 = TestJSONDevice1::deserialize(TestJSONDevice1::createID("device1", "engine_name_1"), nlohmann::json({"data", 1}));
+	auto dev2 = TestJSONDevice2::deserialize(TestJSONDevice2::createID("device2", "engine_name_2"), nlohmann::json({"data", 2}));
+	auto devThrow = TestJSONDeviceThrow::deserialize(TestJSONDeviceThrow::createID("deviceThrow", "engine_throw"), nlohmann::json({"data", -1}));
 
-	// Register devices
-	server.registerDevice(dev1.name(), &dev1);
-	server.registerDevice(dev2.name(), &dev2);
-	server.registerDevice(devThrow.name(), &devThrow);
+	// Register device controllers
+	auto dev1Ctrl = TestJSONDevice1Controller(dev1.id());
+	server.registerDevice(dev1.name(), &dev1Ctrl);
+	auto dev2Ctrl = TestJSONDevice2Controller(dev2.id());
+	server.registerDevice(dev2.name(), &dev2Ctrl);
+	auto devThrowCtrl = TestJSONDeviceThrowController(devThrow.id());
+	server.registerDevice(devThrow.name(), &devThrowCtrl);
 
 	// Set Data
 	auto retData = server.setDeviceData(nlohmann::json());
@@ -76,11 +79,11 @@ TEST(EngineJSONServerTest, Functions)
 	ASSERT_EQ(retData.size(), 1);
 
 	nlohmann::json data;
-	data.update(dev1.convertDeviceToJSON(dev1));
-	data.update(dev2.convertDeviceToJSON(dev2));
+	data.update(dev1.serialize());
+	data.update(dev2.serialize());
 	retData = server.setDeviceData(data);
-	ASSERT_STREQ(retData["device1"]["handledData1"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDeviceInterface1::TypeName.data());
-	ASSERT_STREQ(retData["device2"]["handledData2"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDeviceInterface2::TypeName.data());
+	ASSERT_STREQ(retData["device1"]["handledData1"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice1::TypeName.data());
+	ASSERT_STREQ(retData["device2"]["handledData2"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice2::TypeName.data());
 	ASSERT_EQ(retData.size(), 2);
 
 	data.clear();
@@ -99,8 +102,8 @@ TEST(EngineJSONServerTest, Functions)
 	data.update(dcm_t::serializeID(dev1.id()));
 	data.update(dcm_t::serializeID(dev2.id()));
 	retData = server.getDeviceData(data);
-	ASSERT_STREQ(retData["device1"]["retrievedData1"]["device1"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDeviceInterface1::TypeName.data());
-	ASSERT_STREQ(retData["device2"]["retrievedData2"]["device2"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDeviceInterface2::TypeName.data());
+	ASSERT_STREQ(retData["device1"]["retrievedData1"]["device1"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice1::TypeName.data());
+	ASSERT_STREQ(retData["device2"]["retrievedData2"]["device2"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice2::TypeName.data());
 	ASSERT_EQ(retData.size(), 2);
 
 	data = dcm_t::serializeID(devThrow.id());
@@ -116,9 +119,9 @@ TEST(EngineJSONServerTest, HttpRequests)
 	const std::string address = "localhost:5432";
 	TestEngineJSONServer server(address);
 
-	TestJSONDeviceInterface1 dev1("device1", nlohmann::json({"data", 1}));
-	TestJSONDeviceInterface2 dev2("device2", nlohmann::json({"data", 2}));
-	TestJSONDeviceInterfaceThrow devThrow("deviceThrow", nlohmann::json({"data", -1}));
+	TestJSONDevice1 dev1("device1", nlohmann::json({"data", 1}));
+	TestJSONDevice2 dev2("device2", nlohmann::json({"data", 2}));
+	TestJSONDeviceThrow devThrow("deviceThrow", nlohmann::json({"data", -1}));
 
 	// Register devices
 	server.registerDevice(dev1.name(), &dev1);
@@ -148,8 +151,8 @@ TEST(EngineJSONServerTest, HttpRequests)
 	data.update(dcm_t::serializeID(dev2.id()));
 	resp = RestClient::post(address + "/" + EngineJSONConfigConst::EngineServerGetDevicesRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), data.dump());
 	retData = nlohmann::json::parse(resp.body);
-	ASSERT_STREQ(retData["device1"]["retrievedData1"]["device1"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDeviceInterface1::TypeName.data());
-	ASSERT_STREQ(retData["device2"]["retrievedData2"]["device2"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDeviceInterface2::TypeName.data());
+	ASSERT_STREQ(retData["device1"]["retrievedData1"]["device1"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice1::TypeName.data());
+	ASSERT_STREQ(retData["device2"]["retrievedData2"]["device2"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice2::TypeName.data());
 	ASSERT_EQ(retData.size(), 2);
 
 	// Run set server command
@@ -158,7 +161,7 @@ TEST(EngineJSONServerTest, HttpRequests)
 	data.update(dev2.convertDeviceToJSON(dev2));
 	resp = RestClient::post(address + "/" + EngineJSONConfigConst::EngineServerSetDevicesRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), data.dump());
 	retData = nlohmann::json::parse(resp.body);
-	ASSERT_STREQ(retData["device1"]["handledData1"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDeviceInterface1::TypeName.data());
-	ASSERT_STREQ(retData["device2"]["handledData2"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDeviceInterface2::TypeName.data());
+	ASSERT_STREQ(retData["device1"]["handledData1"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice1::TypeName.data());
+	ASSERT_STREQ(retData["device2"]["handledData2"][dcm_t::JSONTypeID.data()].get<std::string>().data(), TestJSONDevice2::TypeName.data());
 	ASSERT_EQ(retData.size(), 2);
 }

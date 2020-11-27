@@ -204,6 +204,7 @@ class ObjectPropertySerializerMethods<MPIPropertyData>
 		using mpi_prop_datatype_t = MPIPropertyData::mpi_prop_datatype_t<PROP_DATA_TYPE>;
 
 		using ObjectDeserializer = typename PropertySerializerGeneral::ObjectDeserializer<MPIPropertyData>;
+		using deserialization_t = MPIPropertyData&;
 
 		template<class PROPERTY_TEMPLATE>
 		static constexpr int getNumVariableProperties()
