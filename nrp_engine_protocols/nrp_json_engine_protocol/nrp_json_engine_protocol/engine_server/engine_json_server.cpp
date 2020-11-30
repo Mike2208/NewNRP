@@ -1,6 +1,6 @@
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_registration_server.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_server.h"
+#include "nrp_json_engine_protocol/config/engine_json_config.h"
+#include "nrp_json_engine_protocol/nrp_client/engine_json_registration_server.h"
 #include "nrp_general_library/utils/restclient_setup.h"
 
 #include <nlohmann/json.hpp>
@@ -157,13 +157,7 @@ nlohmann::json EngineJSONServer::getDeviceData(const nlohmann::json &reqData)
 
 		// If device not found, return empty string, else get device information
 		if(devInterface != this->_devicesControllers.end())
-		{
-			nlohmann::json devData(dcm_t::serializeID(*devInterface->second));
-
-			devData.front().update(devInterface->second->getDeviceInformation());
-
-			jres.update(std::move(devData));
-		}
+			jres.update(devInterface->second->getDeviceInformation());
 		else
 			jres[devName] = nlohmann::json();
 	}
@@ -182,10 +176,10 @@ nlohmann::json EngineJSONServer::setDeviceData(const nlohmann::json &reqData)
 		const std::string &devName = EngineJSONServer::getIteratorKey(devDataIterator);
 		const auto devInterface = this->_devicesControllers.find(devName);
 
-		// If device not found, return empty string, else return result of handling device
 		try
 		{
-			devInterface->second->handleDeviceData(devDataIterator);
+			if(devInterface != this->_devicesControllers.end())
+				devInterface->second->handleDeviceData(devDataIterator);
 			jres[devName] = "";
 		}
 		catch(std::exception &e)

@@ -40,7 +40,6 @@ set(LIB_SRC_FILES
 	nrp_general_library/plugin_system/plugin_manager.cpp
 	nrp_general_library/process_launchers/launch_commands/basic_fork.cpp
 	nrp_general_library/process_launchers/launch_commands/launch_command.cpp
-	nrp_general_library/process_launchers/launch_commands/mpi_spawn.cpp
 	nrp_general_library/process_launchers/process_launcher.cpp
 	nrp_general_library/process_launchers/process_launcher_basic.cpp
 	nrp_general_library/process_launchers/process_launcher_manager.cpp
@@ -60,8 +59,6 @@ set(LIB_SRC_FILES
 	nrp_general_library/utils/serializers/python_dict_property_serializer.cpp
 	nrp_general_library/utils/file_finder.cpp
 	nrp_general_library/utils/fixed_string.cpp
-	nrp_general_library/utils/mpi_communication.cpp
-	nrp_general_library/utils/mpi_setup.cpp
 	nrp_general_library/utils/nrp_exceptions.cpp
 	nrp_general_library/utils/nrp_logger.cpp
 	nrp_general_library/utils/pipe_communication.cpp
@@ -86,15 +83,8 @@ set(TEST_SRC_FILES
 	tests/base_config.cpp
 	tests/device_interface.cpp
 	tests/config_storage.cpp
-	tests/engine_json_config.cpp
-	tests/engine_json_server.cpp
-	tests/engine_json_nrp_client.cpp
 	tests/engine_launcher_manager.cpp
-	tests/engine_grpc.cpp
-	tests/json_device_methods.cpp
 	tests/json_property_serializer.cpp
-	#tests/mpi_communication.cpp
-	#tests/mpi_property_serializer.cpp
 	tests/plugin_manager.cpp
 	tests/property_template.cpp
 	tests/python_dict_property_serializer.cpp
@@ -145,7 +135,9 @@ if(NOT ${restclient-cpp_FOUND})
 			INTERFACE "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 	endif()
 endif()
-add_library(restclient-cpp::restclient-cpp ALIAS restclient-cpp)
+if(NOT TARGET restclient-cpp::restclient-cpp)
+	add_library(restclient-cpp::restclient-cpp ALIAS restclient-cpp)
+endif()
 
 # pistache: REST server library
 find_package(Pistache REQUIRED)
@@ -165,18 +157,9 @@ if(NOT ${nlohmann_json_FOUND})
 	endif()
 endif()
 
-# MPI: Communication library
-find_package(MPI REQUIRED)
-
 # libzip: ZIP Manipulation
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LibZip REQUIRED IMPORTED_TARGET libzip)
-
-# MPI4Py: Send Python objects over MPI
-find_package(MPI4Py)
-if(NOT ${MPI4Py_FOUND})
-	include("cmake/CompileMPI4Py.cmake")
-endif()
 
 
 ##########################################
@@ -207,7 +190,6 @@ target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
 	    ${BOOST_PYTHON}
 		cxxopts::cxxopts
-		MPI::MPI_CXX
 		nlohmann_json::nlohmann_json
 		pistache
 		PkgConfig::LibZip
@@ -215,12 +197,8 @@ target_link_libraries(${LIBRARY_NAME}
 		Python3::Python
 		restclient-cpp::restclient-cpp
 		spdlog::spdlog
-		${PROTOBUF_LIBRARIES}
-		${GRPC_LIBRARIES}
-		NRPGRPCLibrary::NRPGRPCLibrary
 
 	PRIVATE
-	    MPI4Py::MPI4Py
 )
 
 target_include_directories(${LIBRARY_NAME}
@@ -290,14 +268,6 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 		PUBLIC
 		${NAMESPACE_NAME}::${LIBRARY_NAME})
 
-	add_library(MPICommDevices STATIC tests/test_mpi_communication_devices.cpp)
-	target_link_libraries(MPICommDevices PUBLIC ${NAMESPACE_NAME}::${LIBRARY_NAME})
-
-	# Create mpi testing process (used for testing MPI child process spawning and communication)
-	set(TEST_MPI_COMMUNICATION "TestMPIComm")
-	add_executable(${TEST_MPI_COMMUNICATION} tests/test_mpi_communication_proc.cpp)
-	target_link_libraries(${TEST_MPI_COMMUNICATION} ${NAMESPACE_NAME}::${LIBRARY_NAME} MPICommDevices)
-
 	# Create testing env files
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/test_env.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/test_env.sh" @ONLY)
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/tests/test_env_cmake.h" @ONLY)
@@ -307,7 +277,6 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 	add_executable(${TEST_NAME} ${TEST_SRC_FILES})
 	target_link_libraries(${TEST_NAME}
 		PUBLIC
-		MPICommDevices
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
 		GTest::gtest
 		GTest::gtest_main

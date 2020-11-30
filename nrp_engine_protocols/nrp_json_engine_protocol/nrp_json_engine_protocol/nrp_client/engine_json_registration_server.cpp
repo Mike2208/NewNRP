@@ -1,6 +1,6 @@
-#include "nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_registration_server.h"
+#include "nrp_json_engine_protocol/nrp_client/engine_json_registration_server.h"
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
+#include "nrp_json_engine_protocol/config/engine_json_config.h"
 
 #include <nlohmann/json.hpp>
 #include <restclient-cpp/restclient.h>

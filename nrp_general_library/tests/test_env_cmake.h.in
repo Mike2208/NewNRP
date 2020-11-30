@@ -2,7 +2,6 @@
 #define TEST_ENV_CMAKE_H
 
 #include "nrp_general_library/device_interface/device.h"
-#include "tests/test_mpi_communication_devices.h"
 
 #define TEST_TRANSCEIVER_FCN_FILE_NAME "@CMAKE_CURRENT_SOURCE_DIR@/tests/test_files/transceiver_function.py"
 #define TEST_INVALID_TRANSCEIVER_FCN_FILE_NAME "@CMAKE_CURRENT_SOURCE_DIR@/tests/test_files/invalid_transceiver_function.py"

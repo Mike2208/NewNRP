@@ -1,2 +1,2 @@
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/config/engine_grpc_config.h"
+#include "nrp_grpc_engine_protocol/config/engine_grpc_config.h"
 

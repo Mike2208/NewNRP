@@ -4,6 +4,7 @@
 #include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/property_template.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
+#include "nrp_grpc_engine_protocol/device_interfaces/grpc_device_serializer.h"
 
 #include <vector>
 
@@ -71,5 +72,12 @@ class PhysicsCamera
 
 		virtual void serialize(EngineGrpc::SetDeviceMessage * request) const override;
 };
+
+template<>
+GRPCDevice DeviceSerializerMethods<GRPCDevice>::serialize<PhysicsCamera>(const PhysicsCamera &dev);
+
+template<>
+PhysicsCamera DeviceSerializerMethods<GRPCDevice>::deserialize<PhysicsCamera>(DeviceIdentifier &&devID, deserialization_t data);
+
 
 #endif // PHYSICS_CAMERA_H

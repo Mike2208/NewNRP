@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_nrp_client.h"
+#include "nrp_json_engine_protocol/config/engine_json_config.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_server.h"
+#include "nrp_json_engine_protocol/nrp_client/engine_json_nrp_client.h"
 #include "nrp_general_library/process_launchers/process_launcher_basic.h"
 
 #include "tests/test_engine_json_device_controllers.h"
@@ -106,11 +106,11 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	const auto engineName = "engine1";
 	const auto falseEngineName = "engineFalse";
 
-	auto data = nlohmann::json({"data", 1});
+	auto data = nlohmann::json({{"", {{"data", 1}}}});
 	auto dev1 = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDevice1>(TestJSONDevice1::createID("device1", "engine_name_1"), data.begin());
-	data = nlohmann::json({"data", 2});
+	data = nlohmann::json({{"", {{"data", 2}}}});
 	auto dev2 = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDevice2>(TestJSONDevice2::createID("device2", "engine_name_2"), data.begin());
-	data = nlohmann::json({"data", -1});
+	data = nlohmann::json({{"", {{"data", -1}}}});
 	auto devThrow = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDeviceThrow>(TestJSONDeviceThrow::createID("deviceThrow", "engine_throw"), data.begin());
 
 	dev1.setEngineName(engineName);
@@ -168,8 +168,8 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	const auto &retDev1 = dynamic_cast<const TestJSONDevice1&>(*retDev1BasePtr);
 	const auto &retDev2 = dynamic_cast<const TestJSONDevice2&>(*retDev2BasePtr);
 
-	ASSERT_EQ(retDev1.data(), dev1.data());
-	ASSERT_EQ(retDev2.data(), dev2.data());
+	ASSERT_EQ(retDev1.data(), dev1Ctrl.data().data());
+	ASSERT_EQ(retDev2.data(), dev2Ctrl.data().data());
 
 	auto inputDev1 = dev1;
 	auto inputDev2 = dev2;
@@ -184,6 +184,6 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	inputs.push_back(&inputDevThrow);
 	ASSERT_EQ(client.handleInputDevices(inputs), TestEngineJSONNRPClient::SUCCESS);
 
-	ASSERT_EQ(inputDev1.data(), dev1.data());
-	ASSERT_EQ(inputDev2.data(), dev2.data());
+	ASSERT_EQ(inputDev1.data(), dev1Ctrl.data().data());
+	ASSERT_EQ(inputDev2.data(), dev2Ctrl.data().data());
 }

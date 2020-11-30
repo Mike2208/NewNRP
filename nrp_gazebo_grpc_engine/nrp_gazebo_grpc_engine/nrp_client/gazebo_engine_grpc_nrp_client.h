@@ -1,7 +1,7 @@
 #ifndef GAZEBO_ENGINE_JSON_NRP_CLIENT_H
 #define GAZEBO_ENGINE_JSON_NRP_CLIENT_H
 
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_client/engine_grpc_client.h"
+#include "nrp_grpc_engine_protocol/engine_client/engine_grpc_client.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/plugin_system/plugin.h"
 

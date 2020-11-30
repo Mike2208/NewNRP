@@ -1,4 +1,4 @@
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_opts_parser.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_opts_parser.h"
 
 cxxopts::Options EngineJSONOptsParser::createOptionParser(bool allowUnrecognised)
 {

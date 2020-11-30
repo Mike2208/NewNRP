@@ -3,7 +3,7 @@
 
 #include "nrp_gazebo_grpc_engine/config/nrp_gazebo_cmake_constants.h"
 #include "nrp_gazebo_grpc_engine/devices/physics_joint.h"
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
+#include "nrp_grpc_engine_protocol/engine_server/engine_grpc_device_controller.h"
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/JointController.hh>

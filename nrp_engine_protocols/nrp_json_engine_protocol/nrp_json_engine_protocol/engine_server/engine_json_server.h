@@ -1,9 +1,9 @@
 #ifndef ENGINE_JSON_SERVER_H
 #define ENGINE_JSON_SERVER_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_json_engine_protocol/config/engine_json_config.h"
+#include "nrp_json_engine_protocol/device_interfaces/json_device_conversion_mechanism.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_device_controller.h"
 
 #include <map>
 #include <memory>

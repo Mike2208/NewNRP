@@ -1,7 +1,7 @@
 #ifndef NRP_LINK_CONTROLLER_PLUGIN_H
 #define NRP_LINK_CONTROLLER_PLUGIN_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_device_controller.h"
 #include "nrp_gazebo_json_engine/devices/physics_link.h"
 
 #include <gazebo/gazebo.hh>

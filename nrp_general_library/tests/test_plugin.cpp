@@ -1,15 +1,15 @@
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
+#include "nrp_general_library/config/engine_config.h"
 
 #include "nrp_general_library/plugin_system/plugin.h"
 
 struct TestEngineConfig
-        : public EngineJSONConfig<TestEngineConfig, PropNames<> >
+        : public EngineConfig<TestEngineConfig, PropNames<> >
 {
 	static constexpr FixedString ConfigType = "TestConf";
 
 	TestEngineConfig(EngineConfigConst::config_storage_t &config)
-	    : EngineJSONConfig(config)
+	    : EngineConfig(config)
 	{}
 };
 

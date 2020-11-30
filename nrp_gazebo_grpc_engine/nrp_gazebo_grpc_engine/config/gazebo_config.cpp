@@ -10,7 +10,7 @@ const std::vector<std::string> GazeboConfigConst::DefGazeboPlugins = {};
 const size_t GazeboConfigConst::DefGazeboRNGSeed = static_cast<size_t>(time(nullptr));
 
 GazeboConfig::GazeboConfig(EngineConfigConst::config_storage_t &config)
-    : EngineJSONConfig(config,
+    : EngineGRPCConfig(config,
                        GazeboConfig::DefGazeboPlugins, GazeboConfig::DefGazeboRNGSeed,
                        GazeboConfig::DefMaxWorldLoadTime)
 {}
@@ -57,7 +57,7 @@ const unsigned int &GazeboConfig::maxWorldLoadTime() const
 
 EngineConfigConst::string_vector_t GazeboConfig::allEngineProcEnvParams() const
 {
-	EngineConfigConst::string_vector_t envVars = this->EngineJSONConfig::allEngineProcEnvParams();
+	EngineConfigConst::string_vector_t envVars = this->EngineGRPCConfig::allEngineProcEnvParams();
 
 	// Add NRP and Gazebo plugins dir
 	envVars.push_back("GAZEBO_PLUGIN_PATH=" NRP_GAZEBO_PLUGINS_DIR ":" DEFAULT_GAZEBO_PLUGIN_DIR ":$GAZEBO_PLUGIN_PATH");
@@ -73,7 +73,7 @@ EngineConfigConst::string_vector_t GazeboConfig::allEngineProcEnvParams() const
 
 EngineConfigConst::string_vector_t GazeboConfig::allEngineProcStartParams() const
 {
-	EngineConfigConst::string_vector_t startParams = this->EngineJSONConfig::allEngineProcStartParams();
+	EngineConfigConst::string_vector_t startParams = this->EngineGRPCConfig::allEngineProcStartParams();
 
 	// Add gazebo plugins
 	for(const auto &curPlugin : this->gazeboPlugins())

@@ -1,8 +1,8 @@
 #ifndef NRP_COMMUNICATION_CONTROLLER_H
 #define NRP_COMMUNICATION_CONTROLLER_H
 
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
+#include "nrp_grpc_engine_protocol/engine_server/engine_grpc_server.h"
+#include "nrp_grpc_engine_protocol/engine_server/engine_grpc_device_controller.h"
 
 #include "nrp_gazebo_grpc_engine/config/gazebo_config.h"
 #include "nrp_gazebo_grpc_engine/engine_server/gazebo_step_controller.h"

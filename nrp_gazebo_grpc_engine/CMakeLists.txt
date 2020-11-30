@@ -82,12 +82,12 @@ target_include_directories(${LIBRARY_NAME}
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
 
 	PRIVATE
-	    ${PYTHON_INCLUDE_DIR}
 )
 
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
 	    ${NRP_GEN_LIB_TARGET}
+		NRPGRPCEngineProtocol::NRPGRPCEngineProtocol
 )
 
 

@@ -27,7 +27,7 @@ PhysicsJoint::PhysicsJoint(const DeviceIdentifier &id, const EngineGrpc::GetDevi
 }
 
 void PhysicsJoint::serialize(EngineGrpc::SetDeviceMessage * request) const
-{
+{z
 	request->mutable_joint()->set_position(this->position());
 	request->mutable_joint()->set_velocity(this->velocity());
 	request->mutable_joint()->set_effort(this->effort());
@@ -82,4 +82,22 @@ PhysicsJointConst::FloatNan JSONPropertySerializerMethods::deserializeSingleProp
 	}
 	else
 		throw std::out_of_range(std::string("Couldn't find JSON attribute ") + name.data() + " during deserialization");
+}
+
+template<>
+GRPCDevice DeviceSerializerMethods<GRPCDevice>::serialize<PhysicsJoint>(const PhysicsJoint &dev)
+{
+	GRPCDevice data = serializeID<GRPCDevice>(dev.id());
+	data.dev().mutable_joint()->InitAsDefaultInstance();
+	data.dev().mutable_joint()->set_position(dev.position());
+	data.dev().mutable_joint()->set_velocity(dev.velocity());
+	data.dev().mutable_joint()->set_effort(dev.effort());
+
+	return data;
+}
+
+template<>
+PhysicsJoint DeviceSerializerMethods<GRPCDevice>::deserialize<PhysicsJoint>(DeviceIdentifier &&devID, deserialization_t data)
+{
+	return PhysicsJoint(std::move(devID), data->joint().position(), data->joint().velocity(), data->joint().effort());
 }

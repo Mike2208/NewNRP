@@ -3,6 +3,7 @@
 
 #include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
+#include "nrp_grpc_engine_protocol/device_interfaces/grpc_device_serializer.h"
 
 class PhysicsLink;
 
@@ -44,18 +45,29 @@ class PhysicsLink
 		PhysicsLink(const DeviceIdentifier &id, const EngineGrpc::GetDeviceMessage &data);
 
 		const vec3_t &position() const;
+		vec3_t &position();
 		void setPosition(const vec3_t &position);
 
 		const quat_t &rotation() const;
+		quat_t &rotation();
 		void setRotation(const quat_t &rotation);
 
 		const vec3_t &linVel() const;
+		vec3_t &linVel();
 		void setLinVel(const vec3_t &linVel);
 
 		const vec3_t &angVel() const;
+		vec3_t &angVel();
 		void setAngVel(const vec3_t &angVel);
 
 		virtual void serialize(EngineGrpc::SetDeviceMessage * request) const override;
 };
+
+template<>
+GRPCDevice DeviceSerializerMethods<GRPCDevice>::serialize<PhysicsLink>(const PhysicsLink &dev);
+
+template<>
+PhysicsLink DeviceSerializerMethods<GRPCDevice>::deserialize<PhysicsLink>(DeviceIdentifier &&devID, deserialization_t data);
+
 
 #endif // JSON_PHYSICS_LINK_H

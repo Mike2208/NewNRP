@@ -2,7 +2,7 @@
 #define ENGINE_GRPC_DEVICE_CONTROLLER_H
 
 // TODO This is not the correct header, look for protobuf::Message header
-#include <nrp_grpc_library/engine_grpc.grpc.pb.h>
+#include "nrp_grpc_engine_protocol/grpc_server/engine_grpc.grpc.pb.h"
 
 #include "nrp_general_library/device_interface/device.h"
 

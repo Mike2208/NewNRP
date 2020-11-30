@@ -5,7 +5,7 @@
 #include "nrp_general_library/config/engine_config.h"
 #include "nrp_general_library/config/simulation_config.h"
 
-struct EngineJSONConfigConst
+struct EngineGRPCConfigConst
 {
 		/*!
 		 * \brief Address from which the engine server sends/receives data
@@ -79,20 +79,20 @@ struct EngineJSONConfigConst
 		 */
 		static constexpr std::string_view EngineServerContentType = "application/json";
 
-		using EJCfgNames = PropNames<EngineServerAddress, EngineRegistrationServerAddress>;
+		using EGCfgNames = PropNames<EngineServerAddress, EngineRegistrationServerAddress>;
 };
 
 /*!
  *  \brief Configuration for engine communication via JSON REST server
- *  \tparam CONFIG Final Class derived from this EngineJSONConfig Class
+ *  \tparam CONFIG Final Class derived from this EngineGRPCConfig Class
  *  \tparam PROPERTIES Additional Engine Properties
  */
 template<class CONFIG, PROP_NAMES_C PROP_NAMES, class ...PROPERTIES>
-class EngineJSONConfig
-        : public EngineConfig<CONFIG, MultiPropNames<EngineJSONConfigConst::EJCfgNames, PROP_NAMES>, PropCfg<std::string,false>, std::string, PROPERTIES...>,
-          public EngineJSONConfigConst
+class EngineGRPCConfig
+        : public EngineConfig<CONFIG, MultiPropNames<EngineGRPCConfigConst::EGCfgNames, PROP_NAMES>, PropCfg<std::string,false>, std::string, PROPERTIES...>,
+          public EngineGRPCConfigConst
 {
-		using engine_config_t = EngineConfig<CONFIG, MultiPropNames<EngineJSONConfigConst::EJCfgNames, PROP_NAMES>, PropCfg<std::string,false>, std::string, PROPERTIES...>;
+		using engine_config_t = EngineConfig<CONFIG, MultiPropNames<EngineGRPCConfigConst::EGCfgNames, PROP_NAMES>, PropCfg<std::string,false>, std::string, PROPERTIES...>;
 	public:
 		/*!
 		 * \brief Constructor. Takes configuration data from the main SimulationConfig class. Will register itself with said class, so that anytime the configuration is saved, any changes made by GazeboConfig are passed along
@@ -102,8 +102,8 @@ class EngineJSONConfig
 		 * \param properties Configuration of any additional PROPERTIES
 		 */
 		template<class ...T>
-		EngineJSONConfig(EngineConfigConst::config_storage_t &config, T &&...properties)
-		    : EngineJSONConfig<CONFIG, PROP_NAMES, PROPERTIES...>(config.Data, std::forward<T>(properties)...)
+		EngineGRPCConfig(EngineConfigConst::config_storage_t &config, T &&...properties)
+		    : EngineGRPCConfig<CONFIG, PROP_NAMES, PROPERTIES...>(config.Data, std::forward<T>(properties)...)
 		{
 			// Add callback function to Simulation config so that any changes made by GazeboConfig will be properly stored
 			config.Config = this;
@@ -117,23 +117,23 @@ class EngineJSONConfig
 		 * \param properties Configuration of any additional PROPERTIES
 		 */
 		template<class ...T>
-		EngineJSONConfig(const nlohmann::json &data, T &&...properties)
+		EngineGRPCConfig(const nlohmann::json &data, T &&...properties)
 		    : engine_config_t(data,
 		                      CONFIG::DefEngineServerAddress.data(), CONFIG::DefEngineRegistrationServerAddress.data(),
 		                      std::forward<T>(properties)...)
 		{}
 
 		const std::string &engineServerAddress() const
-		{	return this->template getPropertyByName<EngineJSONConfig::EngineServerAddress, std::string>();	}
+		{	return this->template getPropertyByName<EngineGRPCConfig::EngineServerAddress, std::string>();	}
 
 		std::string &engineServerAddress()
-		{	return this->template getPropertyByName<EngineJSONConfig::EngineServerAddress, std::string>();	}
+		{	return this->template getPropertyByName<EngineGRPCConfig::EngineServerAddress, std::string>();	}
 
 		const std::string &engineRegistrationServerAddress() const
-		{	return this->template getPropertyByName<EngineJSONConfig::EngineRegistrationServerAddress, std::string>();	}
+		{	return this->template getPropertyByName<EngineGRPCConfig::EngineRegistrationServerAddress, std::string>();	}
 
 		std::string &engineRegistrationServerAddress()
-		{	return this->template getPropertyByName<EngineJSONConfig::EngineRegistrationServerAddress, std::string>();	}
+		{	return this->template getPropertyByName<EngineGRPCConfig::EngineRegistrationServerAddress, std::string>();	}
 
 		EngineConfigConst::string_vector_t allEngineProcEnvParams() const override
 		{	return this->engineProcEnvParams();	}
@@ -143,13 +143,13 @@ class EngineJSONConfig
 			EngineConfigConst::string_vector_t startParams = this->engineProcStartParams();
 
 			// Add JSON registration Server address (will be used by EngineJSONServer)
-			startParams.push_back(std::string("--") + EngineJSONConfig::EngineNameArg.data() + "=" + this->engineName());
+			startParams.push_back(std::string("--") + EngineGRPCConfig::EngineNameArg.data() + "=" + this->engineName());
 
 			// Add JSON Server address (will be used by EngineJSONServer)
-			startParams.push_back(std::string("--") + EngineJSONConfig::EngineServerAddrArg.data() + "=" + this->engineServerAddress());
+			startParams.push_back(std::string("--") + EngineGRPCConfig::EngineServerAddrArg.data() + "=" + this->engineServerAddress());
 
 			// Add JSON registration Server address (will be used by EngineJSONServer)
-			startParams.push_back(std::string("--") + EngineJSONConfig::EngineRegistrationServerAddrArg.data() + "=" + this->engineRegistrationServerAddress());
+			startParams.push_back(std::string("--") + EngineGRPCConfig::EngineRegistrationServerAddrArg.data() + "=" + this->engineRegistrationServerAddress());
 
 			return startParams;
 		}

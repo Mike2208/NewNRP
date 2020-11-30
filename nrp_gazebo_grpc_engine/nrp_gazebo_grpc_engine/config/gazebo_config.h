@@ -1,7 +1,7 @@
 #ifndef GAZEBO_CONFIG_H
 #define GAZEBO_CONFIG_H
 
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/config/engine_grpc_config.h"
+#include "nrp_grpc_engine_protocol/config/engine_grpc_config.h"
 #include "nrp_general_library/utils/ptr_templates.h"
 
 struct GazeboConfigConst
@@ -48,7 +48,7 @@ struct GazeboConfigConst
  *  \brief Configuration for gazebo physics engine
  */
 class GazeboConfig
-        : public EngineJSONConfig<GazeboConfig, GazeboConfigConst::GPropNames,
+        : public EngineGRPCConfig<GazeboConfig, GazeboConfigConst::GPropNames,
                                   std::vector<std::string>, std::size_t, unsigned int, std::string>,
           public GazeboConfigConst,
           public PtrTemplates<GazeboConfig>

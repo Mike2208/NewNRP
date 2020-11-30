@@ -1,4 +1,4 @@
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_serializer.h"
+#include "nrp_json_engine_protocol/device_interfaces/json_device_serializer.h"
 
 nlohmann::json DeviceSerializerMethods<nlohmann::json>::serializeID(const DeviceIdentifier &devID)
 {	return nlohmann::json({{ devID.Name, {{ JSONTypeID.data(), devID.Type }, { JSONEngineNameID.data(), devID.EngineName }} }});	}

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"
+#include "nrp_json_engine_protocol/device_interfaces/json_device_conversion_mechanism.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
 using namespace testing;
@@ -23,10 +23,8 @@ struct TestJSONDevice
 
 TEST(JSONDeviceMethodsTest, IDFunctions)
 {
-	nlohmann::json data;
-	data["int"] = 6;
-	data["string"] = "otherData";
-	TestJSONDevice dev1(DeviceIdentifier("dev2", "engine", "type2"), (const nlohmann::json&) data);
+	auto data = nlohmann::json({{"", {{"int", 6}, {"string", "otherData"}}}});
+	auto dev1 = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDevice>(TestJSONDevice::createID("dev2", "engine"), data.begin());
 
 	// Test serialization
 	const nlohmann::json serializedData = dcm_t::serializeID(dev1.id());
@@ -48,10 +46,8 @@ TEST(JSONDeviceMethodsTest, IDFunctions)
 
 TEST(JSONDeviceMethodsTest, ConversionFunctions)
 {
-	nlohmann::json data;
-	data["int"] = 6;
-	data["string"] = "otherData";
-	TestJSONDevice dev1(DeviceIdentifier("dev2", "engine", "type2"), (const nlohmann::json&) data);
+	auto data = nlohmann::json({{"", {{"int", 6}, {"string", "otherData"}}}});
+	auto dev1 = DeviceSerializerMethods<nlohmann::json>::deserialize<TestJSONDevice>(TestJSONDevice::createID("dev2", "engine"), data.begin());
 
 	// Test serialization
 	const nlohmann::json serializedData = dcm_t::serialize(dev1);

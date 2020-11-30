@@ -14,9 +14,9 @@ void gazebo::NRPCommunicationPlugin::Load(int argc, char **argv)
 		auto inputArgsParse = EngineJSONOptsParser::parseOpts(argc, argv, EngineJSONOptsParser::createOptionParser(true));
 
 		// Save given URL
-		serverAddr = inputArgsParse[EngineJSONConfigConst::EngineServerAddrArg.data()].as<std::string>();
-		engineName = inputArgsParse[EngineJSONConfigConst::EngineNameArg.data()].as<std::string>();
-		registrationAddr = inputArgsParse[EngineJSONConfigConst::EngineRegistrationServerAddrArg.data()].as<std::string>();
+		serverAddr = inputArgsParse[EngineGRPCConfigConst::EngineServerAddrArg.data()].as<std::string>();
+		engineName = inputArgsParse[EngineGRPCConfigConst::EngineNameArg.data()].as<std::string>();
+		registrationAddr = inputArgsParse[EngineGRPCConfigConst::EngineRegistrationServerAddrArg.data()].as<std::string>();
 	}
 	catch(cxxopts::OptionException &e)
 	{

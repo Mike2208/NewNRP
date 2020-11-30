@@ -3,6 +3,7 @@
 
 #include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
+#include "nrp_grpc_engine_protocol/device_interfaces/grpc_device_serializer.h"
 
 class PhysicsJoint;
 
@@ -13,10 +14,10 @@ struct PhysicsJointConst
 			FloatNan() = default;
 			FloatNan(float val);
 
-			inline operator float() const
+			constexpr operator float() const
 			{	return this->_val;	}
 
-			inline operator float&()
+			constexpr operator float&()
 			{	return this->_val;	}
 
 		private:
@@ -60,10 +61,10 @@ class PhysicsJoint
 };
 
 template<>
-nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PhysicsJointConst::FloatNan &property);
+GRPCDevice DeviceSerializerMethods<GRPCDevice>::serialize<PhysicsJoint>(const PhysicsJoint &dev);
 
 template<>
-PhysicsJointConst::FloatNan JSONPropertySerializerMethods::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name);
+PhysicsJoint DeviceSerializerMethods<GRPCDevice>::deserialize<PhysicsJoint>(DeviceIdentifier &&devID, deserialization_t data);
 
 
 #endif // PHYSICS_JOINT_H

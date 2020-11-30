@@ -2,8 +2,8 @@
 #define TEST_ENGINGE_JSON_DEVICE_INTERFACE_H
 
 #include "nrp_general_library/device_interface/device.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_json_engine_protocol/device_interfaces/json_device_conversion_mechanism.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_device_controller.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 
 using dcm_t = DeviceConversionMechanism<nlohmann::json, nlohmann::json::const_iterator>;
@@ -43,6 +43,9 @@ struct TestJSONDevice1Controller
 		const TestJSONDevice1 *getDeviceInformationCallback()
 		{	return &(this->_dev);	}
 
+		constexpr const auto &data() const
+		{	return this->_dev;	}
+
 	private:
 		TestJSONDevice1 _dev;
 };
@@ -56,8 +59,8 @@ struct TestJSONDevice2
 	{}
 
 	template<class SERIALIZER_T>
-	static TestJSONDevice2 deserialize(DeviceIdentifier &&devID, SERIALIZER_T &&data)
-	{	return Device::deserialize(std::move(devID), data, 0);	}
+	static auto deserializeProperties(SERIALIZER_T &&data)
+	{	return Device::deserializeProperties(std::forward<SERIALIZER_T>(data), 0);	}
 
 	const int &data() const
 	{	return this->getPropertyByName<"data">();	}
@@ -82,6 +85,9 @@ struct TestJSONDevice2Controller
 		const TestJSONDevice2 *getDeviceInformationCallback()
 		{	return &(this->_dev);	}
 
+		constexpr const auto &data() const
+		{	return this->_dev;	}
+
 	private:
 		TestJSONDevice2 _dev;
 };
@@ -96,8 +102,8 @@ struct TestJSONDeviceThrow
 	{}
 
 	template<class SERIALIZER_T>
-	static TestJSONDeviceThrow deserialize(DeviceIdentifier &&devID, SERIALIZER_T &&data)
-	{	return Device::deserialize(std::move(devID), data, 0);	}
+	static auto deserializeProperties(SERIALIZER_T &&data)
+	{	return Device::deserializeProperties(std::forward<SERIALIZER_T>(data), 0);	}
 
 	const int &data() const
 	{	return this->getPropertyByName<"data">();	}
@@ -117,10 +123,10 @@ struct TestJSONDeviceThrowController
 		{}
 
 		void handleDeviceDataCallback(TestJSONDeviceThrow &&)
-		{	throw std::invalid_argument("Error");;	}
+		{	throw std::domain_error("Error");;	}
 
 		const TestJSONDeviceThrow *getDeviceInformationCallback()
-		{	throw std::domain_error("Error");	}
+		{	throw std::invalid_argument("Error");	}
 
 	private:
 		TestJSONDeviceThrow _dev;

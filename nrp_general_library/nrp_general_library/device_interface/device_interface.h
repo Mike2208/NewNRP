@@ -12,7 +12,6 @@
 #include <memory>
 #include <type_traits>
 
-#include <nrp_grpc_library/engine_grpc.grpc.pb.h>
 
 /*!
  * \brief Identifies a single device
@@ -84,10 +83,6 @@ class DeviceInterface
 
 		const DeviceIdentifier &id() const;
 		void setID(const DeviceIdentifier &id);
-
-		virtual void serialize(EngineGrpc::SetDeviceMessage * request) const;
-		virtual void deserialize(const EngineGrpc::GetDeviceMessage &deviceData);
-
 
 	private:
 		/*!

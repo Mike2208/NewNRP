@@ -7,10 +7,11 @@
 #include <grpcpp/support/time.h>
 #include <nlohmann/json.hpp>
 
-#include <nrp_grpc_library/engine_grpc.grpc.pb.h>
-
+#include "nrp_general_library/config/engine_config.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
+#include "nrp_grpc_engine_protocol/device_interfaces/grpc_device_conversion_mechanism.h"
+#include "nrp_grpc_engine_protocol/grpc_server/engine_grpc.grpc.pb.h"
+
 
 template<class ENGINE, ENGINE_CONFIG_C ENGINE_CONFIG, DEVICE_C ...DEVICES>
 class EngineGrpcClient
@@ -202,7 +203,7 @@ class EngineGrpcClient
                 request->mutable_deviceid()->set_devicetype(device.type());
                 request->mutable_deviceid()->set_enginename(device.engineName());
 
-                device.serialize(request);
+				//device.serialize(request);
 
                 // Early return
 

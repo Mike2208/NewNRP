@@ -1,1 +1,1 @@
-#include "nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_nrp_client.h"
+#include "nrp_json_engine_protocol/nrp_client/engine_json_nrp_client.h"

@@ -1,7 +1,7 @@
 #include "nrp_communication_controller/nrp_communication_plugin.h"
 
 #include "nrp_communication_controller/nrp_communication_controller.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_opts_parser.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_opts_parser.h"
 #include "nrp_general_library/utils/nrp_exceptions.h"
 
 void gazebo::NRPCommunicationPlugin::Load(int argc, char **argv)

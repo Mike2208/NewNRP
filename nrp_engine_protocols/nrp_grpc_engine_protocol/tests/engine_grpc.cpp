@@ -2,12 +2,13 @@
 
 #include <gtest/gtest.h>
 
-#include <nrp_grpc_library/engine_grpc.grpc.pb.h>
-
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
-#include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_client/engine_grpc_client.h"
 #include "nrp_general_library/process_launchers/process_launcher_basic.h"
+#include "nrp_grpc_engine_protocol/config/engine_grpc_config.h"
+#include "nrp_grpc_engine_protocol/engine_server/engine_grpc_device_controller.h"
+#include "nrp_grpc_engine_protocol/engine_server/engine_grpc_server.h"
+#include "nrp_grpc_engine_protocol/engine_client/engine_grpc_client.h"
+#include "nrp_grpc_engine_protocol/grpc_server/engine_grpc.grpc.pb.h"
+
 
 void testSleep(unsigned sleepMs)
 {
@@ -36,14 +37,14 @@ class TestGrpcDeviceController : public EngineGrpcDeviceController
         EngineGrpc::SetDeviceMessage _setMessage;
 };
 
-class TestEngineJSONConfig
-        : public EngineJSONConfig<TestEngineJSONConfig, PropNames<> >
+class TestEngineGRPCConfig
+        : public EngineGRPCConfig<TestEngineGRPCConfig, PropNames<> >
 {
     public:
         static constexpr FixedString ConfigType = "TestEngineConfig";
 
-        TestEngineJSONConfig(EngineConfigConst::config_storage_t &config)
-            : EngineJSONConfig(config)
+		TestEngineGRPCConfig(EngineConfigConst::config_storage_t &config)
+		    : EngineGRPCConfig(config)
         {}
 };
 
@@ -74,7 +75,7 @@ class TestGrpcDeviceInterface2
 };
 
 class TestEngineGrpcClient
-        : public EngineGrpcClient<TestEngineGrpcClient, TestEngineJSONConfig, TestGrpcDeviceInterface1, TestGrpcDeviceInterface2>
+        : public EngineGrpcClient<TestEngineGrpcClient, TestEngineGRPCConfig, TestGrpcDeviceInterface1, TestGrpcDeviceInterface2>
 {
     public:
         TestEngineGrpcClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
