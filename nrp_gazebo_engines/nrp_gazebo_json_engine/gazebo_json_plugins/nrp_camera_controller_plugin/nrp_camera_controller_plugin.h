@@ -3,7 +3,7 @@
 
 #include "nrp_json_engine_protocol/engine_server/engine_json_device_controller.h"
 
-#include "nrp_gazebo_json_engine/devices/physics_camera.h"
+#include "nrp_gazebo_devices/physics_camera.h"
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/sensors/CameraSensor.hh>

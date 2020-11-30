@@ -2,9 +2,9 @@
 
 #include "nrp_gazebo_json_engine/config/gazebo_config.h"
 #include "nrp_gazebo_json_engine/config/cmake_constants.h"
-#include "nrp_gazebo_json_engine/devices/physics_camera.h"
-#include "nrp_gazebo_json_engine/devices/physics_joint.h"
-#include "nrp_gazebo_json_engine/devices/physics_link.h"
+#include "nrp_gazebo_devices/physics_camera.h"
+#include "nrp_gazebo_devices/physics_joint.h"
+#include "nrp_gazebo_devices/physics_link.h"
 #include "nrp_gazebo_json_engine/nrp_client/gazebo_engine_json_nrp_client.h"
 #include "nrp_general_library/process_launchers/process_launcher_basic.h"
 

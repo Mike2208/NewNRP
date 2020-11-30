@@ -1,4 +1,4 @@
-#include "nrp_gazebo_json_engine/devices/physics_joint.h"
+#include "nrp_gazebo_devices/physics_joint.h"
 
 #include "nrp_general_library/utils/nrp_exceptions.h"
 

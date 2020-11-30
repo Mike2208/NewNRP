@@ -1,4 +1,4 @@
-#include "nrp_gazebo_json_engine/devices/physics_camera.h"
+#include "nrp_gazebo_devices/physics_camera.h"
 
 uint32_t PhysicsCamera::imageHeight() const
 {

@@ -56,8 +56,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 ##########################################
 ## Header configuration
 
-set(NRP_CLEAR_ENV "NRP_CLEAR_ENV")
-
 # General Header defines
 #configure_file("nrp_general_library/config/cmake_constants.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/config/cmake_constants.h" @ONLY)
 

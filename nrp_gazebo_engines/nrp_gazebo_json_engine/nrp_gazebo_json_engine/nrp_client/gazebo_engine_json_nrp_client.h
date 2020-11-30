@@ -5,9 +5,9 @@
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/plugin_system/plugin.h"
 
-#include "nrp_gazebo_json_engine/devices/physics_camera.h"
-#include "nrp_gazebo_json_engine/devices/physics_joint.h"
-#include "nrp_gazebo_json_engine/devices/physics_link.h"
+#include "nrp_gazebo_devices/physics_camera.h"
+#include "nrp_gazebo_devices/physics_joint.h"
+#include "nrp_gazebo_devices/physics_link.h"
 
 #include "nrp_gazebo_json_engine/config/gazebo_config.h"
 

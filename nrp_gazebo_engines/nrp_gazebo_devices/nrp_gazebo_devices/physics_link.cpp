@@ -1,4 +1,4 @@
-#include "nrp_gazebo_json_engine/devices/physics_link.h"
+#include "nrp_gazebo_devices/physics_link.h"
 
 
 const PhysicsLink::vec3_t &PhysicsLink::position() const

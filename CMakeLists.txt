@@ -104,20 +104,23 @@ add_subdirectory(nrp_general_library)
 ## NRP Communication Protocols
 
 ## JSON Communication Protocol
-#add_subdirectory(nrp_engine_protocols/nrp_json_engine_protocol)
+add_subdirectory(nrp_engine_protocols/nrp_json_engine_protocol)
 
 ## GRPC Communication Protocol
-add_subdirectory(nrp_engine_protocols/nrp_grpc_engine_protocol)
+#add_subdirectory(nrp_engine_protocols/nrp_grpc_engine_protocol)
 
 
 ##########################################
 ## NRP Engines
 
+## Gazebo devices
+add_subdirectory(nrp_gazebo_engines/nrp_gazebo_devices)
+
 ## Gazebo JSON Engine
-#add_subdirectory(nrp_gazebo_json_engine)
+add_subdirectory(nrp_gazebo_engines/nrp_gazebo_json_engine)
 
 ## Gazebo gRPC Engine
-add_subdirectory(nrp_gazebo_grpc_engine)
+#add_subdirectory(nrp_gazebo_engines/nrp_gazebo_grpc_engine)
 
 ## Gazebo MPI Engine
 #add_subdirectory(nrp_gazebo_mpi_engine)
