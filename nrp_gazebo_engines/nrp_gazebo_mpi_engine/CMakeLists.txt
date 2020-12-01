@@ -13,7 +13,7 @@ set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
 cmake_minimum_required(VERSION 3.16)
-project("${PROJECT_NAME}" VERSION 1.0.0)
+project("${PROJECT_NAME}" VERSION ${NRP_VERSION})
 
 include(GNUInstallDirs)
 
@@ -44,7 +44,7 @@ set(TEST_SRC_FILES
 
 ##########################################
 ## Dependencies
-find_package(gazebo REQUIRED)
+find_package(Gazebo REQUIRED)
 find_package(MPI REQUIRED)
 
 

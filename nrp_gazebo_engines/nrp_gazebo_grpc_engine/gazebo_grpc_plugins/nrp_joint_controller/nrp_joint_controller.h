@@ -1,51 +1,13 @@
 #ifndef NRP_JOINT_CONTROLLER_H
 #define NRP_JOINT_CONTROLLER_H
 
-#include "nrp_gazebo_grpc_engine/config/nrp_gazebo_cmake_constants.h"
-#include "nrp_gazebo_grpc_engine/devices/physics_joint.h"
+#include "nrp_gazebo_devices/engine_server/joint_device_controller.h"
+#include "nrp_gazebo_grpc_engine/devices/grpc_physics_joint.h"
 #include "nrp_grpc_engine_protocol/engine_server/engine_grpc_device_controller.h"
 
-#include <gazebo/gazebo.hh>
-#include <gazebo/physics/JointController.hh>
-#include <gazebo/physics/Joint.hh>
 
 namespace gazebo
 {
-	/*!
-	 * \brief Interface for a single joint
-	 */
-	class JointDeviceController
-	        : public EngineGrpcDeviceController
-	{
-			using fcn_ptr_t = void(physics::JointPtr, double, int);
-
-		public:
-			JointDeviceController(const physics::JointPtr &joint, const physics::JointControllerPtr &jointController, const std::string &jointName);
-			virtual ~JointDeviceController() override = default;
-
-			virtual bool getData(EngineGrpc::GetDeviceMessage * reply) override;
-			virtual void setData(const google::protobuf::Message & data) override;
-
-		private:
-			/*!
-			 * \brief Pointer to joint
-			 */
-			physics::JointPtr _joint;
-
-			/*!
-			 * \brief Pointer to joint controller of the joint's model
-			 */
-			physics::JointControllerPtr _jointController = nullptr;
-
-			/*!
-			 * \brief Data of link
-			 */
-			PhysicsJoint _jointData;
-
-			template<JointDeviceController::fcn_ptr_t T>
-			void setDeviceData(double input);
-	};
-
 	class NRPJointController
 	        : public gazebo::ModelPlugin
 	{
@@ -71,7 +33,7 @@ namespace gazebo
 			/*!
 			 * \brief List containing all joint interfaces. TODO: Change to shared_ptr to prevent segfault errors when this plugin is destroyed
 			 */
-			std::list<JointDeviceController> _jointDeviceControllers;
+			std::list<GrpcDeviceControlSerializer<JointDeviceController> > _jointDeviceControllers;
 
 			/*!
 			 * \brief Joint PID Configuration

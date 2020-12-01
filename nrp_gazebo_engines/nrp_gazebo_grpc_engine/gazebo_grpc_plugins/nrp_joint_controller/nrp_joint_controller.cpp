@@ -2,56 +2,7 @@
 
 #include "nrp_communication_controller/nrp_communication_controller.h"
 
-#include <algorithm>
-#include <exception>
-
-#include <gazebo/physics/Joint.hh>
-#include <gazebo/physics/JointController.hh>
 #include <gazebo/physics/Model.hh>
-#include <gazebo/physics/World.hh>
-
-
-using namespace nlohmann;
-
-gazebo::JointDeviceController::JointDeviceController(const physics::JointPtr &joint, const gazebo::physics::JointControllerPtr &jointController, const std::string &jointName)
-    : EngineGrpcDeviceController(DeviceIdentifier(jointName, "", PhysicsJoint::TypeName.data())),
-      _joint(joint),
-      _jointController(jointController),
-      _jointData(DeviceIdentifier(jointName, "", PhysicsJoint::TypeName.data()))
-{}
-
-bool gazebo::JointDeviceController::getData(EngineGrpc::GetDeviceMessage * reply)
-{
-	reply->mutable_joint()->set_position(this->_joint->Position(0));
-	reply->mutable_joint()->set_velocity(this->_joint->GetVelocity(0));
-	reply->mutable_joint()->set_effort(this->_joint->GetForce(0));
-
-	return true;
-}
-
-void gazebo::JointDeviceController::setData(const google::protobuf::Message & data)
-{
-	// TODO Throw an exception on error?
-	bool success = true;
-
-	auto jointData = static_cast<const EngineGrpc::GazeboJointSetData &>(data);
-
-	// TODO Is this passed with data?
-	const auto &jointName = this->_jointData.name();
-
-	_jointData.setPosition(jointData.position());
-	_jointData.setVelocity(jointData.velocity());
-	_jointData.setEffort(jointData.effort());
-
-	if(!std::isnan(this->_jointData.position()))
-		success &= this->_jointController->SetPositionTarget(jointName, this->_jointData.position());
-
-	if(!std::isnan(this->_jointData.velocity()))
-		success &= this->_jointController->SetVelocityTarget(jointName, this->_jointData.velocity());
-
-	if(!std::isnan(this->_jointData.effort()))
-		this->_joint->SetForce(0, this->_jointData.effort());
-}
 
 gazebo::NRPJointController::PIDConfig::PIDConfig(PID &&_pid, gazebo::NRPJointController::PIDConfig::PID_TYPE _type)
     : gazebo::common::PID(std::move(_pid)), Type(_type)
@@ -151,7 +102,7 @@ void gazebo::NRPJointController::Load(gazebo::physics::ModelPtr model, sdf::Elem
 		const auto deviceName = NRPCommunicationController::createDeviceName(*this, joint->GetName());
 
 		std::cout << "Registering joint controller for joint \"" << jointName << "\"\n";
-		this->_jointDeviceControllers.push_back(JointDeviceController(joint, jointControllerPtr, jointName));
+		this->_jointDeviceControllers.push_back(GrpcDeviceControlSerializer<JointDeviceController>(joint, jointControllerPtr, jointName));
 		NRPCommunicationController::getInstance().registerDevice(deviceName, &(this->_jointDeviceControllers.back()));
 	}
 }

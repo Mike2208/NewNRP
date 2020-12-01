@@ -28,12 +28,12 @@ struct TestJSONDevice1
 };
 
 struct TestJSONDevice1Controller
-        : public EngineJSONDeviceController<TestJSONDevice1>
+        : public EngineDeviceController<nlohmann::json, TestJSONDevice1>
 {
 	public:
 		template<class ...T>
 		TestJSONDevice1Controller (T &&...params)
-		    : EngineJSONDeviceController<TestJSONDevice1>(std::forward<T>(params)...),
+		    : EngineDeviceController<nlohmann::json, TestJSONDevice1>(std::forward<T>(params)...),
 		      _dev(DeviceIdentifier(*this))
 		{}
 
@@ -70,12 +70,12 @@ struct TestJSONDevice2
 };
 
 struct TestJSONDevice2Controller
-        : public EngineJSONDeviceController<TestJSONDevice2>
+        : public EngineDeviceController<nlohmann::json, TestJSONDevice2>
 {
 	public:
 		template<class ...T>
 		TestJSONDevice2Controller (T &&...params)
-		    : EngineJSONDeviceController<TestJSONDevice2>(std::forward<T>(params)...),
+		    : EngineDeviceController<nlohmann::json, TestJSONDevice2>(std::forward<T>(params)...),
 		      _dev(DeviceIdentifier(*this))
 		{}
 
@@ -113,12 +113,12 @@ struct TestJSONDeviceThrow
 };
 
 struct TestJSONDeviceThrowController
-        : public EngineJSONDeviceController<TestJSONDeviceThrow>
+        : public EngineDeviceController<nlohmann::json, TestJSONDeviceThrow>
 {
 	public:
 		template<class ...T>
 		TestJSONDeviceThrowController(T &&...params)
-		    : EngineJSONDeviceController<TestJSONDeviceThrow>(std::forward<T>(params)...),
+		    : EngineDeviceController<nlohmann::json, TestJSONDeviceThrow>(std::forward<T>(params)...),
 		      _dev(DeviceIdentifier(*this))
 		{}
 

@@ -13,7 +13,7 @@ set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
 cmake_minimum_required(VERSION 3.16)
-project("${PROJECT_NAME}" VERSION 1.0.0)
+project("${PROJECT_NAME}" VERSION ${NRP_VERSION})
 
 include(GNUInstallDirs)
 
@@ -26,7 +26,6 @@ set(LIB_SRC_FILES
 
 # List of python module build files
 set(PYTHON_MODULE_SRC_FILES
-	nrp_gazebo_json_engine/python/python_module.cpp
 )
 
 # List executable build files
@@ -41,6 +40,7 @@ set(TEST_SRC_FILES
 
 ##########################################
 ## Dependencies
+
 find_package(Gazebo REQUIRED)
 
 
@@ -62,6 +62,7 @@ configure_file("nrp_gazebo_json_engine/config/cmake_constants.h.in" "${CMAKE_CUR
 
 # Python module dependencies
 configure_file("nrp_gazebo_json_engine/python/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
+
 
 ##########################################
 # NRPGazeboJSONEngine

@@ -10,6 +10,11 @@
 class GRPCDevice
 {
 	public:
+		GRPCDevice()
+		{
+			this->_dev.Clear();
+		}
+
 		template<class ...T>
 		GRPCDevice(T &&...data)
 		    : _dev(std::forward<T>(data)...)
@@ -28,17 +33,17 @@ class GRPCDevice
 		{	return this->_dev;	}
 
 	private:
-		EngineGrpc::GetDeviceMessage _dev;
+		EngineGrpc::DeviceMessage _dev;
 };
 
 template<>
 class DeviceSerializerMethods<GRPCDevice>
 {
 	public:
-		using PROP_SERIALIZER = EngineGrpc::GetDeviceMessage;
+		using PROP_SERIALIZER = EngineGrpc::DeviceMessage;
 
-		using prop_deserialization_t = const EngineGrpc::GetDeviceMessage*;
-		using deserialization_t = const EngineGrpc::GetDeviceMessage*;
+		using prop_deserialization_t = const EngineGrpc::DeviceMessage*;
+		using deserialization_t = const EngineGrpc::DeviceMessage*;
 
 		template<DEVICE_C DEVICE>
 		static GRPCDevice serialize(const DEVICE &dev);
@@ -56,7 +61,7 @@ template<>
 GRPCDevice DeviceSerializerMethods<GRPCDevice>::serializeID<GRPCDevice>(const DeviceIdentifier &devID);
 
 template<>
-EngineGrpc::SetDeviceMessage DeviceSerializerMethods<GRPCDevice>::serializeID<EngineGrpc::SetDeviceMessage>(const DeviceIdentifier &devID);
+EngineGrpc::DeviceMessage DeviceSerializerMethods<GRPCDevice>::serializeID<EngineGrpc::DeviceMessage>(const DeviceIdentifier &devID);
 
 using GRPCDeviceSerializerMethods = DeviceSerializerMethods<GRPCDevice>;
 

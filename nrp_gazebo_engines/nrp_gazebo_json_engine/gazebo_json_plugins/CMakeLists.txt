@@ -1,14 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
-project(NRPGazeboJSONPlugins VERSION 0.0.1 LANGUAGES CXX)
+project(NRPGazeboJSONPlugins VERSION ${NRP_VERSION} LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
-find_package(gazebo REQUIRED)
+find_package(Gazebo REQUIRED)
 find_package(Pistache REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
-link_directories(${GAZEBO_LIBRARY_DIRS})
-#list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 
 if(NOT DEFINED NRP_GAZEBO_COMMUNICATION_PLUGIN)
 	set(NRP_GAZEBO_COMMUNICATION_PLUGIN NRPGazeboJSONCommunicationPlugin)
@@ -20,11 +18,13 @@ add_library(${NRP_GAZEBO_COMMUNICATION_PLUGIN} SHARED "nrp_communication_control
 add_library("NRPGazeboJSONPlugins::${NRP_GAZEBO_COMMUNICATION_PLUGIN}" ALIAS ${NRP_GAZEBO_COMMUNICATION_PLUGIN})
 target_compile_options(${NRP_GAZEBO_COMMUNICATION_PLUGIN} PRIVATE $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
 
+target_link_directories(${NRP_GAZEBO_COMMUNICATION_PLUGIN} PUBLIC ${GAZEBO_LIBRARY_DIRS})
+
 target_include_directories(${NRP_GAZEBO_COMMUNICATION_PLUGIN}
 	PUBLIC
 	    $<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<BUILD_INTERFACE:${GAZEBO_INCLUDE_DIRS}>
+		${GAZEBO_INCLUDE_DIRS}
 
 	PRIVATE
 )
@@ -48,10 +48,6 @@ target_include_directories(NRPGazeboJSONWorldPlugin
 	PUBLIC
 	    $<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<BUILD_INTERFACE:${GAZEBO_INCLUDE_DIRS}>
-
-	PRIVATE
-	    ${NRP_GAZEBO_LIB_TARGET}
 )
 
 target_link_libraries(NRPGazeboJSONWorldPlugin
@@ -75,7 +71,6 @@ target_include_directories(NRPGazeboJSONJointControllerPlugin
 	PUBLIC
 		$<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<BUILD_INTERFACE:${GAZEBO_INCLUDE_DIRS}>
 )
 
 target_link_libraries(NRPGazeboJSONJointControllerPlugin
@@ -100,12 +95,10 @@ target_include_directories(NRPGazeboJSONLinkControllerPlugin
 	PUBLIC
 	    $<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<BUILD_INTERFACE:${GAZEBO_INCLUDE_DIRS}>
 )
 
 target_link_libraries(NRPGazeboJSONLinkControllerPlugin
 	PUBLIC
-	    nlohmann_json::nlohmann_json
 		${NRP_GAZEBO_LIB_TARGET}
 
 	PRIVATE
@@ -125,21 +118,17 @@ target_include_directories(NRPGazeboJSONCameraControllerPlugin
 	PUBLIC
 	    $<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<BUILD_INTERFACE:${GAZEBO_INCLUDE_DIRS}>
-
-	PRIVATE
-	    ${NRP_GAZEBO_LIB_TARGET}
 )
 
 target_link_libraries(NRPGazeboJSONCameraControllerPlugin
 	PUBLIC
 	    ${NRP_GAZEBO_LIB_TARGET}
+		CameraPlugin
 
 	PRIVATE
 	    ${NRP_GEN_LIB_TARGET}
 		${NRP_GAZEBO_COMMUNICATION_PLUGIN}
 		${GAZEBO_LIBRARIES}
-		CameraPlugin
 )
 
 

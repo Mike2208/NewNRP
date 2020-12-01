@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(NRPGazeboGrpcPlugins VERSION 0.0.1 LANGUAGES CXX)
+project(NRPGazeboGrpcPlugins VERSION ${NRP_VERSION} LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
-find_package(gazebo REQUIRED)
+find_package(Gazebo REQUIRED)
 find_package(Pistache REQUIRED)
 find_package(nlohmann_json REQUIRED)
 

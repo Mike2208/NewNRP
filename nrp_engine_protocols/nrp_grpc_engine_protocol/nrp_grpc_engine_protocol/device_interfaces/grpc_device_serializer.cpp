@@ -4,7 +4,7 @@
 template<>
 GRPCDevice DeviceSerializerMethods<GRPCDevice>::serializeID<GRPCDevice>(const DeviceIdentifier &devID)
 {
-	EngineGrpc::GetDeviceMessage msg;
+	EngineGrpc::DeviceMessage msg;
 	msg.mutable_deviceid()->set_devicename(devID.Name);
 	msg.mutable_deviceid()->set_enginename(devID.EngineName);
 	msg.mutable_deviceid()->set_devicetype(devID.Type);
@@ -12,9 +12,9 @@ GRPCDevice DeviceSerializerMethods<GRPCDevice>::serializeID<GRPCDevice>(const De
 }
 
 template<>
-EngineGrpc::SetDeviceMessage DeviceSerializerMethods<GRPCDevice>::serializeID<EngineGrpc::SetDeviceMessage>(const DeviceIdentifier &devID)
+EngineGrpc::DeviceMessage DeviceSerializerMethods<GRPCDevice>::serializeID<EngineGrpc::DeviceMessage>(const DeviceIdentifier &devID)
 {
-	EngineGrpc::SetDeviceMessage msg;
+	EngineGrpc::DeviceMessage msg;
 	msg.mutable_deviceid()->set_devicename(devID.Name);
 	msg.mutable_deviceid()->set_enginename(devID.EngineName);
 	msg.mutable_deviceid()->set_devicetype(devID.Type);

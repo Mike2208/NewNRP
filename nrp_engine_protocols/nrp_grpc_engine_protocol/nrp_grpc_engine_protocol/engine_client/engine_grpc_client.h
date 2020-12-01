@@ -10,6 +10,7 @@
 #include "nrp_general_library/config/engine_config.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_grpc_engine_protocol/device_interfaces/grpc_device_conversion_mechanism.h"
+#include "nrp_grpc_engine_protocol/device_interfaces/grpc_device_serializer.h"
 #include "nrp_grpc_engine_protocol/grpc_server/engine_grpc.grpc.pb.h"
 
 
@@ -195,7 +196,7 @@ class EngineGrpcClient
         }
 
         template<class DEVICE, class ...REMAINING_DEVICES>
-        inline void getProtoFromSingleDeviceInterface(const DeviceInterface &device, EngineGrpc::SetDeviceMessage * request) const
+		inline void getProtoFromSingleDeviceInterface(const DeviceInterface &device, EngineGrpc::DeviceMessage * request) const
         {
             if(DEVICE::TypeName.compare(device.type()) == 0)
             {
@@ -237,17 +238,15 @@ class EngineGrpcClient
         }
 
         template<class DEVICE, class ...REMAINING_DEVICES>
-        inline DeviceInterfaceConstSharedPtr getSingleDeviceInterfaceFromProto(const EngineGrpc::GetDeviceMessage &deviceData) const
+        inline DeviceInterfaceConstSharedPtr getSingleDeviceInterfaceFromProto(const EngineGrpc::DeviceMessage &deviceData) const
         {
             if(DEVICE::TypeName.compare(deviceData.deviceid().devicetype()) == 0)
             {
                 DeviceIdentifier devId(deviceData.deviceid().devicename(),
-                                       deviceData.deviceid().enginename(),
+				                       this->engineName(),
                                        deviceData.deviceid().devicetype());
 
-                DeviceInterfaceSharedPtr newDevice(new DEVICE(devId, deviceData));
-
-                return newDevice;
+				return DeviceInterfaceConstSharedPtr(new DEVICE(DeviceSerializerMethods<GRPCDevice>::template deserialize<DEVICE>(std::move(devId), &deviceData)));
             }
 
             // If device classess are left to check, go through them. If all device classes have been checked without proper result, throw an error

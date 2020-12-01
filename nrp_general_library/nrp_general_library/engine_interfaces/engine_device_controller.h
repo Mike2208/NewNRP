@@ -62,7 +62,7 @@ class EngineDeviceController
 				return emptyValue();
 		}
 
-		virtual void handleDeviceData(deserialization_t &&data) override final
+		virtual void handleDeviceData(deserialization_t data) override final
 		{
 			return this->handleDeviceDataCallback(DeviceSerializerMethods<SERIALIZATION>::template deserialize<DEVICE>(DeviceIdentifier(*this),
 			                                                                                                           std::forward<deserialization_t>(data)));

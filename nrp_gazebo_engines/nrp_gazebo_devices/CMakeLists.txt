@@ -13,12 +13,15 @@ set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
 cmake_minimum_required(VERSION 3.16)
-project("${PROJECT_NAME}" VERSION 1.0.0)
+project("${PROJECT_NAME}" VERSION ${NRP_VERSION})
 
 include(GNUInstallDirs)
 
 # List library build files
 set(LIB_SRC_FILES
+	nrp_gazebo_devices/engine_server/camera_device_controller.cpp
+	nrp_gazebo_devices/engine_server/joint_device_controller.cpp
+	nrp_gazebo_devices/engine_server/link_device_controller.cpp
 	nrp_gazebo_devices/physics_camera.cpp
 	nrp_gazebo_devices/physics_joint.cpp
 	nrp_gazebo_devices/physics_link.cpp
@@ -41,6 +44,8 @@ set(TEST_SRC_FILES
 ##########################################
 ## Dependencies
 
+find_package(Gazebo REQUIRED)
+
 
 ##########################################
 ## Header configuration
@@ -58,6 +63,7 @@ add_library("${LIBRARY_NAME}" SHARED ${LIB_SRC_FILES})
 add_library(${NAMESPACE_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
 
+target_link_directories(${LIBRARY_NAME} PUBLIC ${GAZEBO_LIBRARY_DIRS})
 set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
 target_include_directories(${LIBRARY_NAME}
@@ -65,11 +71,13 @@ target_include_directories(${LIBRARY_NAME}
 	    $<INSTALL_INTERFACE:include>
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+		${GAZEBO_INCLUDE_DIRS}
 )
 
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
 	    ${NRP_GEN_LIB_TARGET}
+		${GAZEBO_LIBRARIES}
 )
 
 
@@ -108,10 +116,6 @@ add_doxygen_source("${CMAKE_CURRENT_SOURCE_DIR}" ${EXEC_SRC_FILES} ${LIB_SRC_FIL
 ##########################################
 ## Tests
 if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
-	# Create testing env files
-	#configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/test_env.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/test_env.sh" @ONLY)
-	#configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/tests/test_env_cmake.h" @ONLY)
-
 	# Create testing executable
 	enable_testing()
 	add_executable(${TEST_NAME} ${TEST_SRC_FILES})

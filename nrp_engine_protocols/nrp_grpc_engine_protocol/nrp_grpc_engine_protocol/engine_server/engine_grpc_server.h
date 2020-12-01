@@ -77,7 +77,7 @@ class EngineGrpcServer : public EngineGrpcService::Service
          * \param[in] deviceController Pointer to the device controller object that's supposed to be
          *                             registered in the engine
          */
-        void registerDevice(const std::string & deviceName, EngineGrpcDeviceController * deviceController);
+        void registerDevice(const std::string & deviceName, EngineGrpcDeviceControllerInterface *interface);
 
         // TODO used only in tests, try to remove it?
         unsigned getNumRegisteredDevices();
@@ -114,7 +114,7 @@ class EngineGrpcServer : public EngineGrpcService::Service
         /*!
          * \brief Map of device names and device controllers used by the engine
          */
-        std::map<std::string, EngineGrpcDeviceController*> _devicesControllers;
+         std::map<std::string, EngineGrpcDeviceControllerInterface*> _devicesControllers;
 
         /*!
          * \brief Initializes the simulation

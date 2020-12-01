@@ -4,6 +4,7 @@
 
 #include "nrp_general_library/process_launchers/process_launcher_basic.h"
 #include "nrp_grpc_engine_protocol/config/engine_grpc_config.h"
+#include "nrp_grpc_engine_protocol/device_interfaces/grpc_device_serializer.h"
 #include "nrp_grpc_engine_protocol/engine_server/engine_grpc_device_controller.h"
 #include "nrp_grpc_engine_protocol/engine_server/engine_grpc_server.h"
 #include "nrp_grpc_engine_protocol/engine_client/engine_grpc_client.h"
@@ -16,25 +17,33 @@ void testSleep(unsigned sleepMs)
     std::this_thread::sleep_for(timespan);
 }
 
-class TestGrpcDeviceController : public EngineGrpcDeviceController
+class TestGrpcDeviceInterface1
+    : public Device<TestGrpcDeviceInterface1, "test_type1", PropNames<> >
+{
+	public:
+		TestGrpcDeviceInterface1(DeviceIdentifier &&devID, property_template_t &&props = property_template_t())
+		    : Device(std::move(devID), std::move(props))
+		{}
+};
+
+class TestGrpcDeviceController
+        : public EngineGrpcDeviceController<TestGrpcDeviceInterface1>
 {
     public:
 
-        TestGrpcDeviceController(const DeviceIdentifier &devID) : EngineGrpcDeviceController(devID) {}
+		TestGrpcDeviceController(DeviceIdentifier &&devID)
+		    : EngineGrpcDeviceController<TestGrpcDeviceInterface1>(std::move(devID)),
+		      _dev(DeviceIdentifier(*this))
+		{}
 
-        virtual bool getData(EngineGrpc::GetDeviceMessage *) override
-        {
-            //reply->mutable_deviceid()->set_devicename(_setMessage.deviceid().devicename());
-            //reply->mutable_deviceid()->set_devicetype(_setMessage.deviceid().devicetype());
-            return true;
-        }
+		virtual void handleDeviceDataCallback(TestGrpcDeviceInterface1 &&data) override
+		{	this->_dev = std::move(data);	}
 
-        virtual void setData(const google::protobuf::Message & data) override
-        {
-            _setMessage.CopyFrom(data);
-        }
+		virtual const TestGrpcDeviceInterface1 *getDeviceInformationCallback() override
+		{	return &this->_dev;	}
 
-        EngineGrpc::SetDeviceMessage _setMessage;
+	private:
+		TestGrpcDeviceInterface1 _dev;
 };
 
 class TestEngineGRPCConfig
@@ -48,31 +57,49 @@ class TestEngineGRPCConfig
         {}
 };
 
-class TestGrpcDeviceInterface1
-    : public Device<TestGrpcDeviceInterface1, "test_type1", PropNames<> >
-{
-    public:
-		TestGrpcDeviceInterface1(DeviceIdentifier &&devID)
-		    : Device(std::move(devID))
-        {}
 
-		TestGrpcDeviceInterface1(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &)
-		    : TestGrpcDeviceInterface1(DeviceIdentifier(devID))
-		{}
-};
+template<>
+GRPCDevice DeviceSerializerMethods<GRPCDevice>::serialize<TestGrpcDeviceInterface1>(const TestGrpcDeviceInterface1 &dev)
+{
+	GRPCDevice data = serializeID<GRPCDevice>(dev.id());
+
+	return data;
+}
+
+template<>
+TestGrpcDeviceInterface1 DeviceSerializerMethods<GRPCDevice>::deserialize<TestGrpcDeviceInterface1>(DeviceIdentifier &&devID, deserialization_t)
+{
+	return TestGrpcDeviceInterface1(std::move(devID));
+}
+
 
 class TestGrpcDeviceInterface2
     : public Device<TestGrpcDeviceInterface2, "test_type2", PropNames<> >
 {
     public:
-		TestGrpcDeviceInterface2(DeviceIdentifier &&devID)
-		    : Device(std::move(devID))
+		TestGrpcDeviceInterface2(DeviceIdentifier &&devID, property_template_t &&props = property_template_t())
+		    : Device(std::move(devID), std::move(props))
 		{}
 
-		TestGrpcDeviceInterface2(const DeviceIdentifier &devID, const EngineGrpc::GetDeviceMessage &)
+		TestGrpcDeviceInterface2(const DeviceIdentifier &devID, const EngineGrpc::DeviceMessage &)
 		    : TestGrpcDeviceInterface2(DeviceIdentifier(devID))
 		{}
 };
+
+template<>
+GRPCDevice DeviceSerializerMethods<GRPCDevice>::serialize<TestGrpcDeviceInterface2>(const TestGrpcDeviceInterface2 &dev)
+{
+	GRPCDevice data = serializeID<GRPCDevice>(dev.id());
+
+	return data;
+}
+
+template<>
+TestGrpcDeviceInterface2 DeviceSerializerMethods<GRPCDevice>::deserialize<TestGrpcDeviceInterface2>(DeviceIdentifier &&devID, deserialization_t data)
+{
+	return TestGrpcDeviceInterface2(std::move(devID));
+}
+
 
 class TestEngineGrpcClient
         : public EngineGrpcClient<TestEngineGrpcClient, TestEngineGRPCConfig, TestGrpcDeviceInterface1, TestGrpcDeviceInterface2>
@@ -467,8 +494,8 @@ TEST(EngineGrpc, GetDeviceData2)
     DeviceIdentifier         devId2(deviceName2, engineName, deviceType2);
 	TestGrpcDeviceInterface1 dev1((DeviceIdentifier(devId1)));              // Client side
 	TestGrpcDeviceInterface2 dev2((DeviceIdentifier(devId2)));              // Client side
-    TestGrpcDeviceController deviceController1(devId1); // Server side
-    TestGrpcDeviceController deviceController2(devId2); // Server side
+	TestGrpcDeviceController deviceController1((DeviceIdentifier(devId1))); // Server side
+	TestGrpcDeviceController deviceController2((DeviceIdentifier(devId2))); // Server side
 
     server.registerDevice(deviceName1, &deviceController1);
     server.registerDevice(deviceName2, &deviceController2);

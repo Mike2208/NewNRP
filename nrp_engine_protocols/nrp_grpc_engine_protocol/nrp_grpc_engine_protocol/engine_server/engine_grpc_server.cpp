@@ -168,7 +168,7 @@ void EngineGrpcServer::shutdownServer()
 	}
 }
 
-void EngineGrpcServer::registerDevice(const std::string &deviceName, EngineGrpcDeviceController *interface)
+void EngineGrpcServer::registerDevice(const std::string &deviceName, EngineGrpcDeviceControllerInterface *interface)
 {
     EngineGrpcServer::lock_t lock(this->_deviceLock);
     this->_devicesControllers.emplace(deviceName, interface);
@@ -201,7 +201,7 @@ void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
 
         if(devInterface != _devicesControllers.end())
         {
-            devInterface->second->setData(r);
+			devInterface->second->handleDeviceData(&r);
         }
         else
         {
@@ -223,15 +223,8 @@ void EngineGrpcServer::getDeviceData(const EngineGrpc::GetDeviceRequest & reques
 
         if(devInterface != _devicesControllers.end())
         {
-            auto r = reply->add_reply();
-            devInterface->second->getData(r);
-
-            // Set device ID metadata
-            // TODO Why is devInterface->second->Name different from devInterface->first name?
-
-            r->mutable_deviceid()->set_devicename(devInterface->first);
-            r->mutable_deviceid()->set_devicetype(devInterface->second->Type);
-            r->mutable_deviceid()->set_enginename(devInterface->second->EngineName);
+			auto r = reply->add_reply();
+			*r = devInterface->second->getDeviceInformation();
         }
         else
         {

@@ -3,6 +3,7 @@
 
 #include "nrp_gazebo_json_engine/config/cmake_constants.h"
 #include "nrp_gazebo_devices/physics_joint.h"
+#include "nrp_gazebo_devices/engine_server/joint_device_controller.h"
 #include "nrp_json_engine_protocol/engine_server/engine_json_device_controller.h"
 #include "nrp_general_library/utils/nrp_exceptions.h"
 
@@ -12,40 +13,6 @@
 
 namespace gazebo
 {
-	/*!
-	 * \brief Interface for a single joint
-	 */
-	class JointDeviceController
-	        : public EngineJSONDeviceController<PhysicsJoint>
-	{
-			using fcn_ptr_t = void(physics::JointPtr, double, int);
-
-		public:
-			JointDeviceController(const physics::JointPtr &joint, const physics::JointControllerPtr &jointController, const std::string &jointName);
-
-			virtual void handleDeviceDataCallback(PhysicsJoint &&data) override;
-			virtual const PhysicsJoint *getDeviceInformationCallback() override;
-
-		private:
-			/*!
-			 * \brief Pointer to joint
-			 */
-			physics::JointPtr _joint;
-
-			/*!
-			 * \brief Pointer to joint controller of the joint's model
-			 */
-			physics::JointControllerPtr _jointController = nullptr;
-
-			/*!
-			 * \brief Data of link
-			 */
-			PhysicsJoint _jointData;
-
-			template<JointDeviceController::fcn_ptr_t T>
-			void setDeviceData(double input);
-	};
-
 	class NRPJointController
 	        : public gazebo::ModelPlugin
 	{
@@ -71,7 +38,7 @@ namespace gazebo
 			/*!
 			 * \brief List containing all joint interfaces. TODO: Change to shared_ptr to prevent segfault errors when this plugin is destroyed
 			 */
-			std::list<JointDeviceController> _jointDeviceControllers;
+			std::list<EngineJSONSerialization<JointDeviceController> > _jointDeviceControllers;
 
 			template<class T>
 			static T getOptionalValue(const sdf::ElementPtr &pidConfig, const std::string &key, T defaultValue);

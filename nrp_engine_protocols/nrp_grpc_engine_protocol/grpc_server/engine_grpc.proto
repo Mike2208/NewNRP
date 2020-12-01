@@ -73,49 +73,7 @@ message RunLoopStepReply
  */
 message SetDeviceRequest
 {
-    repeated SetDeviceMessage request = 1;
-}
-
-/*
- * Data for a single device sent by client with the setDevice command
- * Contains device metadata and data specific to the device type
- */
-message SetDeviceMessage
-{
-    DeviceIdentifier deviceId = 1;
-
-    oneof data
-    {
-        GazeboCameraSetData camera = 2;
-        GazeboLinkSetData   link   = 3;
-        GazeboJointSetData  joint  = 4;
-    }
-}
-
-/*
- * Data for gazebo camera device
- */
-message GazeboCameraSetData
-{
-    // Empty
-}
-
-/*
- * Data for gazebo link device
- */
-message GazeboLinkSetData
-{
-    // Empty
-}
-
-/*
- * Data for gazebo joint device
- */
-message GazeboJointSetData
-{
-    float position = 1;
-    float velocity = 2;
-    float effort   = 3;
+    repeated DeviceMessage request = 1;
 }
 
 /*
@@ -141,22 +99,23 @@ message GetDeviceRequest
  */
 message GetDeviceReply
 {
-    repeated GetDeviceMessage reply = 1;
+    repeated DeviceMessage reply = 1;
 }
 
 /*
  * Data of a single device sent by server in response to the getDevice command
  * Contains device metadata and data specific to the device type
  */
-message GetDeviceMessage
+ message DeviceMessage
 {
     DeviceIdentifier deviceId = 1;
 
     oneof data
     {
-        GazeboCameraGetData camera = 2;
-        GazeboLinkGetData   link   = 3;
-        GazeboJointGetData  joint  = 4;
+	    GazeboCamera camera = 2;
+		GazeboLink   link   = 3;
+		GazeboJoint  joint  = 4;
+		Nest         nest   = 5;
     }
 }
 

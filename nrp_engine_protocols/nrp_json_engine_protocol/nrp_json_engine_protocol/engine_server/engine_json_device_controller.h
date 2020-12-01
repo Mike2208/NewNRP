@@ -9,4 +9,7 @@ using EngineJSONDeviceControllerInterface = EngineDeviceControllerInterface<nloh
 template<DEVICE_C DEVICE>
 using EngineJSONDeviceController = EngineDeviceController<nlohmann::json, DEVICE>;
 
+template<template<class> class DEVICE_CONTROLLER>
+using EngineJSONSerialization = DEVICE_CONTROLLER<nlohmann::json>;
+
 #endif // ENGINE_JSON_DEVICE_CONTROLLER_H

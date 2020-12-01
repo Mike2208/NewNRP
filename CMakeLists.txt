@@ -1,5 +1,7 @@
+set(NRP_VERSION 0.0.1)
+
 cmake_minimum_required(VERSION 3.16)
-project(NRProject VERSION 1.0.0)
+project(NRProject VERSION ${NRP_VERSION})
 
 set (CMAKE_CXX_STANDARD 20)
 
@@ -107,7 +109,7 @@ add_subdirectory(nrp_general_library)
 add_subdirectory(nrp_engine_protocols/nrp_json_engine_protocol)
 
 ## GRPC Communication Protocol
-#add_subdirectory(nrp_engine_protocols/nrp_grpc_engine_protocol)
+add_subdirectory(nrp_engine_protocols/nrp_grpc_engine_protocol)
 
 
 ##########################################
@@ -120,7 +122,7 @@ add_subdirectory(nrp_gazebo_engines/nrp_gazebo_devices)
 add_subdirectory(nrp_gazebo_engines/nrp_gazebo_json_engine)
 
 ## Gazebo gRPC Engine
-#add_subdirectory(nrp_gazebo_engines/nrp_gazebo_grpc_engine)
+add_subdirectory(nrp_gazebo_engines/nrp_gazebo_grpc_engine)
 
 ## Gazebo MPI Engine
 #add_subdirectory(nrp_gazebo_mpi_engine)

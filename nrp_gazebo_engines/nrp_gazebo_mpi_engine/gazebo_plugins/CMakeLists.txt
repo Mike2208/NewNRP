@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(NRPGazeboPlugins VERSION 0.0.1 LANGUAGES CXX)
+project(NRPGazeboPlugins VERSION ${NRP_VERSION} LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
-find_package(gazebo REQUIRED)
+find_package(Gazebo REQUIRED)
 find_package(MPI REQUIRED)
 
 link_directories(${GAZEBO_LIBRARY_DIRS})

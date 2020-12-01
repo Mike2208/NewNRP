@@ -13,7 +13,7 @@ set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
 cmake_minimum_required(VERSION 3.16)
-project("${PROJECT_NAME}" VERSION 1.0.0)
+project("${PROJECT_NAME}" VERSION ${NRP_VERSION})
 
 include(GNUInstallDirs)
 
@@ -21,13 +21,13 @@ include(GNUInstallDirs)
 set(LIB_SRC_FILES
 	nrp_grpc_engine_protocol/device_interfaces/grpc_device_serializer.cpp
 	nrp_grpc_engine_protocol/engine_server/engine_grpc_device_controller.cpp
+	nrp_grpc_engine_protocol/engine_server/engine_grpc_opts_parser.cpp
 	nrp_grpc_engine_protocol/engine_server/engine_grpc_server.cpp
 	nrp_grpc_engine_protocol/engine_client/engine_grpc_client.cpp
 )
 
 # List of python module build files
 set(PYTHON_MODULE_SRC_FILES
-	#python/python_module.cpp
 )
 
 # List executable build files
@@ -91,12 +91,6 @@ set(GRPC_SRC_FILES ${proto_srcs} ${grpc_srcs})
 ##########################################
 ## Header configuration
 
-# General Header defines
-#configure_file("nrp_general_library/config/cmake_constants.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/config/cmake_constants.h" @ONLY)
-
-# Python Module defines
-#configure_file("python/__init__.py.in" "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py" @ONLY)
-
 
 ##########################################
 # NRPGRPCEngineProtocol
@@ -104,20 +98,20 @@ add_library("${LIBRARY_NAME}" SHARED ${LIB_SRC_FILES} ${GRPC_SRC_FILES})
 add_library(${NAMESPACE_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
 
+target_include_directories(${LIBRARY_NAME}
+	PUBLIC
+	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+
+	PRIVATE
+)
+
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
 	    ${NRP_GEN_LIB_TARGET}
 		${PROTOBUF_LIBRARIES}
 		${GRPC_LIBRARIES}
-
-	PRIVATE
-)
-
-target_include_directories(${LIBRARY_NAME}
-	PUBLIC 
-	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
-		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-		"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
 
 	PRIVATE
 )

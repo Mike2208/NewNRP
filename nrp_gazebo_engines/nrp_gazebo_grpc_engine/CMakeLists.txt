@@ -13,7 +13,7 @@ set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
 cmake_minimum_required(VERSION 3.16)
-project("${PROJECT_NAME}" VERSION 1.0.0)
+project("${PROJECT_NAME}" VERSION ${NRP_VERSION})
 
 include(GNUInstallDirs)
 
@@ -22,14 +22,14 @@ set(LIB_SRC_FILES
 	nrp_gazebo_grpc_engine/config/gazebo_config.cpp
 	nrp_gazebo_grpc_engine/engine_server/gazebo_step_controller.cpp
 	nrp_gazebo_grpc_engine/nrp_client/gazebo_engine_grpc_nrp_client.cpp
-	nrp_gazebo_grpc_engine/devices/physics_camera.cpp
-	nrp_gazebo_grpc_engine/devices/physics_joint.cpp
-	nrp_gazebo_grpc_engine/devices/physics_link.cpp
+	nrp_gazebo_grpc_engine/devices/grpc_physics_camera.cpp
+	nrp_gazebo_grpc_engine/devices/grpc_physics_joint.cpp
+	nrp_gazebo_grpc_engine/devices/grpc_physics_link.cpp
 )
 
 # List of python module build files
 set(PYTHON_MODULE_SRC_FILES
-	nrp_gazebo_grpc_engine/python/python_module.cpp
+#	nrp_gazebo_grpc_engine/python/python_module.cpp
 )
 
 # List executable build files
@@ -44,7 +44,7 @@ set(TEST_SRC_FILES
 
 ##########################################
 ## Dependencies
-find_package(gazebo REQUIRED)
+find_package(Gazebo REQUIRED)
 
 
 ##########################################
@@ -86,7 +86,7 @@ target_include_directories(${LIBRARY_NAME}
 
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
-	    ${NRP_GEN_LIB_TARGET}
+	    NRPGazeboDevices::NRPGazeboDevices
 		NRPGRPCEngineProtocol::NRPGRPCEngineProtocol
 )
 
