@@ -2,7 +2,7 @@
 #define NEST_ENGINE_DEVICE_CONTROLLER_H
 
 #include "nrp_nest_json_engine/devices/nest_device.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_device_controller.h"
 #include "nrp_general_library/utils/serializers/json_property_serializer.h"
 #include "nrp_general_library/utils/serializers/python_dict_property_serializer.h"
 

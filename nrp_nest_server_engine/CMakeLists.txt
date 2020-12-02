@@ -85,7 +85,7 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
-		${NRP_GEN_LIB_TARGET}
+	    NRPJSONEngineProtocol::NRPJSONEngineProtocol
 
 	PRIVATE
 )

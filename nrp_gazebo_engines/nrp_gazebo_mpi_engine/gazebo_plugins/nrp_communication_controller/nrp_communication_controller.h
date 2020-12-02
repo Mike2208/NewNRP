@@ -4,7 +4,7 @@
 #include "nrp_gazebo_mpi_engine/config/gazebo_config.h"
 #include "nrp_gazebo_mpi_engine/engine_server/gazebo_step_controller.h"
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_server.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_device_controller.h"
 
 #include <pistache/router.h>
 #include <pistache/endpoint.h>

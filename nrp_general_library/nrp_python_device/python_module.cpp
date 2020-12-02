@@ -51,6 +51,11 @@ inline std::shared_ptr<DeviceIdentifier> genDevID(const std::string &name, const
 	return std::shared_ptr<DeviceIdentifier>(new DeviceIdentifier(name, engineName, ""));
 }
 
+inline std::shared_ptr<DeviceInterface> genDevInterface(const std::string &name, const std::string &engineName)
+{
+	return std::shared_ptr<DeviceInterface>(new DeviceInterface(name, engineName, ""));
+}
+
 inline python::object getPyPropData(const PyObjectDeviceConst::PyObjData &dat)
 {	return dat;	}
 
@@ -69,6 +74,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(PYTHON_MODULE_NAME)
 {
+	// DeviceIdentifier
 	class_<DeviceIdentifier>("DeviceIdentifier", init<const std::string&, const std::string &, const std::string&>((arg("name"), arg("engine_name"), arg("type") = std::string())))
 	        .def("__init__", make_constructor(&genDevID))
 	        .def_readwrite("name", &DeviceIdentifier::Name)
@@ -78,7 +84,10 @@ BOOST_PYTHON_MODULE(PYTHON_MODULE_NAME)
 	register_ptr_to_python<std::shared_ptr<DeviceIdentifier> >();
 	register_ptr_to_python<std::shared_ptr<const DeviceIdentifier> >();
 
+
+	// DeviceInterface
 	class_<DeviceInterface>("DeviceInterface", init<const std::string &, const std::string&, const std::string&>())
+	        .def("__init__", make_constructor(&genDevInterface))
 	        .add_property("name", make_function(&DeviceInterface::name, return_value_policy<copy_const_reference>()), &DeviceInterface::setName)
 	        .add_property("type", make_function(&DeviceInterface::type, return_value_policy<copy_const_reference>()), &DeviceInterface::setType)
 	        .add_property("engine_name", make_function(&DeviceInterface::engineName, return_value_policy<copy_const_reference>()), &DeviceInterface::setEngineName)
@@ -87,12 +96,8 @@ BOOST_PYTHON_MODULE(PYTHON_MODULE_NAME)
 	register_ptr_to_python<DeviceInterfaceSharedPtr>();
 	register_ptr_to_python<DeviceInterfaceConstSharedPtr>();
 
-	class_<PyObjectDeviceConst::PyObjData>("PyObjData", init<boost::python::object>())
-	        .add_property("data", &getPyPropData, &setPyPropData);
 
-	python_property_device_class<PyObjectDevice>::create()
-	        .add_property(PyObjectDevice::Object.m_data, &getPyDevData, &setPyDevData);
-
+	// TransceiverDeviceInterface
 	class_<TransceiverDeviceInterfaceWrapper, boost::noncopyable>("TransceiverDeviceInterface", init<>())
 	        .def("__call__", &TransceiverDeviceInterface::pySetup<TransceiverDeviceInterface>)
 	        .def("runTf", &TransceiverDeviceInterface::runTf, &TransceiverDeviceInterfaceWrapper::defaultRunTf)
@@ -101,13 +106,22 @@ BOOST_PYTHON_MODULE(PYTHON_MODULE_NAME)
 	register_ptr_to_python<TransceiverDeviceInterface::shared_ptr>();
 	register_ptr_to_python<TransceiverDeviceInterface::const_shared_ptr>();
 
+
+	// SingleTransceiverDevice
 	class_<SingleTransceiverDevice, bases<TransceiverDeviceInterface> >("SingleTransceiverDevice", init<const std::string&, const DeviceIdentifier&>(args("keyword", "id")))
 	        .def("__call__", &TransceiverDeviceInterface::pySetup<SingleTransceiverDevice>);
 
+
+	// TransceiverFunction
 	class_<TransceiverFunction, bases<TransceiverDeviceInterface> >("TransceiverFunction", init<std::string>())
 	        .def("__call__", &TransceiverFunction::pySetup)
 	        .def("runTf", &TransceiverFunction::runTf);
 
 	register_ptr_to_python<PtrTemplates<TransceiverFunction>::shared_ptr>();
 	register_ptr_to_python<PtrTemplates<TransceiverFunction>::const_shared_ptr>();
+
+
+	// PyObjectDevice
+	python_property_device_class<PyObjectDevice>::create()
+	        .add_property(PyObjectDevice::Object.m_data, &getPyDevData, &setPyDevData);
 }

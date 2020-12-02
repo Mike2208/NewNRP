@@ -37,12 +37,16 @@ NestJSONServer::~NestJSONServer()
 
 		// Shutdown any running threads
 		this->_shutdownFlag = true;
+		this->shutdownServer();
 	}
 	catch(python::error_already_set &)
 	{
 		// If an error occured, print the error
-		PyErr_Print();
-		PyErr_Clear();
+		NRPException::logCreate("Nest JSON python shutdown failure: " + handle_pyerror());
+	}
+	catch(std::exception &e)
+	{
+		NRPException::logCreate(e, "Nest JSON python failure");
 	}
 }
 

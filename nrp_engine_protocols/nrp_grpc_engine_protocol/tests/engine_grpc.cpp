@@ -95,7 +95,7 @@ GRPCDevice DeviceSerializerMethods<GRPCDevice>::serialize<TestGrpcDeviceInterfac
 }
 
 template<>
-TestGrpcDeviceInterface2 DeviceSerializerMethods<GRPCDevice>::deserialize<TestGrpcDeviceInterface2>(DeviceIdentifier &&devID, deserialization_t data)
+TestGrpcDeviceInterface2 DeviceSerializerMethods<GRPCDevice>::deserialize<TestGrpcDeviceInterface2>(DeviceIdentifier &&devID, deserialization_t)
 {
 	return TestGrpcDeviceInterface2(std::move(devID));
 }

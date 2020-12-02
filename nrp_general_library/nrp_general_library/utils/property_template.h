@@ -287,7 +287,7 @@ class PropertyTemplateGeneral
 				 *	\return Returns Property (converted to const PROPERTY_T&)
 				 */
 				template<int _ID, class PROPERTY_T>
-				const PROPERTY_T &getProperty() const
+				constexpr const PROPERTY_T &getProperty() const
 				{
 					if constexpr (ID == _ID)
 					{
@@ -308,7 +308,7 @@ class PropertyTemplateGeneral
 				 *	\return Returns Property (converted to PROPERTY_T&)
 				 */
 				template<int _ID, class PROPERTY_T>
-				PROPERTY_T &getProperty()
+				constexpr PROPERTY_T &getProperty()
 				{
 					if constexpr (ID == _ID)
 					{
@@ -349,7 +349,7 @@ class PropertyTemplateGeneral
 				 *	\return Returns Property (converted to const PROPERTY_T&)
 				 */
 				template<FixedString NAME, class PROPERTY_T = PROPERTY>
-				inline const PROPERTY_T &getPropertyByName() const
+				constexpr const PROPERTY_T &getPropertyByName() const
 				{
 					if constexpr (NAME.compare(Name) == 0)
 					{
@@ -370,7 +370,7 @@ class PropertyTemplateGeneral
 				 *	\return Returns Property (converted to PROPERTY_T&)
 				 */
 				template<FixedString NAME, class PROPERTY_T = PROPERTY>
-				inline PROPERTY_T &getPropertyByName()
+				constexpr PROPERTY_T &getPropertyByName()
 				{
 					if constexpr (NAME.compare(Name) == 0)
 					{
@@ -568,7 +568,7 @@ class PropertyTemplate
 		 *	\return Returns Property (converted to const PROPERTY_T&)
 		 */
 		template<int ID_T, class PROPERTY_T = property_t<ID_T> >
-		const PROPERTY_T &getProperty() const
+		constexpr const PROPERTY_T &getProperty() const
 		{
 			static_assert(ID_T < sizeof...(PROPERTIES), "ID not in PropertyTemplate");
 			return this->property_internal_t<0>::template getProperty<ID_T, PROPERTY_T>();
@@ -581,7 +581,7 @@ class PropertyTemplate
 		 *	\return Returns Property (converted to PROPERTY_T&)
 		 */
 		template<int ID_T, class PROPERTY_T = property_t<ID_T>>
-		PROPERTY_T &getProperty()
+		constexpr PROPERTY_T &getProperty()
 		{
 			static_assert(ID_T < sizeof...(PROPERTIES), "ID not in PropertyTemplate");
 			return this->property_internal_t<0>::template getProperty<ID_T, PROPERTY_T>();
@@ -607,7 +607,7 @@ class PropertyTemplate
 		 *	\return Returns Property (converted to const PROPERTY_T&)
 		 */
 		template<FixedString NAME, class PROPERTY_T = property_name_t<NAME> >
-		const PROPERTY_T &getPropertyByName() const
+		constexpr const PROPERTY_T &getPropertyByName() const
 		{
 			static_assert(sizeof...(PROPERTIES) > 0, "Could not find property with requested name");
 			return this->property_internal_t<0>::template getPropertyByName<NAME, PROPERTY_T>();
@@ -620,7 +620,7 @@ class PropertyTemplate
 		 *	\return Returns Property (converted to PROPERTY_T&)
 		 */
 		template<FixedString NAME, class PROPERTY_T = property_name_t<NAME> >
-		PROPERTY_T &getPropertyByName()
+		constexpr PROPERTY_T &getPropertyByName()
 		{
 			static_assert(sizeof...(PROPERTIES) > 0, "Could not find property with requested name");
 			return this->property_internal_t<0>::template getPropertyByName<NAME, PROPERTY_T>();

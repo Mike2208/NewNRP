@@ -24,8 +24,16 @@ PythonInterpreterState::PythonInterpreterState(int argc, const std::vector<const
 {}
 
 PythonInterpreterState::PythonInterpreterState(bool allowThreads)
-    : PythonInterpreterState(1, {"ProgName"}, allowThreads)
-{}
+    : _wcharArgs(0, nullptr)
+{
+	Py_Initialize();
+	PyEval_InitThreads();
+
+	if(allowThreads)
+		this->_state = PyEval_SaveThread();
+	else
+		this->_state = nullptr;
+}
 
 void PythonInterpreterState::allowThreads()
 {

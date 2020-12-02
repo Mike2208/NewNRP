@@ -1,7 +1,7 @@
 #ifndef NEST_JSON_SERVER_H
 #define NEST_JSON_SERVER_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_server.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 #include "nrp_nest_json_engine/engine_server/nest_engine_device_controller.h"
 

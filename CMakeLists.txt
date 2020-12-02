@@ -6,6 +6,7 @@ project(NRProject VERSION ${NRP_VERSION})
 set (CMAKE_CXX_STANDARD 20)
 
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
 #string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
 
 include(GNUInstallDirs)
@@ -128,11 +129,11 @@ add_subdirectory(nrp_gazebo_engines/nrp_gazebo_grpc_engine)
 #add_subdirectory(nrp_gazebo_mpi_engine)
 
 ## Nest Engine
-#add_subdirectory(nrp_nest_json_engine)
-#add_subdirectory(nrp_nest_server_engine)
+add_subdirectory(nrp_nest_json_engine)
+add_subdirectory(nrp_nest_server_engine)
 
 ## Python Engine
-#add_subdirectory(nrp_python_json_engine)
+add_subdirectory(nrp_python_json_engine)
 
 
 ##########################################

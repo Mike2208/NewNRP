@@ -81,13 +81,12 @@ configure_file("nrp_python_json_engine/python/__init__.py.in" "${CMAKE_CURRENT_B
 add_library("${LIBRARY_NAME}" SHARED ${LIB_SRC_FILES})
 add_library(${NAMESPACE_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
-target_compile_options(${LIBRARY_NAME} PUBLIC $<$<CXX_COMPILER_ID:GNU>:-fconcepts>)
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
-	    ${NRP_GEN_LIB_TARGET}
+	    NRPJSONEngineProtocol::NRPJSONEngineProtocol
 
 	PRIVATE
 )

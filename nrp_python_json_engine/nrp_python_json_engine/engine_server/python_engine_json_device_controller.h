@@ -2,8 +2,8 @@
 #define PYTHON_ENGINE_JSON_DEVICE_CONTROLLER_H
 
 #include "nrp_general_library/device_interface/devices/pyobject_device.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_serializer.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.h"
+#include "nrp_json_engine_protocol/device_interfaces/json_device_serializer.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_device_controller.h"
 #include "nrp_general_library/utils/serializers/python_dict_property_serializer.h"
 
 #include <boost/python.hpp>

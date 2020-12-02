@@ -62,7 +62,7 @@ ExternalProject_Add(nest-simulator
 
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${NRP_NEST_INSTALL_PREFIX} -Dwith-mpi=ON -Dwith-python=ON
 
-	#UPDATE_COMMAND ""
+	UPDATE_COMMAND ""
 )
 
 
@@ -91,7 +91,7 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
-		${NRP_GEN_LIB_TARGET}
+	    NRPJSONEngineProtocol::NRPJSONEngineProtocol
 
 	PRIVATE
 )

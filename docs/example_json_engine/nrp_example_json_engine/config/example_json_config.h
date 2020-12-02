@@ -2,7 +2,7 @@
 #define EXAMPLE_JSON_CONFIG_H
 
 #include "nrp_example_json_engine/config/cmake_constants.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_config.h"
+#include "nrp_json_engine_protocol/config/engine_config.h"
 
 
 class ExampleJSONConfig
