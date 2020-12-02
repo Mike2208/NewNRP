@@ -1,5 +1,5 @@
-#ifndef GAZEBO_CONFIG_H
-#define GAZEBO_CONFIG_H
+#ifndef GAZEBO_GRPC_CONFIG_H
+#define GAZEBO_GRPC_CONFIG_H
 
 #include "nrp_grpc_engine_protocol/config/engine_grpc_config.h"
 #include "nrp_general_library/utils/ptr_templates.h"
@@ -95,4 +95,4 @@ class GazeboConfig
 using GazeboConfigSharedPtr = GazeboConfig::shared_ptr;
 using GazeboConfigConstSharedPtr = GazeboConfig::const_shared_ptr;
 
-#endif // GAZEBO_CONFIG_H
+#endif // GAZEBO_GRPC_CONFIG_H

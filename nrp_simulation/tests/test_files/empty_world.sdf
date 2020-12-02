@@ -107,6 +107,6 @@
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
-    <plugin name="nrp_world_plugin" filename="NRPGazeboWorldPlugin.so"/>
+    <plugin name="nrp_world_plugin" filename="NRPGazeboGrpcWorldPlugin.so"/>
   </world>
 </sdf>

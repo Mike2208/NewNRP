@@ -75,7 +75,7 @@ target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
-target_include_directories(${LIBRARY_NAME}
+target_include_directories(${LIBRARY_NAME} BEFORE
 	PUBLIC 
 	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"

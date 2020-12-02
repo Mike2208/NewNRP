@@ -1,5 +1,5 @@
-#ifndef ENGINE_JSON_CONFIG_H
-#define ENGINE_JSON_CONFIG_H
+#ifndef ENGINE_GRPC_CONFIG_H
+#define ENGINE_GRPC_CONFIG_H
 
 #include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/config/engine_config.h"
@@ -160,4 +160,4 @@ class EngineGRPCConfig
 };
 
 
-#endif // ENGINE_JSON_CONFIG_H
+#endif // ENGINE_GRPC_CONFIG_H

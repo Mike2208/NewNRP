@@ -10,6 +10,7 @@
 #include "nrp_nest_json_engine/nrp_client/nest_engine_json_nrp_client.h"
 #include "nrp_gazebo_grpc_engine/nrp_client/gazebo_engine_grpc_nrp_client.h"
 
+
 using namespace testing;
 
 TEST(SimulationLoopTest, InitTFManager)

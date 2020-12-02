@@ -49,6 +49,8 @@ set(TEST_SRC_FILES
 # pistache: REST server library
 find_package(Pistache REQUIRED)
 
+find_package(Gazebo REQUIRED)
+
 
 ##########################################
 ## Header configuration
@@ -75,7 +77,7 @@ configure_file("nrp_simulation/config/cmake_conf.h.in" "${CMAKE_CURRENT_BINARY_D
 
 
 ##########################################
-# NRPServer
+# NRPSimulation
 add_library(${LIBRARY_NAME} SHARED ${LIB_SRC_FILES})
 add_library(${NAMESPACE_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
@@ -83,10 +85,9 @@ target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
 	${NRP_GEN_LIB_TARGET}
-	pistache
 )
 
-target_include_directories(${LIBRARY_NAME}
+target_include_directories(${LIBRARY_NAME} BEFORE
 	PUBLIC 
 	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"

@@ -7,9 +7,6 @@ find_package(Gazebo REQUIRED)
 find_package(Pistache REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
-link_directories(${GAZEBO_LIBRARY_DIRS})
-#list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
-
 if(NOT DEFINED NRP_GAZEBO_COMMUNICATION_PLUGIN)
 	set(NRP_GAZEBO_COMMUNICATION_PLUGIN NRPGazeboGrpcCommunicationPlugin)
 endif()

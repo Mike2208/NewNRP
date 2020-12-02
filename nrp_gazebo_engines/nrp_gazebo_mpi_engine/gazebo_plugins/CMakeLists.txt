@@ -6,9 +6,6 @@ include(GNUInstallDirs)
 find_package(Gazebo REQUIRED)
 find_package(MPI REQUIRED)
 
-link_directories(${GAZEBO_LIBRARY_DIRS})
-#list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
-
 if(NOT DEFINED NRP_GAZEBO_COMMUNICATION_PLUGIN)
 	set(NRP_GAZEBO_COMMUNICATION_PLUGIN NRPGazeboMPICommunicationPlugin)
 endif()
@@ -19,7 +16,7 @@ add_library(${NRP_GAZEBO_COMMUNICATION_PLUGIN} SHARED "nrp_communication_control
 add_library("NRPGazeboPlugins::${NRP_GAZEBO_COMMUNICATION_PLUGIN}" ALIAS ${NRP_GAZEBO_COMMUNICATION_PLUGIN})
 target_compile_options(${NRP_GAZEBO_COMMUNICATION_PLUGIN} PRIVATE $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
 
-target_include_directories(${NRP_GAZEBO_COMMUNICATION_PLUGIN}
+target_include_directories(${NRP_GAZEBO_COMMUNICATION_PLUGIN} BEFORE
 	PUBLIC
 	    $<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -44,7 +41,7 @@ target_link_libraries(${NRP_GAZEBO_COMMUNICATION_PLUGIN}
 add_library(NRPGazeboWorldPlugin SHARED "nrp_world_plugin/nrp_world_plugin.cpp")
 add_library(NRPGazeboPlugins::NRPGazeboWorldPlugin ALIAS NRPGazeboWorldPlugin)
 target_compile_options(NRPGazeboWorldPlugin PRIVATE $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
-target_include_directories(NRPGazeboWorldPlugin
+target_include_directories(NRPGazeboWorldPlugin BEFORE
 	PUBLIC
 	    $<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -71,7 +68,7 @@ add_library(NRPGazeboJointControllerPlugin SHARED "nrp_joint_controller/nrp_join
 add_library(NRPGazeboPlugins::NRPGazeboJointControllerPlugin ALIAS NRPGazeboJointControllerPlugin)
 target_compile_options(NRPGazeboJointControllerPlugin PRIVATE $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
 
-target_include_directories(NRPGazeboJointControllerPlugin
+target_include_directories(NRPGazeboJointControllerPlugin BEFORE
 	PUBLIC
 		$<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -96,7 +93,7 @@ add_library(NRPGazeboPlugins::NRPGazeboLinkControllerPlugin ALIAS NRPGazeboLinkC
 target_compile_options(NRPGazeboLinkControllerPlugin PRIVATE $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
 add_library(NRPGazeboPlugins::NRPGazeboLinkControllerPlugin ALIAS NRPGazeboLinkControllerPlugin)
 
-target_include_directories(NRPGazeboLinkControllerPlugin
+target_include_directories(NRPGazeboLinkControllerPlugin BEFORE
 	PUBLIC
 	    $<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -120,7 +117,7 @@ add_library(NRPGazeboCameraControllerPlugin SHARED "nrp_camera_controller_plugin
 add_library(NRPGazeboPlugins::NRPGazeboCameraControllerPlugin ALIAS NRPGazeboCameraControllerPlugin)
 target_compile_options(NRPGazeboCameraControllerPlugin PRIVATE $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
 
-target_include_directories(NRPGazeboCameraControllerPlugin
+target_include_directories(NRPGazeboCameraControllerPlugin BEFORE
 	PUBLIC
 	    $<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

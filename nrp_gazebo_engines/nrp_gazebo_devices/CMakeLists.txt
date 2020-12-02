@@ -66,7 +66,7 @@ target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<
 target_link_directories(${LIBRARY_NAME} PUBLIC ${GAZEBO_LIBRARY_DIRS})
 set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
-target_include_directories(${LIBRARY_NAME}
+target_include_directories(${LIBRARY_NAME} BEFORE
 	PUBLIC 
 	    $<INSTALL_INTERFACE:include>
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"

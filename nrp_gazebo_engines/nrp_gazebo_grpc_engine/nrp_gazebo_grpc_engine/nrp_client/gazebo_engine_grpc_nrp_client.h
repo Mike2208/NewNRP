@@ -1,5 +1,5 @@
-#ifndef GAZEBO_ENGINE_JSON_NRP_CLIENT_H
-#define GAZEBO_ENGINE_JSON_NRP_CLIENT_H
+#ifndef GAZEBO_ENGINE_GRPC_NRP_CLIENT_H
+#define GAZEBO_ENGINE_GRPC_NRP_CLIENT_H
 
 #include "nrp_grpc_engine_protocol/engine_client/engine_grpc_client.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
@@ -36,4 +36,4 @@ using GazeboEngineGrpcLauncher = GazeboEngineGrpcNRPClient::EngineLauncher<Gazeb
 
 CREATE_NRP_ENGINE_LAUNCHER(GazeboEngineGrpcLauncher);
 
-#endif // GAZEBO_ENGINE_JSON_NRP_CLIENT_H
+#endif // GAZEBO_ENGINE_GRPC_NRP_CLIENT_H
