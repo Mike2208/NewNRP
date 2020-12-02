@@ -393,16 +393,16 @@ TEST(EngineGrpc, SetDeviceData)
     testSleep(1500);
     client.handleInputDevices(input_devices);
 
-    ASSERT_EQ(deviceController._setMessage.deviceid().devicename(), deviceName);
-    ASSERT_EQ(deviceController._setMessage.deviceid().devicetype(), deviceType);
-    ASSERT_EQ(deviceController._setMessage.deviceid().enginename(), engineName);
+	ASSERT_EQ(deviceController.getDeviceInformationCallback()->id().Name,       deviceName);
+	ASSERT_EQ(deviceController.getDeviceInformationCallback()->id().Type,       deviceType);
+	ASSERT_EQ(deviceController.getDeviceInformationCallback()->id().EngineName, engineName);
 
     // Test setting data on a device that wasn't registered in the engine server
 
     const std::string deviceName2 = "b";
 
     DeviceIdentifier         devId2(deviceName2, engineName, deviceType);
-    TestGrpcDeviceInterface1 dev2(devId2);
+	TestGrpcDeviceInterface1 dev2((DeviceIdentifier(devId2)));
 
     input_devices.push_back(&dev2);
 
@@ -461,7 +461,7 @@ TEST(EngineGrpc, GetDeviceData)
     const std::string deviceName2 = "b";
 
     DeviceIdentifier         devId2(deviceName2, engineName, deviceType);
-    TestGrpcDeviceInterface1 dev2(devId2);
+	TestGrpcDeviceInterface1 dev2((DeviceIdentifier(devId2)));
 
     deviceIdentifiers.insert(devId2);
 
