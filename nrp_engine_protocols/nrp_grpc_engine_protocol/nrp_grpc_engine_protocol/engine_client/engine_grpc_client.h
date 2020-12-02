@@ -9,7 +9,6 @@
 
 #include "nrp_general_library/config/engine_config.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
-#include "nrp_grpc_engine_protocol/device_interfaces/grpc_device_conversion_mechanism.h"
 #include "nrp_grpc_engine_protocol/device_interfaces/grpc_device_serializer.h"
 #include "nrp_grpc_engine_protocol/grpc_server/engine_grpc.grpc.pb.h"
 
