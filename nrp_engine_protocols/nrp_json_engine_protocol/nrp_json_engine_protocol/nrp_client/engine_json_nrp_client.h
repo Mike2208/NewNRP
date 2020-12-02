@@ -333,9 +333,9 @@ class EngineJSONNRPClient
 
 			// If device classess are left to check, go through them. If all device classes have been checked without proper result, throw an error
 			if constexpr (sizeof...(REMAINING_DEVICES) > 0)
-			    return this->getSingleDeviceInterfaceFromJSON<REMAINING_DEVICES...>(deviceData, deviceID);
+			{	return this->getSingleDeviceInterfaceFromJSON<REMAINING_DEVICES...>(deviceData, deviceID);	}
 			else
-			    throw NRPException::logCreate("Could not process given device of type " + deviceID.Type);
+			{	throw NRPException::logCreate("Could not deserialize given device of type \"" + deviceID.Type + "\"");	}
 		}
 
 		/*!
@@ -359,7 +359,7 @@ class EngineJSONNRPClient
 			if constexpr (sizeof...(REMAINING_DEVICES) > 0)
 			{	return this->getJSONFromSingleDeviceInterface<REMAINING_DEVICES...>(device);	}
 			else
-			{	throw NRPException::logCreate("Could not process given device of type " + device.type());	}
+			{	throw NRPException::logCreate("Could not serialize given device of type \"" + device.type() + "\"");	}
 		}
 };
 

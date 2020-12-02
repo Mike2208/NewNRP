@@ -4,7 +4,7 @@
 
 PythonEngineJSONDeviceController<PyObjectDevice>::PythonEngineJSONDeviceController(DeviceIdentifier &&devID, boost::python::object data)
     : EngineDeviceController<nlohmann::json, PyObjectDevice>(std::move(devID)),
-      _deviceData(devID, data)
+      _deviceData(DeviceIdentifier(*this), data)
 {}
 
 void PythonEngineJSONDeviceController<PyObjectDevice>::handleDeviceDataCallback(PyObjectDevice &&data)

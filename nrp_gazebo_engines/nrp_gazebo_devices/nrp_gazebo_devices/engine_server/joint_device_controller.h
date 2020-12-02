@@ -24,7 +24,7 @@ namespace gazebo
 			    : EngineDeviceController<SERIALIZATION, PhysicsJoint>(PhysicsJoint::createID(jointName, "")),
 			      _joint(joint),
 			      _jointController(jointController),
-			      _jointData(PhysicsJoint::createID(jointName, ""))
+			      _jointData(DeviceIdentifier(*this))
 			{}
 
 			virtual void handleDeviceDataCallback(PhysicsJoint &&data) override

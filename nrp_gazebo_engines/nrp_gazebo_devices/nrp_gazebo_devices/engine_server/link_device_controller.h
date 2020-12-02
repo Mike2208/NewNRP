@@ -23,7 +23,7 @@ namespace gazebo
 		public:
 			LinkDeviceController(const std::string &linkName, const physics::LinkPtr &link)
 			    : EngineDeviceController<SERIALIZATION, PhysicsLink>(PhysicsLink::createID(linkName, "")),
-			      _data(PhysicsLink::createID(linkName, "")),
+			      _data(DeviceIdentifier(*this)),
 			      _link(link)
 			{}
 

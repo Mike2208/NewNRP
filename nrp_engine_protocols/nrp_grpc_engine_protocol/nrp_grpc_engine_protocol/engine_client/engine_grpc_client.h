@@ -219,7 +219,7 @@ class EngineGrpcClient
             }
             else
             {
-                throw std::logic_error("Could not process given device of type " + device.type());
+				throw std::logic_error("Could not serialize given device of type \"" + device.type() + "\"");
             }
         }
 
@@ -256,7 +256,7 @@ class EngineGrpcClient
             }
             else
             {
-                throw std::logic_error("Could not process given device of type " + deviceData.deviceid().devicetype());
+				throw std::logic_error("Could not deserialize given device of type \"" + deviceData.deviceid().devicetype() + "\"");
             }
         }
 

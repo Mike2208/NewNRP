@@ -19,7 +19,7 @@ namespace gazebo
 			CameraDeviceController(const std::string &devName, const rendering::CameraPtr &camera, const sensors::SensorPtr &parent)
 			    : EngineDeviceController<SERIALIZER, PhysicsCamera>(PhysicsCamera::createID(devName, "")),
 			      _parentSensor(parent),
-			      _data(PhysicsCamera::createID(camera->ScopedName(), ""))
+			      _data(DeviceIdentifier(*this))
 			{}
 
 			virtual void handleDeviceDataCallback(PhysicsCamera &&data) override
