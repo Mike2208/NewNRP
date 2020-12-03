@@ -55,5 +55,8 @@ EngineConfigConst::string_vector_t NestConfig::allEngineProcStartParams() const
 	// Add JSON Server address (will be used by plugin)
 	startParams.push_back(std::string("--") + NestConfig::EngineServerAddrArg.data() + "=" + this->engineServerAddress());
 
+	// Disable Nest output
+	startParams.push_back("--quiet");
+
 	return startParams;
 }

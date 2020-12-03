@@ -2,7 +2,7 @@
 
 cxxopts::Options EngineJSONOptsParser::createOptionParser(bool allowUnrecognised)
 {
-	cxxopts::Options options("NRP Gazebo Server");
+	cxxopts::Options options("NRP JSON Server");
 
 	if(allowUnrecognised)
 		options.allow_unrecognised_options();

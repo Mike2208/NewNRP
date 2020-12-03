@@ -16,7 +16,7 @@ NestServerExecutable::~NestServerExecutable()
 }
 
 NestServerExecutable::NestServerExecutable(int argc, char *argv[])
-    : _res(EngineJSONOptsParser::parseOpts(argc, argv, EngineJSONOptsParser::createOptionParser())),
+    : _res(EngineJSONOptsParser::parseOpts(argc, argv, EngineJSONOptsParser::createOptionParser(true))),
 	  _pyInterp(argc, argv),
       _server(this->_res[EngineJSONConfigConst::EngineServerAddrArg.data()].as<std::string>(),
               this->_res[EngineJSONConfigConst::EngineNameArg.data()].as<std::string>(),

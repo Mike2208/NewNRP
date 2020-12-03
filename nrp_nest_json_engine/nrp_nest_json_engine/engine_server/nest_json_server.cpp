@@ -84,6 +84,7 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 	PythonGILLock lock(this->_pyGILState, true);
 	try
 	{
+		// Import modules
 		python::object nestModule = python::import("nest");
 		this->_pyNest = python::dict(nestModule.attr("__dict__"));
 
@@ -92,6 +93,9 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 
 		this->_pyGlobals["nest"] = nestModule;
 		this->_pyGlobals[NRP_NEST_PYTHON_MODULE_STR] = nrpNestModule;
+
+		// Set Nest to silent
+		nestModule.attr("set_verbosity")(0);
 	}
 	catch(python::error_already_set &)
 	{
