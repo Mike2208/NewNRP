@@ -15,17 +15,17 @@ float &EngineConfigGeneral::engineTimestep()
 float &EngineConfigGeneral::engineCommandTimeout()
 {	return const_cast<float&>(const_cast<const EngineConfigGeneral*>(this)->engineCommandTimeout());	}
 
-EngineConfigConst::string_vector_t &EngineConfigGeneral::engineProcEnvParams()
-{	return const_cast<string_vector_t&>(const_cast<const EngineConfigGeneral*>(this)->engineProcEnvParams());	}
+EngineConfigConst::string_vector_t &EngineConfigGeneral::userProcEnvParams()
+{	return const_cast<string_vector_t&>(const_cast<const EngineConfigGeneral*>(this)->userProcEnvParams());	}
 
 std::string &EngineConfigGeneral::engineProcCmd()
 {	return const_cast<std::string&>(const_cast<const EngineConfigGeneral*>(this)->engineProcCmd());	}
 
-EngineConfigConst::string_vector_t &EngineConfigGeneral::engineProcStartParams()
-{	return const_cast<string_vector_t&>(const_cast<const EngineConfigGeneral*>(this)->engineProcStartParams());	}
+EngineConfigConst::string_vector_t &EngineConfigGeneral::userProcStartParams()
+{	return const_cast<string_vector_t&>(const_cast<const EngineConfigGeneral*>(this)->userProcStartParams());	}
 
 EngineConfigConst::string_vector_t EngineConfigGeneral::allEngineProcEnvParams() const
-{	return this->engineProcEnvParams();		}
+{	return this->userProcEnvParams();		}
 
 EngineConfigConst::string_vector_t EngineConfigGeneral::allEngineProcStartParams() const
-{	return this->engineProcStartParams();	}
+{	return this->userProcStartParams();	}

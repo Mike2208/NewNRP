@@ -19,7 +19,7 @@ namespace gazebo
 			virtual ~LinkDeviceController() override;
 
 			MPIPropertyData getDeviceOutput() override;
-			EngineInterface::RESULT handleDeviceInput(PhysicsLink &data) override;
+			void handleDeviceInput(PhysicsLink &data) override;
 
 		private:
 			/*!

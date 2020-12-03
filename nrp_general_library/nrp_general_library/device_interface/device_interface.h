@@ -59,9 +59,6 @@ class DeviceInterface
         : public PtrTemplates<DeviceInterface>
 {
 	public:
-		enum RESULT
-		{ SUCCESS, ERROR };
-
 		DeviceInterface() = default;
 
 		template<DEV_ID_C DEV_ID_T>

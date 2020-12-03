@@ -23,7 +23,7 @@ TEST(TestGazeboEngine, Start)
 	conf.gazeboWorldFile() = TEST_EMPTY_WORLD_FILE;
 	conf.maxWorldLoadTime() = 1;
 
-	conf.engineProcStartParams().push_back("--verbose");
+	conf.userProcStartParams().push_back("--verbose");
 
 	confHolder.Data = conf.writeConfig();
 
@@ -36,7 +36,7 @@ TEST(TestGazeboEngine, Start)
 
 	ASSERT_NE(engine, nullptr);
 
-	ASSERT_EQ(engine->initialize(), EngineInterface::RESULT::ERROR);
+	ASSERT_ANY_THROW(engine->initialize());
 }
 
 TEST(TestGazeboEngine, WorldPlugin)
@@ -49,7 +49,7 @@ TEST(TestGazeboEngine, WorldPlugin)
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_WORLD_PLUGIN_FILE;
 
-	conf.engineProcStartParams().push_back("--verbose");
+	conf.userProcStartParams().push_back("--verbose");
 
 	confHolder.Data = conf.writeConfig();
 
@@ -60,11 +60,9 @@ TEST(TestGazeboEngine, WorldPlugin)
 
 	ASSERT_NE(engine, nullptr);
 
-	ASSERT_EQ(engine->initialize(), EngineInterface::RESULT::SUCCESS);
-
-	ASSERT_EQ(engine->runLoopStep(1.0f), EngineInterface::RESULT::SUCCESS);
-
-	ASSERT_EQ(engine->waitForStepCompletion(5.0f), EngineInterface::RESULT::SUCCESS);
+	ASSERT_NO_THROW(engine->initialize());
+	ASSERT_NO_THROW(engine->runLoopStep(1.0f));
+	ASSERT_NO_THROW(engine->waitForStepCompletion(5.0f));
 }
 
 TEST(TestGazeboEngine, CameraPlugin)
@@ -77,9 +75,9 @@ TEST(TestGazeboEngine, CameraPlugin)
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_CAMERA_PLUGIN_FILE;
 
-	conf.engineProcEnvParams().push_back("GAZEBO_MODEL_PATH=" TEST_GAZEBO_MODELS_DIR ":$GAZEBO_MODEL_PATH");
+	conf.userProcEnvParams().push_back("GAZEBO_MODEL_PATH=" TEST_GAZEBO_MODELS_DIR ":$GAZEBO_MODEL_PATH");
 
-	conf.engineProcStartParams().push_back("--verbose");
+	conf.userProcStartParams().push_back("--verbose");
 
 	confHolder.Data = conf.writeConfig();
 
@@ -90,10 +88,7 @@ TEST(TestGazeboEngine, CameraPlugin)
 
 	ASSERT_NE(engine, nullptr);
 
-	ASSERT_EQ(engine->initialize(), EngineInterface::RESULT::SUCCESS);
-
-	//ASSERT_EQ(engine->runLoopStep(1.0f), EngineInterface::RESULT::SUCCESS);
-	//ASSERT_EQ(engine->waitForStepCompletion(5.0f), EngineInterface::RESULT::SUCCESS);
+	ASSERT_NO_THROW(engine->initialize());
 
 	auto devices = engine->requestOutputDevices({DeviceIdentifier("nrp_camera::camera", conf.engineName(), PhysicsCamera::TypeName.data())});
 	ASSERT_EQ(devices.size(), 1);
@@ -131,9 +126,9 @@ TEST(TestGazeboEngine, JointPlugin)
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_JOINT_PLUGIN_FILE;
 
-	conf.engineProcEnvParams().push_back("GAZEBO_MODEL_PATH=" TEST_GAZEBO_MODELS_DIR ":$GAZEBO_MODEL_PATH");
+	conf.userProcEnvParams().push_back("GAZEBO_MODEL_PATH=" TEST_GAZEBO_MODELS_DIR ":$GAZEBO_MODEL_PATH");
 
-	conf.engineProcStartParams().push_back("--verbose");
+	conf.userProcStartParams().push_back("--verbose");
 
 	confHolder.Data = conf.writeConfig();
 
@@ -144,10 +139,7 @@ TEST(TestGazeboEngine, JointPlugin)
 
 	ASSERT_NE(engine, nullptr);
 
-	ASSERT_EQ(engine->initialize(), EngineInterface::RESULT::SUCCESS);
-
-	//ASSERT_EQ(engine->runLoopStep(1.0f), EngineInterface::RESULT::SUCCESS);
-	//ASSERT_EQ(engine->waitForStepCompletion(5.0f), EngineInterface::RESULT::SUCCESS);
+	ASSERT_NO_THROW(engine->initialize());
 
 	// Test device data getting
 	auto devices = engine->requestOutputDevices({DeviceIdentifier("youbot::base_footprint_joint", conf.engineName(), PhysicsJoint::TypeName.data())});
@@ -164,7 +156,7 @@ TEST(TestGazeboEngine, JointPlugin)
 	newJointDev.setVelocity(NAN);
 	newJointDev.setPosition(newTargetPos);
 
-	ASSERT_EQ(engine->handleInputDevices({&newJointDev}), EngineInterface::RESULT::SUCCESS);
+	ASSERT_NO_THROW(engine->handleInputDevices({&newJointDev}));
 }
 
 TEST(TestGazeboEngine, LinkPlugin)
@@ -177,9 +169,9 @@ TEST(TestGazeboEngine, LinkPlugin)
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_LINK_PLUGIN_FILE;
 
-	conf.engineProcEnvParams().push_back("GAZEBO_MODEL_PATH=" TEST_GAZEBO_MODELS_DIR ":$GAZEBO_MODEL_PATH");
+	conf.userProcEnvParams().push_back("GAZEBO_MODEL_PATH=" TEST_GAZEBO_MODELS_DIR ":$GAZEBO_MODEL_PATH");
 
-	conf.engineProcStartParams().push_back("--verbose");
+	conf.userProcStartParams().push_back("--verbose");
 
 	confHolder.Data = conf.writeConfig();
 
@@ -190,10 +182,7 @@ TEST(TestGazeboEngine, LinkPlugin)
 
 	ASSERT_NE(engine, nullptr);
 
-	ASSERT_EQ(engine->initialize(), EngineInterface::RESULT::SUCCESS);
-
-	//ASSERT_EQ(engine->runLoopStep(1.0f), EngineInterface::RESULT::SUCCESS);
-	//ASSERT_EQ(engine->waitForStepCompletion(5.0f), EngineInterface::RESULT::SUCCESS);
+	ASSERT_NO_THROW(engine->initialize());
 
 	// Test device data getting
 	auto devices = engine->requestOutputDevices({DeviceIdentifier("link_youbot::base_footprint", conf.engineName(), PhysicsJoint::TypeName.data())});

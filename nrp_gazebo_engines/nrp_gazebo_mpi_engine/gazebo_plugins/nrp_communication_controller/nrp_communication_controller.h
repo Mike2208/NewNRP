@@ -75,8 +75,8 @@ class NRPCommunicationController
 		 */
 		GazeboStepController *_stepController = nullptr;
 
-		EngineInterface::RESULT initialize(const std::string &initData) override;
-		EngineInterface::RESULT shutdown(const std::string &shutdownData) override;
+		void initialize(const std::string &initData) override;
+		void shutdown(const std::string &shutdownData) override;
 
 		EngineInterface::step_result_t runLoopStep(float timeStep) override;
 		float getSimTime() const override;

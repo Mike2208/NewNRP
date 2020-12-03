@@ -27,9 +27,9 @@ class NRPGazeboMPIClient
 		NRPGazeboMPIClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~NRPGazeboMPIClient() override = default;
 
-		//virtual EngineInterface::RESULT initialize() override;
+		//virtual void initialize() override;
 
-		//virtual EngineInterface::RESULT shutdown() override;
+		//virtual void shutdown() override;
 };
 
 using GazeboEngineJSONLauncher = NRPGazeboMPIClient::EngineLauncher<GazeboConfig::DefEngineType>;

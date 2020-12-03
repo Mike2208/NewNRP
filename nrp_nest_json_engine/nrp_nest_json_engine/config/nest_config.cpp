@@ -42,6 +42,9 @@ EngineConfigConst::string_vector_t NestConfig::allEngineProcEnvParams() const
 	// Add NRP library path
 	envVars.push_back("LD_LIBRARY_PATH=" NRP_LIB_INSTALL_DIR ":$LD_LIBRARY_PATH");
 
+	// Disable Nest output
+	envVars.push_back("PYNEST_QUIET=1");
+
 	return envVars;
 }
 

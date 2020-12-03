@@ -138,7 +138,7 @@ class EngineMPIServer
 		 * \param cmd Command to process
 		 * \return Returns result of command processing
 		 */
-		EngineInterface::RESULT handleClientCmd(const EngineMPIControl &cmd);
+		void handleClientCmd(const EngineMPIControl &cmd);
 
 		/*!
 		 * \brief Calls initialize() and sets _state
@@ -147,7 +147,7 @@ class EngineMPIServer
 		 * \exception Throws std::runtime_error if sim was not in STOPPED state at call time,
 		 * or any exception initialize() generates
 		 */
-		EngineInterface::RESULT initializeHandler(const std::string &initData);
+		void initializeHandler(const std::string &initData);
 
 		/*!
 		 * \brief Calls shutdown() and sets _state
@@ -156,7 +156,7 @@ class EngineMPIServer
 		 * \exception Throws std::runtime_error if sim was not in PAUSED state at call time,
 		 * or any exception shutdown() generates
 		 */
-		EngineInterface::RESULT shutdownHandler(const std::string &shutdownData);
+		void shutdownHandler(const std::string &shutdownData);
 
 		/*!
 		 * \brief Calls runLoopSte() and sets _state
@@ -165,7 +165,7 @@ class EngineMPIServer
 		 * \exception Throws std::runtime_error if sim was not in PAUSED state at call time,
 		 * or any exception runLoopStep() generates
 		 */
-		EngineInterface::RESULT runLoopStepHandler(float timeStep);
+		void runLoopStepHandler(float timeStep);
 
 		/*!
 		 * \brief Calls requestOutputDevices() and sets _state
@@ -174,7 +174,7 @@ class EngineMPIServer
 		 * \exception Throws std::runtime_error if sim was not in PAUSED state at call time,
 		 * or any exception requestOutputDevices() generates
 		 */
-		EngineInterface::RESULT requestOutputDevicesHandler(const int numDevices);
+		void requestOutputDevicesHandler(const int numDevices);
 
 		/*!
 		 * \brief Calls handleInputDevices() and sets _state
@@ -183,21 +183,21 @@ class EngineMPIServer
 		 * \exception Throws std::runtime_error if sim was not in PAUSED state at call time,
 		 * or any exception handleInputDevices() generates
 		 */
-		EngineInterface::RESULT handleInputDevicesHandler(const int numDevices);
+		void handleInputDevicesHandler(const int numDevices);
 
 		/*!
 		 * \brief Register a new device controller for incoming/outgoing device data
 		 * \param devCtrl Device Controller to register
 		 * \return Returns result of operation
 		 */
-		EngineInterface::RESULT registerDeviceController(EngineMPIDeviceControllerInterface *devCtrl);
+		void registerDeviceController(EngineMPIDeviceControllerInterface *devCtrl);
 
 		/*!
 		 * \brief Remove an already registered device controller
 		 * \param devName Name of device whose DeviceController should be removed
 		 * \return Returns result of operation
 		 */
-		EngineInterface::RESULT removeDeviceController(const std::string &devName);
+		void removeDeviceController(const std::string &devName);
 
 		/*!
 		 * \brief Remove all device controllers
@@ -215,21 +215,21 @@ class EngineMPIServer
 		 * \param initData Initialization data sent from the CLE
 		 * \return Returns result of initialization
 		 */
-		virtual EngineInterface::RESULT initialize(const std::string &initData);
+		virtual void initialize(const std::string &initData);
 
 		/*!
 		 * \brief User-defined shutdown function
 		 * \param initData Shutdown data sent from the CLE
 		 * \return Returns result of shutdown
 		 */
-		virtual EngineInterface::RESULT shutdown(const std::string &shutdownData);
+		virtual void shutdown(const std::string &shutdownData);
 
 		/*!
 		 * \brief User-defined simulation run function
 		 * \param timeStep Time (in s) to run the sim
 		 * \return Returns result of running the sim
 		 */
-		virtual EngineInterface::step_result_t runLoopStep(float timeStep) = 0;
+		virtual void runLoopStep(float timeStep) = 0;
 
 		/*!
 		 * \brief User-defined fcn to get the total runtime of the sim
@@ -248,7 +248,7 @@ class EngineMPIServer
 		 * \param devID ID of device to retrieve
 		 * \return Returns result of handling data
 		 */
-		virtual EngineInterface::RESULT handleDeviceInput(const DeviceIdentifier &devID);
+		virtual void handleDeviceInput(const DeviceIdentifier &devID);
 
 		/*!
 		 * \brief State of the server. See state_t for description of possible states

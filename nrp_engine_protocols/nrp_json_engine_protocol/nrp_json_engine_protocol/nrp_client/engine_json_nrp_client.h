@@ -73,7 +73,7 @@ class EngineJSONNRPClient
 			return enginePID;
 		}
 
-		virtual typename EngineInterface::RESULT handleInputDevices(const typename EngineInterface::device_inputs_t &inputDevices) override
+		virtual void handleInputDevices(const typename EngineInterface::device_inputs_t &inputDevices) override
 		{
 			// Convert devices to JSON format
 			nlohmann::json request;
@@ -89,35 +89,32 @@ class EngineJSONNRPClient
 			                                 "Engine server \"" + this->engineName() + "\" failed during device handling");
 
 			// TODO: Check if engine has processed all sent devices
-			return EngineInterface::SUCCESS;
 		}
 
 		float getEngineTime() const override
 		{	return this->_engineTime;	}
 
-		virtual typename EngineInterface::step_result_t runLoopStep(float timeStep) override
+		virtual void runLoopStep(float timeStep) override
 		{
 			this->_loopStepThread = std::async(std::launch::async, std::bind(&EngineJSONNRPClient::loopFcn, this, timeStep));
-			return EngineInterface::SUCCESS;
 		}
 
-		virtual typename EngineInterface::RESULT waitForStepCompletion(float timeOut) override
+		virtual void waitForStepCompletion(float timeOut) override
 		{
 			// If thread state is invalid, loop thread has completed and waitForStepCompletion was called once before
 			if(!this->_loopStepThread.valid())
-				return EngineInterface::SUCCESS;
+				return;
 
 			// Wait until timeOut has passed
 			if(timeOut > 0)
 			{
 				if(this->_loopStepThread.wait_for(std::chrono::duration<double>(timeOut)) != std::future_status::ready)
-					return EngineInterface::ERROR;
+					throw NRPException::logCreate("Engine \"" + this->engineName() + "\" loop is taking too long to complete");
 			}
 			else
 				this->_loopStepThread.wait();
 
 			this->_engineTime = this->_loopStepThread.get();
-			return EngineInterface::SUCCESS;
 		}
 
 	protected:

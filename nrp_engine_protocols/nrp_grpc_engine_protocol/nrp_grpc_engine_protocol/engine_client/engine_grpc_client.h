@@ -139,34 +139,30 @@ class EngineGrpcClient
             return this->_engineTime;
         }
 
-        virtual typename EngineInterface::step_result_t runLoopStep(float timeStep) override
+		virtual void runLoopStep(float timeStep) override
         {
             this->_loopStepThread = std::async(std::launch::async, std::bind(&EngineGrpcClient::sendRunLoopStepCommand, this, timeStep));
-            return EngineInterface::SUCCESS;
         }
 
-        virtual typename EngineInterface::RESULT waitForStepCompletion(float timeOut) override
+		virtual void waitForStepCompletion(float timeOut) override
         {
             // If thread state is invalid, loop thread has completed and waitForStepCompletion was called once before
             if(!this->_loopStepThread.valid())
-            {
-                return EngineInterface::SUCCESS;
-            }
+				return;
 
             // Wait until timeOut has passed
             if(timeOut > 0)
             {
                 if(this->_loopStepThread.wait_for(std::chrono::duration<double>(timeOut)) != std::future_status::ready)
-                    return EngineInterface::ERROR;
+					throw NRPException::logCreate("Engine \"" + this->engineName() + "\" loop is taking too long to complete");
             }
             else
                 this->_loopStepThread.wait();
 
             this->_engineTime = this->_loopStepThread.get();
-            return EngineInterface::SUCCESS;
         }
 
-        virtual typename EngineInterface::RESULT handleInputDevices(const typename EngineInterface::device_inputs_t &inputDevices) override
+		virtual void handleInputDevices(const typename EngineInterface::device_inputs_t &inputDevices) override
         {
             EngineGrpc::SetDeviceRequest request;
             EngineGrpc::SetDeviceReply   reply;
@@ -190,8 +186,6 @@ class EngineGrpcClient
                 const auto errMsg = "Engine server handleInputDevices failed: " + status.error_message() + " (" + std::to_string(status.error_code()) + ")";
                 throw std::runtime_error(errMsg);
             }
-
-            return EngineInterface::SUCCESS;
         }
 
         template<class DEVICE, class ...REMAINING_DEVICES>

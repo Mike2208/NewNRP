@@ -136,11 +136,11 @@ class EngineGRPCConfig
 		{	return this->template getPropertyByName<EngineGRPCConfig::EngineRegistrationServerAddress, std::string>();	}
 
 		EngineConfigConst::string_vector_t allEngineProcEnvParams() const override
-		{	return this->engineProcEnvParams();	}
+		{	return this->userProcEnvParams();	}
 
 		EngineConfigConst::string_vector_t allEngineProcStartParams() const override
 		{
-			EngineConfigConst::string_vector_t startParams = this->engineProcStartParams();
+			EngineConfigConst::string_vector_t startParams = this->userProcStartParams();
 
 			// Add JSON registration Server address (will be used by EngineJSONServer)
 			startParams.push_back(std::string("--") + EngineGRPCConfig::EngineNameArg.data() + "=" + this->engineName());
@@ -153,10 +153,6 @@ class EngineGRPCConfig
 
 			return startParams;
 		}
-
-	protected:
-		std::function<nlohmann::json()> createCallbackFunction() const
-		{	return [this] () { return this->writeConfig(); };	}
 };
 
 

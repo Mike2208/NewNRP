@@ -27,9 +27,9 @@ class GazeboEngineJSONNRPClient
 		GazeboEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~GazeboEngineJSONNRPClient() override = default;
 
-		virtual RESULT initialize() override;
+		virtual void initialize() override;
 
-		virtual RESULT shutdown() override;
+		virtual void shutdown() override;
 };
 
 using GazeboEngineJSONLauncher = GazeboEngineJSONNRPClient::EngineLauncher<GazeboConfig::DefEngineType>;

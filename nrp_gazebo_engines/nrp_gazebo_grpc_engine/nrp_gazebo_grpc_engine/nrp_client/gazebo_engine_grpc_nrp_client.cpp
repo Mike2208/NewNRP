@@ -11,7 +11,7 @@ GazeboEngineGrpcNRPClient::GazeboEngineGrpcNRPClient(EngineConfigConst::config_s
     : EngineGrpcClient(config, std::move(launcher))
 {}
 
-GazeboEngineGrpcNRPClient::RESULT GazeboEngineGrpcNRPClient::initialize()
+void GazeboEngineGrpcNRPClient::initialize()
 {
 	// Wait for Gazebo to load world
 	auto confDat = this->engineConfig()->writeConfig();
@@ -19,18 +19,20 @@ GazeboEngineGrpcNRPClient::RESULT GazeboEngineGrpcNRPClient::initialize()
 	{
 		this->sendInitCommand(confDat);
 	}
-	catch(const std::exception& e)
+	catch(std::exception& e)
 	{
-		std::cerr << e.what() << '\n';
-		return GazeboEngineGrpcNRPClient::ERROR;
+		throw NRPException::logCreate(e, "Engine \"" + this->engineName() + "\" initialization failed");
 	}
-
-	return GazeboEngineGrpcNRPClient::SUCCESS;
 }
 
-EngineInterface::RESULT GazeboEngineGrpcNRPClient::shutdown()
+void GazeboEngineGrpcNRPClient::shutdown()
 {
-	this->sendShutdownCommand(nlohmann::json());
-
-	return GazeboEngineGrpcNRPClient::SUCCESS;
+	try
+	{
+		this->sendShutdownCommand(nlohmann::json());
+	}
+	catch(std::exception &e)
+	{
+		throw NRPException::logCreate("Engine \"" + this->engineName() + "\" shutdown failed");
+	}
 }

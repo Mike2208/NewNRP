@@ -24,7 +24,7 @@ namespace gazebo
 			virtual ~JointDeviceController() override = default;
 
 			MPIPropertyData getDeviceOutput() override;
-			EngineInterface::RESULT handleDeviceInput(PhysicsJoint &data) override;
+			void handleDeviceInput(PhysicsJoint &data) override;
 
 		private:
 			/*!

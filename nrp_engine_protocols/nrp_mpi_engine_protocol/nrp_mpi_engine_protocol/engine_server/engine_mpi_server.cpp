@@ -72,7 +72,7 @@ void EngineMPIServer::getClientCmd(EngineMPIControl &cmd)
 	MPICommunication::recvPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, cmd);
 }
 
-EngineInterface::RESULT EngineMPIServer::handleClientCmd(const EngineMPIControl &cmd)
+void EngineMPIServer::handleClientCmd(const EngineMPIControl &cmd)
 {
 	switch(cmd.cmd())
 	{
@@ -96,57 +96,49 @@ EngineInterface::RESULT EngineMPIServer::handleClientCmd(const EngineMPIControl 
 	}
 }
 
-EngineInterface::RESULT EngineMPIServer::initializeHandler(const std::string &initData)
+void EngineMPIServer::initializeHandler(const std::string &initData)
 {
 	if(this->_state != STOPPED)
 		throw NRPException::logCreate("Initialize request was sent to running MPI engine. Stopping...");
 
-	const auto retVal = this->initialize(initData);
+	this->initialize(initData);
 	this->_state = PAUSED;
 
+	const auto retVal = true;
 	MPICommunication::sendMPI(&retVal, sizeof(retVal), MPI_BYTE, 0, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
-
-	return retVal;
 }
 
-EngineInterface::RESULT EngineMPIServer::shutdownHandler(const std::string &shutdownData)
+void EngineMPIServer::shutdownHandler(const std::string &shutdownData)
 {
 	if(this->_state == STOPPED || this->_state == STOPPING)
 		throw NRPException::logCreate("Shutdown request was sent to stopped MPI engine. Aborting...");
 
 	this->_state = STOPPING;
-	const auto retVal = this->shutdown(shutdownData);
+	this->shutdown(shutdownData);
 	this->_state = STOPPED;
 
+	const bool retVal = true;
 	MPICommunication::sendMPI(&retVal, sizeof(retVal), MPI_BYTE, 0, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
 
 	MPISetup::finalize();
-
-	return retVal;
 }
 
-EngineInterface::RESULT EngineMPIServer::runLoopStepHandler(float timeStep)
+void EngineMPIServer::runLoopStepHandler(float timeStep)
 {
 	if(this->_state != PAUSED)
 		throw NRPException::logCreate("RunLoop request was sent to unpaused MPI engine. Aborting...");
 
 	this->_state = RUNNING;
-	const auto retVal = this->runLoopStep(timeStep);
+	this->runLoopStep(timeStep);
 	this->_state = PAUSED;
 
-	float engineTime;
-	if(retVal != EngineInterface::SUCCESS)
-		engineTime = -1;
-	else
-		engineTime = this->getSimTime();
+	const float engineTime = this->getSimTime();
 
 	// Inform client that loop has completed
 	MPICommunication::sendMPI(&engineTime, 1, MPI_FLOAT, 0, EngineMPIControlConst::WAIT_LOOP_COMM_TAG, this->_comm);
-
-	return retVal;
 }
 
-EngineInterface::RESULT EngineMPIServer::requestOutputDevicesHandler(const int numDevices)
+void EngineMPIServer::requestOutputDevicesHandler(const int numDevices)
 {
 	if(this->_state != PAUSED)
 		throw NRPException::logCreate("Get device data request was sent to unpaused MPI engine. Aborting...");
@@ -184,11 +176,9 @@ EngineInterface::RESULT EngineMPIServer::requestOutputDevicesHandler(const int n
 			throw NRPException::logCreate(e, "Failed to send device data \"" + devID.Name + "\". Aborting...");
 		}
 	}
-
-	return EngineInterface::SUCCESS;
 }
 
-EngineInterface::RESULT EngineMPIServer::handleInputDevicesHandler(const int numDevices)
+void EngineMPIServer::handleInputDevicesHandler(const int numDevices)
 {
 	if(this->_state != PAUSED)
 		throw NRPException::logCreate("Handle device data request was sent to unpaused MPI engine. Aborting...");
@@ -214,13 +204,11 @@ EngineInterface::RESULT EngineMPIServer::handleInputDevicesHandler(const int num
 		this->handleDeviceInput(devID);
 	}
 
-	const auto retVal = EngineInterface::SUCCESS;
+	const bool retVal = true;
 	MPICommunication::sendMPI(&retVal, sizeof(retVal), MPI_BYTE, 0, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
-
-	return retVal;
 }
 
-EngineInterface::RESULT EngineMPIServer::registerDeviceController(EngineMPIDeviceControllerInterface *devCtrl)
+void EngineMPIServer::registerDeviceController(EngineMPIDeviceControllerInterface *devCtrl)
 {
 	EngineMPIServer::lock_t lock(this->_devCtrlLock);
 
@@ -232,19 +220,15 @@ EngineInterface::RESULT EngineMPIServer::registerDeviceController(EngineMPIDevic
 	}
 	else
 		this->_deviceControllers.emplace(devCtrl->Name, devCtrl);
-
-	return EngineInterface::SUCCESS;
 }
 
-EngineInterface::RESULT EngineMPIServer::removeDeviceController(const std::string &devName)
+void EngineMPIServer::removeDeviceController(const std::string &devName)
 {
 	EngineMPIServer::lock_t lock(this->_devCtrlLock);
 
 	const auto devCtrlIt = this->_deviceControllers.find(devName);
 	if(devCtrlIt != this->_deviceControllers.end())
 		this->_deviceControllers.erase(devCtrlIt);
-
-	return EngineInterface::SUCCESS;
 }
 
 void EngineMPIServer::removeAllDeviceControllers()
@@ -258,15 +242,11 @@ EngineMPIServer::state_t EngineMPIServer::getEngineState() const
 	return this->_state;
 }
 
-EngineInterface::RESULT EngineMPIServer::initialize(const std::string &)
-{
-	return EngineInterface::SUCCESS;
-}
+void EngineMPIServer::initialize(const std::string &)
+{}
 
-EngineInterface::RESULT EngineMPIServer::shutdown(const std::string &)
-{
-	return EngineInterface::SUCCESS;
-}
+void EngineMPIServer::shutdown(const std::string &)
+{}
 
 MPIPropertyData EngineMPIServer::getDeviceOutput(const DeviceIdentifier &devID)
 {
@@ -284,7 +264,7 @@ MPIPropertyData EngineMPIServer::getDeviceOutput(const DeviceIdentifier &devID)
 	}
 }
 
-EngineInterface::RESULT EngineMPIServer::handleDeviceInput(const DeviceIdentifier &devID)
+void EngineMPIServer::handleDeviceInput(const DeviceIdentifier &devID)
 {
 	const auto devCtrlIt = this->_deviceControllers.find(devID.Name);
 	if(devCtrlIt == this->_deviceControllers.end())
@@ -298,8 +278,6 @@ EngineInterface::RESULT EngineMPIServer::handleDeviceInput(const DeviceIdentifie
 	{
 		throw NRPException::logCreate(e, "Failed to retrieve device data from NRP Client. Aborting...");
 	}
-
-	return EngineInterface::SUCCESS;
 }
 
 auto MPISinglePropertySerializer<EngineMPIControlConst::CommandData>::derivedMPIDatatype(EngineMPIControlConst::CommandData &prop) -> mpi_prop_datatype_t<MPISinglePropertySerializerGeneral::MPIDerivedDatatype>

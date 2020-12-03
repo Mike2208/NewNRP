@@ -30,7 +30,7 @@ MPIPropertyData gazebo::JointDeviceController::getDeviceOutput()
 	return MPIPropertySerializer<PhysicsJoint>::serializeProperties(this->_jointData);
 }
 
-EngineInterface::RESULT gazebo::JointDeviceController::handleDeviceInput(PhysicsJoint &data)
+void gazebo::JointDeviceController::handleDeviceInput(PhysicsJoint &data)
 {
 	bool success = 1;
 
@@ -46,8 +46,8 @@ EngineInterface::RESULT gazebo::JointDeviceController::handleDeviceInput(Physics
 	if(!std::isnan(this->_jointData.effort()))
 		this->_joint->SetForce(0, this->_jointData.effort());
 
-	return success ? EngineInterface::SUCCESS : EngineInterface::ERROR;
-
+	if(!success)
+		throw NRPException::logCreate("Handling received joint devices for \"" + this->EngineName +  "\" failed");
 }
 
 gazebo::NRPJointController::PIDConfig::PIDConfig(PID _pid, gazebo::NRPJointController::PIDConfig::PID_TYPE _type)

@@ -109,18 +109,14 @@ class TestEngineGrpcClient
             : EngineGrpcClient(config, std::move(launcher))
         {}
 
-        RESULT initialize() override
+		void initialize() override
         {
             this->sendInitCommand("test");
-
-            return RESULT::SUCCESS;
         }
 
-        RESULT shutdown() override
+		void shutdown() override
         {
             this->sendShutdownCommand("test");
-
-            return RESULT::SUCCESS;
         }
 };
 

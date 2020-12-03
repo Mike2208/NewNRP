@@ -25,9 +25,9 @@ class PythonEngineJSONNRPClient
 		PythonEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~PythonEngineJSONNRPClient() override;
 
-		virtual RESULT initialize() override;
+		virtual void initialize() override;
 
-		virtual RESULT shutdown() override;
+		virtual void shutdown() override;
 
 	private:
 		/*!

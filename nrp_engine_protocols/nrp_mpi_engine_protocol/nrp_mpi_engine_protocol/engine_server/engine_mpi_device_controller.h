@@ -34,7 +34,7 @@ class EngineMPIDeviceControllerInterface
 		 * \param deviceInput Device data
 		 * \return Returns true on success, false otherwise
 		 */
-		virtual EngineInterface::RESULT handleMPIDeviceInput(MPI_Comm comm, int tag) = 0;
+		virtual void handleMPIDeviceInput(MPI_Comm comm, int tag) = 0;
 };
 
 /*!
@@ -59,9 +59,9 @@ class EngineMPIDeviceController
 		 * \param data Device data
 		 * \return Returns SUCCESS or ERROR
 		 */
-		virtual EngineInterface::RESULT handleDeviceInput(DEVICE &data) = 0;
+		virtual void handleDeviceInput(DEVICE &data) = 0;
 
-		EngineInterface::RESULT handleMPIDeviceInput(MPI_Comm comm, int tag) override final
+		void handleMPIDeviceInput(MPI_Comm comm, int tag) override final
 		{
 			DEVICE dev = EngineMPIDeviceController::recvMPIDevice(comm, tag);
 			return this->handleDeviceInput(dev);

@@ -24,53 +24,53 @@ class NRPMPIClient
 		    : Engine<CLIENT, CONFIG>(config, std::move(launcher))
 		{}
 
-		EngineInterface::RESULT initialize() override
+		void initialize() override
 		{
 			this->_comm = this->getComm();
 
 			EngineMPIControl initCmd(EngineMPIControl::INITIALIZE, this->engineConfig()->writeConfig().dump());
 			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, initCmd);
 
-			EngineInterface::RESULT res;
+			bool res;
 			MPICommunication::recvMPI(&res, sizeof(res), MPI_BYTE, MPI_ANY_SOURCE, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
 
-			return res;
+			if(!res)
+				throw NRPException::logCreate("Engine \"" + this->engineName() + "\" initialization failed");
 		}
 
-		EngineInterface::RESULT shutdown() override
+		void shutdown() override
 		{
 			EngineMPIControl shutdownCmd(EngineMPIControl::SHUTDOWN, std::string());
 			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, shutdownCmd);
 
-			EngineInterface::RESULT res;
+			bool res;
 			MPICommunication::recvMPI(&res, sizeof(res), MPI_BYTE, MPI_ANY_SOURCE, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
 
-			return res;
+			if(!res)
+				throw NRPException::logCreate("Engine \"" + this->engineName() + "\" shutdown failed");
 		}
 
 		float getEngineTime() const override
 		{	return this->_engineTime;	}
 
-		EngineInterface::step_result_t runLoopStep(float timeStep) override
+		void runLoopStep(float timeStep) override
 		{
 			this->_runLoopThread = std::async(std::launch::async, loopThread, timeStep, this->_comm);
-			return EngineInterface::SUCCESS;
 		}
 
-		EngineInterface::RESULT waitForStepCompletion(float timeOut) override
+		void waitForStepCompletion(float timeOut) override
 		{
 			if(this->_runLoopThread.wait_for(std::chrono_literals::operator""s(timeOut)) != std::future_status::ready)
-				return EngineInterface::ERROR;
+				throw NRPException::logCreate("Engine \"" + this->engineName() + "\" loop still running after timeout");
 
 			const auto retEngineTime = this->_runLoopThread.get();
 			if(retEngineTime < 0)
-				return EngineInterface::ERROR;
+				throw NRPException::logCreate("Engine \"" + this->engineName() + "\" loop failed unexpectedly");
 
 			this->_engineTime += retEngineTime;
-			return EngineInterface::SUCCESS;
 		}
 
-		EngineInterface::RESULT handleInputDevices(const EngineInterface::device_inputs_t &inputDevices) override
+		void handleInputDevices(const EngineInterface::device_inputs_t &inputDevices) override
 		{
 			EngineMPIControl devCmd(EngineMPIControl::SEND_DEVICES, (int)inputDevices.size());
 			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, devCmd);
@@ -84,10 +84,11 @@ class NRPMPIClient
 				}
 			}
 
-			EngineInterface::RESULT res;
+			bool res;
 			MPICommunication::recvMPI(&res, sizeof(res), MPI_BYTE, MPI_ANY_SOURCE, EngineMPIControlConst::GENERAL_COMM_TAG, this->_comm);
 
-			return res;
+			if(!res)
+				throw NRPException::logCreate("Engine \"" + this->engineName() + "\" device input failed");
 		}
 
 	protected:

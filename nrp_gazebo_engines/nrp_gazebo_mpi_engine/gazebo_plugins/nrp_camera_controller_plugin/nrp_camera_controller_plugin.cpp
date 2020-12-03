@@ -17,10 +17,8 @@ MPIPropertyData gazebo::CameraDeviceController::getDeviceOutput()
 	return MPIPropertySerializer<PhysicsCamera>::serializeProperties(this->_data);
 }
 
-EngineInterface::RESULT gazebo::CameraDeviceController::handleDeviceInput(PhysicsCamera &data)
-{
-	return EngineInterface::SUCCESS;
-}
+void gazebo::CameraDeviceController::handleDeviceInput(PhysicsCamera &data)
+{}
 
 void gazebo::CameraDeviceController::updateCamData(const unsigned char *image, unsigned int width, unsigned int height, unsigned int depth)
 {

@@ -76,22 +76,18 @@ class TestEngineJSONNRPClient
 
 	virtual ~TestEngineJSONNRPClient() override = default;
 
-	RESULT initialize() override
+	void initialize() override
 	{
 		auto retVal = this->sendInitCommand("initCommand");
-		if (retVal["original"].get<std::string>().compare("initCommand") == 0)
-			return SUCCESS;
-
-		return ERROR;
+		if(retVal["original"].get<std::string>().compare("initCommand") != 0)
+			throw NRPExceptionNonRecoverable("Test init failed");
 	}
 
-	RESULT shutdown() override
+	void shutdown() override
 	{
 		auto retVal = this->sendShutdownCommand("shutdownCommand");
-		if (retVal["original"].get<std::string>().compare("shutdownCommand") == 0)
-			return SUCCESS;
-
-		return ERROR;
+		if (retVal["original"].get<std::string>().compare("shutdownCommand") != 0)
+			throw NRPExceptionNonRecoverable("Test shutdown failed");
 	}
 
 	float curTime = 0;
@@ -135,10 +131,10 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	server.startServerAsync();
 	TestEngineJSONNRPClient client("localhost:" + std::to_string(server.serverPort()), config, ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic()));
 	client.engineName() = engineName;
-	ASSERT_EQ(client.initialize(), TestEngineJSONNRPClient::SUCCESS);
+	ASSERT_NO_THROW(client.initialize());
 
-	ASSERT_EQ(client.runLoopStep(10), TestEngineJSONNRPClient::SUCCESS);
-	ASSERT_EQ(client.waitForStepCompletion(10), TestEngineJSONNRPClient::SUCCESS);
+	ASSERT_NO_THROW(client.runLoopStep(10));
+	ASSERT_NO_THROW(client.waitForStepCompletion(10));
 
 	ASSERT_EQ(client.getEngineTime(), server.curTime);
 
@@ -182,7 +178,7 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	inputs.push_back(&inputDev1);
 	inputs.push_back(&inputDev2);
 	inputs.push_back(&inputDevThrow);
-	ASSERT_EQ(client.handleInputDevices(inputs), TestEngineJSONNRPClient::SUCCESS);
+	ASSERT_NO_THROW(client.handleInputDevices(inputs));
 
 	ASSERT_EQ(inputDev1.data(), dev1Ctrl.data().data());
 	ASSERT_EQ(inputDev2.data(), dev2Ctrl.data().data());

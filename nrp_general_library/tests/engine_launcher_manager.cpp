@@ -19,11 +19,11 @@ struct TestEngine1
 	std::shared_ptr<EngineConfigGeneral> engineConfigGeneral() const override
 	{	return nullptr;		}
 
-	RESULT initialize() override
-	{	return SUCCESS;	}
+	void initialize() override
+	{}
 
-	RESULT shutdown() override
-	{	return SUCCESS;	}
+	void shutdown() override
+	{}
 
 	float getEngineTime() const override
 	{	return 0;	}
@@ -31,14 +31,14 @@ struct TestEngine1
 	float getEngineTimestep() const override
 	{	return 0;	}
 
-	step_result_t runLoopStep(float) override
-	{	return SUCCESS;	}
+	void runLoopStep(float) override
+	{}
 
-	RESULT waitForStepCompletion(float) override
-	{	return SUCCESS;	}
+	void waitForStepCompletion(float) override
+	{}
 
-	RESULT handleInputDevices(const device_inputs_t&) override
-	{	return SUCCESS;	}
+	void handleInputDevices(const device_inputs_t&) override
+	{}
 
 	protected:
 	    device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t &deviceIdentifiers) override
@@ -81,11 +81,11 @@ struct TestEngine2
 	std::shared_ptr<EngineConfigGeneral> engineConfigGeneral() const override
 	{	return nullptr;		}
 
-	RESULT initialize() override
-	{	return SUCCESS;	}
+	void initialize() override
+	{}
 
-	RESULT shutdown() override
-	{	return SUCCESS;	}
+	void shutdown() override
+	{}
 
 	float getEngineTime() const override
 	{	return 0;	}
@@ -93,14 +93,14 @@ struct TestEngine2
 	float getEngineTimestep() const override
 	{	return 0;	}
 
-	step_result_t runLoopStep(float) override
-	{	return SUCCESS;	}
+	void runLoopStep(float) override
+	{}
 
-	RESULT waitForStepCompletion(float) override
-	{	return SUCCESS;	}
+	void waitForStepCompletion(float) override
+	{}
 
-	RESULT handleInputDevices(const device_inputs_t&) override
-	{	return SUCCESS;	}
+	void handleInputDevices(const device_inputs_t&) override
+	{}
 
 	protected:
 	    device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t&) override

@@ -19,7 +19,7 @@ namespace gazebo
 			virtual ~CameraDeviceController() override;
 
 			MPIPropertyData getDeviceOutput() override;
-			EngineInterface::RESULT handleDeviceInput(PhysicsCamera &data) override;
+			void handleDeviceInput(PhysicsCamera &data) override;
 
 			void updateCamData(const unsigned char *image, unsigned int width, unsigned int height, unsigned int depth);
 

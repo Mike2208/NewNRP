@@ -30,7 +30,7 @@ void NRPCommunicationController::registerStepController(GazeboStepController *st
 	this->_stepController = stepController;
 }
 
-EngineInterface::RESULT NRPCommunicationController::initialize(const std::string &initData)
+void NRPCommunicationController::initialize(const std::string &initData)
 {
 	ConfigStorage confDat;
 
@@ -40,8 +40,7 @@ EngineInterface::RESULT NRPCommunicationController::initialize(const std::string
 	}
 	catch(std::exception &e)
 	{
-		NRPException::logCreate(e, "Unable to parse initialization data");
-		return EngineInterface::ERROR;
+		throw NRPException::logCreate(e, "Unable to parse initialization data");
 	}
 
 	GazeboConfig conf(confDat);
@@ -58,18 +57,14 @@ EngineInterface::RESULT NRPCommunicationController::initialize(const std::string
 		usleep(100*1000);
 
 		if(waitTime <= 0)
-			return EngineInterface::ERROR;
+			throw NRPException::logCreate("No Gazebo World StepController loaded. Unable to step simulation. Aborting...");
 	}
-
-	return EngineInterface::SUCCESS;
 }
 
-EngineInterface::RESULT NRPCommunicationController::shutdown(const std::string &shutdownData)
-{
-	return EngineInterface::SUCCESS;
-}
+void NRPCommunicationController::shutdown(const std::string &shutdownData)
+{}
 
-EngineInterface::step_result_t NRPCommunicationController::runLoopStep(float timeStep)
+void NRPCommunicationController::runLoopStep(float timeStep)
 {
 	if(this->_stepController == nullptr)
 		throw NRPException::logCreate("Tried to run loop while the controller has not yet been initialized");
@@ -83,8 +78,6 @@ EngineInterface::step_result_t NRPCommunicationController::runLoopStep(float tim
 	{
 		throw NRPException::logCreate(e, "Error during Gazebo stepping");
 	}
-
-	return EngineInterface::SUCCESS;
 }
 
 float NRPCommunicationController::getSimTime() const

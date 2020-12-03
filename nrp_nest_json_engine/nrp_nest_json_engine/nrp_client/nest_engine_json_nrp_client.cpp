@@ -14,7 +14,7 @@ NestEngineJSONNRPClient::NestEngineJSONNRPClient(EngineConfigConst::config_stora
 NestEngineJSONNRPClient::~NestEngineJSONNRPClient()
 {}
 
-NestEngineJSONNRPClient::RESULT NestEngineJSONNRPClient::initialize()
+void NestEngineJSONNRPClient::initialize()
 {
 	const auto &nestConfig = this->engineConfig();
 	nlohmann::json resp = this->sendInitCommand(nlohmann::json({{NestConfig::ConfigType.m_data, nestConfig->writeConfig()}}));
@@ -24,15 +24,11 @@ NestEngineJSONNRPClient::RESULT NestEngineJSONNRPClient::initialize()
 		this->_initErrMsg = resp.at(NestConfig::InitFileErrorMsg.data());
 		NRPLogger::SPDErrLogDefault(this->_initErrMsg);
 
-		return NestEngineJSONNRPClient::ERROR;
+		throw NRPException::logCreate("Engine \"" + this->engineName() + "\" initialization failed: " + this->_initErrMsg);
 	}
-
-	return NestEngineJSONNRPClient::SUCCESS;
 }
 
-EngineInterface::RESULT NestEngineJSONNRPClient::shutdown()
+void NestEngineJSONNRPClient::shutdown()
 {
 	this->sendShutdownCommand(nlohmann::json());
-
-	return NestEngineJSONNRPClient::SUCCESS;
 }

@@ -26,9 +26,9 @@ class NestEngineJSONNRPClient
 		NestEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~NestEngineJSONNRPClient() override;
 
-		virtual RESULT initialize() override;
+		virtual void initialize() override;
 
-		virtual RESULT shutdown() override;
+		virtual void shutdown() override;
 
 	private:
 		/*!

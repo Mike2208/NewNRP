@@ -17,8 +17,8 @@ class ExampleEngineClient
 
 		virtual ~ExampleEngineClient() override;
 
-		virtual RESULT initialize() override;
-		virtual RESULT shutdown() override;
+		virtual void initialize() override;
+		virtual void shutdown() override;
 
 		virtual float getEngineTime() const override;
 		virtual step_result_t runLoopStep(float timeStep) override
@@ -29,13 +29,11 @@ class ExampleEngineClient
 
 		float sendRunLoopStepCommand(float timeStep);
 
-		virtual RESULT waitForStepCompletion(float timeOut) override
+		virtual void waitForStepCompletion(float timeOut) override
 		{
 			// If thread state is invalid, loop thread has completed and waitForStepCompletion was called once before
 			if(!this->_loopStepThread.valid())
-			{
-				return EngineInterface::SUCCESS;
-			}
+				return;
 
 			// Wait until timeOut has passed
 			if(timeOut > 0)
@@ -50,7 +48,7 @@ class ExampleEngineClient
 			return EngineInterface::SUCCESS;
 		}
 
-		virtual RESULT handleInputDevices(const device_inputs_t &inputDevices) override;
+		virtual void handleInputDevices(const device_inputs_t &inputDevices) override;
 		virtual device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t &deviceIdentifiers) override;
 
 	private:

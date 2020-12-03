@@ -11,20 +11,30 @@ GazeboEngineJSONNRPClient::GazeboEngineJSONNRPClient(EngineConfigConst::config_s
     : EngineJSONNRPClient(config, std::move(launcher))
 {}
 
-GazeboEngineJSONNRPClient::RESULT GazeboEngineJSONNRPClient::initialize()
+void GazeboEngineJSONNRPClient::initialize()
 {
-	// Wait for Gazebo to load world
-	auto confDat = this->engineConfig()->writeConfig();
-	const nlohmann::json initRes = this->sendInitCommand(confDat);
-	if(!initRes[0].get<bool>())
-		return GazeboEngineJSONNRPClient::ERROR;
-
-	return GazeboEngineJSONNRPClient::SUCCESS;
+	try
+	{
+		// Wait for Gazebo to load world
+		auto confDat = this->engineConfig()->writeConfig();
+		const nlohmann::json initRes = this->sendInitCommand(confDat);
+		if(!initRes[0].get<bool>())
+			throw NRPExceptionNonRecoverable("Received initialization fail message from Engine \"" + this->engineName() + "\"");
+	}
+	catch(std::exception &e)
+	{
+		throw NRPException::logCreate(e, "Engine \"" + this->engineName() + "\" initialization failed");
+	}
 }
 
-EngineInterface::RESULT GazeboEngineJSONNRPClient::shutdown()
+void GazeboEngineJSONNRPClient::shutdown()
 {
-	this->sendShutdownCommand(nlohmann::json());
-
-	return GazeboEngineJSONNRPClient::SUCCESS;
+	try
+	{
+		this->sendShutdownCommand(nlohmann::json());
+	}
+	catch(std::exception &e)
+	{
+		throw NRPException::logCreate(e, "Engine \"" + this->engineName() + "\" shutdown failed");
+	}
 }

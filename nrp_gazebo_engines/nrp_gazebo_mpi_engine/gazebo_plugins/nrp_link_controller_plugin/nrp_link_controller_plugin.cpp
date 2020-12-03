@@ -35,10 +35,8 @@ MPIPropertyData gazebo::LinkDeviceController::getDeviceOutput()
 	return MPIPropertySerializer<PhysicsLink>::serializeProperties(this->_data);
 }
 
-EngineInterface::RESULT gazebo::LinkDeviceController::handleDeviceInput(PhysicsLink &data)
-{
-	return EngineInterface::SUCCESS;
-}
+void gazebo::LinkDeviceController::handleDeviceInput(PhysicsLink &data)
+{}
 
 gazebo::NRPLinkControllerPlugin::~NRPLinkControllerPlugin() = default;
 

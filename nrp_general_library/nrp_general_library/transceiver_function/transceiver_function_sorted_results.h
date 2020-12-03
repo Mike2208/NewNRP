@@ -1,5 +1,5 @@
-#ifndef TRANSCeivER_FUNCTION_SORTED_RESULTS_H
-#define TRANSCeivER_FUNCTION_SORTED_RESULTS_H
+#ifndef TRANSCEIVER_FUNCTION_SORTED_RESULTS_H
+#define TRANSCEIVER_FUNCTION_SORTED_RESULTS_H
 
 #include "nrp_general_library/transceiver_function/transceiver_function_interpreter.h"
 #include "nrp_general_library/transceiver_function/transceiver_function_manager.h"
@@ -42,4 +42,4 @@ struct TransceiverFunctionSortedResults
 		interface_results_t::iterator addResult(DeviceInterface *result);
 };
 
-#endif
+#endif // TRANSCEIVER_FUNCTION_SORTED_RESULTS_H

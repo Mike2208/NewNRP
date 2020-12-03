@@ -86,7 +86,7 @@ class SimulationLoop
 		 * \param results Results to be processes
 		 * \return Returns result of device handling inputs
 		 */
-		EngineInterface::RESULT handleInputDevices(const EngineInterfaceSharedPtr &engine, const TransceiverFunctionSortedResults &results);
+		void handleInputDevices(const EngineInterfaceSharedPtr &engine, const TransceiverFunctionSortedResults &results);
 
 		friend class SimulationLoopTest_InitTFManager_Test;
 };

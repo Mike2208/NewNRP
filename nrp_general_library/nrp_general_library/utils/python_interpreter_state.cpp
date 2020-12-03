@@ -9,7 +9,6 @@ PythonInterpreterState::PythonInterpreterState(int argc, const char *const *argv
 	Py_SetProgramName(this->_wcharArgs.getWCharTPointers()[0]);
 
 	Py_Initialize();
-	PyEval_InitThreads();
 
 	PySys_SetArgv(this->_wcharArgs.getWCharSize(), this->_wcharArgs.getWCharTPointers());
 
@@ -27,7 +26,6 @@ PythonInterpreterState::PythonInterpreterState(bool allowThreads)
     : _wcharArgs(0, nullptr)
 {
 	Py_Initialize();
-	PyEval_InitThreads();
 
 	if(allowThreads)
 		this->_state = PyEval_SaveThread();

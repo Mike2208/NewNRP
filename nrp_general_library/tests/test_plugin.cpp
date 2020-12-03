@@ -21,23 +21,23 @@ class TestEngine
 		    : Engine(configHolder, std::move(launcher))
 		{}
 
-		virtual RESULT initialize() override
-		{	return SUCCESS;	}
+		virtual void initialize() override
+		{}
 
-		virtual RESULT shutdown() override
-		{	return SUCCESS;	}
+		virtual void shutdown() override
+		{}
 
 		virtual float getEngineTime() const override
 		{	return 0.0f;	}
 
-		virtual step_result_t runLoopStep(float) override
-		{	return SUCCESS;	}
+		virtual void runLoopStep(float) override
+		{}
 
-		virtual RESULT waitForStepCompletion(float) override
-		{	return SUCCESS;	}
+		virtual void waitForStepCompletion(float) override
+		{}
 
-		virtual RESULT handleInputDevices(const device_inputs_t &) override
-		{	return SUCCESS;	}
+		virtual void handleInputDevices(const device_inputs_t &) override
+		{}
 
 	protected:
 		virtual device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t &deviceIdentifiers) override
