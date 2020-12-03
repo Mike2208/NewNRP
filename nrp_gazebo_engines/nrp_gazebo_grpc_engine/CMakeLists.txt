@@ -19,7 +19,7 @@ include(GNUInstallDirs)
 
 # List library build files
 set(LIB_SRC_FILES
-	nrp_gazebo_grpc_engine/config/gazebo_config.cpp
+	nrp_gazebo_grpc_engine/config/gazebo_grpc_config.cpp
 	nrp_gazebo_grpc_engine/engine_server/gazebo_step_controller.cpp
 	nrp_gazebo_grpc_engine/nrp_client/gazebo_engine_grpc_nrp_client.cpp
 	nrp_gazebo_grpc_engine/devices/grpc_physics_camera.cpp

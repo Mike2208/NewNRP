@@ -9,7 +9,7 @@
 #include "nrp_gazebo_devices/physics_joint.h"
 #include "nrp_gazebo_devices/physics_link.h"
 
-#include "nrp_gazebo_json_engine/config/gazebo_config.h"
+#include "nrp_gazebo_json_engine/config/gazebo_json_config.h"
 
 #include <unistd.h>
 
@@ -21,7 +21,7 @@ Gazebo Engine based on the \ref json_engine. The client is defined in GazeboEngi
  *  \brief NRP - Gazebo Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
  */
 class GazeboEngineJSONNRPClient
-        : public EngineJSONNRPClient<GazeboEngineJSONNRPClient, GazeboConfig, PhysicsCamera, PhysicsJoint, PhysicsLink>
+        : public EngineJSONNRPClient<GazeboEngineJSONNRPClient, GazeboJSONConfig, PhysicsCamera, PhysicsJoint, PhysicsLink>
 {
 	public:
 		GazeboEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
@@ -32,7 +32,7 @@ class GazeboEngineJSONNRPClient
 		virtual void shutdown() override;
 };
 
-using GazeboEngineJSONLauncher = GazeboEngineJSONNRPClient::EngineLauncher<GazeboConfig::DefEngineType>;
+using GazeboEngineJSONLauncher = GazeboEngineJSONNRPClient::EngineLauncher<GazeboJSONConfig::DefEngineType>;
 
 CREATE_NRP_ENGINE_LAUNCHER(GazeboEngineJSONLauncher);
 

@@ -1,15 +1,15 @@
-#ifndef GAZEBO_CONFIG_H
-#define GAZEBO_CONFIG_H
+#ifndef GAZEBO_GRPC_CONFIG_H
+#define GAZEBO_GRPC_CONFIG_H
 
-#include "nrp_json_engine_protocol/config/engine_json_config.h"
+#include "nrp_grpc_engine_protocol/config/engine_grpc_config.h"
 #include "nrp_general_library/utils/ptr_templates.h"
 
-struct GazeboConfigConst
+struct GazeboGrpcConfigConst
 {
 	/*!
-	 * \brief GazeboConfig Type
+	 * \brief GazeboGrpcConfig Type
 	 */
-	static constexpr FixedString ConfigType = "GazeboConfig";
+	static constexpr FixedString ConfigType = "GazeboGrpcConfig";
 
 	/*!
 	 * \brief Plugins to load into gazebo
@@ -47,25 +47,25 @@ struct GazeboConfigConst
 /*!
  *  \brief Configuration for gazebo physics engine
  */
-class GazeboConfig
-        : public EngineJSONConfig<GazeboConfig, GazeboConfigConst::GPropNames,
+class GazeboGrpcConfig
+        : public EngineGRPCConfig<GazeboGrpcConfig, GazeboGrpcConfigConst::GPropNames,
                                   std::vector<std::string>, std::size_t, unsigned int, std::string>,
-          public GazeboConfigConst,
-          public PtrTemplates<GazeboConfig>
+          public GazeboGrpcConfigConst,
+          public PtrTemplates<GazeboGrpcConfig>
 {
 	public:
 		// Default engine values. Copied from EngineConfigConst
-		static constexpr FixedString DefEngineType = "gazebo_json";
+		static constexpr FixedString DefEngineType = "gazebo_grpc";
 		static constexpr std::string_view DefEngineName = "gazebo_engine";
 		//static const string_vector_t DefEngineProcEnvParams;
 		static constexpr std::string_view DefEngineProcCmd = "/usr/bin/gzserver";
 		//static const string_vector_t DefEngineProcStartParams;
 
 		/*!
-		 * \brief Constructor. Takes configuration data from the main SimulationConfig class. Will register itself with said class, so that anytime the configuration is saved, any changes made by GazeboConfig are passed along
+		 * \brief Constructor. Takes configuration data from the main SimulationConfig class. Will register itself with said class, so that anytime the configuration is saved, any changes made by GazeboGrpcConfig are passed along
 		 * \param config Gazebo Configuration, taken from the SimulationConfig class
 		 */
-		GazeboConfig(EngineConfigConst::config_storage_t &config);
+		GazeboGrpcConfig(EngineConfigConst::config_storage_t &config);
 
 		std::string &gazeboWorldFile();
 		const std::string &gazeboWorldFile() const;
@@ -92,7 +92,7 @@ class GazeboConfig
 
 };
 
-using GazeboConfigSharedPtr = GazeboConfig::shared_ptr;
-using GazeboConfigConstSharedPtr = GazeboConfig::const_shared_ptr;
+using GazeboGrpcConfigSharedPtr = GazeboGrpcConfig::shared_ptr;
+using GazeboGrpcConfigConstSharedPtr = GazeboGrpcConfig::const_shared_ptr;
 
-#endif // GAZEBO_CONFIG_H
+#endif // GAZEBO_GRPC_CONFIG_H

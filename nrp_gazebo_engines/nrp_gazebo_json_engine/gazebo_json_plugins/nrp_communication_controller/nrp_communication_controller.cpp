@@ -57,7 +57,7 @@ float NRPCommunicationController::runLoopStep(float timeStep)
 json NRPCommunicationController::initialize(const json &data, EngineJSONServer::lock_t &lock)
 {
 	ConfigStorage confDat(data);
-	GazeboConfig conf(confDat);
+	GazeboJSONConfig conf(confDat);
 
 	double waitTime = conf.maxWorldLoadTime();
 	if(conf.maxWorldLoadTime() <= 0)

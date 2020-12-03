@@ -4,7 +4,7 @@
 #include "nrp_grpc_engine_protocol/engine_server/engine_grpc_server.h"
 #include "nrp_grpc_engine_protocol/engine_server/engine_grpc_device_controller.h"
 
-#include "nrp_gazebo_grpc_engine/config/gazebo_config.h"
+#include "nrp_gazebo_grpc_engine/config/gazebo_grpc_config.h"
 #include "nrp_gazebo_grpc_engine/engine_server/gazebo_step_controller.h"
 
 #include <pistache/router.h>

@@ -19,7 +19,7 @@ include(GNUInstallDirs)
 
 # List library build files
 set(LIB_SRC_FILES
-	nrp_gazebo_json_engine/config/gazebo_config.cpp
+	nrp_gazebo_json_engine/config/gazebo_json_config.cpp
 	nrp_gazebo_json_engine/engine_server/gazebo_step_controller.cpp
 	nrp_gazebo_json_engine/nrp_client/gazebo_engine_json_nrp_client.cpp
 )

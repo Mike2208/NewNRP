@@ -49,8 +49,6 @@ set(TEST_SRC_FILES
 # pistache: REST server library
 find_package(Pistache REQUIRED)
 
-find_package(Gazebo REQUIRED)
-
 
 ##########################################
 ## Header configuration
@@ -150,6 +148,8 @@ add_custom_target(NRPServerConf ALL
 ##########################################
 ## Tests
 if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
+	find_package(Gazebo REQUIRED)
+
 	set(GAZEBO_WORLD_FILE "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/empty_world.sdf")
 	set(TEST_SIM_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/tests/test_files/simulation_config.json")
 

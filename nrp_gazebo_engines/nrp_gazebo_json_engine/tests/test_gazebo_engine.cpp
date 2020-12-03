@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "nrp_gazebo_json_engine/config/gazebo_config.h"
+#include "nrp_gazebo_json_engine/config/gazebo_json_config.h"
 #include "nrp_gazebo_json_engine/config/cmake_constants.h"
 #include "nrp_gazebo_devices/physics_camera.h"
 #include "nrp_gazebo_devices/physics_joint.h"
@@ -16,9 +16,9 @@ TEST(TestGazeboEngine, Start)
 {
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
-	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+	confHolder.Data = nlohmann::json({{GazeboJSONConfigConst::GazeboWorldFile, ""}});
 
-	GazeboConfig conf(confHolder);
+	GazeboJSONConfig conf(confHolder);
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_EMPTY_WORLD_FILE;
 	conf.maxWorldLoadTime() = 1;
@@ -43,9 +43,9 @@ TEST(TestGazeboEngine, WorldPlugin)
 {
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
-	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+	confHolder.Data = nlohmann::json({{GazeboJSONConfigConst::GazeboWorldFile, ""}});
 
-	GazeboConfig conf(confHolder);
+	GazeboJSONConfig conf(confHolder);
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_WORLD_PLUGIN_FILE;
 
@@ -69,9 +69,9 @@ TEST(TestGazeboEngine, CameraPlugin)
 {
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
-	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+	confHolder.Data = nlohmann::json({{GazeboJSONConfigConst::GazeboWorldFile, ""}});
 
-	GazeboConfig conf(confHolder);
+	GazeboJSONConfig conf(confHolder);
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_CAMERA_PLUGIN_FILE;
 
@@ -120,9 +120,9 @@ TEST(TestGazeboEngine, JointPlugin)
 {
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
-	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+	confHolder.Data = nlohmann::json({{GazeboJSONConfigConst::GazeboWorldFile, ""}});
 
-	GazeboConfig conf(confHolder);
+	GazeboJSONConfig conf(confHolder);
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_JOINT_PLUGIN_FILE;
 
@@ -163,9 +163,9 @@ TEST(TestGazeboEngine, LinkPlugin)
 {
 	// Setup config
 	ConfigStorage<nlohmann::json> confHolder;
-	confHolder.Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+	confHolder.Data = nlohmann::json({{GazeboJSONConfigConst::GazeboWorldFile, ""}});
 
-	GazeboConfig conf(confHolder);
+	GazeboJSONConfig conf(confHolder);
 	conf.gazeboRNGSeed() = 12345;
 	conf.gazeboWorldFile() = TEST_LINK_PLUGIN_FILE;
 

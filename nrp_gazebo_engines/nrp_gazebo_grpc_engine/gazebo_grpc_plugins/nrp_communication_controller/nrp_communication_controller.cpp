@@ -62,7 +62,7 @@ float NRPCommunicationController::runLoopStep(float timeStep)
 void NRPCommunicationController::initialize(const json &data, EngineGrpcServer::lock_t &lock)
 {
 	ConfigStorage confDat(data);
-	GazeboConfig conf(confDat);
+	GazeboGrpcConfig conf(confDat);
 
 	double waitTime = conf.maxWorldLoadTime();
 	if(conf.maxWorldLoadTime() <= 0)
