@@ -62,7 +62,7 @@ ExternalProject_Add(nest-simulator
 
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${NRP_NEST_INSTALL_PREFIX} -Dwith-mpi=ON -Dwith-python=ON
 
-	UPDATE_COMMAND ""
+	#UPDATE_COMMAND ""
 )
 
 
