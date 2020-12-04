@@ -1,9 +1,7 @@
 #ifndef EXAMPLE_CONFIG_H
 #define EXAMPLE_CONFIG_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_config.h"
-#include "nrp_general_library/utils/ptr_templates.h"
-
+#include "nrp_general_library/config/engine_config.h"
 #include "nrp_example_engine/config/cmake_constants.h"
 
 class ExampleConfig

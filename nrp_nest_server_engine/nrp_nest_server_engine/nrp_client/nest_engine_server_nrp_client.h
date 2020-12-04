@@ -46,24 +46,24 @@ class NestEngineServerNRPClient
 		NestEngineServerNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~NestEngineServerNRPClient() override;
 
-		virtual RESULT initialize() override;
-		virtual RESULT shutdown() override;
+		virtual void initialize() override;
+		virtual void shutdown() override;
 
 		virtual float getEngineTime() const override;
 
-		virtual step_result_t runLoopStep(float timeStep) override;
-		virtual RESULT waitForStepCompletion(float timeOut) override;
+		virtual void runLoopStep(float timeStep) override;
+		virtual void waitForStepCompletion(float timeOut) override;
 
-		virtual RESULT handleInputDevices(const device_inputs_t &inputDevices) override;
+		virtual void handleInputDevices(const device_inputs_t &inputDevices) override;
 
 	protected:
 		virtual device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t &deviceIdentifiers) override;
 
 	private:
-		std::future<EngineInterface::RESULT> _runStepThread;
+		std::future<bool> _runStepThread;
 		nest_devices_t _nestDevs;
 
-		EngineInterface::RESULT runStepFcn(float timestep);
+		bool runStepFcn(float timestep);
 		std::string serverAddress() const;
 };
 

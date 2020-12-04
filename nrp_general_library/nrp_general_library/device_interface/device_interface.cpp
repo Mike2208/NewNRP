@@ -1,16 +1,12 @@
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 
 
 DeviceIdentifier::DeviceIdentifier(const std::string &_name, const std::string &_engineName, const std::string &_type)
     : Name(_name), EngineName(_engineName), Type(_type)
 {}
 
-DeviceInterface::DeviceInterface(const DeviceIdentifier &id)
-    : _id(id)
-{}
-
 DeviceInterface::DeviceInterface(const std::string &name, const std::string &engineName, const std::string &type)
-    : _id(name, engineName, type)
+    : DeviceInterface(DeviceIdentifier(name, engineName, type))
 {}
 
 const std::string &DeviceInterface::name() const
@@ -51,14 +47,4 @@ const DeviceIdentifier &DeviceInterface::id() const
 void DeviceInterface::setID(const DeviceIdentifier &id)
 {
 	this->_id = id;
-}
-
-void DeviceInterface::serialize(EngineGrpc::SetDeviceMessage * ) const
-{
-
-}
-
-void DeviceInterface::deserialize(const EngineGrpc::GetDeviceMessage & )
-{
-
 }

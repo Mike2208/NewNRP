@@ -1,7 +1,7 @@
 #ifndef DEVICE_CONVERSION_MECHANISM_H
 #define DEVICE_CONVERSION_MECHANISM_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 
 #include <concepts>

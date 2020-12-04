@@ -2,7 +2,7 @@
 #define ENGINE_INTERFACE_H
 
 #include "nrp_general_library/config/engine_config.h"
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/process_launchers/process_launcher.h"
 #include "nrp_general_library/utils/fixed_string.h"
 #include "nrp_general_library/utils/ptr_templates.h"
@@ -41,15 +41,10 @@ class EngineInterface
 		};
 
 	public:
-		enum RESULT
-		{	ERROR, SUCCESS	};
-
 		using device_identifiers_t = std::set<DeviceIdentifier>;
 		using device_outputs_t = std::vector<DeviceInterfaceConstSharedPtr>;
 		using device_outputs_set_t = std::set<DeviceInterfaceConstSharedPtr, CompareDevInt>;
 		using device_inputs_t = std::vector<DeviceInterface*>;
-
-		using step_result_t = RESULT;
 
 		explicit EngineInterface(ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~EngineInterface();
@@ -80,23 +75,27 @@ class EngineInterface
 		/*!
 		 * \brief Initialize engine
 		 * \return Returns SUCCESS if no error was encountered
+		 * \throw Throws on error
 		 */
-		virtual RESULT initialize() = 0;
+		virtual void initialize() = 0;
 
 		/*!
 		 * \brief Shutdown engine
 		 * \return Return SUCCESS if no error was encountered
+		 * \throw Throws on error
 		 */
-		virtual RESULT shutdown() = 0;
+		virtual void shutdown() = 0;
 
 		/*!
 		 * \brief Get engine timestep (in seconds)
+		 * \throw Throws on error
 		 */
 		virtual float getEngineTimestep() const = 0;
 
 		/*!
 		 * \brief Get current engine time (in seconds)
 		 * \return Returns engine time
+		 * \throw Throws on error
 		 */
 		virtual float getEngineTime() const = 0;
 
@@ -104,15 +103,17 @@ class EngineInterface
 		 * \brief Starts a single loop step in a separate thread.
 		 * EngineInterface::waitForStepCompletion() can be used to join threads again
 		 * \param timeStep Time (in seconds) of a single step
+		 * \throw Throws on error
 		 */
-		virtual step_result_t runLoopStep(float timeStep) = 0;
+		virtual void runLoopStep(float timeStep) = 0;
 
 		/*!
 		 * \brief Wait until step has been completed, at most timeOut seconds
 		 * \param timeOut Wait for at most timeOut seconds
 		 * \return Returns SUCCESS if step has completed before timeOut, ERROR otherwise
+		 * \throw Throws on error
 		 */
-		virtual RESULT waitForStepCompletion(float timeOut) = 0;
+		virtual void waitForStepCompletion(float timeOut) = 0;
 
 		/*!
 		 * \brief Gets requested output devices from physics simulator.
@@ -132,8 +133,9 @@ class EngineInterface
 		 * \brief Handles received input devices
 		 * \param inputDevices All input devices that the phyiscs simulation should process
 		 * \return Returns SUCCESS if all input devices could be handles, ERROR otherwise
+		 * \throw Throws on error
 		 */
-		virtual RESULT handleInputDevices(const device_inputs_t &inputDevices) = 0;
+		virtual void handleInputDevices(const device_inputs_t &inputDevices) = 0;
 
 	protected:
 
@@ -141,6 +143,7 @@ class EngineInterface
 		 * \brief Gets requested output devices from physics simulator
 		 * \param deviceNames All requested names. NOTE: can also include IDs of other engines. A check must be added that only the corresponding IDs are retrieved
 		 * \return Returns all requested output devices
+		 * \throw Throws on error
 		 */
 		virtual device_outputs_set_t requestOutputDeviceCallback(const device_identifiers_t &deviceIdentifiers) = 0;
 

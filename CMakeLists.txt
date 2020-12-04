@@ -1,9 +1,12 @@
+set(NRP_VERSION 0.0.1)
+
 cmake_minimum_required(VERSION 3.16)
-project(NRProject VERSION 1.0.0)
+project(NRProject VERSION ${NRP_VERSION})
 
 set (CMAKE_CXX_STANDARD 20)
 
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
 #string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
 
 include(GNUInstallDirs)
@@ -54,8 +57,7 @@ endif()
 find_package(Boost REQUIRED COMPONENTS ${BOOST_PYTHON_COMPONENT} filesystem)
 set(BOOST_PYTHON "Boost::${BOOST_PYTHON_COMPONENT}")
 
-set(PYTHON_INSTALL_DIR_REL "python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages" CACHE INTERNAL "Relative install location for python libraries")
-set(PYTHON_INSTALL_DIR_ABS "${CMAKE_INSTALL_LIBDIR}/${PYTHON_INSTALL_DIR_REL}" CACHE INTERNAL "Absoulte install location for python libraries")
+set(PYTHON_INSTALL_DIR_REL "${CMAKE_INSTALL_LIBDIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages" CACHE INTERNAL "Relative install location for python libraries")
 
 
 ##########################################
@@ -93,7 +95,6 @@ function(add_doxygen_source directory)
 	set_property(GLOBAL PROPERTY DOXYGEN_SOURCE_LIST "${tmp}")
 endfunction(add_doxygen_source)
 
-add_subdirectory(proto)
 
 ##########################################
 ## General NRP library
@@ -102,16 +103,29 @@ add_subdirectory(nrp_general_library)
 
 
 ##########################################
+## NRP Communication Protocols
+
+## JSON Communication Protocol
+add_subdirectory(nrp_engine_protocols/nrp_json_engine_protocol)
+
+## GRPC Communication Protocol
+add_subdirectory(nrp_engine_protocols/nrp_grpc_engine_protocol)
+
+
+##########################################
 ## NRP Engines
 
+## Gazebo devices
+add_subdirectory(nrp_gazebo_engines/nrp_gazebo_devices)
+
 ## Gazebo JSON Engine
-add_subdirectory(nrp_gazebo_json_engine)
+add_subdirectory(nrp_gazebo_engines/nrp_gazebo_json_engine)
 
 ## Gazebo gRPC Engine
-add_subdirectory(nrp_gazebo_grpc_engine)
+add_subdirectory(nrp_gazebo_engines/nrp_gazebo_grpc_engine)
 
 ## Gazebo MPI Engine
-add_subdirectory(nrp_gazebo_mpi_engine)
+#add_subdirectory(nrp_gazebo_mpi_engine)
 
 ## Nest Engine
 add_subdirectory(nrp_nest_json_engine)
@@ -146,6 +160,7 @@ set(DOXYGEN_EXAMPLE_PATH
 	"docs/example_engine")
 
 add_subdirectory("docs/example_engine" EXCLUDE_FROM_ALL)
+add_subdirectory("docs/example_json_engine" EXCLUDE_FROM_ALL)
 
 get_property(DOXYGEN_SOURCES GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
 doxygen_add_docs(doxygen
@@ -155,4 +170,5 @@ doxygen_add_docs(doxygen
 	"docs/todos.dox"
 	"docs/tutorials/engine_creation.dox"
 	"docs/tutorials/grpc_engine_creation.dox"
+	"docs/tutorials/json_engine_creation.dox"
 	COMMENT "Generating documentation")

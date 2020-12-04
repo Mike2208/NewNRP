@@ -1,6 +1,7 @@
 #ifndef PROPERTY_SERIALIZER_H
 #define PROPERTY_SERIALIZER_H
 
+#include "nrp_general_library/utils/function_traits.h"
 #include "nrp_general_library/utils/serializers/property_serializer_general.h"
 
 /*!

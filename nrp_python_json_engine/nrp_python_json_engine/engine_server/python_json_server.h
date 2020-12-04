@@ -2,7 +2,7 @@
 #define PYTHON_JSON_SERVER_H
 
 #include "nrp_general_library/device_interface/devices/pyobject_device.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.h"
+#include "nrp_json_engine_protocol/engine_server/engine_json_server.h"
 #include "nrp_general_library/utils/python_interpreter_state.h"
 
 #include "nrp_python_json_engine/config/python_config.h"
@@ -78,7 +78,7 @@ class PythonJSONServer
 		/*!
 		 * \brief List of device ptrs. Used to manage controller deletion
 		 */
-		std::list<EngineJSONDeviceController::shared_ptr> _deviceControllerPtrs;
+		std::list<EngineDeviceControllerInterface<nlohmann::json>::shared_ptr> _deviceControllerPtrs;
 
 		/*!
 		 *	\brief GIL Lock state

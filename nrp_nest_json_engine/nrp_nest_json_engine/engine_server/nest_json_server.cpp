@@ -37,12 +37,16 @@ NestJSONServer::~NestJSONServer()
 
 		// Shutdown any running threads
 		this->_shutdownFlag = true;
+		this->shutdownServer();
 	}
 	catch(python::error_already_set &)
 	{
 		// If an error occured, print the error
-		PyErr_Print();
-		PyErr_Clear();
+		NRPException::logCreate("Nest JSON python shutdown failure: " + handle_pyerror());
+	}
+	catch(std::exception &e)
+	{
+		NRPException::logCreate(e, "Nest JSON python failure");
 	}
 }
 
@@ -80,6 +84,7 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 	PythonGILLock lock(this->_pyGILState, true);
 	try
 	{
+		// Import modules
 		python::object nestModule = python::import("nest");
 		this->_pyNest = python::dict(nestModule.attr("__dict__"));
 
@@ -88,6 +93,9 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 
 		this->_pyGlobals["nest"] = nestModule;
 		this->_pyGlobals[NRP_NEST_PYTHON_MODULE_STR] = nrpNestModule;
+
+		// Set Nest to silent
+		nestModule.attr("set_verbosity")(0);
 	}
 	catch(python::error_already_set &)
 	{
@@ -148,8 +156,8 @@ nlohmann::json NestJSONServer::initialize(const nlohmann::json &data, EngineJSON
 			const std::string devName = python::extract<std::string>(python::str(devKey));
 			python::object devNodes = this->_devMap[devKey];
 
-			auto devController = std::shared_ptr<NestEngineJSONDeviceController<NestDeviceInterface> >(new
-			            NestEngineJSONDeviceController<NestDeviceInterface>(DeviceIdentifier(devName, config.engineName(), NestDeviceInterface::TypeName.data()),
+			auto devController = std::shared_ptr<NestEngineJSONDeviceController<NestDevice> >(new
+			            NestEngineJSONDeviceController<NestDevice>(DeviceIdentifier(devName, config.engineName(), NestDevice::TypeName.data()),
 												 devNodes, this->_pyNest));
 
 			this->_deviceControllerPtrs.push_back(devController);

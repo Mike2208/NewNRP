@@ -13,7 +13,7 @@ set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
 cmake_minimum_required(VERSION 3.16)
-project("${PROJECT_NAME}" VERSION 1.0.0)
+project("${PROJECT_NAME}" VERSION ${NRP_VERSION})
 
 include(GNUInstallDirs)
 
@@ -28,30 +28,18 @@ set(LIB_SRC_FILES
 	nrp_general_library/config/transceiver_function_config.cpp
 	nrp_general_library/device_interface/device_conversion_mechanism.cpp
 	nrp_general_library/device_interface/device_interface.cpp
+	nrp_general_library/device_interface/device.cpp
+	nrp_general_library/device_interface/device_serializer.cpp
+	nrp_general_library/device_interface/device_serializer_methods.cpp
 	nrp_general_library/device_interface/devices/pyobject_device.cpp
 	nrp_general_library/device_interface/python_device.cpp
+	nrp_general_library/engine_interfaces/engine_device_controller.cpp
 	nrp_general_library/engine_interfaces/engine_interface.cpp
-	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.cpp
-	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.cpp
-	nrp_general_library/engine_interfaces/engine_grpc_interface/engine_client/engine_grpc_client.cpp
-	nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.cpp
-	nrp_general_library/engine_interfaces/engine_json_interface/device_interfaces/json_device_conversion_mechanism.cpp
-	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_device_controller.cpp
-	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_server.cpp
-	nrp_general_library/engine_interfaces/engine_json_interface/engine_server/engine_json_opts_parser.cpp
-	nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_nrp_client.cpp
-	nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_registration_server.cpp
-	nrp_general_library/engine_interfaces/engine_mpi_interface/config/engine_mpi_config.cpp
-	nrp_general_library/engine_interfaces/engine_mpi_interface/device_interfaces/mpi_device_conversion_mechanism.cpp
-	nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_device_controller.cpp
-	nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_server.cpp
-	nrp_general_library/engine_interfaces/engine_mpi_interface/nrp_client/nrp_mpi_client.cpp
 	nrp_general_library/engine_interfaces/engine_launcher_manager.cpp
 	nrp_general_library/plugin_system/plugin.cpp
 	nrp_general_library/plugin_system/plugin_manager.cpp
 	nrp_general_library/process_launchers/launch_commands/basic_fork.cpp
 	nrp_general_library/process_launchers/launch_commands/launch_command.cpp
-	nrp_general_library/process_launchers/launch_commands/mpi_spawn.cpp
 	nrp_general_library/process_launchers/process_launcher.cpp
 	nrp_general_library/process_launchers/process_launcher_basic.cpp
 	nrp_general_library/process_launchers/process_launcher_manager.cpp
@@ -61,19 +49,16 @@ set(LIB_SRC_FILES
 	nrp_general_library/transceiver_function/transceiver_function_interpreter.cpp
 	nrp_general_library/transceiver_function/transceiver_function_manager.cpp
 	nrp_general_library/transceiver_function/transceiver_function_sorted_results.cpp
+	nrp_general_library/utils/concepts.cpp
 	nrp_general_library/utils/property_template.cpp
 	nrp_general_library/utils/ptr_templates.cpp
 	nrp_general_library/utils/restclient_setup.cpp
 	nrp_general_library/utils/serializers/json_property_serializer.cpp
-	nrp_general_library/utils/serializers/mpi_property_serializer.cpp
-	nrp_general_library/utils/serializers/mpi_property_serializer_methods.cpp
 	nrp_general_library/utils/serializers/property_serializer.cpp
 	nrp_general_library/utils/serializers/property_serializer_general.cpp
 	nrp_general_library/utils/serializers/python_dict_property_serializer.cpp
 	nrp_general_library/utils/file_finder.cpp
 	nrp_general_library/utils/fixed_string.cpp
-	nrp_general_library/utils/mpi_communication.cpp
-	nrp_general_library/utils/mpi_setup.cpp
 	nrp_general_library/utils/nrp_exceptions.cpp
 	nrp_general_library/utils/nrp_logger.cpp
 	nrp_general_library/utils/pipe_communication.cpp
@@ -98,15 +83,8 @@ set(TEST_SRC_FILES
 	tests/base_config.cpp
 	tests/device_interface.cpp
 	tests/config_storage.cpp
-	tests/engine_json_config.cpp
-	tests/engine_json_server.cpp
-	tests/engine_json_nrp_client.cpp
 	tests/engine_launcher_manager.cpp
-	tests/engine_grpc.cpp
-	tests/json_device_methods.cpp
 	tests/json_property_serializer.cpp
-	#tests/mpi_communication.cpp
-	#tests/mpi_property_serializer.cpp
 	tests/plugin_manager.cpp
 	tests/property_template.cpp
 	tests/python_dict_property_serializer.cpp
@@ -157,7 +135,9 @@ if(NOT ${restclient-cpp_FOUND})
 			INTERFACE "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 	endif()
 endif()
-add_library(restclient-cpp::restclient-cpp ALIAS restclient-cpp)
+if(NOT TARGET restclient-cpp::restclient-cpp)
+	add_library(restclient-cpp::restclient-cpp ALIAS restclient-cpp)
+endif()
 
 # pistache: REST server library
 find_package(Pistache REQUIRED)
@@ -177,18 +157,9 @@ if(NOT ${nlohmann_json_FOUND})
 	endif()
 endif()
 
-# MPI: Communication library
-find_package(MPI REQUIRED)
-
 # libzip: ZIP Manipulation
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LibZip REQUIRED IMPORTED_TARGET libzip)
-
-# MPI4Py: Send Python objects over MPI
-find_package(MPI4Py)
-if(NOT ${MPI4Py_FOUND})
-	include("cmake/CompileMPI4Py.cmake")
-endif()
 
 
 ##########################################
@@ -219,7 +190,6 @@ target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
 	    ${BOOST_PYTHON}
 		cxxopts::cxxopts
-		MPI::MPI_CXX
 		nlohmann_json::nlohmann_json
 		pistache
 		PkgConfig::LibZip
@@ -227,15 +197,11 @@ target_link_libraries(${LIBRARY_NAME}
 		Python3::Python
 		restclient-cpp::restclient-cpp
 		spdlog::spdlog
-		${PROTOBUF_LIBRARIES}
-		${GRPC_LIBRARIES}
-		NRPGRPCLibrary::NRPGRPCLibrary
 
 	PRIVATE
-	    MPI4Py::MPI4Py
 )
 
-target_include_directories(${LIBRARY_NAME}
+target_include_directories(${LIBRARY_NAME} BEFORE
 	PUBLIC 
 	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
@@ -302,14 +268,6 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 		PUBLIC
 		${NAMESPACE_NAME}::${LIBRARY_NAME})
 
-	add_library(MPICommDevices STATIC tests/test_mpi_communication_devices.cpp)
-	target_link_libraries(MPICommDevices PUBLIC ${NAMESPACE_NAME}::${LIBRARY_NAME})
-
-	# Create mpi testing process (used for testing MPI child process spawning and communication)
-	set(TEST_MPI_COMMUNICATION "TestMPIComm")
-	add_executable(${TEST_MPI_COMMUNICATION} tests/test_mpi_communication_proc.cpp)
-	target_link_libraries(${TEST_MPI_COMMUNICATION} ${NAMESPACE_NAME}::${LIBRARY_NAME} MPICommDevices)
-
 	# Create testing env files
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_files/test_env.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/test_env.sh" @ONLY)
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/test_env_cmake.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/tests/test_env_cmake.h" @ONLY)
@@ -319,7 +277,6 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 	add_executable(${TEST_NAME} ${TEST_SRC_FILES})
 	target_link_libraries(${TEST_NAME}
 		PUBLIC
-		MPICommDevices
 		${NAMESPACE_NAME}::${LIBRARY_NAME}
 		GTest::gtest
 		GTest::gtest_main
@@ -370,10 +327,10 @@ install(DIRECTORY "${HEADER_DIRECTORY}" "${CMAKE_CURRENT_BINARY_DIR}/include/${H
 # Install python module
 if(TARGET ${PYTHON_MODULE_NAME})
 	install(TARGETS ${PYTHON_MODULE_NAME}
-		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_REL}/${PYTHON_MODULE_NAME}")
 
 	install(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py"
-		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_REL}/${PYTHON_MODULE_NAME}")
 endif()
 
 # Install executable files

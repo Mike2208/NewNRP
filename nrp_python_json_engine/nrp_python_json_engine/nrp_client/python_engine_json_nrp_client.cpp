@@ -14,7 +14,7 @@ PythonEngineJSONNRPClient::PythonEngineJSONNRPClient(EngineConfigConst::config_s
 PythonEngineJSONNRPClient::~PythonEngineJSONNRPClient()
 {}
 
-PythonEngineJSONNRPClient::RESULT PythonEngineJSONNRPClient::initialize()
+void PythonEngineJSONNRPClient::initialize()
 {
 	const auto &pythonConfig = this->engineConfig();
 	nlohmann::json resp = this->sendInitCommand(nlohmann::json({{PythonConfig::ConfigType.m_data, pythonConfig->writeConfig()}}));
@@ -24,15 +24,11 @@ PythonEngineJSONNRPClient::RESULT PythonEngineJSONNRPClient::initialize()
 		this->_initErrMsg = resp.at(PythonConfig::InitFileErrorMsg.data());
 		NRPLogger::SPDErrLogDefault(this->_initErrMsg);
 
-		return PythonEngineJSONNRPClient::ERROR;
+		throw NRPException::logCreate("Initialization failed: " + this->_initErrMsg);
 	}
-
-	return PythonEngineJSONNRPClient::SUCCESS;
 }
 
-EngineInterface::RESULT PythonEngineJSONNRPClient::shutdown()
+void PythonEngineJSONNRPClient::shutdown()
 {
 	this->sendShutdownCommand(nlohmann::json());
-
-	return PythonEngineJSONNRPClient::SUCCESS;
 }

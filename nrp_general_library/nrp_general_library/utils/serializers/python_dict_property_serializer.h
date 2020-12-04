@@ -14,6 +14,7 @@ class ObjectPropertySerializerMethods<boost::python::dict>
 {
 	public:
 		using ObjectDeserializer = PropertySerializerGeneral::ObjectDeserializer<boost::python::dict>;
+		using deserialization_t = const boost::python::dict&;
 
 		template<class PROPERTY>
 		static boost::python::object serializeSingleProperty(const PROPERTY &property)

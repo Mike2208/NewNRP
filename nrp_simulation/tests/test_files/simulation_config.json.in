@@ -2,7 +2,7 @@
 	"SimulationName": "test_sim",
 	"EngineConfigs": [
 		{
-			"EngineType": "gazebo_json",
+		    "EngineType": "gazebo_grpc",
 			"EngineName": "gazebo",
 			"GazeboWorldFile": "@GAZEBO_WORLD_FILE@"
 		},

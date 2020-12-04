@@ -1,0 +1,39 @@
+#ifndef NRP_GAZEBO_MPI_CLIENT_H
+#define NRP_GAZEBO_MPI_CLIENT_H
+
+#include "nrp_general_library/engine_interfaces/engine_mpi_interface/nrp_client/nrp_mpi_client.h"
+#include "nrp_general_library/engine_interfaces/engine_interface.h"
+#include "nrp_general_library/plugin_system/plugin.h"
+
+#include "nrp_gazebo_mpi_engine/devices/physics_camera.h"
+#include "nrp_gazebo_mpi_engine/devices/physics_joint.h"
+#include "nrp_gazebo_mpi_engine/devices/physics_link.h"
+
+#include "nrp_gazebo_mpi_engine/config/gazebo_config.h"
+
+#include <unistd.h>
+
+/*! \defgroup gazebo_mpi_engine "Gazebo MPI Engine"
+Gazebo Engine based on the \ref mpi_engine.
+ */
+
+/*!
+ *  \brief NRP - Gazebo Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
+ */
+class NRPGazeboMPIClient
+        : public NRPMPIClient<NRPGazeboMPIClient, GazeboConfig, PhysicsCamera, PhysicsJoint, PhysicsLink>
+{
+	public:
+		NRPGazeboMPIClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
+		virtual ~NRPGazeboMPIClient() override = default;
+
+		//virtual void initialize() override;
+
+		//virtual void shutdown() override;
+};
+
+using GazeboEngineJSONLauncher = NRPGazeboMPIClient::EngineLauncher<GazeboConfig::DefEngineType>;
+
+CREATE_NRP_ENGINE_LAUNCHER(GazeboEngineJSONLauncher);
+
+#endif // NRP_GAZEBO_MPI_CLIENT_H

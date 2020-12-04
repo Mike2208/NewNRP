@@ -2,7 +2,7 @@
 #define TRANSCEIVER_FUNCTION_INTERPRETER_H
 
 #include "nrp_general_library/config/transceiver_function_config.h"
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/transceiver_function/transceiver_device_interface.h"
 

@@ -1,0 +1,163 @@
+syntax = "proto3";
+
+package EngineGrpc;
+
+/*
+ * Remote Procedure Calls available to the gRPC engine
+ * These are commands that the engine client can send to the engine server
+ */
+service EngineGrpcService
+{
+    rpc init       (InitRequest)        returns (InitReply)        {}
+    rpc shutdown   (ShutdownRequest)    returns (ShutdownReply)    {}
+    rpc runLoopStep(RunLoopStepRequest) returns (RunLoopStepReply) {}
+    rpc setDevice  (SetDeviceRequest)   returns (SetDeviceReply)   {}
+    rpc getDevice  (GetDeviceRequest)   returns (GetDeviceReply)   {}
+}
+
+/*
+ * Message sent by client with the init command
+ * Contains initialization configuration in form of a stringified JSON
+ */
+message InitRequest
+{
+    string json = 1;
+}
+
+/*
+ * Server's response to the init command
+ */
+message InitReply
+{
+    // Empty
+}
+
+/*
+ * Message sent by client with the shutdown command
+ * Contains additional shutdown parameters in form of a stringified JSON
+ */
+message ShutdownRequest
+{
+    string json = 1;
+}
+
+/*
+ * Server's response to the shutdown command
+ */
+message ShutdownReply
+{
+    // Empty
+}
+
+/*
+ * Message sent by client with the runLoopStep command
+ * Contains requested time step of the simulation
+ */
+message RunLoopStepRequest
+{
+    float timeStep = 1;
+}
+
+/*
+ * Server's response to the runLoopStep command
+ * Contains current time of the simulation (after running the requested time step)
+ */
+message RunLoopStepReply
+{
+    float engineTime = 1;
+}
+
+/*
+ * Message sent by client with the setDevice command
+ * Contains data for multiple devices
+ */
+message SetDeviceRequest
+{
+    repeated DeviceMessage request = 1;
+}
+
+/*
+ * Server's response to the setDevice command
+ */
+message SetDeviceReply
+{
+    // Empty
+}
+
+/*
+ * Message sent by client with the getDevice command
+ * Contains metadata of multiple devices
+ */
+message GetDeviceRequest
+{
+    repeated DeviceIdentifier deviceId = 1;
+}
+
+/*
+ * Server's response to the getDevice command
+ * Contains data of multiple devices
+ */
+message GetDeviceReply
+{
+    repeated DeviceMessage reply = 1;
+}
+
+/*
+ * Data of a single device sent by server in response to the getDevice command
+ * Contains device metadata and data specific to the device type
+ */
+ message DeviceMessage
+{
+    DeviceIdentifier deviceId = 1;
+
+    oneof data
+    {
+	    GazeboCamera camera = 2;
+		GazeboLink   link   = 3;
+		GazeboJoint  joint  = 4;
+    }
+}
+
+/*
+ * Device metadata
+ */
+message DeviceIdentifier
+{
+    string deviceName = 1;
+    string deviceType = 2;
+    string engineName = 3;
+}
+
+/*
+ * Data coming from gazebo camera device
+ */
+message GazeboCamera
+{
+    uint32 imageWidth  = 1;
+    uint32 imageHeight = 2;
+    uint32 imageDepth  = 3;
+    bytes  imageData   = 4;
+}
+
+/*
+ * Data coming from gazebo link device
+ */
+message GazeboLink
+{
+    repeated float position        = 1;
+    repeated float rotation        = 2;
+    repeated float linearVelocity  = 3;
+    repeated float angularVelocity = 4;
+}
+
+/*
+ * Data coming from gazebo joint device
+ */
+message GazeboJoint
+{
+    float position = 1;
+    float velocity = 2;
+    float effort   = 3;
+}
+
+// EOF

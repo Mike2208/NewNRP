@@ -2,7 +2,7 @@
 #define PYTHON_ENGINE_JSON_NRP_CLIENT_H
 
 #include "nrp_general_library/device_interface/devices/pyobject_device.h"
-#include "nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_nrp_client.h"
+#include "nrp_json_engine_protocol/nrp_client/engine_json_nrp_client.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/plugin_system/plugin.h"
 
@@ -25,9 +25,9 @@ class PythonEngineJSONNRPClient
 		PythonEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~PythonEngineJSONNRPClient() override;
 
-		virtual RESULT initialize() override;
+		virtual void initialize() override;
 
-		virtual RESULT shutdown() override;
+		virtual void shutdown() override;
 
 	private:
 		/*!

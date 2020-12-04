@@ -3,7 +3,7 @@
 
 #define TEST_SIM_SIMPLE_CONFIG_FILE "@CMAKE_CURRENT_SOURCE_DIR@/tests/test_files/simple_simulation_config.json"
 
-#define TEST_SIM_CONFIG_FILE "@CMAKE_CURRENT_SOURCE_DIR@/tests/test_files/simulation_config.json"
+#define TEST_SIM_CONFIG_FILE "@TEST_SIM_CONFIG_FILE@"
 
 #define TEST_INVALID_JSON_FILE "@CMAKE_CURRENT_SOURCE_DIR@/tests/test_files/invalid_json.json"
 

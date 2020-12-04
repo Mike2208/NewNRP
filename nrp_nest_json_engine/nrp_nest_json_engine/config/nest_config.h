@@ -1,7 +1,7 @@
 #ifndef NEST_CONFIG_H
 #define NEST_CONFIG_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/config/engine_json_config.h"
+#include "nrp_json_engine_protocol/config/engine_json_config.h"
 #include "nrp_general_library/utils/ptr_templates.h"
 
 #include "nrp_nest_json_engine/config/cmake_constants.h"

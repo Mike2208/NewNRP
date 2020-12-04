@@ -43,8 +43,8 @@ struct EngineConfigConst
 	/*!
 	 * \brief Engine Timeout (in seconds). How long the simulator should wait for the completion of the engine runStep. 0 or negative values are interpreted as no timeout
 	 */
-	static constexpr FixedString EngineRunStepTimeout = "EngineTimeout";
-	static constexpr float DefEngineRunStepTimeout = 0;
+	static constexpr FixedString EngineCommandTimeout = "EngineCommandTimeout";
+	static constexpr float DefEngineCommandTimeout = 0;
 
 	/*!
 	 * \brief Engine Process Environment Parameters
@@ -64,7 +64,7 @@ struct EngineConfigConst
 	static constexpr FixedString EngineProcStartParams = "EngineProcStartParams";
 	static const string_vector_t DefEngineProcStartParams;
 
-	using ECfgPropNames = PropNames<EngineType, EngineName, EngineLaunchCmd, EngineTimestep, EngineRunStepTimeout, EngineProcEnvParams, EngineProcStartParams, EngineProcCmd>;
+	using ECfgPropNames = PropNames<EngineType, EngineName, EngineLaunchCmd, EngineTimestep, EngineCommandTimeout, EngineProcEnvParams, EngineProcStartParams, EngineProcCmd>;
 
 	template<class CONFIG, class PROP_NAMES, class ...PROPERTIES>
 	using ECfgProps = JSONConfigProperties<CONFIG, MultiPropNames<EngineConfigConst::ECfgPropNames, PROP_NAMES>,
@@ -102,14 +102,14 @@ class EngineConfigGeneral
 		/*!
 		 * \brief Get maximmum time the engine runstep may take (in seconds)
 		 */
-		virtual const float &engineRunStepTimeout() const = 0;
-		float &engineRunStepTimeout();
+		virtual const float &engineCommandTimeout() const = 0;
+		float &engineCommandTimeout();
 
 		/*!
-		 * \brief Get Engine Process Environment variables
+		 * \brief Get Engine Process Environment variables defined in config
 		 */
-		virtual const string_vector_t &engineProcEnvParams() const = 0;
-		string_vector_t &engineProcEnvParams();
+		virtual const string_vector_t &userProcEnvParams() const = 0;
+		string_vector_t &userProcEnvParams();
 
 		/*!
 		 * \brief Get Engine Process Command
@@ -118,10 +118,10 @@ class EngineConfigGeneral
 		std::string &engineProcCmd();
 
 		/*!
-		 * \brief Get Engine Process startup parameters
+		 * \brief Get Engine Process startup parameters defined in config
 		 */
-		virtual const string_vector_t &engineProcStartParams() const = 0;
-		string_vector_t &engineProcStartParams();
+		virtual const string_vector_t &userProcStartParams() const = 0;
+		string_vector_t &userProcStartParams();
 
 		/*!
 		 * \brief Get all Engine Process Environment variables.
@@ -156,7 +156,7 @@ class EngineConfig
 		                               CONFIG::DefEngineName.data(),
 		                               CONFIG::DefEngineLaunchCmd.data(),
 		                               CONFIG::DefEngineTimestep,
-		                               CONFIG::DefEngineRunStepTimeout,
+		                               CONFIG::DefEngineCommandTimeout,
 		                               CONFIG::DefEngineProcEnvParams,
 		                               CONFIG::DefEngineProcStartParams,
 		                               CONFIG::DefEngineProcCmd.data(),
@@ -181,17 +181,17 @@ class EngineConfig
 		float &engineTimestep()
 		{	return this->EngineConfigGeneral::engineTimestep();	}
 
-		const float &engineRunStepTimeout() const override final
-		{	return this->template getPropertyByName<EngineRunStepTimeout>();	}
+		const float &engineCommandTimeout() const override final
+		{	return this->template getPropertyByName<EngineCommandTimeout>();	}
 
 		float &engineRunStepTimeout()
 		{	return this->EngineConfigGeneral::engineRunStepTimeout();	}
 
-		const string_vector_t &engineProcEnvParams() const override final
+		const string_vector_t &userProcEnvParams() const override final
 		{	return this->template getPropertyByName<EngineProcEnvParams>();	}
 
-		string_vector_t &engineProcEnvParams()
-		{	return this->EngineConfigGeneral::engineProcEnvParams();	}
+		string_vector_t &userProcEnvParams()
+		{	return this->EngineConfigGeneral::userProcEnvParams();	}
 
 		const std::string &engineProcCmd() const override final
 		{	return this->template getPropertyByName<EngineProcCmd>();	}
@@ -199,11 +199,11 @@ class EngineConfig
 		std::string &engineProcCmd()
 		{	return this->EngineConfigGeneral::engineProcCmd();	}
 
-		const string_vector_t &engineProcStartParams() const override final
+		const string_vector_t &userProcStartParams() const override final
 		{	return this->template getPropertyByName<EngineProcStartParams>();	}
 
-		string_vector_t &engineProcStartParams()
-		{	return this->EngineConfigGeneral::engineProcStartParams();	}
+		string_vector_t &userProcStartParams()
+		{	return this->EngineConfigGeneral::userProcStartParams();	}
 };
 
 template<class T>

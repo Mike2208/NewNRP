@@ -23,8 +23,7 @@ void SimulationLoop::initLoop()
 	{
 		try
 		{
-			if(engine->initialize() != EngineInterface::SUCCESS)
-				throw std::runtime_error("Failed to initialize engine");
+			engine->initialize();
 		}
 		catch(std::exception &e)
 		{
@@ -59,9 +58,14 @@ void SimulationLoop::runLoop(float runLoopTime)
 		// Wait for engines to complete execution
 		for(const auto &engine : processedEngines)
 		{
-			if(engine->waitForStepCompletion(engine->engineConfigGeneral()->engineRunStepTimeout()) != EngineInterface::SUCCESS)
+			try
 			{
-				// TODO: Handle loop completion failure
+				engine->waitForStepCompletion(engine->engineConfigGeneral()->engineCommandTimeout());
+			}
+			catch(std::exception &e)
+			{
+				throw NRPException::logCreate(e, "Engine \"" + engine->engineName() +"\" loop exceeded timeout of " +
+				                              std::to_string(engine->engineConfigGeneral()->engineCommandTimeout()) + "s");
 			}
 		}
 
@@ -92,9 +96,13 @@ void SimulationLoop::runLoop(float runLoopTime)
 		// Send engine inputs to corresponding interfaces
 		for(const auto &engine : processedEngines)
 		{
-			if(this->handleInputDevices(engine, results) != EngineInterface::SUCCESS)
+			try
 			{
-				// TODO: Handle physics and/or brain TF error
+				this->handleInputDevices(engine, results);
+			}
+			catch(std::exception &e)
+			{
+				throw NRPException::logCreate(e, "Failed to send devices to engine \"" + engine->engineName() + "\"");
 			}
 		}
 
@@ -105,9 +113,13 @@ void SimulationLoop::runLoop(float runLoopTime)
 
 			if(trueRunTime >= 0.0f)
 			{
-				if(engine->runLoopStep(trueRunTime) != EngineInterface::SUCCESS)
+				try
 				{
-					// TODO: Handle loop start failure
+					engine->runLoopStep(trueRunTime);
+				}
+				catch(std::exception &e)
+				{
+					throw NRPException::logCreate(e, "Failed to start loop of engine \"" + engine->engineName() + "\"");
 				}
 
 				// Reinsert engines into queue
@@ -115,8 +127,8 @@ void SimulationLoop::runLoop(float runLoopTime)
 			}
 			else
 			{
-				std::cout << "Warning: Engine \"" + engine->engineName() + "\" is ahead of simulation time by "
-				             + std::to_string(engine->getEngineTime() - this->_simTime) + "s\n";
+				NRPLogger::SPDWarnLogDefault("Engine \"" + engine->engineName() + "\" is ahead of simulation time by " +
+				                             std::to_string(engine->getEngineTime() - this->_simTime) + "s\n");
 
 				// Wait for rest of simulation to catch up to engine
 				this->_engineQueue.emplace(engine->getEngineTime(), engine);
@@ -152,15 +164,15 @@ TransceiverFunctionManager SimulationLoop::initTFManager(const SimulationConfigS
 	return newManager;
 }
 
-EngineInterface::RESULT SimulationLoop::handleInputDevices(const EngineInterfaceSharedPtr &engine, const TransceiverFunctionSortedResults &results)
+void SimulationLoop::handleInputDevices(const EngineInterfaceSharedPtr &engine, const TransceiverFunctionSortedResults &results)
 {
 	// Find corresponding device inputs
 	const auto interfaceResultIterator = results.find(engine->engineName());
 	if(interfaceResultIterator != results.end())
-		return engine->handleInputDevices(interfaceResultIterator->second);
+		engine->handleInputDevices(interfaceResultIterator->second);
 
 	// If no inputs are available, have interface handle empty device input list
-	return engine->handleInputDevices(typename EngineInterface::device_inputs_t());
+	engine->handleInputDevices(typename EngineInterface::device_inputs_t());
 }
 
 /*! \page simulation_loop Simulation Loop

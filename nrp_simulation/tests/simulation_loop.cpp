@@ -10,6 +10,7 @@
 #include "nrp_nest_json_engine/nrp_client/nest_engine_json_nrp_client.h"
 #include "nrp_gazebo_grpc_engine/nrp_client/gazebo_engine_grpc_nrp_client.h"
 
+
 using namespace testing;
 
 TEST(SimulationLoopTest, InitTFManager)
@@ -37,7 +38,7 @@ TEST(SimulationLoopTest, Constructor)
 
 	EngineInterfaceSharedPtr brain(NestEngineJSONLauncher().launchEngine(config->engineConfigs().at(0), ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
-	config->engineConfigs().at(1).Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
+	config->engineConfigs().at(1).Data = nlohmann::json({{GazeboGrpcConfigConst::GazeboWorldFile, ""}});
 	EngineInterfaceSharedPtr physics(GazeboEngineGrpcLauncher().launchEngine(config->engineConfigs().at(1), ProcessLauncherInterface::unique_ptr(new ProcessLauncherBasic())));
 
 	ASSERT_NO_THROW(SimulationLoop simLoop(config, {brain, physics}));
@@ -59,8 +60,8 @@ TEST(SimulationLoopTest, RunLoop)
 	{
 		NestConfig nestCfg(config->engineConfigs().at(0));
 
-		config->engineConfigs().at(1).Data = nlohmann::json({{GazeboConfigConst::GazeboWorldFile, ""}});
-		GazeboConfig gazeboCfg(config->engineConfigs().at(1));
+		config->engineConfigs().at(1).Data = nlohmann::json({{GazeboGrpcConfigConst::GazeboWorldFile, ""}});
+		GazeboGrpcConfig gazeboCfg(config->engineConfigs().at(1));
 
 		nestCfg.nestInitFileName() = TEST_NEST_SIM_FILE;
 		nestCfg.engineTimestep() = timestep;

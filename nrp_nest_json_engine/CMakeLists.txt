@@ -13,7 +13,7 @@ set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
 cmake_minimum_required(VERSION 3.16)
-project("${PROJECT_NAME}" VERSION 1.0.0)
+project("${PROJECT_NAME}" VERSION ${NRP_VERSION})
 
 include(GNUInstallDirs)
 include(ExternalProject)
@@ -21,7 +21,7 @@ include(ExternalProject)
 # List library build files
 set(LIB_SRC_FILES
 	nrp_nest_json_engine/config/nest_config.cpp
-	nrp_nest_json_engine/devices/nest_device_interface.cpp
+	nrp_nest_json_engine/devices/nest_device.cpp
 	nrp_nest_json_engine/engine_server/nest_engine_device_controller.cpp
 	nrp_nest_json_engine/engine_server/nest_json_server.cpp
 	nrp_nest_json_engine/nrp_client/nest_engine_json_nrp_client.cpp
@@ -91,12 +91,12 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
-		${NRP_GEN_LIB_TARGET}
+	    NRPJSONEngineProtocol::NRPJSONEngineProtocol
 
 	PRIVATE
 )
 
-target_include_directories(${LIBRARY_NAME}
+target_include_directories(${LIBRARY_NAME} BEFORE
 	PUBLIC 
 	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
@@ -199,13 +199,13 @@ install(DIRECTORY "${HEADER_DIRECTORY}" "${CMAKE_CURRENT_BINARY_DIR}/include/${H
 # Install python module
 if(TARGET ${PYTHON_MODULE_NAME})
 	install(TARGETS ${PYTHON_MODULE_NAME}
-		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_REL}/${PYTHON_MODULE_NAME}")
 
 	install(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py"
-		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_REL}/${PYTHON_MODULE_NAME}")
 
 	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/nrp_nest_json_engine/python/numpy_json_serializer.py"
-		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_REL}/${PYTHON_MODULE_NAME}")
 endif()
 
 # Install executable files

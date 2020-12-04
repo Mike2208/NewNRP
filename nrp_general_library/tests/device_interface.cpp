@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 
 using namespace testing;
 

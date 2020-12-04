@@ -1,7 +1,7 @@
 #ifndef PYTHON_DEVICE_H
 #define PYTHON_DEVICE_H
 
-#include "nrp_general_library/device_interface/device_interface.h"
+#include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/property_template.h"
 
 #include <boost/python.hpp>
@@ -23,6 +23,23 @@ auto python_device_class_(const std::string &class_name, auto init)
 
 	return python::class_<DEVICE, python::bases<DeviceInterface> >(class_name.data(), init);
 }
+
+/*!
+ *  \brief Generate a python return policy for a given property
+ */
+template<class PROPERTY>
+struct python_property
+{
+	public:
+		static auto return_policy()
+		{
+			namespace python = boost::python;
+			if constexpr (std::is_scalar_v<PROPERTY>)
+			{	return python::return_value_policy<python::copy_const_reference>();	}
+			else
+			{	return python::return_internal_reference<>();	}
+		}
+};
 
 /*!
  * \brief Struct to create Python classes for a device with a PropertyTemplate<...> base class
@@ -55,7 +72,7 @@ struct python_property_device_class
 		return python_property_device_class::create(PROPERTY_DEVICE::TypeName, boost::python::no_init);
 	}
 
-	private:
+	public:
 	    static typename PROPERTY_DEVICE::shared_ptr initFcnEmpty()
 		{	return typename PROPERTY_DEVICE::shared_ptr(new PROPERTY_DEVICE(DeviceIdentifier("", "", std::string(PROPERTY_DEVICE::TypeName))));	}
 
@@ -72,8 +89,8 @@ struct python_property_device_class
 		 * \brief Function pointer to a the getProperty call of PROPERTY_DEVICE
 		 * \tparam PROP_NUM Number of Property to retrieve
 		 */
-	    template<int PROP_NUM>
-	    static constexpr const typename PROPERTY_DEVICE::template property_t<PROP_NUM> &(PROPERTY_DEVICE::*get_data_fcn)() const  = &PROPERTY_DEVICE::template getProperty<PROP_NUM>;
+		template<int PROP_NUM>
+		static constexpr const typename PROPERTY_DEVICE::template property_t<PROP_NUM> &(PROPERTY_DEVICE::*get_data_fcn)() const  = &PROPERTY_DEVICE::template getProperty<PROP_NUM>;
 
 		/*!
 		 * \brief Function to set a property of PROPERTY_DEVICE
@@ -82,7 +99,7 @@ struct python_property_device_class
 		 * \param data New property data
 		 */
 		template<int PROP_NUM>
-		static void set_data_fcn(PROPERTY_DEVICE &dev, const typename PROPERTY_DEVICE::template property_t<PROP_NUM> &data)
+		static constexpr void set_data_fcn(PROPERTY_DEVICE &dev, const typename PROPERTY_DEVICE::template property_t<PROP_NUM> &data)
 		{	dev.template getProperty<PROP_NUM>() = data;	}
 
 		/*!
@@ -94,11 +111,12 @@ struct python_property_device_class
 		template<int CUR_PROP_NUM>
 		static auto add_property(auto &&device_class)
 		{
-			// Add property to python class
 			namespace python = boost::python;
 
+			// Add property attribute to python class. This makes the property accessible from TransceiverFunctions
+			using property_t = typename PROPERTY_DEVICE::template property_t<CUR_PROP_NUM>;
 			device_class.add_property(PROPERTY_DEVICE::template getName<CUR_PROP_NUM>().data(),
-			                          python::make_function(get_data_fcn<CUR_PROP_NUM>, python::return_internal_reference<>()),
+			                          python::make_function(get_data_fcn<CUR_PROP_NUM>, python_property<property_t>::return_policy()),
 			                          &set_data_fcn<CUR_PROP_NUM>);
 
 			// If additional properties are available, add them as well

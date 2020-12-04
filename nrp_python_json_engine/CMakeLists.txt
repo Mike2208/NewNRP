@@ -13,7 +13,7 @@ set(LIB_CONFIG_NAME "${LIBRARY_NAME}Config")
 set(LIB_VERSION_NAME "${LIB_CONFIG_NAME}Version")
 
 cmake_minimum_required(VERSION 3.16)
-project("${PROJECT_NAME}" VERSION 1.0.0)
+project("${PROJECT_NAME}" VERSION ${NRP_VERSION})
 
 include(GNUInstallDirs)
 include(ExternalProject)
@@ -81,18 +81,17 @@ configure_file("nrp_python_json_engine/python/__init__.py.in" "${CMAKE_CURRENT_B
 add_library("${LIBRARY_NAME}" SHARED ${LIB_SRC_FILES})
 add_library(${NAMESPACE_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 target_compile_options(${LIBRARY_NAME} PUBLIC $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra>)
-target_compile_options(${LIBRARY_NAME} PUBLIC $<$<CXX_COMPILER_ID:GNU>:-fconcepts>)
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
 target_link_libraries(${LIBRARY_NAME}
 	PUBLIC
-	    ${NRP_GEN_LIB_TARGET}
+	    NRPJSONEngineProtocol::NRPJSONEngineProtocol
 
 	PRIVATE
 )
 
-target_include_directories(${LIBRARY_NAME}
+target_include_directories(${LIBRARY_NAME} BEFORE
 	PUBLIC
 	    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
@@ -195,10 +194,10 @@ install(DIRECTORY "${HEADER_DIRECTORY}" "${CMAKE_CURRENT_BINARY_DIR}/include/${H
 # Install python module
 if(TARGET ${PYTHON_MODULE_NAME})
 	install(TARGETS ${PYTHON_MODULE_NAME}
-		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_REL}/${PYTHON_MODULE_NAME}")
 
 	install(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/__init__.py"
-		DESTINATION "${PYTHON_INSTALL_DIR_ABS}/${PYTHON_MODULE_NAME}")
+		DESTINATION "${PYTHON_INSTALL_DIR_REL}/${PYTHON_MODULE_NAME}")
 endif()
 
 # Install executable files

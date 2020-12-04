@@ -6,7 +6,9 @@
 
 namespace python = boost::python;
 
-PyObjectDeviceConst::PyObjData::PyObjData(const std::string &serializedData)
+PyObjectDeviceConst::PyObjData::PyObjData(const std::string &serializedData, boost::python::object _jsonEncoder, boost::python::object _jsonDecoder)
+    : JsonEncoder(_jsonEncoder),
+      JsonDecoder(_jsonDecoder)
 {
 	this->deserialize(serializedData);
 }
@@ -21,7 +23,7 @@ std::string PyObjectDeviceConst::PyObjData::serialize() const
 {
 	try
 	{
-		static python::object jsonDumps = python::import("json").attr("dumps");
+		python::object jsonDumps = python::import("json").attr("dumps");
 		python::dict kwargs;
 		kwargs["cls"] = this->JsonEncoder;
 		return python::extract<std::string>(python::str(jsonDumps(*python::make_tuple(reinterpret_cast<const boost::python::object&>(*this)), **kwargs)));
@@ -36,7 +38,7 @@ python::object PyObjectDeviceConst::PyObjData::deserialize(const std::string &se
 {
 	try
 	{
-		static python::object jsonLoads = python::import("json").attr("loads");
+		python::object jsonLoads = python::import("json").attr("loads");
 		python::dict kwargs;
 		kwargs["cls"] = this->JsonDecoder;
 		reinterpret_cast<boost::python::object&>(*this) = jsonLoads(*python::make_tuple(serializedData), **kwargs);

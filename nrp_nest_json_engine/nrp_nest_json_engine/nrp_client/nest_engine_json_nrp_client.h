@@ -1,11 +1,11 @@
 #ifndef NEST_ENGINE_JSON_NRP_CLIENT_H
 #define NEST_ENGINE_JSON_NRP_CLIENT_H
 
-#include "nrp_general_library/engine_interfaces/engine_json_interface/nrp_client/engine_json_nrp_client.h"
+#include "nrp_json_engine_protocol/nrp_client/engine_json_nrp_client.h"
 #include "nrp_general_library/engine_interfaces/engine_interface.h"
 #include "nrp_general_library/plugin_system/plugin.h"
 
-#include "nrp_nest_json_engine/devices/nest_device_interface.h"
+#include "nrp_nest_json_engine/devices/nest_device.h"
 
 #include "nrp_nest_json_engine/config/nest_config.h"
 
@@ -15,7 +15,7 @@
  * \brief NRP - Nest Communicator on the NRP side. Converts DeviceInterface classes from/to JSON objects
  */
 class NestEngineJSONNRPClient
-        : public EngineJSONNRPClient<NestEngineJSONNRPClient, NestConfig, NestDeviceInterface>
+        : public EngineJSONNRPClient<NestEngineJSONNRPClient, NestConfig, NestDevice>
 {
 		/*!
 		 * \brief Number of seconds to wait for Nest to exit cleanly after first SIGTERM signal. Afterwards, send a SIGKILL
@@ -26,9 +26,9 @@ class NestEngineJSONNRPClient
 		NestEngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher);
 		virtual ~NestEngineJSONNRPClient() override;
 
-		virtual RESULT initialize() override;
+		virtual void initialize() override;
 
-		virtual RESULT shutdown() override;
+		virtual void shutdown() override;
 
 	private:
 		/*!
