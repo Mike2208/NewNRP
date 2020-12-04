@@ -135,9 +135,6 @@ if(NOT ${restclient-cpp_FOUND})
 			INTERFACE "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 	endif()
 endif()
-if(NOT TARGET restclient-cpp::restclient-cpp)
-	add_library(restclient-cpp::restclient-cpp ALIAS restclient-cpp)
-endif()
 
 # pistache: REST server library
 find_package(Pistache REQUIRED)
@@ -195,7 +192,7 @@ target_link_libraries(${LIBRARY_NAME}
 		PkgConfig::LibZip
 		Python3::Module
 		Python3::Python
-		restclient-cpp::restclient-cpp
+		restclient-cpp
 		spdlog::spdlog
 
 	PRIVATE
