@@ -3,6 +3,7 @@
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_server.h"
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
+#include "nrp_general_library/engine_interfaces/engine_interface.h"
 
 #include "nrp_gazebo_grpc_engine/config/gazebo_config.h"
 #include "nrp_gazebo_grpc_engine/engine_server/gazebo_step_controller.h"
@@ -87,7 +88,7 @@ class NRPCommunicationController
 		 */
 		GazeboStepController *_stepController = nullptr;
 
-		virtual float runLoopStep(float timeStep) override;
+		virtual SimulationTime runLoopStep(SimulationTime timeStep) override;
 
 		virtual void initialize(const nlohmann::json &data, EngineGrpcServer::lock_t &deviceLock) override;
 

@@ -28,7 +28,7 @@ class PyEngineScript
 		 * \param timestep Time (in seconds) to run the loop
 		 * \return Returns total simulation time of this engine
 		 */
-		inline float runLoop(float timestep)
+		inline SimulationTime runLoop(SimulationTime timestep)
 		{
 			this->runLoopFcn(timestep);
 			this->_time += timestep;
@@ -44,7 +44,7 @@ class PyEngineScript
 		/*!
 		 * \brief Get simulation time of this engine
 		 */
-		float simTime() const;
+		SimulationTime simTime() const;
 
 		/*!
 		 * \brief Register device
@@ -77,13 +77,13 @@ class PyEngineScript
 		 * \brief Main script loop. Will run for timestep seconds
 		 * \param timestep Time (in seconds) to run the loop
 		 */
-		virtual void runLoopFcn(float timestep) = 0;
+		virtual void runLoopFcn(SimulationTime timestep) = 0;
 
 	private:
 		/*!
 		 * \brief Engine Time
 		 */
-		float _time = 0;
+		SimulationTime _time = SimulationTime::zero();
 
 		/*!
 		 * \brief Ptr to PythonJSONServer instance that owns this script

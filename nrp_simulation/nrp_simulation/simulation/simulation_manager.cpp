@@ -177,15 +177,19 @@ bool SimulationManager::runSimulationUntilTimeout(sim_lock_t &simLock)
 
 	sim_lock_t internalLock(this->_internalLock);
 
+	const auto simulationTimeout = std::chrono::seconds(this->_simConfig->simulationTimeOut()); 
+
 	while(1)
 	{
 		// Check whether the simLoop was stopped by any server threads
 		simLock.lock();
 
-		if(!this->isRunning() || hasSimTimedOut(this->_loop->getSimTime(), this->_simConfig->simulationTimeOut()))
+		if(!this->isRunning() || hasSimTimedOut(this->_loop->getSimTime(), std::chrono::duration_cast<SimulationTime>(simulationTimeout)))
 			break;
 
-		this->_loop->runLoop(this->_serverConfig->serverTimestep());
+		SimulationTime timeStep(std::chrono::duration_cast<SimulationTime>(std::chrono::duration<float>(this->_serverConfig->serverTimestep())));
+
+		this->_loop->runLoop(timeStep);
 
 		simLock.unlock();
 		std::this_thread::yield();			// Give any server threads that may wish to lock the simulation a chance to execute TODO: Use better command than sched_yield, which slows down execution significantly
@@ -193,10 +197,10 @@ bool SimulationManager::runSimulationUntilTimeout(sim_lock_t &simLock)
 
 	this->_runningSimulation = false;
 
-	return hasSimTimedOut(this->_loop->getSimTime(), this->_simConfig->simulationTimeOut());
+	return hasSimTimedOut(this->_loop->getSimTime(), std::chrono::duration_cast<SimulationTime>(simulationTimeout));
 }
 
-bool SimulationManager::runSimulation(const float secs, sim_lock_t &simLock)
+bool SimulationManager::runSimulation(const SimulationTime secs, sim_lock_t &simLock)
 {
 	if(this->_loop == nullptr)
 		return false;
@@ -215,7 +219,9 @@ bool SimulationManager::runSimulation(const float secs, sim_lock_t &simLock)
 		if(!this->isRunning() || endTime < this->_loop->getSimTime())
 			break;
 
-		this->_loop->runLoop(this->_serverConfig->serverTimestep());
+		SimulationTime timeStep(std::chrono::duration_cast<SimulationTime>(std::chrono::duration<float>(this->_serverConfig->serverTimestep())));
+
+		this->_loop->runLoop(timeStep);
 
 		simLock.unlock();
 		std::this_thread::yield();			// Give any server threads that may wish to lock the simulation a chance to execute TODO: Use better command than sched_yield, which slows down execution significantly

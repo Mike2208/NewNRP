@@ -35,14 +35,13 @@ class EngineGrpcClient
 
         EngineGrpcClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
             : Engine<ENGINE, ENGINE_CONFIG>(config, std::move(launcher))
+            , _prevEngineTime(0)
+            , _engineTime(0)
         {
             std::string serverAddress = this->engineConfig()->engineServerAddress();
-            this->
 
             _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
             _stub    = EngineGrpc::EngineGrpcService::NewStub(_channel);
-
-            _prevEngineTime = 0.0f;
         }
 
         grpc_connectivity_state getChannelStatus()
@@ -96,7 +95,7 @@ class EngineGrpcClient
             }
         }
 
-        float sendRunLoopStepCommand(const float timeStep)
+        SimulationTime sendRunLoopStepCommand(const SimulationTime timeStep)
         {
             EngineGrpc::RunLoopStepRequest request;
             EngineGrpc::RunLoopStepReply   reply;
@@ -104,7 +103,7 @@ class EngineGrpcClient
 
             prepareRpcContext(&context);
 
-            request.set_timestep(timeStep);
+            request.set_timestep(timeStep.count());
 
             grpc::Status status = _stub->runLoopStep(&context, request, &reply);
 
@@ -114,17 +113,21 @@ class EngineGrpcClient
                throw std::runtime_error(errMsg);
             }
 
-            const float engineTime = reply.enginetime();
+            const SimulationTime engineTime(reply.enginetime());
 
-            if(engineTime < 0.0f)
+            if(engineTime < SimulationTime::zero())
             {
-               const auto errMsg = "Invalid engine time (should be greater than 0): " + std::to_string(engineTime);
+               const auto errMsg = "Invalid engine time (should be greater than 0): " + std::to_string(engineTime.count());
                throw std::runtime_error(errMsg);
             }
 
             if(engineTime < this->_prevEngineTime)
             {
-                const auto errMsg = "Invalid engine time (should be greater than previous time): " + std::to_string(engineTime) + ", previous: " + std::to_string(this->_prevEngineTime);
+                const auto errMsg = "Invalid engine time (should be greater than previous time): "
+                                  + std::to_string(engineTime.count())
+                                  + ", previous: "
+                                  + std::to_string(this->_prevEngineTime.count());
+
                 throw std::runtime_error(errMsg);
             }
 
@@ -133,12 +136,12 @@ class EngineGrpcClient
             return engineTime;
         }
 
-        float getEngineTime() const override
+        SimulationTime getEngineTime() const override
         {
             return this->_engineTime;
         }
 
-        virtual typename EngineInterface::step_result_t runLoopStep(float timeStep) override
+        virtual typename EngineInterface::step_result_t runLoopStep(SimulationTime timeStep) override
         {
             this->_loopStepThread = std::async(std::launch::async, std::bind(&EngineGrpcClient::sendRunLoopStepCommand, this, timeStep));
             return EngineInterface::SUCCESS;
@@ -295,9 +298,9 @@ class EngineGrpcClient
         std::shared_ptr<grpc::Channel>                       _channel;
         std::unique_ptr<EngineGrpc::EngineGrpcService::Stub> _stub;
 
-        float _prevEngineTime = 0.0f;
-        float _engineTime     = 0.0f;
-        std::future<float> _loopStepThread;
+        std::future<SimulationTime> _loopStepThread;
+        SimulationTime _prevEngineTime;
+        SimulationTime _engineTime;
 };
 
 #endif // ENGINE_GRPC_CLIENT_H

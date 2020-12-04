@@ -23,11 +23,11 @@ class TestEngineJSONServer
 
 	virtual ~TestEngineJSONServer() override = default;
 
-	float curTime = 0;
+	SimulationTime curTime = SimulationTime::zero();
 
-	float runLoopStep(float timeStep) override
+	SimulationTime runLoopStep(SimulationTime timeStep) override
 	{
-		if(timeStep < 0)
+		if(timeStep < SimulationTime::zero())
 			throw std::invalid_argument("error");
 
 		curTime += timeStep;
@@ -140,7 +140,7 @@ TEST(EngineJSONServerTest, HttpRequests)
 	data.clear();
 	data[EngineJSONConfigConst::EngineTimeStepName.data()] = 1;
 	resp = RestClient::post(address + "/" + EngineJSONConfigConst::EngineServerRunLoopStepRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), data.dump());
-	ASSERT_EQ(server.curTime, 1);
+	ASSERT_EQ(server.curTime, SimulationTime(1));
 
 	// Run get server command
 	data.clear();

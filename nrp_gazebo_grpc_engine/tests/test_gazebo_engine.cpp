@@ -64,7 +64,7 @@ TEST(TestGazeboEngine, WorldPlugin)
 
 	ASSERT_EQ(engine->initialize(), EngineInterface::RESULT::SUCCESS);
 
-	ASSERT_EQ(engine->runLoopStep(1.0f), EngineInterface::RESULT::SUCCESS);
+	ASSERT_EQ(engine->runLoopStep(SimulationTime(1000000)), EngineInterface::RESULT::SUCCESS);
 
 	ASSERT_EQ(engine->waitForStepCompletion(5.0f), EngineInterface::RESULT::SUCCESS);
 }

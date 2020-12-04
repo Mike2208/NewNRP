@@ -28,7 +28,7 @@ void gazebo::NRPCommunicationPlugin::Reset()
 std::string gazebo::NRPCommunicationPlugin::commThreadFcn() noexcept
 {
 	auto &mpiComm = NRPCommunicationController::getInstance();
-	EngineMPIControl controlCmd(EngineMPIControlConst::NONE, 0);
+	EngineMPIControl controlCmd(EngineMPIControlConst::NONE, 0l);
 	do
 	{
 		try

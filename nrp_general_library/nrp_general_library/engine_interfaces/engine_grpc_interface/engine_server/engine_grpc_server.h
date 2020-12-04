@@ -10,6 +10,7 @@
 #include <nrp_grpc_library/engine_grpc.grpc.pb.h>
 
 #include "nrp_general_library/engine_interfaces/engine_grpc_interface/engine_server/engine_grpc_device_controller.h"
+#include "nrp_general_library/engine_interfaces/engine_interface.h"
 
 using EngineGrpc::EngineGrpcService;
 
@@ -138,7 +139,7 @@ class EngineGrpcServer : public EngineGrpcService::Service
          *
          * \return Engine time after running the step
          */
-        virtual float runLoopStep(const float timeStep) = 0;
+        virtual SimulationTime runLoopStep(const SimulationTime timeStep) = 0;
 
         /*!
          * \brief Initializes the simulation

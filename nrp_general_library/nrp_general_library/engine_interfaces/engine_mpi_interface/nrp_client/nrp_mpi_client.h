@@ -6,6 +6,7 @@
 #include "nrp_general_library/engine_interfaces/engine_mpi_interface/engine_server/engine_mpi_server.h"
 
 #include <future>
+#include <type_traits>
 
 /*!
  * \brief NRP Client for MPI Communication
@@ -48,10 +49,10 @@ class NRPMPIClient
 			return res;
 		}
 
-		float getEngineTime() const override
+		SimulationTime getEngineTime() const override
 		{	return this->_engineTime;	}
 
-		EngineInterface::step_result_t runLoopStep(float timeStep) override
+		EngineInterface::step_result_t runLoopStep(SimulationTime timeStep) override
 		{
 			this->_runLoopThread = std::async(std::launch::async, loopThread, timeStep, this->_comm);
 			return EngineInterface::SUCCESS;
@@ -63,7 +64,7 @@ class NRPMPIClient
 				return EngineInterface::ERROR;
 
 			const auto retEngineTime = this->_runLoopThread.get();
-			if(retEngineTime < 0)
+			if(retEngineTime < SimulationTime::zero())
 				return EngineInterface::ERROR;
 
 			this->_engineTime += retEngineTime;
@@ -72,7 +73,7 @@ class NRPMPIClient
 
 		EngineInterface::RESULT handleInputDevices(const EngineInterface::device_inputs_t &inputDevices) override
 		{
-			EngineMPIControl devCmd(EngineMPIControl::SEND_DEVICES, (int)inputDevices.size());
+			EngineMPIControl devCmd(EngineMPIControl::SEND_DEVICES, (int64_t)inputDevices.size());
 			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, devCmd);
 
 			// Send device data with IDs
@@ -112,7 +113,7 @@ class NRPMPIClient
 
 		EngineInterface::device_outputs_set_t requestOutputDeviceCallback(const EngineInterface::device_identifiers_t &deviceIdentifiers) override
 		{
-			EngineMPIControl devCmd(EngineMPIControl::GET_DEVICES, (int)deviceIdentifiers.size());
+			EngineMPIControl devCmd(EngineMPIControl::GET_DEVICES, (int64_t)deviceIdentifiers.size());
 			MPICommunication::sendPropertyTemplate(this->_comm, EngineMPIControlConst::GENERAL_COMM_TAG, devCmd);
 
 			std::vector<MPIDeviceData> mpiDeserializers;
@@ -144,12 +145,12 @@ class NRPMPIClient
 		/*!
 		 * \brief Engine Simulation Time
 		 */
-		float _engineTime = 0;
+		SimulationTime _engineTime;
 
 		/*!
 		 * \brief Simulation run thread. Waits for completion message from Engine
 		 */
-		std::future<float> _runLoopThread;
+		std::future<SimulationTime> _runLoopThread;
 
 		/*!
 		 * \brief Sends simulation run command to engine.
@@ -157,16 +158,20 @@ class NRPMPIClient
 		 * \param comm Engine MPI Communicator
 		 * \return Returns engine time after loop completion, or negative value on error
 		 */
-		static float loopThread(float timestep, MPI_Comm comm)
+		static SimulationTime loopThread(SimulationTime timestep, MPI_Comm comm)
 		{
-			EngineMPIControl runCmd(EngineMPIControl::RUN_STEP, timestep);
+			EngineMPIControl runCmd(EngineMPIControl::RUN_STEP, timestep.count());
 			MPICommunication::sendPropertyTemplate(comm, EngineMPIControlConst::GENERAL_COMM_TAG, runCmd);
 
 			// Block until a response has been received, indicating the loop has completed
-			float engineTime;
-			MPICommunication::recvMPI(&engineTime, 1, MPI_FLOAT, MPI_ANY_SOURCE, EngineMPIControlConst::WAIT_LOOP_COMM_TAG, comm);
+			
+			int64_t engineTime;
 
-			return engineTime;
+			static_assert(std::is_same<decltype(engineTime), decltype(SimulationTime::count())>::value, "Mismatch between MPI type and SimulationTime underlying integer type");
+
+			MPICommunication::recvMPI(&engineTime, 1, MPI_INT64_T, MPI_ANY_SOURCE, EngineMPIControlConst::WAIT_LOOP_COMM_TAG, comm);
+
+			return SimulationTime(engineTime);
 		}
 };
 

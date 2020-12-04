@@ -78,8 +78,8 @@ class NRPCommunicationController
 		EngineInterface::RESULT initialize(const std::string &initData) override;
 		EngineInterface::RESULT shutdown(const std::string &shutdownData) override;
 
-		EngineInterface::step_result_t runLoopStep(float timeStep) override;
-		float getSimTime() const override;
+		EngineInterface::step_result_t runLoopStep(SimulationTime timeStep) override;
+		SimulationTime getSimTime() const override;
 
 		/*!
 		 * \brief Constructor. Private for singleton

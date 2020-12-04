@@ -11,6 +11,8 @@
 #include <set>
 #include <vector>
 
+using SimulationTime = std::chrono::microseconds;
+
 class EngineInterface;
 class EngineLauncherInterface;
 
@@ -92,20 +94,20 @@ class EngineInterface
 		/*!
 		 * \brief Get engine timestep (in seconds)
 		 */
-		virtual float getEngineTimestep() const = 0;
+		virtual SimulationTime getEngineTimestep() const = 0;
 
 		/*!
 		 * \brief Get current engine time (in seconds)
 		 * \return Returns engine time
 		 */
-		virtual float getEngineTime() const = 0;
+		virtual SimulationTime getEngineTime() const = 0;
 
 		/*!
 		 * \brief Starts a single loop step in a separate thread.
 		 * EngineInterface::waitForStepCompletion() can be used to join threads again
 		 * \param timeStep Time (in seconds) of a single step
 		 */
-		virtual step_result_t runLoopStep(float timeStep) = 0;
+		virtual step_result_t runLoopStep(SimulationTime timeStep) = 0;
 
 		/*!
 		 * \brief Wait until step has been completed, at most timeOut seconds
@@ -252,8 +254,14 @@ class Engine
 
 		~Engine() override = default;
 
-		float getEngineTimestep() const override final
-		{	return this->engineConfigGeneral()->engineTimestep();	}
+		SimulationTime getEngineTimestep() const override final
+		{
+			// We need to cast floating-point seconds to integers with units of SimulationTime type
+
+			std::chrono::duration<float> timestepFloat(this->engineConfigGeneral()->engineTimestep());
+
+			return std::chrono::duration_cast<SimulationTime>(timestepFloat);
+		}
 
 		/*!
 		 * \brief Get General Engine Configuration

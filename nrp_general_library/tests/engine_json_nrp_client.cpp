@@ -35,11 +35,11 @@ class TestEngineJSONServer
 
 	virtual ~TestEngineJSONServer() override = default;
 
-	float curTime = 0;
+	SimulationTime curTime = SimulationTime::zero();
 
-	float runLoopStep(float timeStep) override
+	SimulationTime runLoopStep(SimulationTime timeStep) override
 	{
-		if(timeStep < 0)
+		if(timeStep < SimulationTime::zero())
 			throw std::invalid_argument("error");
 
 		curTime += timeStep;
@@ -94,9 +94,13 @@ class TestEngineJSONNRPClient
 		return ERROR;
 	}
 
-	float curTime = 0;
+	SimulationTime curTime = SimulationTime::zero();
 };
 
+static SimulationTime floatToSimulationTime(float time)
+{
+    return std::chrono::duration_cast<SimulationTime>(std::chrono::duration<float>(time));
+}
 
 TEST(EngineJSONNRPClientTest, ServerCalls)
 {
@@ -135,7 +139,7 @@ TEST(EngineJSONNRPClientTest, ServerCalls)
 	client.engineName() = engineName;
 	ASSERT_EQ(client.initialize(), TestEngineJSONNRPClient::SUCCESS);
 
-	ASSERT_EQ(client.runLoopStep(10), TestEngineJSONNRPClient::SUCCESS);
+	ASSERT_EQ(client.runLoopStep(floatToSimulationTime(10.0f)), TestEngineJSONNRPClient::SUCCESS);
 	ASSERT_EQ(client.waitForStepCompletion(10), TestEngineJSONNRPClient::SUCCESS);
 
 	ASSERT_EQ(client.getEngineTime(), server.curTime);

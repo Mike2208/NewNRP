@@ -56,17 +56,33 @@ bool NestJSONServer::shutdownFlag() const
 	return this->_shutdownFlag;
 }
 
-float NestJSONServer::runLoopStep(float timeStep)
+SimulationTime NestJSONServer::runLoopStep(SimulationTime timeStep)
 {
 	PythonGILLock lock(this->_pyGILState, true);
 
 	try
 	{
-		//
-		const auto resolution = python::extract<double>(this->_pyNest["GetKernelStatus"]("resolution"));
-		const double runTime = std::round(NestJSONServer::convertSecToMill(timeStep)/resolution)*resolution;
-		this->_pyNest["Run"](runTime);
-		return NestJSONServer::convertMillToSec(python::extract<float>(this->_pyNest["GetKernelStatus"]("time")));
+		// Convert SimulationTime to milliseconds
+		// NEST uses floating points for time variables, we have to convert our time step to a double
+
+		const auto   timeStepMs       = std::chrono::duration_cast<std::chrono::milliseconds>(timeStep);
+		const double timeStepMsDouble = static_cast<double>(timeStepMs.count());
+
+		// NEST Resolution is in milliseconds
+
+		const auto resolutionMs = python::extract<double>(this->_pyNest["GetKernelStatus"]("resolution"));
+
+		// Round the time step to account for NEST resolution
+
+		const double runTimeMsRounded = std::round(timeStepMsDouble / resolutionMs) * resolutionMs;
+
+		this->_pyNest["Run"](runTimeMsRounded);
+
+		// The time field of dictionary returned from GetKernelStatus contains time in milliseconds
+
+		std::chrono::duration<float, std::milli> timeMs(python::extract<float>(this->_pyNest["GetKernelStatus"]("time")));
+
+		return std::chrono::duration_cast<SimulationTime>(timeMs);
 	}
 	catch(python::error_already_set &)
 	{

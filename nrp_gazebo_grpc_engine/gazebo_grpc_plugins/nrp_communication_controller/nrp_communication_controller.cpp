@@ -35,7 +35,7 @@ void NRPCommunicationController::registerStepController(GazeboStepController *st
 	this->_stepController = stepController;
 }
 
-float NRPCommunicationController::runLoopStep(float timeStep)
+SimulationTime NRPCommunicationController::runLoopStep(SimulationTime timeStep)
 {
 	if(this->_stepController == nullptr)
 	{
@@ -48,7 +48,7 @@ float NRPCommunicationController::runLoopStep(float timeStep)
 	try
 	{
 		// Execute loop step (Note: The _deviceLock mutex has already been set by EngineJSONServer::runLoopStepHandler, so no calls to reading/writing from/to devices is possible at this moment)
-		return this->_stepController->runLoopStep(static_cast<double>(timeStep));
+		return this->_stepController->runLoopStep(timeStep);
 	}
 	catch(const std::exception &e)
 	{

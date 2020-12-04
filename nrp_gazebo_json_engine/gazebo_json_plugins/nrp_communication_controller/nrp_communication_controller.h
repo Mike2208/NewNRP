@@ -87,7 +87,7 @@ class NRPCommunicationController
 		 */
 		GazeboStepController *_stepController = nullptr;
 
-		virtual float runLoopStep(float timeStep) override;
+		virtual SimulationTime runLoopStep(SimulationTime timeStep) override;
 
 		virtual nlohmann::json initialize(const nlohmann::json &data, EngineJSONServer::lock_t &lock) override;
 

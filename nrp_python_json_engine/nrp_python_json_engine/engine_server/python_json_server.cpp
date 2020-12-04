@@ -35,7 +35,7 @@ bool PythonJSONServer::shutdownFlag() const
 	return this->_shutdownFlag;
 }
 
-float PythonJSONServer::runLoopStep(float timestep)
+SimulationTime PythonJSONServer::runLoopStep(SimulationTime timestep)
 {
 	PythonGILLock lock(this->_pyGILState, true);
 
