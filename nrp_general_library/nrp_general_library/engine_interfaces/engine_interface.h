@@ -6,12 +6,11 @@
 #include "nrp_general_library/process_launchers/process_launcher.h"
 #include "nrp_general_library/utils/fixed_string.h"
 #include "nrp_general_library/utils/ptr_templates.h"
+#include "nrp_general_library/utils/time_utils.h"
 
 #include <concepts>
 #include <set>
 #include <vector>
-
-using SimulationTime = std::chrono::microseconds;
 
 class EngineInterface;
 class EngineLauncherInterface;
@@ -258,9 +257,7 @@ class Engine
 		{
 			// We need to cast floating-point seconds to integers with units of SimulationTime type
 
-			std::chrono::duration<float> timestepFloat(this->engineConfigGeneral()->engineTimestep());
-
-			return std::chrono::duration_cast<SimulationTime>(timestepFloat);
+			return toSimulationTime<float, std::ratio<1>>(this->engineConfigGeneral()->engineTimestep());
 		}
 
 		/*!

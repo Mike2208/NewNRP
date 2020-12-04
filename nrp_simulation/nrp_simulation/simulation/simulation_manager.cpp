@@ -177,17 +177,21 @@ bool SimulationManager::runSimulationUntilTimeout(sim_lock_t &simLock)
 
 	sim_lock_t internalLock(this->_internalLock);
 
-	const auto simulationTimeout = std::chrono::seconds(this->_simConfig->simulationTimeOut()); 
+	const auto simulationTimeout = std::chrono::seconds(this->_simConfig->simulationTimeOut());
+
+	bool hasTimedOut = false;
 
 	while(1)
 	{
 		// Check whether the simLoop was stopped by any server threads
 		simLock.lock();
 
-		if(!this->isRunning() || hasSimTimedOut(this->_loop->getSimTime(), std::chrono::duration_cast<SimulationTime>(simulationTimeout)))
+		hasTimedOut = hasSimTimedOut(this->_loop->getSimTime(), std::chrono::duration_cast<SimulationTime>(simulationTimeout));
+
+		if(!this->isRunning() || hasTimedOut)
 			break;
 
-		SimulationTime timeStep(std::chrono::duration_cast<SimulationTime>(std::chrono::duration<float>(this->_serverConfig->serverTimestep())));
+		SimulationTime timeStep = toSimulationTime<float, std::ratio<1>>(this->_serverConfig->serverTimestep());
 
 		this->_loop->runLoop(timeStep);
 
@@ -197,7 +201,7 @@ bool SimulationManager::runSimulationUntilTimeout(sim_lock_t &simLock)
 
 	this->_runningSimulation = false;
 
-	return hasSimTimedOut(this->_loop->getSimTime(), std::chrono::duration_cast<SimulationTime>(simulationTimeout));
+	return hasTimedOut;
 }
 
 bool SimulationManager::runSimulation(const SimulationTime secs, sim_lock_t &simLock)
@@ -219,7 +223,7 @@ bool SimulationManager::runSimulation(const SimulationTime secs, sim_lock_t &sim
 		if(!this->isRunning() || endTime < this->_loop->getSimTime())
 			break;
 
-		SimulationTime timeStep(std::chrono::duration_cast<SimulationTime>(std::chrono::duration<float>(this->_serverConfig->serverTimestep())));
+		SimulationTime timeStep = toSimulationTime<float, std::ratio<1>>(this->_serverConfig->serverTimestep());
 
 		this->_loop->runLoop(timeStep);
 

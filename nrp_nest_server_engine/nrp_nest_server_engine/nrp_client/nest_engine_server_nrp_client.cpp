@@ -58,7 +58,7 @@ SimulationTime NestEngineServerNRPClient::getEngineTime() const
 	if(resp.code != 200)
 		throw std::runtime_error("Unable to get NestServer's time");
 
-	return std::chrono::duration_cast<SimulationTime>(std::chrono::duration<float>(std::stof(resp.body)));
+	return toSimulationTime<float, std::milli>(std::stof(resp.body));
 }
 
 EngineInterface::step_result_t NestEngineServerNRPClient::runLoopStep(SimulationTime timeStep)
@@ -145,9 +145,9 @@ EngineInterface::RESULT NestEngineServerNRPClient::runStepFcn(SimulationTime tim
 {
 	// According to the NEST API documentation, Run accepts time to simulate in milliseconds and floating-point format
 
-	auto timestepFloatMs = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(timestep);
+	auto timestepFloatMs = fromSimulationTime<float, std::milli>(timestep);
 
-	auto resp = RestClient::post(this->serverAddress() + "/api/Run", "application/json", "[" + std::to_string(timestepFloatMs.count()) + "]");
+	auto resp = RestClient::post(this->serverAddress() + "/api/Run", "application/json", "[" + std::to_string(timestepFloatMs) + "]");
 	if(resp.code != 200)
 		return EngineInterface::ERROR;
 

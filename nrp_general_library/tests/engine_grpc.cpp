@@ -284,7 +284,7 @@ TEST(EngineGrpc, ShutdownCommandTimeout)
 
 static SimulationTime floatToSimulationTime(float time)
 {
-    return std::chrono::duration_cast<SimulationTime>(std::chrono::duration<float>(time));
+    return toSimulationTime<float, std::ratio<1>>(time);
 }
 
 TEST(EngineGrpc, RunLoopStepCommand)

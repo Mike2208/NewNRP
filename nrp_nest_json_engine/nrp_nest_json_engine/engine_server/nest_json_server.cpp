@@ -65,8 +65,7 @@ SimulationTime NestJSONServer::runLoopStep(SimulationTime timeStep)
 		// Convert SimulationTime to milliseconds
 		// NEST uses floating points for time variables, we have to convert our time step to a double
 
-		const auto   timeStepMs       = std::chrono::duration_cast<std::chrono::milliseconds>(timeStep);
-		const double timeStepMsDouble = static_cast<double>(timeStepMs.count());
+		const double timeStepMsDouble = fromSimulationTime<float, std::milli>(timeStep);
 
 		// NEST Resolution is in milliseconds
 
@@ -79,10 +78,8 @@ SimulationTime NestJSONServer::runLoopStep(SimulationTime timeStep)
 		this->_pyNest["Run"](runTimeMsRounded);
 
 		// The time field of dictionary returned from GetKernelStatus contains time in milliseconds
-
-		std::chrono::duration<float, std::milli> timeMs(python::extract<float>(this->_pyNest["GetKernelStatus"]("time")));
-
-		return std::chrono::duration_cast<SimulationTime>(timeMs);
+		
+		return toSimulationTime<float, std::milli>(python::extract<float>(this->_pyNest["GetKernelStatus"]("time")));
 	}
 	catch(python::error_already_set &)
 	{

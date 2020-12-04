@@ -38,8 +38,7 @@ SimulationTime gazebo::NRPWorldPlugin::runLoopStep(SimulationTime timeStep)
 
 	try
 	{
-		const auto     maxStepSize   = std::chrono::duration<double>(this->_world->Physics()->GetMaxStepSize());
-		const auto     maxStepSizeUs = std::chrono::duration_cast<SimulationTime>(maxStepSize);
+		const auto     maxStepSizeUs = toSimulationTime<double, std::ratio<1>>(this->_world->Physics()->GetMaxStepSize());
 		const unsigned numIterations = std::max(static_cast<unsigned int>(static_cast<double>(timeStep.count()) / static_cast<double>(maxStepSizeUs.count())), 1u);
 
 		this->startLoop(numIterations);
@@ -54,10 +53,9 @@ SimulationTime gazebo::NRPWorldPlugin::runLoopStep(SimulationTime timeStep)
 
 	//std::cout << "NRPWorldPlugin: Finished loop step. Time:" <<  this->_world->SimTime().Double() << "\n";
 
-	const SimulationTime simTimeS  = std::chrono::duration_cast<SimulationTime>(std::chrono::seconds    (this->_world->SimTime().sec ));
-	const SimulationTime simTimeNs = std::chrono::duration_cast<SimulationTime>(std::chrono::nanoseconds(this->_world->SimTime().nsec));
+	const auto simTime = this->_world->SimTime();
 
-	return simTimeS + simTimeNs;
+	return toSimulationTime<int32_t, std::ratio<1>>(simTime.sec) + toSimulationTime<int32_t, std::nano>(simTime.nsec);
 }
 
 bool gazebo::NRPWorldPlugin::finishWorldLoading()
