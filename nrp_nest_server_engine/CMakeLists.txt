@@ -59,6 +59,8 @@ set(TEST_SRC_FILES
 #	UPDATE_COMMAND ""
 #)
 
+find_package(Boost REQUIRED)
+
 
 ##########################################
 ## Header configuration

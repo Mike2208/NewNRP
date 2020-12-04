@@ -103,6 +103,9 @@ EngineConfigConst::string_vector_t NestServerConfig::allEngineProcEnvParams() co
 	// Disable Nest output
 	envVars.push_back("PYNEST_QUIET=1");
 
+	// Disable RestrictedPython
+	envVars.push_back("NEST_SERVER_RESTRICTION_OFF=1");
+
 	return envVars;
 }
 

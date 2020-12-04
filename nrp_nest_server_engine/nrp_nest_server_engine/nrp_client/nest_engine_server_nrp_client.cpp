@@ -3,6 +3,7 @@
 #include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/restclient_setup.h"
 
+#include <boost/tokenizer.hpp>
 #include <chrono>
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -82,6 +83,33 @@ void NestEngineServerNRPClient::waitForStepCompletion(float timeOut)
 		throw NRPException::logCreate("Nest loop failed unexpectedly");
 }
 
+std::tuple<std::string, std::string> extractDeviceRequest(const std::string &devName)
+{
+	const auto cmdPos = devName.find_first_of('(');
+	if(devName.empty() || devName.back() != ')' || cmdPos >= devName.npos)
+		throw NRPException::logCreate("Invalid device Name. Misconfigured parentheses in device \"" + devName + "\"");
+
+	// Separate parameters by comma
+	boost::tokenizer<boost::escaped_list_separator<char> >params(devName.substr(cmdPos+1, devName.size()-cmdPos-2),
+	                                                             boost::escaped_list_separator<char>("\\", ",", "'\""));
+
+	// Get all parameters
+	nlohmann::json callParams = {{ "args", {}}};
+	for(const auto &p : params)
+	{
+		//Check if current param is arg or kwarg
+		const auto eqPos = p.find_first_of('=');
+		if(eqPos == p.npos)
+			callParams.push_back({p.substr(0, eqPos), p.substr(eqPos+1, p.size()-eqPos-1)});
+		else
+		{
+			callParams[0].push_back(p);
+		}
+	}
+
+	return std::make_tuple(devName.substr(0, cmdPos), callParams.dump());
+};
+
 EngineInterface::device_outputs_set_t NestEngineServerNRPClient::requestOutputDeviceCallback(const EngineInterface::device_identifiers_t &deviceIdentifiers)
 {
 	const auto serverAddr = this->serverAddress();
@@ -91,25 +119,16 @@ EngineInterface::device_outputs_set_t NestEngineServerNRPClient::requestOutputDe
 
 	for(const auto &devID : deviceIdentifiers)
 	{
-		auto devDatIt = this->_nestDevs.find(devID.Name);
-		if(devDatIt == this->_nestDevs.end())
+		if(devID.EngineName == this->engineName())
 		{
-			devDatIt = this->_nestDevs.emplace_hint(devDatIt, new NestServerDevice(devID));
-		}
-		else
-		{
+			auto [ call, params ] = extractDeviceRequest(devID.Name);
 
-			auto *pDevDat = devDatIt->get();
-			auto req = nlohmann::json({{"args", pDevDat->args().serialize()}});
-			req.update(pDevDat->kwargs().serialize());
-			auto resp = RestClient::post(serverAddr + "/api/" + pDevDat->cmd(), "application/json", req.dump(0));
+			auto resp = RestClient::post(serverAddr + "/api/" + call, "application/json", params);
 			if(resp.code != 200)
-				throw std::runtime_error("Failed to get data for device \"" + devID.Name + "\"");
+			    throw std::runtime_error("Failed to get data for device \"" + devID.Name + "\"");
 
-			pDevDat->data().deserialize(resp.body);
+			retVals.emplace(new NestServerDevice(DeviceIdentifier(devID), resp.body));
 		}
-
-		retVals.insert(*devDatIt);
 	}
 
 	return retVals;
@@ -117,27 +136,24 @@ EngineInterface::device_outputs_set_t NestEngineServerNRPClient::requestOutputDe
 
 void NestEngineServerNRPClient::handleInputDevices(const EngineInterface::device_inputs_t &inputDevices)
 {
+	const auto serverAddr = this->serverAddress();
+
 	for(DeviceInterface *const inDev : inputDevices)
 	{
 		// If type cannot be processed, skip it
 		if(inDev->id().Type != NestServerDevice::TypeName.m_data)
 			continue;
 
+		// Only process devices for this engine
+		if(inDev->engineName() != this->engineName())
+			continue;
+
 		// Send command along with parameters to nest
-		auto &nestDev = dynamic_cast<NestServerDevice&>(*inDev);
-		auto req = nlohmann::json({{"args", nestDev.args().serialize()}});
-		req.update(nestDev.kwargs().serialize());
-		auto resp = RestClient::post(this->serverAddress() + "/api/" + nestDev.cmd(), "application/json", req.dump(0));
+		auto [ call, params ] = extractDeviceRequest(inDev->name());
+
+		auto resp = RestClient::post(serverAddr + "/api/" + call, "application/json", params);
 		if(resp.code != 200)
-			throw std::runtime_error("Failed to get data for device \"" + nestDev.id().Name + "\"");
-
-		nestDev.data().deserialize(resp.body);
-
-		auto devIt = this->_nestDevs.find(inDev->id().Name);
-		if(devIt != this->_nestDevs.end())
-			devIt = this->_nestDevs.erase(devIt);
-
-		this->_nestDevs.emplace_hint(devIt, new NestServerDevice(std::move(nestDev)));
+		    throw std::runtime_error("Failed to get data for device \"" + inDev->name() + "\"");
 	}
 }
 

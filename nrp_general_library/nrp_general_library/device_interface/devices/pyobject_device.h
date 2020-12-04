@@ -16,7 +16,7 @@ struct PyObjectDeviceConst
 		boost::python::object JsonDecoder = defaultDecoder();
 
 		PyObjData() = default;
-		PyObjData(const std::string &serializedData);
+		PyObjData(const std::string &serializedData, boost::python::object _jsonEncoder = PyObjData::defaultEncoder(), boost::python::object _jsonDecoder = PyObjData::defaultDecoder());
 		PyObjData(boost::python::object _data, boost::python::object _jsonEncoder = PyObjData::defaultEncoder(), boost::python::object _jsonDecoder = PyObjData::defaultDecoder());
 
 		std::string serialize() const;

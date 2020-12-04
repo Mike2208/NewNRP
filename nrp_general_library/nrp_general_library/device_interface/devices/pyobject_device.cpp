@@ -6,7 +6,9 @@
 
 namespace python = boost::python;
 
-PyObjectDeviceConst::PyObjData::PyObjData(const std::string &serializedData)
+PyObjectDeviceConst::PyObjData::PyObjData(const std::string &serializedData, boost::python::object _jsonEncoder, boost::python::object _jsonDecoder)
+    : JsonEncoder(_jsonEncoder),
+      JsonDecoder(_jsonDecoder)
 {
 	this->deserialize(serializedData);
 }
