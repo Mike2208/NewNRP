@@ -207,16 +207,6 @@ nlohmann::json NestJSONServer::shutdown(const nlohmann::json &)
 	return nlohmann::json();
 }
 
-constexpr float NestJSONServer::convertSecToMill(const float sec)
-{
-	return std::chrono::duration<decltype(sec), std::ratio<1,1000> >(std::chrono::duration<decltype(sec)>(sec)).count();
-}
-
-constexpr float NestJSONServer::convertMillToSec(const float millsec)
-{
-	return std::chrono::duration<decltype(millsec), std::ratio<1000,1> >(std::chrono::duration<decltype(millsec)>(millsec)).count();
-}
-
 nlohmann::json NestJSONServer::formatInitErrorMessage(const std::string &errMsg)
 {
 	return nlohmann::json({{NestConfig::InitFileExecStatus, 0}, {NestConfig::InitFileErrorMsg, errMsg}});
