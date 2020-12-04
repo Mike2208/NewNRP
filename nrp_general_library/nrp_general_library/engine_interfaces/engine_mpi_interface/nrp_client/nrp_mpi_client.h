@@ -167,7 +167,7 @@ class NRPMPIClient
 			
 			int64_t engineTime;
 
-			static_assert(std::is_same<decltype(engineTime), decltype(SimulationTime::count())>::value, "Mismatch between MPI type and SimulationTime underlying integer type");
+			static_assert(std::is_same<decltype(engineTime), SimulationTime::rep>::value, "Mismatch between MPI type and SimulationTime underlying integer type");
 
 			MPICommunication::recvMPI(&engineTime, 1, MPI_INT64_T, MPI_ANY_SOURCE, EngineMPIControlConst::WAIT_LOOP_COMM_TAG, comm);
 

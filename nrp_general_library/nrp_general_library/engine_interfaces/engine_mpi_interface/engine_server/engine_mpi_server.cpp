@@ -139,6 +139,8 @@ EngineInterface::RESULT EngineMPIServer::runLoopStepHandler(SimulationTime timeS
 
 	int64_t engineTime;
 
+	static_assert(std::is_same<decltype(engineTime), SimulationTime::rep>::value, "Mismatch between MPI type and SimulationTime underlying integer type");
+
 	if(retVal != EngineInterface::SUCCESS)
 		engineTime = SimulationTime::min().count();
 	else
