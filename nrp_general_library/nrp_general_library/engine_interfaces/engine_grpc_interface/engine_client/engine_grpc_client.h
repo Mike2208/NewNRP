@@ -18,16 +18,11 @@ class EngineGrpcClient
 {
     void prepareRpcContext(grpc::ClientContext * context)
     {
-        auto timeout = this->engineConfig()->engineCommandTimeout();
+        // Set RPC timeout, if it has been specified by the user
 
-        if(timeout > 0)
+        if(this->_rpcTimeout > SimulationTime::zero())
         {
-            // Timeouts of less than 1ms will be rounded up to 1ms
-            // TODO Should we use integers for timeout in the config?
-
-            unsigned timeoutMs = (timeout < 0.001) ? 1 : static_cast<unsigned>(timeout * 1000);
-
-            context->set_deadline(std::chrono::system_clock::now() + std::chrono::milliseconds(timeoutMs));
+            context->set_deadline(std::chrono::system_clock::now() + this->_rpcTimeout);
         }
     }
 
@@ -35,10 +30,13 @@ class EngineGrpcClient
 
         EngineGrpcClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
             : Engine<ENGINE, ENGINE_CONFIG>(config, std::move(launcher))
-            , _prevEngineTime(0)
-            , _engineTime(0)
         {
             std::string serverAddress = this->engineConfig()->engineServerAddress();
+
+            // Timeouts of less than 1ms will be rounded up to 1ms
+
+            SimulationTime timeout = toSimulationTime<float, std::ratio<1>>(this->engineConfig()->engineCommandTimeout());
+            this->_rpcTimeout      = (timeout > std::chrono::milliseconds(1)) ? timeout : std::chrono::milliseconds(1);
 
             _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
             _stub    = EngineGrpc::EngineGrpcService::NewStub(_channel);
@@ -299,8 +297,9 @@ class EngineGrpcClient
         std::unique_ptr<EngineGrpc::EngineGrpcService::Stub> _stub;
 
         std::future<SimulationTime> _loopStepThread;
-        SimulationTime _prevEngineTime;
-        SimulationTime _engineTime;
+        SimulationTime _prevEngineTime = SimulationTime::zero();
+        SimulationTime _engineTime     = SimulationTime::zero();
+        SimulationTime _rpcTimeout     = SimulationTime::zero();
 };
 
 #endif // ENGINE_GRPC_CLIENT_H
