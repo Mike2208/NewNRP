@@ -14,22 +14,22 @@ struct PhysicsCameraConst
 	/*!
 	 * \brief Image Height
 	 */
-	static constexpr FixedString ImageHeight = "im_height";
+	static constexpr FixedString ImageHeight = "image_height";
 
 	/*!
 	 * \brief Image Width
 	 */
-	static constexpr FixedString ImageWidth = "im_width";
+	static constexpr FixedString ImageWidth = "image_width";
 
 	/*!
 	 * \brief Image Pixel Size (in bytes)
 	 */
-	static constexpr FixedString ImagePixelSize = "im_depth";
+	static constexpr FixedString ImagePixelSize = "image_depth";
 
 	/*!
 	 * \brief Image Data
 	 */
-	static constexpr FixedString ImageData = "im_data";
+	static constexpr FixedString ImageData = "image_data";
 
 	using cam_data_t = std::vector<unsigned char>;
 

@@ -1,5 +1,5 @@
 from NRPPythonModule import *
-import NRPGazeboGrpcEnginePython
+import NRPGazeboDevicesPython
 from NRPNestJSONPythonModule import NestDevice
 import numpy
 import numpy as np
@@ -54,12 +54,12 @@ def transceiver_function(camera):
     print("Right Red: " + str(right_r))
     print("Go On:     " + str(no_r))
 
-    lpg = NestDevice(DeviceIdentifier("lpg", "nest", "nest_dev"))
+    lpg = NestDevice("lpg", "nest")
     lpg.data = {'rate': 2000.0*left_r}
-    rpg = NestDevice(DeviceIdentifier("rpg", "nest", "nest_dev"))
+    rpg = NestDevice("rpg", "nest")
     rpg.data = {'rate': 2000.0*right_r}
 
-    gpg = NestDevice(DeviceIdentifier("gpg", "nest", "nest_dev"))
+    gpg = NestDevice("gpg", "nest")
     gpg.data = {'rate': 75.0*no_r}
 
     print("lpg send: " + str(lpg.data))

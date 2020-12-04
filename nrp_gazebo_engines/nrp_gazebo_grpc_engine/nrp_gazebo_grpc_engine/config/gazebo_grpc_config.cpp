@@ -1,6 +1,6 @@
 #include "nrp_gazebo_grpc_engine/config/gazebo_grpc_config.h"
 
-#include "nrp_gazebo_grpc_engine/config/nrp_gazebo_cmake_constants.h"
+#include "nrp_gazebo_grpc_engine/config/cmake_constants.h"
 #include "nrp_general_library/config/cmake_constants.h"
 
 #include <iostream>

@@ -47,10 +47,12 @@ endif()
 ## Python 3 libraries
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
+##########################################
+## Boost Python libraries
 add_compile_definitions(BOOST_ASIO_DISABLE_CONCEPTS)
 find_package(Boost REQUIRED)
 if(Boost_VERSION VERSION_GREATER_EQUAL 1.71)
-	set(BOOST_PYTHON_COMPONENT python)
+	set(BOOST_PYTHON_COMPONENT "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
 else()
 	set(BOOST_PYTHON_COMPONENT python3)
 endif()
