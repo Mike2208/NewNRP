@@ -177,8 +177,6 @@ bool SimulationManager::runSimulationUntilTimeout(sim_lock_t &simLock)
 
 	sim_lock_t internalLock(this->_internalLock);
 
-	const auto simulationTimeout = std::chrono::seconds(this->_simConfig->simulationTimeOut());
-
 	bool hasTimedOut = false;
 
 	while(1)
@@ -186,7 +184,7 @@ bool SimulationManager::runSimulationUntilTimeout(sim_lock_t &simLock)
 		// Check whether the simLoop was stopped by any server threads
 		simLock.lock();
 
-		hasTimedOut = hasSimTimedOut(this->_loop->getSimTime(), std::chrono::duration_cast<SimulationTime>(simulationTimeout));
+		hasTimedOut = hasSimTimedOut(this->_loop->getSimTime(), toSimulationTime<unsigned, std::ratio<1>>(this->_simConfig->simulationTimeOut()));
 
 		if(!this->isRunning() || hasTimedOut)
 			break;

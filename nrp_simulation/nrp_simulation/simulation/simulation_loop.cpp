@@ -116,11 +116,10 @@ void SimulationLoop::runLoop(SimulationTime runLoopTime)
 			}
 			else
 			{
-				auto timeDiff = engine->getEngineTime() - this->_simTime;
-				auto timeDiffSeconds = std::chrono::duration_cast<std::chrono::seconds>(timeDiff);
+				auto timeDiff = fromSimulationTime<float, std::ratio<1>>(engine->getEngineTime() - this->_simTime);
 
 				std::cout << "Warning: Engine \"" + engine->engineName() + "\" is ahead of simulation time by "
-				             + std::to_string(timeDiffSeconds.count()) + "s\n";
+				             + std::to_string(timeDiff) + "s\n";
 
 				// Wait for rest of simulation to catch up to engine
 				this->_engineQueue.emplace(engine->getEngineTime(), engine);
