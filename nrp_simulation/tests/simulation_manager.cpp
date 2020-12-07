@@ -156,5 +156,5 @@ TEST(SimulationManagerTest, SimulationManagerLoop)
 
 	manager.initSimulationLoop(engines, processManager, simLock);
 
-	ASSERT_TRUE(manager.runSimulation(1.0f, simLock));
+	ASSERT_TRUE(manager.runSimulation(SimulationTime(1000000), simLock));
 }

@@ -14,7 +14,7 @@ struct PyEngineScriptWrapper
 
 	void defaultInitialize();
 
-	void runLoopFcn(float timestep) override;
+	void runLoopFcn(SimulationTime timestep) override;
 
 	void shutdown() override;
 

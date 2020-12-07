@@ -61,7 +61,7 @@ TEST(TestGazeboEngine, WorldPlugin)
 	ASSERT_NE(engine, nullptr);
 
 	ASSERT_NO_THROW(engine->initialize());
-	ASSERT_NO_THROW(engine->runLoopStep(1.0f));
+	ASSERT_NO_THROW(engine->runLoopStep(SimulationTime(1000000)));
 	ASSERT_NO_THROW(engine->waitForStepCompletion(5.0f));
 }
 

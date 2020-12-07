@@ -35,7 +35,8 @@ class EngineJSONNRPClient
 		 */
 		EngineJSONNRPClient(EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
 		    : Engine<ENGINE, ENGINE_CONFIG>(config, std::move(launcher)),
-		      _serverAddress(this->engineConfig()->engineServerAddress())
+		      _serverAddress(this->engineConfig()->engineServerAddress()),
+			  _engineTime(0)
 		{	RestClientSetup::ensureInstance();	}
 
 		/*!
@@ -46,7 +47,8 @@ class EngineJSONNRPClient
 		 */
 		EngineJSONNRPClient(const std::string &serverAddress, EngineConfigConst::config_storage_t &config, ProcessLauncherInterface::unique_ptr &&launcher)
 		    : Engine<ENGINE, ENGINE_CONFIG>(config, std::move(launcher)),
-		      _serverAddress(serverAddress)
+		      _serverAddress(serverAddress),
+			  _engineTime(0)
 		{
 			this->engineConfig()->engineServerAddress() = this->_serverAddress;
 			RestClientSetup::ensureInstance();
@@ -91,10 +93,10 @@ class EngineJSONNRPClient
 			// TODO: Check if engine has processed all sent devices
 		}
 
-		float getEngineTime() const override
+		SimulationTime getEngineTime() const override
 		{	return this->_engineTime;	}
 
-		virtual void runLoopStep(float timeStep) override
+		virtual void runLoopStep(SimulationTime timeStep) override
 		{
 			this->_loopStepThread = std::async(std::launch::async, std::bind(&EngineJSONNRPClient::loopFcn, this, timeStep));
 		}
@@ -201,7 +203,7 @@ class EngineJSONNRPClient
 		/*!
 		 * \brief Future of thread running a single loop. Used by runLoopStep and waitForStepCompletion to execute the thread
 		 */
-		std::future<float> _loopStepThread;
+		std::future<SimulationTime> _loopStepThread;
 
 		/*!
 		 * \brief Server Address to send requests to
@@ -211,7 +213,7 @@ class EngineJSONNRPClient
 		/*!
 		 * \brief Engine Time
 		 */
-		float _engineTime = 0;
+		SimulationTime _engineTime;
 
 		/*!
 		 * \brief Send a request to the Server
@@ -245,10 +247,10 @@ class EngineJSONNRPClient
 		 * \param timeStep Time (in seconds) to execute the engine
 		 * \return Returns current time of engine
 		 */
-		float loopFcn(float timeStep)
+		SimulationTime loopFcn(SimulationTime timeStep)
 		{
 			nlohmann::json request;
-			request[EngineJSONConfigConst::EngineTimeStepName.data()] = timeStep;
+			request[EngineJSONConfigConst::EngineTimeStepName.data()] = timeStep.count();
 
 			// Post run loop request to Engine JSON server
 			nlohmann::json resp(EngineJSONNRPClient::sendRequest(this->_serverAddress + "/" + EngineJSONConfigConst::EngineServerRunLoopStepRoute.data(),
@@ -256,17 +258,17 @@ class EngineJSONNRPClient
 			                                                     "Engine Server failed during loop execution"));
 
 			// Get engine time from response
-			float engineTime;
+			SimulationTime engineTime;
 			try
 			{
-				engineTime = resp[EngineJSONConfigConst::EngineTimeName.data()];
+				engineTime = SimulationTime(resp[EngineJSONConfigConst::EngineTimeName.data()]);
 			}
 			catch(std::exception &e)
 			{
 				throw NRPException::logCreate(e, "Error while parsing the return value of the run_step of \"" + this->engineName() + "\"");
 			}
 
-			if(engineTime < 0)
+			if(engineTime < SimulationTime::zero())
 				throw NRPException::logCreate("Error during execution of engine \"" + this->engineName() + "\"");
 
 			return engineTime;

@@ -1,4 +1,5 @@
 #include <string>
+#include <type_traits>
 
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
@@ -63,7 +64,9 @@ grpc::Status EngineGrpcServer::runLoopStep(grpc::ServerContext * , const EngineG
     {
         EngineGrpcServer::lock_t lock(this->_deviceLock);
 
-        reply->set_enginetime(this->runLoopStep(request->timestep()));
+        int64_t engineTime = (this->runLoopStep(SimulationTime(request->timestep()))).count();
+
+        reply->set_enginetime(engineTime);
     }
     catch(const std::exception &e)
     {

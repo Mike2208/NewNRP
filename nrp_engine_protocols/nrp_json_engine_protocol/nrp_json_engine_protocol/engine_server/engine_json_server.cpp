@@ -271,10 +271,10 @@ void EngineJSONServer::runLoopStepHandler(const Pistache::Rest::Request &req, Pi
 {
 	const json jrequest = this->parseRequest(req, res);
 
-	float timeStep = 0;
+	SimulationTime timeStep;
 	try
 	{
-		timeStep = jrequest.at(EngineJSONConfigConst::EngineTimeStepName.data());
+		timeStep = SimulationTime(jrequest.at(EngineJSONConfigConst::EngineTimeStepName.data()));
 	}
 	catch(std::exception &e)
 	{
@@ -289,7 +289,7 @@ void EngineJSONServer::runLoopStepHandler(const Pistache::Rest::Request &req, Pi
 		// Prevent other device reading/setting calls as well as loop execution
 		EngineJSONServer::lock_t lock(this->_deviceLock);
 
-		const auto retJson(nlohmann::json({{EngineJSONConfigConst::EngineTimeName.data(), this->runLoopStep(timeStep)}}));
+		const auto retJson(nlohmann::json({{EngineJSONConfigConst::EngineTimeName.data(), (this->runLoopStep(timeStep)).count()}}));
 		res.send(Pistache::Http::Code::Ok, retJson.dump());
 	}
 	catch(std::exception &e)

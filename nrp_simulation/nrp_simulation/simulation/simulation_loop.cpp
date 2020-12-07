@@ -32,7 +32,7 @@ void SimulationLoop::initLoop()
 	}
 }
 
-void SimulationLoop::runLoop(float runLoopTime)
+void SimulationLoop::runLoop(SimulationTime runLoopTime)
 {
 	const auto loopStopTime = this->_simTime + runLoopTime;
 	if(this->_engineQueue.empty())
@@ -45,7 +45,8 @@ void SimulationLoop::runLoop(float runLoopTime)
 	while(this->_engineQueue.begin()->first < loopStopTime)
 	{
 		// Check which engines should finish
-		const auto maxCompletionTime = this->_engineQueue.begin()->first + this->_config->approximateTimeRange();
+		// simTime should contain the minimal completion time after the loop
+		const auto maxCompletionTime = this->_engineQueue.begin()->first;
 		do
 		{
 			this->_simTime = this->_engineQueue.begin()->first;
@@ -53,7 +54,7 @@ void SimulationLoop::runLoop(float runLoopTime)
 
 			this->_engineQueue.erase(this->_engineQueue.begin());
 		}
-		while(!this->_engineQueue.empty() && this->_engineQueue.begin()->first < maxCompletionTime);
+		while(!this->_engineQueue.empty() && this->_engineQueue.begin()->first <= maxCompletionTime);
 
 		// Wait for engines to complete execution
 		for(const auto &engine : processedEngines)
@@ -111,7 +112,7 @@ void SimulationLoop::runLoop(float runLoopTime)
 		{
 			const auto trueRunTime = this->_simTime - engine->getEngineTime() + engine->getEngineTimestep();
 
-			if(trueRunTime >= 0.0f)
+			if(trueRunTime >= SimulationTime::zero())
 			{
 				try
 				{
@@ -127,8 +128,10 @@ void SimulationLoop::runLoop(float runLoopTime)
 			}
 			else
 			{
+				const auto timeDiff = fromSimulationTime<float, std::ratio<1>>(engine->getEngineTime() - this->_simTime);
+
 				NRPLogger::SPDWarnLogDefault("Engine \"" + engine->engineName() + "\" is ahead of simulation time by " +
-				                             std::to_string(engine->getEngineTime() - this->_simTime) + "s\n");
+				                             std::to_string(timeDiff) + "s\n");
 
 				// Wait for rest of simulation to catch up to engine
 				this->_engineQueue.emplace(engine->getEngineTime(), engine);

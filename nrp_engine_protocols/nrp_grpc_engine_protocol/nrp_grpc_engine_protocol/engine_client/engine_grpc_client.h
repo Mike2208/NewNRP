@@ -19,16 +19,11 @@ class EngineGrpcClient
 {
     void prepareRpcContext(grpc::ClientContext * context)
     {
-        auto timeout = this->engineConfig()->engineCommandTimeout();
+        // Set RPC timeout, if it has been specified by the user
 
-        if(timeout > 0)
+        if(this->_rpcTimeout > SimulationTime::zero())
         {
-            // Timeouts of less than 1ms will be rounded up to 1ms
-            // TODO Should we use integers for timeout in the config?
-
-            unsigned timeoutMs = (timeout < 0.001) ? 1 : static_cast<unsigned>(timeout * 1000);
-
-            context->set_deadline(std::chrono::system_clock::now() + std::chrono::milliseconds(timeoutMs));
+            context->set_deadline(std::chrono::system_clock::now() + this->_rpcTimeout);
         }
     }
 
@@ -38,12 +33,14 @@ class EngineGrpcClient
             : Engine<ENGINE, ENGINE_CONFIG>(config, std::move(launcher))
         {
             std::string serverAddress = this->engineConfig()->engineServerAddress();
-            this->
+
+            // Timeouts of less than 1ms will be rounded up to 1ms
+
+            SimulationTime timeout = toSimulationTime<float, std::ratio<1>>(this->engineConfig()->engineCommandTimeout());
+            this->_rpcTimeout      = (timeout > std::chrono::milliseconds(1)) ? timeout : std::chrono::milliseconds(1);
 
             _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
             _stub    = EngineGrpc::EngineGrpcService::NewStub(_channel);
-
-            _prevEngineTime = 0.0f;
         }
 
         grpc_connectivity_state getChannelStatus()
@@ -97,7 +94,7 @@ class EngineGrpcClient
             }
         }
 
-        float sendRunLoopStepCommand(const float timeStep)
+        SimulationTime sendRunLoopStepCommand(const SimulationTime timeStep)
         {
             EngineGrpc::RunLoopStepRequest request;
             EngineGrpc::RunLoopStepReply   reply;
@@ -105,7 +102,7 @@ class EngineGrpcClient
 
             prepareRpcContext(&context);
 
-            request.set_timestep(timeStep);
+            request.set_timestep(timeStep.count());
 
             grpc::Status status = _stub->runLoopStep(&context, request, &reply);
 
@@ -115,17 +112,21 @@ class EngineGrpcClient
                throw std::runtime_error(errMsg);
             }
 
-            const float engineTime = reply.enginetime();
+            const SimulationTime engineTime(reply.enginetime());
 
-            if(engineTime < 0.0f)
+            if(engineTime < SimulationTime::zero())
             {
-               const auto errMsg = "Invalid engine time (should be greater than 0): " + std::to_string(engineTime);
+               const auto errMsg = "Invalid engine time (should be greater than 0): " + std::to_string(engineTime.count());
                throw std::runtime_error(errMsg);
             }
 
             if(engineTime < this->_prevEngineTime)
             {
-                const auto errMsg = "Invalid engine time (should be greater than previous time): " + std::to_string(engineTime) + ", previous: " + std::to_string(this->_prevEngineTime);
+                const auto errMsg = "Invalid engine time (should be greater than previous time): "
+                                  + std::to_string(engineTime.count())
+                                  + ", previous: "
+                                  + std::to_string(this->_prevEngineTime.count());
+
                 throw std::runtime_error(errMsg);
             }
 
@@ -134,21 +135,23 @@ class EngineGrpcClient
             return engineTime;
         }
 
-        float getEngineTime() const override
+        SimulationTime getEngineTime() const override
         {
             return this->_engineTime;
         }
 
-		virtual void runLoopStep(float timeStep) override
+        virtual void runLoopStep(SimulationTime timeStep) override
         {
             this->_loopStepThread = std::async(std::launch::async, std::bind(&EngineGrpcClient::sendRunLoopStepCommand, this, timeStep));
         }
 
-		virtual void waitForStepCompletion(float timeOut) override
+        virtual void waitForStepCompletion(float timeOut) override
         {
             // If thread state is invalid, loop thread has completed and waitForStepCompletion was called once before
             if(!this->_loopStepThread.valid())
-				return;
+            {
+                return;
+            }
 
             // Wait until timeOut has passed
             if(timeOut > 0)
@@ -288,9 +291,10 @@ class EngineGrpcClient
         std::shared_ptr<grpc::Channel>                       _channel;
         std::unique_ptr<EngineGrpc::EngineGrpcService::Stub> _stub;
 
-        float _prevEngineTime = 0.0f;
-        float _engineTime     = 0.0f;
-        std::future<float> _loopStepThread;
+        std::future<SimulationTime> _loopStepThread;
+        SimulationTime _prevEngineTime = SimulationTime::zero();
+        SimulationTime _engineTime     = SimulationTime::zero();
+        SimulationTime _rpcTimeout     = SimulationTime::zero();
 };
 
 #endif // ENGINE_GRPC_CLIENT_H
