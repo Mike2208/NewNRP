@@ -11,6 +11,7 @@
 #include "nrp_general_library/device_interface/python_device.h"
 
 #include <boost/python.hpp>
+#include <boost/python/numpy.hpp>
 
 namespace python = boost::python;
 
@@ -71,6 +72,7 @@ inline void setPyDevData(PyObjectDevice &dat, const python::object &val)
 
 
 using namespace boost::python;
+
 
 BOOST_PYTHON_MODULE(PYTHON_MODULE_NAME)
 {

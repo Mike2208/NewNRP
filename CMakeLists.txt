@@ -49,15 +49,17 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 ##########################################
 ## Boost Python libraries
+## find_package(Boost) changes behvior after Boost version 1.67, so adapt component names accordingly
 add_compile_definitions(BOOST_ASIO_DISABLE_CONCEPTS)
 find_package(Boost REQUIRED)
-if(Boost_VERSION VERSION_GREATER_EQUAL 1.71)
-	set(BOOST_PYTHON_COMPONENT "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
+if(Boost_VERSION VERSION_GREATER_EQUAL 1.67)
+	set(BOOST_PYTHON_COMPONENT "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}" "numpy${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
 else()
-	set(BOOST_PYTHON_COMPONENT python3)
+	set(BOOST_PYTHON_COMPONENT "python${Python3_VERSION_MAJOR}" "numpy${Python3_VERSION_MAJOR}")
 endif()
 find_package(Boost REQUIRED COMPONENTS ${BOOST_PYTHON_COMPONENT} filesystem)
-set(BOOST_PYTHON "Boost::${BOOST_PYTHON_COMPONENT}")
+set(BOOST_PYTHON ${BOOST_PYTHON_COMPONENT})
+list(TRANSFORM BOOST_PYTHON PREPEND "Boost::")
 
 set(PYTHON_INSTALL_DIR_REL "${CMAKE_INSTALL_LIBDIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages" CACHE INTERNAL "Relative install location for python libraries")
 

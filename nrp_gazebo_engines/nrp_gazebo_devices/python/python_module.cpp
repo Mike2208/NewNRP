@@ -9,6 +9,7 @@
 
 
 #include <boost/python.hpp>
+#include <boost/python/numpy.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 using namespace boost::python;
@@ -38,6 +39,7 @@ void initFloatNanConverter()
 
 BOOST_PYTHON_MODULE(GAZEBO_PYTHON_MODULE_NAME)
 {
+	numpy::initialize();
 	import(PYTHON_MODULE_NAME_STR);
 
 	class_<typename PhysicsCamera::cam_data_t>("__CamDataVec", no_init)

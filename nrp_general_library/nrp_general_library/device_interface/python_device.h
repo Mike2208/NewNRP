@@ -3,6 +3,7 @@
 
 #include "nrp_general_library/device_interface/device.h"
 #include "nrp_general_library/utils/property_template.h"
+#include "nrp_general_library/utils/python_array_converter.h"
 
 #include <boost/python.hpp>
 
@@ -37,7 +38,14 @@ struct python_property
 			if constexpr (std::is_scalar_v<PROPERTY>)
 			{	return python::return_value_policy<python::copy_const_reference>();	}
 			else
-			{	return python::return_internal_reference<>();	}
+			{
+				if constexpr (PY_CONVERTIBLE_ARRAY_C<PROPERTY>)
+				{	array_from_python<PROPERTY>::registerConverter();	}
+				else if constexpr (PY_CONVERTIBLE_VECTOR_C<PROPERTY>)
+				{	vector_from_python<PROPERTY>::registerConverter();	}
+
+				return python::return_internal_reference<>();
+			}
 		}
 };
 

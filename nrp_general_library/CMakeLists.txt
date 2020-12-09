@@ -50,20 +50,21 @@ set(LIB_SRC_FILES
 	nrp_general_library/transceiver_function/transceiver_function_manager.cpp
 	nrp_general_library/transceiver_function/transceiver_function_sorted_results.cpp
 	nrp_general_library/utils/concepts.cpp
-	nrp_general_library/utils/property_template.cpp
-	nrp_general_library/utils/ptr_templates.cpp
-	nrp_general_library/utils/restclient_setup.cpp
-	nrp_general_library/utils/serializers/json_property_serializer.cpp
-	nrp_general_library/utils/serializers/property_serializer.cpp
-	nrp_general_library/utils/serializers/property_serializer_general.cpp
-	nrp_general_library/utils/serializers/python_dict_property_serializer.cpp
 	nrp_general_library/utils/file_finder.cpp
 	nrp_general_library/utils/fixed_string.cpp
 	nrp_general_library/utils/nrp_exceptions.cpp
 	nrp_general_library/utils/nrp_logger.cpp
 	nrp_general_library/utils/pipe_communication.cpp
+	nrp_general_library/utils/property_template.cpp
+	nrp_general_library/utils/ptr_templates.cpp
+	nrp_general_library/utils/python_array_converter.cpp
 	nrp_general_library/utils/python_error_handler.cpp
 	nrp_general_library/utils/python_interpreter_state.cpp
+	nrp_general_library/utils/restclient_setup.cpp
+	nrp_general_library/utils/serializers/json_property_serializer.cpp
+	nrp_general_library/utils/serializers/property_serializer.cpp
+	nrp_general_library/utils/serializers/property_serializer_general.cpp
+	nrp_general_library/utils/serializers/python_dict_property_serializer.cpp
 	nrp_general_library/utils/spdlog_setup.cpp
 	nrp_general_library/utils/wchar_t_converter.cpp
 	nrp_general_library/utils/zip_container.cpp
