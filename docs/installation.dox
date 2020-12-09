@@ -1,0 +1,54 @@
+/*! \page installation "Installation"
+Installation instructions:
+- Install dependencies:
+\code{.sh}
+# Pistache REST Server
+sudo add-apt-repository ppa:pistache+team/unstable
+
+# Gazebo
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+
+sudo apt update
+sudo apt install cmake libpistache-dev g++-10 libboost-python-dev libboost-filesystem-dev libcurl4-openssl-dev nlohmann-json3-dev libzip-dev libgazebo11-dev gazebo11 gazebo11-plugin-base cython3 python3-numpy
+
+# Fix deprecated type in OGRE (std::allocator<void>::const_pointer has been deprecated with glibc-10). Until the upstream libs are updated, use this workaround. It changes nothing, the types are the same
+sudo sed -i "s/typename std::allocator<void>::const_pointer/const void*\/g" /usr/include/OGRE/OgreMemorySTLAllocator.h
+\endcode
+
+  - CAN ONLY BE INSTALLED ON UBUNTU 20+ AT THE MOMENT
+  - gazebo: For GazeboEngine
+  - pistache: REST Server
+  - restclient-cpp: REST Client
+  - nlohmann_json: JSON Format handling
+  - libzip: ZIP File Handling (not used yet)
+  - nest: For NestEngine
+  - Python: For everything Python
+  - Boost-Python: Easier Python handling
+  - GTest: Testing Suite
+  - spdlog: Logging functions
+  - Cython3: Required by Nest
+
+- \code{.sh} git clone https://github.com/Mike2208/NewNRP.git \endcode
+- \code{.sh} cd NewNRP \endcode
+- \code{.sh} mkdir build && cd build \endcode
+- \code{.sh} export C=/usr/bin/gcc-10; export CXX=/usr/bin/g++-10; cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/nrp \endcode
+- \code{.sh} sudo mkdir -p /usr/local/nrp \endcode
+- \code{.sh} sudo chown $USER /usr/local/nrp \endcode
+- \code{.sh} make -j8 \endcode
+
+Note that the installation process might take some time, as it downloads and compiles Nest as well. Also, Ubuntu has an outdated version of nlohman_json. CMake will download a newer version, which takes time as well
+- \code{.sh} make install \endcode
+
+After following the instructions, the NRP will be installed under /usr/local/nrp. For the OS to find it, the directories must be registered with environment variables:
+\code{.sh}
+export PYTHONPATH=/usr/local/nrp/lib/python3.8/site-packages:$PYTHONPATH
+export LD_LIBRARY_PATH=/usr/local/nrp/lib:$LD_LIBRARY_PATH
+export PATH=/usr/local/nrp/bin:$PATH
+\endcode
+
+Should you have installed the NRP in a different directory, replace \code /usr/local/nrp \endcode with your directory. The above variables must be set everytime the NRP is executed.
+Alternaltively, the above export commands can be copied into your \code ~/.bashrc \endcode file. That way they will be loaded everytime a console is started.
+
+
+*/
