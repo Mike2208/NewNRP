@@ -128,8 +128,7 @@ class TestEngineGrpcServer
         TestEngineGrpcServer(T &&...properties)
             : EngineGrpcServer(std::forward<T>(properties)...)
         {
-            this->_time        = 0.0f;
-            this->_sleepTimeMs = 0;
+
         }
 
         virtual ~TestEngineGrpcServer() override = default;
@@ -159,7 +158,7 @@ class TestEngineGrpcServer
             this->_sleepTimeMs = sleepTimeMs;
         }
 
-        float runLoopStep(const float timeStep) override
+        SimulationTime runLoopStep(const SimulationTime timeStep) override
         {
             specialBehaviour();
 
@@ -170,7 +169,7 @@ class TestEngineGrpcServer
 
         void resetEngineTime()
         {
-            this->_time = 0.0f;
+            this->_time = SimulationTime::zero();
         }
 
     private:
@@ -184,8 +183,8 @@ class TestEngineGrpcServer
             }
         }
 
-        float _time;
-        int   _sleepTimeMs;
+        SimulationTime _time        = SimulationTime::zero();
+        int            _sleepTimeMs = 0;
 };
 
 TEST(EngineGrpc, BASIC)
@@ -295,6 +294,11 @@ TEST(EngineGrpc, ShutdownCommandTimeout)
     ASSERT_THROW(client.sendShutdownCommand(jsonMessage), std::runtime_error);
 }
 
+static SimulationTime floatToSimulationTime(float time)
+{
+    return toSimulationTime<float, std::ratio<1>>(time);
+}
+
 TEST(EngineGrpc, RunLoopStepCommand)
 {
     TestEngineGrpcServer               server;
@@ -303,7 +307,7 @@ TEST(EngineGrpc, RunLoopStepCommand)
 
     // The gRPC server isn't running, so the runLoopStep command should fail
 
-    float timeStep = 0.1f;
+    SimulationTime timeStep = floatToSimulationTime(0.1f);
     ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
 
     server.startServer();
@@ -311,21 +315,21 @@ TEST(EngineGrpc, RunLoopStepCommand)
     // Engine time should never be smaller than 0
 
     server.resetEngineTime();
-    timeStep = -0.1f;
+    timeStep = floatToSimulationTime(-0.1f);
     ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
 
     // Normal loop execution, the command should return engine time
 
     server.resetEngineTime();
-    timeStep = 1.0f;
-    ASSERT_NEAR(client.sendRunLoopStepCommand(timeStep), timeStep, 0.0001);
+    timeStep = floatToSimulationTime(1.0f);
+    ASSERT_NEAR(client.sendRunLoopStepCommand(timeStep).count(), timeStep.count(), 0.0001);
 
     // Try to go back in time. The client should raise an error when engine time is decreasing
 
     server.resetEngineTime();
-    timeStep = 2.0f;
+    timeStep = floatToSimulationTime(2.0f);
     ASSERT_NO_THROW(client.sendRunLoopStepCommand(timeStep));
-    timeStep = -1.0f;
+    timeStep = floatToSimulationTime(-1.0f);
     ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
 
     // TODO Add test for failure on server side
@@ -341,7 +345,7 @@ TEST(EngineGrpc, runLoopStepCommandTimeout)
 
     server.startServer();
     server.timeoutOnNextCommand();
-    float timeStep = 2.0f;
+    SimulationTime timeStep = floatToSimulationTime(2.0f);
     ASSERT_THROW(client.sendRunLoopStepCommand(timeStep), std::runtime_error);
 }
 

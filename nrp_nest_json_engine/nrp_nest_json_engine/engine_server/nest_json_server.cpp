@@ -60,17 +60,30 @@ bool NestJSONServer::shutdownFlag() const
 	return this->_shutdownFlag;
 }
 
-float NestJSONServer::runLoopStep(float timeStep)
+SimulationTime NestJSONServer::runLoopStep(SimulationTime timeStep)
 {
 	PythonGILLock lock(this->_pyGILState, true);
 
 	try
 	{
-		//
-		const auto resolution = python::extract<double>(this->_pyNest["GetKernelStatus"]("resolution"));
-		const double runTime = std::round(NestJSONServer::convertSecToMill(timeStep)/resolution)*resolution;
-		this->_pyNest["Run"](runTime);
-		return NestJSONServer::convertMillToSec(python::extract<float>(this->_pyNest["GetKernelStatus"]("time")));
+		// Convert SimulationTime to milliseconds
+		// NEST uses floating points for time variables, we have to convert our time step to a double
+
+		const double timeStepMsDouble = fromSimulationTime<float, std::milli>(timeStep);
+
+		// NEST Resolution is in milliseconds
+
+		const auto resolutionMs = python::extract<double>(this->_pyNest["GetKernelStatus"]("resolution"));
+
+		// Round the time step to account for NEST resolution
+
+		const double runTimeMsRounded = std::round(timeStepMsDouble / resolutionMs) * resolutionMs;
+
+		this->_pyNest["Run"](runTimeMsRounded);
+
+		// The time field of dictionary returned from GetKernelStatus contains time in milliseconds
+		
+		return toSimulationTime<float, std::milli>(python::extract<float>(this->_pyNest["GetKernelStatus"]("time")));
 	}
 	catch(python::error_already_set &)
 	{
@@ -200,16 +213,6 @@ nlohmann::json NestJSONServer::shutdown(const nlohmann::json &)
 	this->_deviceControllerPtrs.clear();
 
 	return nlohmann::json();
-}
-
-constexpr float NestJSONServer::convertSecToMill(const float sec)
-{
-	return std::chrono::duration<decltype(sec), std::ratio<1,1000> >(std::chrono::duration<decltype(sec)>(sec)).count();
-}
-
-constexpr float NestJSONServer::convertMillToSec(const float millsec)
-{
-	return std::chrono::duration<decltype(millsec), std::ratio<1000,1> >(std::chrono::duration<decltype(millsec)>(millsec)).count();
 }
 
 nlohmann::json NestJSONServer::formatInitErrorMessage(const std::string &errMsg)

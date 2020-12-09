@@ -22,7 +22,7 @@ namespace gazebo
 			virtual void Load(physics::WorldPtr world, sdf::ElementPtr sdf) override;
 			virtual void Reset() override;
 
-			virtual double runLoopStep(double timeStep) override;
+			virtual SimulationTime runLoopStep(SimulationTime timeStep) override;
 
 			bool finishWorldLoading() override;
 

@@ -128,7 +128,7 @@ class EngineJSONServer
 		 * \param timeStep Step to take
 		 * \return Returns the time registered by this engine at the end of the loop
 		 */
-		virtual float runLoopStep(float timeStep) = 0;
+		virtual SimulationTime runLoopStep(SimulationTime timeStep) = 0;
 
 		/*!
 		 * \brief Engine Initialization routine

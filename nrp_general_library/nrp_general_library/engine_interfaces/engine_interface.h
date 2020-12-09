@@ -6,6 +6,7 @@
 #include "nrp_general_library/process_launchers/process_launcher.h"
 #include "nrp_general_library/utils/fixed_string.h"
 #include "nrp_general_library/utils/ptr_templates.h"
+#include "nrp_general_library/utils/time_utils.h"
 
 #include <concepts>
 #include <set>
@@ -90,14 +91,14 @@ class EngineInterface
 		 * \brief Get engine timestep (in seconds)
 		 * \throw Throws on error
 		 */
-		virtual float getEngineTimestep() const = 0;
+		virtual SimulationTime getEngineTimestep() const = 0;
 
 		/*!
 		 * \brief Get current engine time (in seconds)
 		 * \return Returns engine time
 		 * \throw Throws on error
 		 */
-		virtual float getEngineTime() const = 0;
+		virtual SimulationTime getEngineTime() const = 0;
 
 		/*!
 		 * \brief Starts a single loop step in a separate thread.
@@ -105,7 +106,7 @@ class EngineInterface
 		 * \param timeStep Time (in seconds) of a single step
 		 * \throw Throws on error
 		 */
-		virtual void runLoopStep(float timeStep) = 0;
+		virtual void runLoopStep(SimulationTime timeStep) = 0;
 
 		/*!
 		 * \brief Wait until step has been completed, at most timeOut seconds
@@ -255,8 +256,12 @@ class Engine
 
 		~Engine() override = default;
 
-		float getEngineTimestep() const override final
-		{	return this->engineConfigGeneral()->engineTimestep();	}
+		SimulationTime getEngineTimestep() const override final
+		{
+			// We need to cast floating-point seconds to integers with units of SimulationTime type
+
+			return toSimulationTime<float, std::ratio<1>>(this->engineConfigGeneral()->engineTimestep());
+		}
 
 		/*!
 		 * \brief Get General Engine Configuration

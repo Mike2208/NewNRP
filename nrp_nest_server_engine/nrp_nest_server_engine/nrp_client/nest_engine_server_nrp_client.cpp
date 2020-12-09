@@ -56,16 +56,16 @@ void NestEngineServerNRPClient::shutdown()
 		throw NRPException::logCreate("Failed to run nest.Cleanup()");
 }
 
-float NestEngineServerNRPClient::getEngineTime() const
+SimulationTime NestEngineServerNRPClient::getEngineTime() const
 {
 	auto resp = RestClient::post(this->serverAddress() + "/api/GetKernelStatus", "application/json", "[\"time\"]");
 	if(resp.code != 200)
 		throw NRPException::logCreate("Failed to get Nest Kernel Status");
 
-	return std::stof(resp.body);
+	return toSimulationTime<float, std::milli>(std::stof(resp.body));
 }
 
-void NestEngineServerNRPClient::runLoopStep(float timeStep)
+void NestEngineServerNRPClient::runLoopStep(SimulationTime timeStep)
 {
 	this->_runStepThread = std::async(std::launch::async, &NestEngineServerNRPClient::runStepFcn, this, timeStep);
 }
@@ -157,9 +157,13 @@ void NestEngineServerNRPClient::handleInputDevices(const EngineInterface::device
 	}
 }
 
-bool NestEngineServerNRPClient::runStepFcn(float timestep)
+bool NestEngineServerNRPClient::runStepFcn(SimulationTime timestep)
 {
-	auto resp = RestClient::post(this->serverAddress() + "/api/Run", "application/json", "[" + std::to_string(timestep) + "]");
+	// According to the NEST API documentation, Run accepts time to simulate in milliseconds and floating-point format
+
+	auto timestepFloatMs = fromSimulationTime<float, std::milli>(timestep);
+
+	auto resp = RestClient::post(this->serverAddress() + "/api/Run", "application/json", "[" + std::to_string(timestepFloatMs) + "]");
 	if(resp.code != 200)
 		return false;
 

@@ -5,6 +5,8 @@
 #include "nrp_general_library/utils/nrp_logger.h"
 #include "nrp_general_library/utils/nrp_exceptions.h"
 
+#include <type_traits>
+
 EngineMPIControl::EngineMPIControl(const PropertyTemplate &props)
     : PropertyTemplate(props)
 {}
@@ -26,7 +28,7 @@ EngineMPIControl::EngineMPIControl(EngineMPIControlConst::COMMAND cmd, float inf
     : PropertyTemplate(EngineMPIControlConst::CommandData(cmd, info))
 {}
 
-EngineMPIControl::EngineMPIControl(EngineMPIControlConst::COMMAND cmd, int info)
+EngineMPIControl::EngineMPIControl(EngineMPIControlConst::COMMAND cmd, int64_t info)
     : PropertyTemplate(EngineMPIControlConst::CommandData(cmd, info))
 {}
 
@@ -83,13 +85,13 @@ void EngineMPIServer::handleClientCmd(const EngineMPIControl &cmd)
 			return this->shutdownHandler(std::get<std::string>(cmd.info()));
 
 		case EngineMPIControlConst::RUN_STEP:
-			return this->runLoopStepHandler(std::get<float>(cmd.info()));
+			return this->runLoopStepHandler(SimulationTime(std::get<int64_t>(cmd.info())));
 
 		case EngineMPIControlConst::GET_DEVICES:
-			return this->requestOutputDevicesHandler(std::get<int>(cmd.info()));
+			return this->requestOutputDevicesHandler(std::get<int64_t>(cmd.info()));
 
 		case EngineMPIControlConst::SEND_DEVICES:
-			return this->handleInputDevicesHandler(std::get<int>(cmd.info()));
+			return this->handleInputDevicesHandler(std::get<int64_t>(cmd.info()));
 
 		default:
 			throw NRPException::logCreate("Unexpected command received by EngineMPIServer");
@@ -123,7 +125,7 @@ void EngineMPIServer::shutdownHandler(const std::string &shutdownData)
 	MPISetup::finalize();
 }
 
-void EngineMPIServer::runLoopStepHandler(float timeStep)
+void EngineMPIServer::runLoopStepHandler(SimulationTime timeStep)
 {
 	if(this->_state != PAUSED)
 		throw NRPException::logCreate("RunLoop request was sent to unpaused MPI engine. Aborting...");
@@ -132,10 +134,12 @@ void EngineMPIServer::runLoopStepHandler(float timeStep)
 	this->runLoopStep(timeStep);
 	this->_state = PAUSED;
 
-	const float engineTime = this->getSimTime();
+	int64_t engineTime = this->getSimTime().count();
+
+	static_assert(std::is_same<decltype(engineTime), SimulationTime::rep>::value, "Mismatch between MPI type and SimulationTime underlying integer type");
 
 	// Inform client that loop has completed
-	MPICommunication::sendMPI(&engineTime, 1, MPI_FLOAT, 0, EngineMPIControlConst::WAIT_LOOP_COMM_TAG, this->_comm);
+	MPICommunication::sendMPI(&engineTime, 1, MPI_INT64_T, 0, EngineMPIControlConst::WAIT_LOOP_COMM_TAG, this->_comm);
 }
 
 void EngineMPIServer::requestOutputDevicesHandler(const int numDevices)
@@ -292,11 +296,11 @@ auto MPISinglePropertySerializer<EngineMPIControlConst::CommandData>::derivedMPI
 
 		MPI_Type_create_struct(2, counts, disp, datat, &newType);
 	}
-	else if(std::holds_alternative<int>(prop.info))
+	else if(std::holds_alternative<int64_t>(prop.info))
 	{
 		constexpr int counts[] = {1,1};
-		const MPI_Aint disp[] = {getMPIAddr(&prop.cmd), getMPIAddr(&std::get<int>(prop.info))};
-		const MPI_Datatype datat[] = {MPI_INT, MPI_INT};
+		const MPI_Aint disp[] = {getMPIAddr(&prop.cmd), getMPIAddr(&std::get<int64_t>(prop.info))};
+		const MPI_Datatype datat[] = {MPI_INT, MPI_INT64_T};
 
 		MPI_Type_create_struct(2, counts, disp, datat, &newType);
 	}

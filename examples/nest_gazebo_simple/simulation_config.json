@@ -4,7 +4,7 @@
 	"SimulationTimeout": 10,
 	"EngineConfigs": [
 		{
-			"EngineType": "gazebo_json",
+			"EngineType": "gazebo_grpc",
 			"EngineName": "gazebo",
 			"GazeboWorldFile": "empty_world.sdf"
 		},

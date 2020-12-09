@@ -38,7 +38,7 @@ TEST(TestNestJSONServer, TestFunc)
 	ASSERT_EQ(server.initRunFlag(), true);
 
 	// Test runStep REST call
-	const float timeStep = 1;
+	SimulationTime timeStep(1);
 	ASSERT_EQ(server.runLoopStep(timeStep), timeStep);
 
 	// Test getDevice REST call EngineServerGetDevicesRoute

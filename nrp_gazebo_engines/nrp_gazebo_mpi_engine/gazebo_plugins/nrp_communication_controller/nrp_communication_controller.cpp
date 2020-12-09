@@ -64,7 +64,7 @@ void NRPCommunicationController::initialize(const std::string &initData)
 void NRPCommunicationController::shutdown(const std::string &shutdownData)
 {}
 
-void NRPCommunicationController::runLoopStep(float timeStep)
+void NRPCommunicationController::runLoopStep(SimulationTime::zero() timeStep)
 {
 	if(this->_stepController == nullptr)
 		throw NRPException::logCreate("Tried to run loop while the controller has not yet been initialized");
@@ -72,7 +72,7 @@ void NRPCommunicationController::runLoopStep(float timeStep)
 	try
 	{
 		// Execute loop step (Note: The _deviceLock mutex has already been set by EngineJSONServer::runLoopStepHandler, so no calls to reading/writing from/to devices is possible at this moment)
-		this->_stepController->runLoopStep(static_cast<double>(timeStep));
+		this->_stepController->runLoopStep(timeStep);
 	}
 	catch(std::exception &e)
 	{
@@ -80,7 +80,7 @@ void NRPCommunicationController::runLoopStep(float timeStep)
 	}
 }
 
-float NRPCommunicationController::getSimTime() const
+SimulationTime NRPCommunicationController::getSimTime() const
 {
 	if(this->_stepController == nullptr)
 		throw NRPException::logCreate("Tried to run loop while the controller has not yet been initialized");

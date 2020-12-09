@@ -55,7 +55,7 @@ message ShutdownReply
  */
 message RunLoopStepRequest
 {
-    float timeStep = 1;
+    int64 timeStep = 1;
 }
 
 /*
@@ -64,7 +64,7 @@ message RunLoopStepRequest
  */
 message RunLoopStepReply
 {
-    float engineTime = 1;
+    int64 engineTime = 1;
 }
 
 /*

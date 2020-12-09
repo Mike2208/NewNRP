@@ -25,13 +25,13 @@ struct TestEngine1
 	void shutdown() override
 	{}
 
-	float getEngineTime() const override
-	{	return 0;	}
+	SimulationTime getEngineTime() const override
+	{	return SimulationTime::zero();	}
 
-	float getEngineTimestep() const override
-	{	return 0;	}
+	SimulationTime getEngineTimestep() const override
+	{	return SimulationTime::zero();	}
 
-	void runLoopStep(float) override
+	void runLoopStep(SimulationTime) override
 	{}
 
 	void waitForStepCompletion(float) override
@@ -87,13 +87,13 @@ struct TestEngine2
 	void shutdown() override
 	{}
 
-	float getEngineTime() const override
-	{	return 0;	}
+	SimulationTime getEngineTime() const override
+	{	return SimulationTime::zero();	}
 
-	float getEngineTimestep() const override
-	{	return 0;	}
+	SimulationTime getEngineTimestep() const override
+	{	return SimulationTime::zero();	}
 
-	void runLoopStep(float) override
+	void runLoopStep(SimulationTime) override
 	{}
 
 	void waitForStepCompletion(float) override

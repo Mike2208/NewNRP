@@ -20,14 +20,6 @@ struct SimulationConfigConst
 	static constexpr FixedString ConfigType = "SimulationConfig";
 
 	/*!
-	 * \brief Time range (in s) for which engine completion is considered equal.
-	 * Due to numerical rounding, a time range must be specified
-	 * in which completion times are considered equal. Should be a low value
-	 */
-	static constexpr FixedString ApproximateTimeRange = "ApproximateTimeRange";
-	static constexpr float DefApproximateTimeRange = 0.0001f;
-
-	/*!
 	 * \brief Experiment Timeout (in seconds). 0 means no timeout
 	 */
 	static constexpr FixedString SimulationTimeout = "SimulationTimeout";
@@ -50,13 +42,16 @@ struct SimulationConfigConst
 	 */
 	static constexpr FixedString SimName = "SimulationName";
 
-	using SPropNames = PropNames<SimulationConfigConst::ApproximateTimeRange, SimulationConfigConst::SimulationTimeout,
-	                             SimulationConfigConst::EngineSimulatorsConfig, SimulationConfigConst::TFArrayConfig,
+	using SPropNames = PropNames<SimulationConfigConst::SimulationTimeout,
+	                             SimulationConfigConst::EngineSimulatorsConfig,
+								 SimulationConfigConst::TFArrayConfig,
 	                             SimName>;
 
 	using SProps = JSONConfigProperties<SimulationConfig, SimulationConfigConst::SPropNames,
-	                                    float, unsigned int, std::vector<SimulationConfigConst::config_storage_t>,
-	                                    std::vector<SimulationConfigConst::config_storage_t>, std::string >;
+	                                    unsigned int,
+										std::vector<SimulationConfigConst::config_storage_t>,
+	                                    std::vector<SimulationConfigConst::config_storage_t>,
+										std::string >;
 };
 
 /*!
@@ -71,9 +66,6 @@ class SimulationConfig
 
 		const std::string &name() const;
 		std::string &name();
-
-		float approximateTimeRange() const;
-		float &approximateTimeRange();
 
 		unsigned int simulationTimeOut() const;
 		unsigned int &simulationTimeOut();

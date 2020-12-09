@@ -20,7 +20,7 @@ struct EngineMPIControlConst
 
 	struct CommandData
 	{
-		using info_t = std::variant<float, int, std::string>;
+		using info_t = std::variant<float, int64_t, std::string>;
 
 		COMMAND cmd = NONE;
 		info_t info = 0;
@@ -37,7 +37,7 @@ struct EngineMPIControlConst
 		      info(_info)
 		{}
 
-		CommandData(COMMAND _cmd, int _info)
+		CommandData(COMMAND _cmd, int64_t _info)
 		    : cmd(_cmd),
 		      info(_info)
 		{}
@@ -60,7 +60,7 @@ class EngineMPIControl
 		EngineMPIControl(EngineMPIControlConst::CommandData cmdData);
 		EngineMPIControl(EngineMPIControlConst::COMMAND cmd, const std::string &info);
 		EngineMPIControl(EngineMPIControlConst::COMMAND cmd, float info);
-		EngineMPIControl(EngineMPIControlConst::COMMAND cmd, int info);
+		EngineMPIControl(EngineMPIControlConst::COMMAND cmd, int64_t info);
 
 		/*!
 		 * \brief Get command
@@ -165,7 +165,7 @@ class EngineMPIServer
 		 * \exception Throws std::runtime_error if sim was not in PAUSED state at call time,
 		 * or any exception runLoopStep() generates
 		 */
-		void runLoopStepHandler(float timeStep);
+		void runLoopStepHandler(SimulationTime timeStep);
 
 		/*!
 		 * \brief Calls requestOutputDevices() and sets _state
@@ -229,12 +229,12 @@ class EngineMPIServer
 		 * \param timeStep Time (in s) to run the sim
 		 * \return Returns result of running the sim
 		 */
-		virtual void runLoopStep(float timeStep) = 0;
+		virtual void runLoopStep(SimulationTime timeStep) = 0;
 
 		/*!
 		 * \brief User-defined fcn to get the total runtime of the sim
 		 */
-		virtual float getSimTime() const = 0;
+		virtual SimulationTime getSimTime() const = 0;
 
 		/*!
 		 * \brief User-defined fcn to get device output data. Can be overriden
@@ -298,9 +298,10 @@ struct MPISinglePropertySerializer<typename EngineMPIControlConst::CommandData> 
 
 	static void saveSize(MPIPropertyData &dat, EngineMPIControlConst::CommandData &prop)
 	{
+		// TODO Check if this is portable
 		if(std::holds_alternative<float>(prop.info))
 			dat.VariableLengths.push_back(-1);
-		else if(std::holds_alternative<int>(prop.info))
+		else if(std::holds_alternative<int64_t>(prop.info))
 			dat.VariableLengths.push_back(-2);
 		else
 			dat.VariableLengths.push_back(std::get<std::string>(prop.info).size()+1);

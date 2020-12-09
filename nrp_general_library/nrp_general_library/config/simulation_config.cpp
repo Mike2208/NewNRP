@@ -9,8 +9,9 @@ const SimulationConfig::tf_configs_t SimulationConfigConst::DefEngineSimulatorsC
 
 SimulationConfig::SimulationConfig(const nlohmann::json &configuration)
     : JSONConfigProperties(configuration,
-                           DefApproximateTimeRange, DefSimulationTimeout,
-                           DefEngineSimulatorsConfig, DefTFArrayConfig)
+                           DefSimulationTimeout,
+                           DefEngineSimulatorsConfig,
+						   DefTFArrayConfig)
 {}
 
 const std::string &SimulationConfig::name() const
@@ -21,16 +22,6 @@ const std::string &SimulationConfig::name() const
 std::string &SimulationConfig::name()
 {
 	return this->getPropertyByName<SimulationConfig::SimName>();
-}
-
-float SimulationConfig::approximateTimeRange() const
-{
-	return this->getPropertyByName<SimulationConfig::ApproximateTimeRange>();
-}
-
-float &SimulationConfig::approximateTimeRange()
-{
-	return this->getPropertyByName<SimulationConfig::ApproximateTimeRange>();
 }
 
 unsigned int SimulationConfig::simulationTimeOut() const

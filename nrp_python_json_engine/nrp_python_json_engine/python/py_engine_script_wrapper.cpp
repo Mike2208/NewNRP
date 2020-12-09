@@ -15,7 +15,7 @@ void PyEngineScriptWrapper::initialize()
 void PyEngineScriptWrapper::defaultInitialize()
 {	return PyEngineScript::initialize();	}
 
-void PyEngineScriptWrapper::runLoopFcn(float timestep)
+void PyEngineScriptWrapper::runLoopFcn(SimulationTime timestep)
 {	this->get_override("runLoop")(timestep);	}
 
 void PyEngineScriptWrapper::shutdown()

@@ -49,9 +49,9 @@ class NestEngineServerNRPClient
 		virtual void initialize() override;
 		virtual void shutdown() override;
 
-		virtual float getEngineTime() const override;
+		virtual SimulationTime getEngineTime() const override;
 
-		virtual void runLoopStep(float timeStep) override;
+		virtual void runLoopStep(SimulationTime timeStep) override;
 		virtual void waitForStepCompletion(float timeOut) override;
 
 		virtual void handleInputDevices(const device_inputs_t &inputDevices) override;
@@ -63,7 +63,7 @@ class NestEngineServerNRPClient
 		std::future<bool> _runStepThread;
 		nest_devices_t _nestDevs;
 
-		bool runStepFcn(float timestep);
+		bool runStepFcn(SimulationTime timestep);
 		std::string serverAddress() const;
 };
 

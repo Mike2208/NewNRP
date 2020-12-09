@@ -27,10 +27,10 @@ class TestEngine
 		virtual void shutdown() override
 		{}
 
-		virtual float getEngineTime() const override
-		{	return 0.0f;	}
+		virtual SimulationTime getEngineTime() const override
+		{	return SimulationTime::zero();	}
 
-		virtual void runLoopStep(float) override
+		virtual void runLoopStep(SimulationTime) override
 		{}
 
 		virtual void waitForStepCompletion(float) override

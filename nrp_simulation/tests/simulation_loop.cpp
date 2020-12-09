@@ -52,7 +52,8 @@ TEST(SimulationLoopTest, RunLoop)
 	const char *procName = "test";
 	PythonInterpreterState pyState(1, const_cast<char**>(&procName));
 
-	const float timestep = 0.01f;
+	const SimulationTime timestep(10);
+	const float timeStepFloat = 0.01f;
 
 	SimulationConfigSharedPtr config(new SimulationConfig(simConfig));
 	config->engineConfigs().resize(2);
@@ -64,10 +65,10 @@ TEST(SimulationLoopTest, RunLoop)
 		GazeboGrpcConfig gazeboCfg(config->engineConfigs().at(1));
 
 		nestCfg.nestInitFileName() = TEST_NEST_SIM_FILE;
-		nestCfg.engineTimestep() = timestep;
+		nestCfg.engineTimestep() = timeStepFloat;
 
 		gazeboCfg.gazeboWorldFile() = TEST_GAZEBO_WORLD_FILE;
-		gazeboCfg.engineTimestep() = timestep;
+		gazeboCfg.engineTimestep() = timeStepFloat;
 
 		config->engineConfigs().at(0).Data = nestCfg.writeConfig();
 		config->engineConfigs().at(1).Data = gazeboCfg.writeConfig();
@@ -80,9 +81,9 @@ TEST(SimulationLoopTest, RunLoop)
 
 	ASSERT_NO_THROW(simLoop.initLoop());
 
-	ASSERT_FLOAT_EQ(simLoop.getSimTime(), 0.0f);
+	ASSERT_EQ(simLoop.getSimTime(), SimulationTime::zero());
 	ASSERT_NO_THROW(simLoop.runLoop(timestep));
-	ASSERT_FLOAT_EQ(simLoop.getSimTime(), timestep);
+	ASSERT_EQ(simLoop.getSimTime(), timestep);
 	ASSERT_NO_THROW(simLoop.runLoop(timestep));
-	ASSERT_FLOAT_EQ(simLoop.getSimTime(), timestep+timestep);
+	ASSERT_EQ(simLoop.getSimTime(), timestep+timestep);
 }
