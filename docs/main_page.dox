@@ -1,5 +1,17 @@
 /*! \mainpage New Neurorobotics Platform
 
+This manual covers the content of the Neurorobotics Platform. Most of the documentation covers this software's internal workings, mainly useful for developers
+and users wishing to create their own engines. Nevertheless, the first section contains information and tutorials for standard users.
+
+\section usage Usage
+
+\subpage installation "Installation Instructions"
+
+\subpage getting_started "Getting Started"
+
+\subpage simulation_config "Simulation Configuration"
+
+\subpage transceiver_function_usage "Transceiver Function"
 
 \section nrp_concepts Concepts
 The NewNRP documentation is divided into the following concepts:

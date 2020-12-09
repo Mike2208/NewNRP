@@ -170,8 +170,12 @@ get_property(DOXYGEN_SOURCES GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
 doxygen_add_docs(doxygen
 	${DOXYGEN_SOURCES}
 	"docs/engine_types.dox"
+	"docs/getting_started.dox"
+	"docs/installation.dox"
 	"docs/main_page.dox"
+	"docs/simulation_config.dox"
 	"docs/todos.dox"
+	"docs/transceiver_function_usage.dox"
 	"docs/tutorials/engine_creation.dox"
 	"docs/tutorials/grpc_engine_creation.dox"
 	"docs/tutorials/json_engine_creation.dox"

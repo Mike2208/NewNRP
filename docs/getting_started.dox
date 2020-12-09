@@ -1,0 +1,16 @@
+/*! \page getting_started Getting started
+
+
+A number of example experiments can be found within the current repository in the examples subdirectory. To run it, simply switch to one of the experiment directories and run
+
+\code{.sh}
+NRPSimulation -c simulation_config.json
+\endcode
+
+Additional engines can be loaded as plugins on startup:
+\code{.sh}
+NRPSimulation -c simulation_config.json -p "NRPGazeboJSONEngine.so,NRPPythonJSONEngine.so"
+\endcode
+
+The example experiments can be quickly adapted to your own needs. An explanation of the simulation configuration can be found \ref simulation_config "here".
+*/
