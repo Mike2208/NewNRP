@@ -197,7 +197,7 @@ void EngineGrpcServer::setDeviceData(const EngineGrpc::SetDeviceRequest & data)
     for(int i = 0; i < numDevices; i++)
     {
         const auto r = data.request(i);
-        const auto devInterface = this->_devicesControllers.find(r.deviceid().devicename());
+		const auto &devInterface = this->_devicesControllers.find(r.deviceid().devicename());
 
         if(devInterface != _devicesControllers.end())
         {
@@ -219,7 +219,7 @@ void EngineGrpcServer::getDeviceData(const EngineGrpc::GetDeviceRequest & reques
 
     for(int i = 0; i < numDevices; i++)
     {
-        const auto devInterface = this->_devicesControllers.find(request.deviceid(i).devicename());
+		const auto &devInterface = this->_devicesControllers.find(request.deviceid(i).devicename());
 
         if(devInterface != _devicesControllers.end())
         {

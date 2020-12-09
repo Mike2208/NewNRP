@@ -81,13 +81,20 @@ boost::python::object TransceiverFunctionInterpreter::runSingleTransceiverFuncti
 	return this->runSingleTransceiverFunction(tfDataIterator->second);
 }
 
-boost::python::api::object TransceiverFunctionInterpreter::runSingleTransceiverFunction(const TransceiverFunctionInterpreter::TransceiverFunctionData &tfData)
+boost::python::object TransceiverFunctionInterpreter::runSingleTransceiverFunction(const TransceiverFunctionInterpreter::TransceiverFunctionData &tfData)
 {
 	try
 	{
 		boost::python::tuple args;
 		boost::python::dict kwargs;
-		return tfData.TransceiverFunction->runTf(args, kwargs);
+
+		boost::python::object retVal = tfData.TransceiverFunction->runTf(args, kwargs);
+
+		// Make sure that tf returns a list. If not, return an empty list
+		if(!boost::python::extract<boost::python::list>(retVal).check())
+			return boost::python::list();
+		else
+			return retVal;
 	}
 	catch(boost::python::error_already_set &)
 	{

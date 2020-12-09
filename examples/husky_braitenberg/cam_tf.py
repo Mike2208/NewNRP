@@ -39,6 +39,7 @@ def transceiver_function(camera):
         right_r = 2.0 * right_r / img_s
         no_r = no_r / img_s
 
+    # Set to True to display camera image data and pause for 10 s
     if False and cam_height > 0 and cam_width > 0:
         array = np.zeros( (cam_height, cam_width, 3), dtype=np.uint8 )
         for i in range(0, 3*cam_height*cam_width):

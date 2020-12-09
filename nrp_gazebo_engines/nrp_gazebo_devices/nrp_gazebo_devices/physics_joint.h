@@ -23,9 +23,9 @@ struct PhysicsJointConst
 			float _val;
 	};
 
-	static constexpr FixedString Position = "pos";
-	static constexpr FixedString Velocity = "vel";
-	static constexpr FixedString Effort = "eff";
+	static constexpr FixedString Position = "position";
+	static constexpr FixedString Velocity = "velocity";
+	static constexpr FixedString Effort = "effort";
 
 	using JPropNames = PropNames<Position, Velocity, Effort>;
 };

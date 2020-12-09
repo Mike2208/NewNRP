@@ -193,13 +193,7 @@ class EngineGrpcClient
         {
             if(DEVICE::TypeName.compare(device.type()) == 0)
             {
-                request->mutable_deviceid()->set_devicename(device.name());
-                request->mutable_deviceid()->set_devicetype(device.type());
-                request->mutable_deviceid()->set_enginename(device.engineName());
-
-				//device.serialize(request);
-
-                // Early return
+				*request = GRPCDeviceSerializerMethods::template serialize<DEVICE>(dynamic_cast<const DEVICE&>(device));
 
                 return;
             }

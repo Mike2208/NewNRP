@@ -31,9 +31,9 @@ namespace gazebo
 			{
 				this->_jointData = std::move(data);
 
-				//	std::cout << std::to_string(this->_jointData.position()) << std::endl;
-				//	std::cout << std::to_string(this->_jointData.velocity()) << std::endl;
-				//	std::cout << std::to_string(this->_jointData.effort()) << std::endl;
+				//std::cout << std::to_string(this->_jointData.position()) << std::endl;
+				//std::cout << std::to_string(this->_jointData.velocity()) << std::endl;
+				//std::cout << std::to_string(this->_jointData.effort()) << std::endl;
 
 				const auto &jointName = this->_jointData.name();
 				if(!std::isnan(this->_jointData.position()))
