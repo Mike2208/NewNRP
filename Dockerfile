@@ -35,7 +35,7 @@ RUN mkdir -p \
 
 # Copy .bashrc for the NRP_USER
 
-COPY --chown=${NRP_USER}:${NRP_GROUP} bashrc $HOME/.bashrc
+COPY --chown=${NRP_USER}:${NRP_GROUP} .ci/bashrc $HOME/.bashrc
 
 # Install packages needed to add apt repositories
 
