@@ -37,14 +37,14 @@ RUN mkdir -p \
 
 COPY --chown=${NRP_USER}:${NRP_GROUP} .ci/bashrc $HOME/.bashrc
 
-# Install packages needed to add apt repositories
+# Copy requirements files
 
-RUN apt update -y
-RUN apt-get install -y \
-    lsb-release \
-    wget \
-    gnupg2 \
-    software-properties-common
+COPY --chown=${NRP_USER}:${NRP_GROUP} .ci/dependencies ${HOME}/.dependencies
+
+# Install basic dependencies
+
+RUN apt-get update
+RUN apt-get -y install $(grep -vE "^\s*#" ${HOME}/.dependencies/apt/requirements.basic.txt  | tr "\n" " ")
 
 # Pistache REST Server
 
@@ -55,29 +55,10 @@ RUN add-apt-repository ppa:pistache+team/unstable
 RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
 RUN wget https://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 
-# Apt dependencies
+# Install CLE dependencies
 
-RUN apt update -y
-RUN apt install -y \
-    git \
-    doxygen \
-    cmake \
-    libpistache-dev \
-    g++-10 \
-    libboost-python-dev \
-    libboost-filesystem-dev \
-    libcurl4-openssl-dev \
-    nlohmann-json3-dev \
-    libzip-dev \
-    libgazebo11-dev \
-    gazebo11 \
-    gazebo11-plugin-base \
-    cython3 \
-    python3-numpy \
-    libgrpc++-dev \
-    protobuf-compiler-grpc \
-    libprotobuf-dev \
-    libgsl-dev
+RUN apt-get update
+RUN apt-get -y install $(grep -vE "^\s*#" ${HOME}/.dependencies/apt/requirements.cle.txt  | tr "\n" " ")
 
 # Fix deprecated type in OGRE (std::allocator<void>::const_pointer has been deprecated with glibc-10). Until the upstream libs are updated, use this workaround. It changes nothing, the types are the same
 
