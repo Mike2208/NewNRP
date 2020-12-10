@@ -11,6 +11,16 @@ and users wishing to create their own engines. Nevertheless, the first section c
 
 \subpage simulation_config "Simulation Configuration"
 
+\subpage transceiver_function_usage "Transceiver Function"
+
+\section usage Usage
+
+\subpage installation "Installation Instructions"
+
+\subpage getting_started "Getting Started"
+
+\subpage simulation_config "Simulation Configuration"
+
 \subpage transceiver_functions_and_devices "Transceiver Functions and Devices"
 
 \section nrp_engines Available engines

@@ -6,7 +6,7 @@
 A central configuration file is required to properly set up an NRP simulation. Examples of these files can be seen in the examples subdirectory of the repo, generally under the name
 "simulation_config.json".
 
-Below is a simple example:
+This is a simple configuration example:
 \code{.json}
 {
 	"SimulationName": "tf_exchange",
