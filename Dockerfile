@@ -33,6 +33,10 @@ RUN mkdir -p \
     ${NRP_INSTALL_DIR} \
     && chown -R ${NRP_USER}:${NRP_GROUP} $HOME
 
+# Copy .bashrc for the NRP_USER
+
+COPY --chown=${NRP_USER}:${NRP_GROUP} bashrc $HOME/.bashrc
+
 # Install packages needed to add apt repositories
 
 RUN apt update -y
