@@ -72,9 +72,8 @@ TEST(TransceiverFunctionInterpreterTest, TestSimplePythonFcn)
 	interpreter->loadTransceiverFunction(tfName, tfDevice);
 
 	// Test execution result
-	boost::python::object res(interpreter->runSingleTransceiverFunction(tfName));
-	python::incref(res.ptr());
-	ASSERT_EQ(boost::python::extract<int>(res), 3);
+	boost::python::list res(interpreter->runSingleTransceiverFunction(tfName));
+	ASSERT_EQ((int)boost::python::extract<int>(res[0]), 3);
 
 	// Test invalid TF name
 	ASSERT_THROW(interpreter->runSingleTransceiverFunction("invalidTFName"), NRPExceptionNonRecoverable);

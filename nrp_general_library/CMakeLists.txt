@@ -260,7 +260,7 @@ if(${ENABLE_TESTING} AND NOT "${TEST_SRC_FILES}" STREQUAL "")
 
 	# Create testing plugin library (used for testing PluginManager)
 	set(TEST_NRP_PLUGIN "TestNRPPluginManager")
-	add_library(${TEST_NRP_PLUGIN} tests/test_plugin.cpp)
+	add_library(${TEST_NRP_PLUGIN} SHARED tests/test_plugin.cpp)
 	set_target_properties(${TEST_NRP_PLUGIN} PROPERTIES PREFIX "")
 	target_link_libraries(${TEST_NRP_PLUGIN}
 		PUBLIC
