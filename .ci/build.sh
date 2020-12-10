@@ -25,4 +25,8 @@ cmake .. -DCMAKE_INSTALL_PREFIX=$NRP_INSTALL_DIR
 make -j
 make install
 
+# Run all tests. We assume that test executables are called *Tests
+
+find . -name "*Tests" -exec {} --gtest_output=xml:$repo_root/build/xml/{}.xml \;
+
 # EOF
