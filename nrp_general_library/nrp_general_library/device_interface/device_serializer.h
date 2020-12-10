@@ -38,7 +38,6 @@ concept DEVICE_SERIALIZER_METHODS_C = requires (T &serializer, const DEVICE &dev
 {
     DEVICE_C<DEVICE>;
 
-    typename T::PROP_SERIALIZER;
     typename T::prop_deserialization_t;
     typename T::deserialization_t;
 
@@ -53,9 +52,7 @@ concept DEVICE_SERIALIZER_METHODS_C = requires (T &serializer, const DEVICE &dev
 //class DeviceSerializerMethods
 //{
 //	public:
-//		using PROP_SERIALIZER = SERIALIZER;
-
-//		using prop_deserialization_t = typename ObjectPropertySerializerMethods<PROP_SERIALIZER>::deserialization_t;
+//		using prop_deserialization_t = typename ObjectPropertySerializerMethods<SERIALIZER>::deserialization_t;
 //		using deserializtion_t = const SERIALIZER&;
 
 //		template<DEVICE_C DEVICE>
@@ -109,5 +106,43 @@ concept DEVICE_SERIALIZER_METHODS_C = requires (T &serializer, const DEVICE &dev
 //			return DeviceSerializerMethods<SERIALIZER>::serializeID(std::forward<deserialization_t>(data));
 //		}
 //};
+
+/*! \page device_serializers
+DeviceSerializers contain static functions to de-/serialize \ref devices "Devices". They are all specializations of the DeviceSerializerMethods<> template class.
+Each specialization must conform to a set of requirements, defined in the DEVICE_SERIALIZER_METHODS_C concept.
+
+By providing a structured de-/serialization interface, other components of the NRP can use it to automatically integrate these methods into their workflow,
+able to integrate new serialization methods on compile. See EngineDeviceController for an example.
+
+The following example lists the requirements:
+\code{.cpp}
+// Device data will be de-/serialized from/to the SERIALIZER type
+template<class SERIALIZER>
+class DeviceSerializerMethods
+{
+	public:
+		// prop_deserialization_t Defines the property deserialization type used by the PropertySerializer corresponding to the given SERIALIZER type
+		// Usually, PROP_SERIALIZER is simply SERIALIZER
+		using prop_deserialization_t = typename ObjectPropertySerializerMethods<PROP_SERIALIZER>::deserialization_t;
+
+		// deserializtion_t Defines the deserialization type that will be converted to a DEVICE class. Usually this is just a const reference to the SERIALIZER type
+		using deserializtion_t = const SERIALIZER&;
+
+		// The serialize functions takes a DEVICE type and returns the data in serialized form
+		template<DEVICE_C DEVICE>
+		static SERIALIZER serialize(const DEVICE &dev);
+
+		// The serializeID functions takes a DeviceIdentifier and generates the DeviceID in serialized form
+		static SERIALIZER serializeID(const DeviceIdentifier &devID);
+
+		// The deserialize functions takes data of the type deserializtion_t and constructs a given DEVICE type with it.
+		template<DEVICE_C DEVICE>
+		static DEVICE deserialize(deserializtion_t data);
+
+		// The deserializeID functions takes data of the type deserializtion_t and extracts the DeviceIdentifier
+		static DeviceIdentifier deserializeID(deserializtion_t data);
+};
+\endcode
+*/
 
 #endif // DEVICE_SERIALIZER_H

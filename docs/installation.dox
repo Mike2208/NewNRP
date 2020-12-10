@@ -36,8 +36,8 @@ sudo sed -i "s/typename std::allocator<void>::const_pointer/const void*\/g" /usr
 - \code{.sh} sudo mkdir -p /usr/local/nrp \endcode
 - \code{.sh} sudo chown $USER /usr/local/nrp \endcode
 - \code{.sh} make -j8 \endcode
-
 Note that the installation process might take some time, as it downloads and compiles Nest as well. Also, Ubuntu has an outdated version of nlohman_json. CMake will download a newer version, which takes time as well
+
 - \code{.sh} make install \endcode
 
 After following the instructions, the NRP will be installed under /usr/local/nrp. For the OS to find it, the directories must be registered with environment variables:
@@ -47,8 +47,8 @@ export LD_LIBRARY_PATH=/usr/local/nrp/lib:$LD_LIBRARY_PATH
 export PATH=/usr/local/nrp/bin:$PATH
 \endcode
 
-Should you have installed the NRP in a different directory, replace \code /usr/local/nrp \endcode with your directory. The above variables must be set everytime the NRP is executed.
-Alternaltively, the above export commands can be copied into your \code ~/.bashrc \endcode file. That way they will be loaded everytime a console is started.
+Should you have installed the NRP in a different directory, replace `/usr/local/nrp` with your directory. The above variables must be set everytime the NRP is executed.
+Alternaltively, the above export commands can be copied into your `~/.bashrc` file. That way they will be loaded everytime a console is started.
 
 
 */

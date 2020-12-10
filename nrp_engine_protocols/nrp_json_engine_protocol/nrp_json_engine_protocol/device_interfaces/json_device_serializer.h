@@ -35,9 +35,7 @@ class DeviceSerializerMethods<nlohmann::json>
 		static constexpr std::string_view JSONTypeID = "type";
 		static constexpr std::string_view JSONEngineNameID = "engine_name";
 
-		using PROP_SERIALIZER = nlohmann::json;
-
-		using prop_deserialization_t = typename ObjectPropertySerializerMethods<PROP_SERIALIZER>::deserialization_t;
+		using prop_deserialization_t = typename ObjectPropertySerializerMethods<nlohmann::json>::deserialization_t;
 		using deserialization_t = const nlohmann::json::const_iterator&;
 
 		template<DEVICE_C DEVICE>

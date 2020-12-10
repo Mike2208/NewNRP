@@ -84,4 +84,15 @@ template<>
 PhysicsJointConst::FloatNan JSONPropertySerializerMethods::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name);
 
 
+/*! \addtogroup gazebo_devices
+ * The PhysicsJoint Device consists of the following attributes:
+ * <table>
+ * <caption id="physics_joint_attributes_table">Physics Joint Attributes</caption>
+ * <tr><th>Attribute       <th>Description                  <th>Python Type <th>C type
+ * <tr><td>position    <td>Joint angle position (in rad)    <td>float <td>float
+ * <tr><td>velocity     <td>Joint angle velocity (in rad/s) <td>float <td>float
+ * <tr><td>effort     <td>Joint angle effort (in N)         <td>float <td>float
+ * </table>
+ */
+
 #endif // PHYSICS_JOINT_H

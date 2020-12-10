@@ -11,7 +11,18 @@ and users wishing to create their own engines. Nevertheless, the first section c
 
 \subpage simulation_config "Simulation Configuration"
 
-\subpage transceiver_function_usage "Transceiver Function"
+\subpage transceiver_functions_and_devices "Transceiver Functions and Devices"
+
+\section nrp_engines Available engines
+
+The currently available base engine communication protocols are listed \ref engine_types "here". They can easily be expanded to create new engines.
+
+In addition the the above base template, we support the following engines natively:
+- \ref gazebo_grpc_engine "Gazebo GRPC Engine": Gazebo physics simulator
+- \ref gazebo_json_engine "Gazebo JSON Engine": Gazebo physics simulator
+- \ref nest_json_engine "NEST JSON Engine": NEST neuron simulator
+- \ref python_json_engine "Python JSON Engine": Python-based simulator. Executes a user-defined python script
+
 
 \section nrp_concepts Concepts
 The NewNRP documentation is divided into the following concepts:
@@ -22,26 +33,17 @@ The NewNRP documentation is divided into the following concepts:
 - \subpage devices "Devices". User-defined data structures. Used to exchange data between engine server/clients
 
 
-\section nrp_engines Available engines
-
-The currently available base engine communication protocols are listed \ref engine_types "here". They can easily be expanded to create new engines.
-
-In addition the the above base template, we support the following engines natively:
-- \ref gazebo_json_engine "Gazebo JSON Engine": Gazebo physics simulator
-- \ref nest_json_engine "NEST JSON Engine": NEST neuron simulator
-- \ref python_json_engine "Gazebo JSON Engine": Python-based simulator. Executes a user-defined python script
-
-
 \section nrp_components Components
 
 The NewNRP relies on several components to run:
 - \ref property_template "PropertyTemplate". Used to create C++ structures that can be de-/serialized for Engine server/client communication
 - \ref property_serializers "PropertySerializer". Used to de-/serialize PropertyTemplate structs. Can handle multiple types of data
-- \ref device_conversion_mechanism "Device Conversion Mechanism". Used to prepare Devices for sending/receiving
+- \subpage device_serializers "Device Serializers". Used to de-/serialize Devices for sending/receiving
 - \ref config "Configuration Files". Used to read/write configuration files
 - \ref plugin_system "Plugin System". Used to dynamically load Engines during NRPSimulation startup
 - \ref process_launchers "Process Launchers". Used to launch processes appropriately. Will alter behavior depending on computer type (e.g. local machine, HPC, ...)
 - \ref cmake_project "CMake Project". Used to manage NRP compilation and installation.
+
 
 \section nrp_tutorials Tutorials
 

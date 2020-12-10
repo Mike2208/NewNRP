@@ -6,19 +6,7 @@
 A central configuration file is required to properly set up an NRP simulation. Examples of these files can be seen in the examples subdirectory of the repo, generally under the name
 "simulation_config.json".
 
-The file contains all necessary information to initialize and run an experiment in JSON format, including details such as the running engines, active TransceiverFunctions, and individual timesteps.
-
-The following table contains a detailed list of configurable options:
-<table>
-<caption id="simulation_config_table">Simulation Configuration</caption>
-<tr><th>Name                  <th>Description                                                                                                <th>Type     <th>Default
-<tr><td>SimulationTimeout     <td>Runtime of simulation in seconds. A value of 0 means no timeout                                            <td>float    <td> 0
-<tr><td>ApproximateTimeRange  <td>Range (in seconds) for which two engines are considered to be finished at the same time                    <td>float    <td>0.001
-<tr><td>EngineConfigs         <td>Array of Engine Configurations. See \ref engine_config_section for additional details                      <td>array    <td>[]
-<tr><td>TransceiverFunctions  <td>Array of TransceiverFunction Configurations. See \ref transceiver_config_section for additional details    <td>array    <td>[]
-</table>
-
-This is a simple configuration example:
+Below is a simple example:
 \code{.json}
 {
 	"SimulationName": "tf_exchange",
@@ -46,11 +34,23 @@ This is a simple configuration example:
 }
 \endcode
 
+The file contains all necessary information to initialize and run an experiment in JSON format, including details such as the running engines, active TransceiverFunctions, and individual timesteps.
+
+The following table contains a detailed list of configurable options. The sections below offer details about Engine and TransceiverFunction configuration.
+<table>
+<caption id="simulation_config_table">Simulation Configuration</caption>
+<tr><th>Name                  <th>Description                                                                                                <th>Type     <th>Default
+<tr><td>SimulationTimeout     <td>Runtime of simulation in seconds. A value of 0 means no timeout                                            <td>float    <td> 0
+<tr><td>ApproximateTimeRange  <td>Range (in seconds) for which two engines are considered to be finished at the same time                    <td>float    <td>0.001
+<tr><td>EngineConfigs         <td>Array of Engine Configurations. See \ref engine_config_section for additional details                      <td>array    <td>[]
+<tr><td>TransceiverFunctions  <td>Array of TransceiverFunction Configurations. See \ref transceiver_config_section for additional details    <td>array    <td>[]
+</table>
 
 \section engine_config_section Engine Configuration
 
-The \ref EngineConfig "Engine Configuration" describes the setup of experiment engines. They will be listed inside the "EngineConfigs" section of the main experiment file (see \ref simulation_config_section "above"). As different types of engines may require individual setup variables, the configurations may vary wildly.
-Nevertheless, every engine will contain the following options:
+The EngineConfigs array of the Simulation Configuration file describes the setup of the engines running during this simulation.
+As different types of engines may require individual configuration variables, the available options can vary wildly. For a list of available engines and their Configurations see \ref nrp_engines.
+However, regardless of the chosen engine type, the following options are available for every engine:
 
 <table>
 <caption id="engine_config_table">Engine Configuration</caption>
@@ -63,13 +63,14 @@ Nevertheless, every engine will contain the following options:
 <tr><td>EngineEnvParams          <td>An array of additional environment parameters to set before forking an engine. In the standard format of "VARIABLE=DATA" per element    <td>array    <td>[]
 <tr><td>EngineProcCmd            <td>Command that starts the engine process    <td>string    <td>""
 <tr><td>EngineProcStartParams    <td>Array of sdditional start parameters to pass along to the engine. In the standard format of "-p=1234"    <td>array    <td>[]
-<tr><td rowspan="4">Any additional configuration available for the specified EngineType
+<tr><td colspan="4">Any additional configuration available for the specified EngineType
 </table>
 
 
 \section transceiver_config_section TransceiverFunction Configuration
 
-The TransceiverFunctions are responsible for exchanging data between the engines. They are simple python scripts that request device information, modify and transfer it. Additional information can be found \ref transceiver_function_usage "here".
+The TransceiverFunctions are responsible for exchanging data between engines. They are simple python scripts that request data from engines, modify and transfer it. Additional information can be found \ref transceiver_function_usage "here".
+As with engines, they must be configured in the main configuration file. Available options are listed below
 
 <table>
 <caption id="transceiver_config_table">TransceiverFunction Configuration</caption>
@@ -79,6 +80,5 @@ The TransceiverFunctions are responsible for exchanging data between the engines
 <tr><td>IsActive          <td>Is the TransceiverFunction active? Inactive functions will not be executed              <td>bool      <td>true
 <tr><td>EngineTimestep    <td>The time (in seconds) to run an engine before performing synchronization operations     <td>float     <td>0.01
 </table>
-
 
 */
