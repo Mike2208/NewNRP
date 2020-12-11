@@ -14,7 +14,10 @@ To request devices from engines, additional decorators can be prepended to the T
 \code{.py}@SingleTransceiverDevice(keyword, id)\endcode
 This will configure the TF to request a device identified by `id`, and make it available as `keyword`.
 
-The TF can now operate on the received devices. The function can return an array of devices, which will then be forwarded to the engines.
+The TF can now operate on the received devices. The function can return an array of devices, which will then be forwarded to other engines.
+
+\bold It is recommended to only return devices that should be sent to the same Engine as the one this TransceiverFunction is linked to. Otherwise, should different engines
+run on different timesteps, there is no guarantee that the device is not received in the middle of another engine's execution. This may cause unexcpected errors.
 
 A simple example:
 \code{.py}

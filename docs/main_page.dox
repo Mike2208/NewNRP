@@ -7,8 +7,11 @@ and users wishing to create their own engines. Nevertheless, the first two secti
 \section usage Usage
 
 \subpage installation "Installation Instructions"
+
 \subpage getting_started "Getting Started"
-\subpage simulation_config "Simulation Configuration"
+
+\subpage simulation_config "Simulation and Engine Configuration"
+
 \subpage transceiver_functions_and_devices "Transceiver Functions and Devices"
 
 
@@ -43,9 +46,10 @@ The NewNRP relies on several components to run:
 - \subpage property_template "PropertyTemplate". Used to create C++ structures that can be de-/serialized for Engine server/client communication
 - \subpage property_serializer "PropertySerializer". Used to de-/serialize PropertyTemplate structs. Can handle multiple types of data
 - \subpage device_serializer "Device Serializers". Used to de-/serialize Devices for sending/receiving
-- \ref config "Configuration Files". Used to read/write configuration files
-- \ref plugin_system "Plugin System". Used to dynamically load Engines during NRPSimulation startup
-- \ref process_launcher "Process Launchers". Used to launch processes accordingly. Will alter behavior depending on computer type (e.g. local machine, HPC, ...)
-- \ref cmake_project "CMake Project". Used to manage NRP compilation and installation.
+- \subpage config "Configuration Files". Used to read/write configuration files
+- \subpage plugin_system "Plugin System". Used to dynamically load Engines during NRPSimulation startup
+- \subpage process_launcher "Process Launchers". Used to launch processes accordingly. Will alter behavior depending on computer type (e.g. local machine, HPC, ...)
+- \subpage cmake_project "CMake Project". Used to manage NRP compilation and installation.
+- \ref boost_python "Boost Python". Library to simplify interaction between C++ and Python
 
 */

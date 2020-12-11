@@ -69,7 +69,7 @@ However, regardless of the chosen engine type, the following options are availab
 
 \section transceiver_config_section TransceiverFunction Configuration
 
-The TransceiverFunctions are responsible for exchanging data between engines. They are simple python scripts that request data from engines, modify and transfer it. Additional information can be found \ref transceiver_function_usage "here".
+The TransceiverFunctions are responsible for exchanging data between engines. They are simple python scripts that request data from engines, modify and transfer it. Additional information can be found \ref transceiver_functions_and_devices "here".
 As with engines, they must be configured in the main configuration file. Available options are listed below
 
 <table>

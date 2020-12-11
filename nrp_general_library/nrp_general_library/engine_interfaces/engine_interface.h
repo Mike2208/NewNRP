@@ -297,6 +297,7 @@ class Engine
 		{	return static_cast<const std::shared_ptr<ENGINE_CONFIG> &>(*this);	}
 };
 
+
 /*! \page engines "Engines"
 Engines are the core aspect of NRP Simulation. They run the actual simulation software, with the SimulationLoop and TransceiverFunctions merely being a way to synchronize and
 exchange data between them. An Engine can run any type of software, from physics engines to brain simulators.
@@ -313,6 +314,27 @@ client running inside the NRPSimulation. As such, all Engines must at least supp
 - Shutdown: A function that gracefully stops the Engine
 
 The \ref index "Main Page" has a list of currently supported Engines.
+
+Creating new engines is a process that requires multiple components to work together. Should you be interested in implementing your own engine, a good starting point is
+\ref tutorial_engine_creation "this tutorial". An easiser approach is to use one of our already implemented Grpc communication protocol and adapt it to your simulator.
+The tutorial can be found \ref grpc_engine_creation "here".
+
+\subsection Engine Launchers
+
+An EngineLauncher is in charge of properly launching an engine with a given ProcessLauncher and Engine Configuration. Most of the time, the routine is fairly straightforward.
+For these instances, we have provided an already configured class that can be used out-of-the-box, within any newly created Engine.
+\code{.cpp}
+// Define the EngineLauncher.
+using NewEngineLauncher = NewEngine::EngineLauncher<NewEngineConfig::DefEngineType>;
+\endcode
+
+A new Engine library can use such a `NewEngineLauncher` to make it plugin compatible. Look under \ref plugin_system for additional details.
+
+Note that we assign this EngineLauncher the name specified in NewEngineConfig::DefEngineType. Thus, a user can select this engine in the main simulation configuration file by
+setting an Engine's EngineType parameter to the string specified in `NewEngineConfig::DefEngineType`. For details about setting up a simulation configuration file, look
+\ref simulation_config "here".
+
+For details about how to create a `NewEngineConfig` class, see section \ref config.
  */
 
 #endif // ENGINE_INTERFACE_H

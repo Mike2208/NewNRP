@@ -112,7 +112,8 @@ simulation execution, however a more complex launching process may be desired fo
 
 Developers can create new process launchers by creating a new class derived from the ProcessLauncher template. This new class must define the
 different launch commands available to this type of machine, as well as the name of the configuration. Also, the new class must be made visible
-to the NRPSimulation executable. It must be added to the MainProcessLauncherManager definition in process_launcher_manager.h.
+to the NRPSimulation executable. It must be added to the MainProcessLauncherManager definition in
+nrp_general_library/process_launchers/process_launcher_manager.h.
 
 Once this is done, the user can set the NRPSimulation to utilize the new behavior by changing the ProcessLauncher parameter in the ServerConfig
 file mentioned above.

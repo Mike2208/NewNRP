@@ -116,7 +116,8 @@ int main(int argc, char *argv[])
 }
 
 /*! \page nrp_simulation NRPSimulation
-This is the main executable to run an experiment. Here a simulation is configured, a SimulationLoop is initialized, and a simulation is run. The process is divided into the following steps:
+This is the main NRP executable. It can be used to run an experiment locally. With it, a simulation is configured, a SimulationLoop is initialized, and a simulation is run. The process
+is divided into the following steps:
 - Parse input parameters
   - If a '-h' or '--help' is added to the simulation, only print the help text, then exit
 - Initialize the python interpreter for TransceiverFunctions
