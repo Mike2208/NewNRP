@@ -107,7 +107,7 @@ concept DEVICE_SERIALIZER_METHODS_C = requires (T &serializer, const DEVICE &dev
 //		}
 //};
 
-/*! \page device_serializers
+/*! \page device_serializer
 DeviceSerializers contain static functions to de-/serialize \ref devices "Devices". They are all specializations of the DeviceSerializerMethods<> template class.
 Each specialization must conform to a set of requirements, defined in the DEVICE_SERIALIZER_METHODS_C concept.
 

@@ -681,4 +681,68 @@ class PropertyTemplate
 		}
 };
 
+/*! \page property_template Property Template
+\ref PropertyTemplate "PropertyTemplates" are classes which create data structures that are traversable at compile-time.
+The individual elements inside a PropertyTemplate can be accessed, and a developer can iteratively process its content.
+
+This makes them better suited for automatic de-/serialization than simple structs, as algorithms can be developed to
+traverse inner elements and add them to a serialized buffer. See \ref property_serializer for additional details.
+
+To use PropertyTemplates, declare a class with a PropertyTemplate as its base. The base must be declared as follows:
+\code{.cpp}
+...
+	: public PropertyTemplate< FINAL_DERIVED_CLASS, PropNames<"NAME1", "NAME2", ... >, TYPE1, TYPE2, ...>
+...
+\endcode
+
+The `FINAL_DERIVED_CLASS` refers to the last class derived from this PropertyTemplate. The `NAME#` strings refer to
+their corresponding `TYPE#` and allow said element to be accessed. Lastly, `TYPE#` indicate the types that should be
+stored within this class. Types should be either scalars or vectors/arrays and must be default constructible.
+Non-scalar types may be possible, but remain untested.
+
+Now that the structure has been defines, stored elements can be accessed via a call to either
+\code{.cpp}
+TYPE# &element = this->getPropertyByName<"NAME#">();
+\endcode
+or
+\code{.cpp}
+TYPE# &element = this->getProperty<#>();
+\endcode
+
+As arguments, the PropertyTemplate constructor takes data to fill its storage. The data is sorted in-order to the
+corresponding `TYPE#`, so the 1-st constructor parameter is stored in `TYPE1`, the 2-nd in `TYPE2`, ... . Should the
+constructor contain less parameters than types, the last `N` types are default-constructed.
+
+In addition, the constructor can also take a DESERIALIZATION structure as its first argument. This can be used to
+directly create a PropertyTemplate from serialized data and initialize it immediately. For further details, see
+\ref property_serializer.
+
+An example of a PropertyTemplate class is given below:
+\code{.cpp}
+class Properties
+	: public PropertyTemplate<Properties, PropNames<"intValue1", "intValue2", "strVector">, int, int, std::vector<std::string> >
+{
+	public:
+		Properties()
+			: PropertyTemplate(5, 0, std::vector<std::string>({"str1", "str2"}))
+		{}
+
+		constexpr const int& intVal1() const
+		{	return this->getPropertyByName<"intValue1">();	}
+		constexpr int& intVal1()
+		{	return this->getPropertyByName<"intValue1">();	}
+
+		constexpr const int& intVal2() const
+		{	return this->getPropertyByName<"intValue2">();	}
+		constexpr int& intVal2()
+		{	return this->getPropertyByName<"intValue2">();	}
+
+		constexpr const std::vector<std::string>& strVec() const
+		{	return this->getPropertyByName<"strVector">();	}
+		constexpr std::vector<std::string>& strVec()
+		{	return this->getPropertyByName<"strVector">();	}
+};
+\endcode
+ */
+
 #endif // PROPERTY_TEMPLATE_H
