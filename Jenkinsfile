@@ -52,6 +52,8 @@ pipeline {
                 dir(env.GIT_CHECKOUT_DIR){
                     // Determine explicitly the shell as bash (needed for proper user-scripts operation)
                     sh 'bash .ci/build.sh'
+
+                    junit 'build/xml/**/*.xml'
                 }
             }
         }
