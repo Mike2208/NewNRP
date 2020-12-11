@@ -1,3 +1,24 @@
+/* * NRP Core - Backend infrastructure to synchronize simulations
+ *
+ * Copyright 2020 Michael Zechmair
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * This project has received funding from the European Union’s Horizon 2020
+ * Framework Programme for Research and Innovation under the Specific Grant
+ * Agreement No. 945539 (Human Brain Project SGA3).
+ */
+
 #ifndef PHYSICS_CAMERA_H
 #define PHYSICS_CAMERA_H
 
@@ -14,22 +35,22 @@ struct PhysicsCameraConst
 	/*!
 	 * \brief Image Height
 	 */
-	static constexpr FixedString ImageHeight = "im_height";
+	static constexpr FixedString ImageHeight = "image_height";
 
 	/*!
 	 * \brief Image Width
 	 */
-	static constexpr FixedString ImageWidth = "im_width";
+	static constexpr FixedString ImageWidth = "image_width";
 
 	/*!
 	 * \brief Image Pixel Size (in bytes)
 	 */
-	static constexpr FixedString ImagePixelSize = "im_depth";
+	static constexpr FixedString ImagePixelSize = "image_depth";
 
 	/*!
 	 * \brief Image Data
 	 */
-	static constexpr FixedString ImageData = "im_data";
+	static constexpr FixedString ImageData = "image_data";
 
 	using cam_data_t = std::vector<unsigned char>;
 

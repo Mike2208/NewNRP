@@ -1,12 +1,13 @@
 {
 	"SimulationName": "test_sim",
 	"SimDescription": "Launches a Gazebo simulation with a Husky robot and a Nest sim with a Braitenberg model",
-	"SimulationTimeout": 10,
+	"SimulationTimeout": 20,
 	"EngineConfigs": [
 		{
-			"EngineType": "gazebo_json",
+			"EngineType": "gazebo_grpc",
 			"EngineName": "gazebo",
 			"EngineProcCmd__Comment": "gazebo",
+			"ServerAddress": "localhost:9100",
 			"GazeboWorldFile": "husky_world_2.sdf"
 		},
 		{
