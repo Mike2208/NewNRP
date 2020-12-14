@@ -58,7 +58,15 @@ class EngineGrpcClient
             // Timeouts of less than 1ms will be rounded up to 1ms
 
             SimulationTime timeout = toSimulationTime<float, std::ratio<1>>(this->engineConfig()->engineCommandTimeout());
-            this->_rpcTimeout      = (timeout > std::chrono::milliseconds(1)) ? timeout : std::chrono::milliseconds(1);
+
+            if(timeout != SimulationTime::zero())
+            {
+                this->_rpcTimeout = (timeout > std::chrono::milliseconds(1)) ? timeout : std::chrono::milliseconds(1);
+            }
+            else
+            {
+                this->_rpcTimeout = SimulationTime::zero();
+            }
 
             _channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
             _stub    = EngineGrpc::EngineGrpcService::NewStub(_channel);
