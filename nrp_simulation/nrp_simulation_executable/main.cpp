@@ -116,7 +116,8 @@ int main(int argc, char *argv[])
 }
 
 /*! \page nrp_simulation NRPSimulation
-This is the main execution function. Here a simulation is configured, and a SimulationLoop is initialized. The process is divided into the following steps:
+This is the main NRP executable. It can be used to run an experiment locally. With it, a simulation is configured, a SimulationLoop is initialized, and a simulation is run. The process
+is divided into the following steps:
 - Parse input parameters
   - If a '-h' or '--help' is added to the simulation, only print the help text, then exit
 - Initialize the python interpreter for TransceiverFunctions
@@ -129,4 +130,11 @@ This is the main execution function. Here a simulation is configured, and a Simu
 - Use input parameters to generate a new instance of SimulationManager. This will also launch all engine processes defined in the SimulationConfig passed to NRPSimulation
 - If a SimulationConfig file was given as an input parameter, initialize a SimulationLoop and run until timeout
 - TODO: If no SimulationConfig was given, wait for communication from the NRPServer
+
+To launch an experiment with NRPSimulation, the user must specify the simulation configuration file. The file format is specified under \ref simulation_config "SimulationConfig".
+\code{.sh}
+NRPSimulation -c simulation_config.json
+\endcode
+
+
  */

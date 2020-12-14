@@ -383,5 +383,23 @@ class EngineJSONNRPClient
 		}
 };
 
+/*! \defgroup JSON Engine Protocol
+
+\section engine_json_config_section Engine Configuration Options
+
+Engines constructed on this protocol have the following additional configuration options available to them:
+
+<table>
+<caption id="json_engine_config_table">JSON Engine Configuration Options</caption>
+<tr><th>Name                       <th>Description                                                                <th>Type                <th>Default
+<tr><td>ServerAddress              <td>REST JSON Server address. Should this address already be in use, continue trying ports higher up   <td>string    <td>"localhost:9002"
+<tr><td>RegistrationServerAddress  <td>NRP Registration server address. Once a JSON engine has bound to a port, it will use this address to
+register itself with the NRP   <td>string        <td>"localhost:9001"
+</table>
+
+
+
+ */
+
 
 #endif //ENGINE_JSON_NRP_CLIENT_H

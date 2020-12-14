@@ -127,6 +127,38 @@ def transceiver_function(device1):
 
 	return [ rec_device1 ]
 \endcode
+
+
+\section transceiver_function_developer_overview Developer Overview
+
+TransceiverFunctions are managed by the TransceiverFunctionManager and the TransceiverFunctionInterpreter. The former deals with general tasks such as configuration loading
+and de-/activation, while the latter handles the actual python script loading and execution.
+
+When a new TransceiverFunction script is loaded, the corresponding python file is executed. During execution, a callback must exist to allow TFs to register themselves
+with the TransceiverFunctionInterpreter. Currently, any function wishing to register as a TF must execute the TransceiverFunctionInterpreter::registerNewTF of the currently
+active TransceiverFunctionInterpreter instance. For TFs to recognize this instance, it must set a pointer to itself at TransceiverDeviceInterface::TFInterpreter. This way,
+any newly executed TF can register itself.
+
+To make this process easy for users, we have wrapped the setup inside python decorators. These decorators all follow the same procedure as outlined within Python and mirrored
+in C++. First, the constructor of each decorator is called consecutively. This is where the arguments given in brackets are passed on. Then, in reverse order, the
+__call__() functions of each decorator are executed. These take as argument the previously executed decorator object, or the function object in the case of the bottom-most
+decorator. The __call__() function is mirrored with the pySetup function of the corresponding C++ class. Note that all C++ decorator classes must be made available to python
+via the NRPPythonModule library, specified in nrp_general_library/nrp_python_device/python_module.cpp. For an explanation of how this is performed via Boost::Python, take a
+look at \ref boost_python "this section".
+
+Every decorator may perform any action within its operations. Nevertheless, they must all follow one instruction: At the end of its __call__() function, it must have moved itself
+into a shared ptr object. The ptr to this location must be used to override the TFInterpreterRegistrPtr location. The base TransceiverDeviceInterface class contains a helper
+method to perform this task called TransceiverDeviceInterface::pySetup. This process ensures that, when the TransceiverFunctionInterpreter attempts to execute the TF, it will
+iterate over all decorators consecutively. Lastly, the __call__() function must return the created shared_ptr object to be used by the next decorator in line.
+
+Once a TF and its decorators have registered themselves as described above, the TransceiverFunctionInterpreter may freely execute it. For this, it calls the runTf function of
+the registered TransceiverDeviceInterface. If the process mentioned above has been followed, this will correspond to the runTf method of the outermost decorator. It takes two
+arguments, a boost::python::tuple, and a boost::python dict, which correspond to the *args and **kwargs of a python function, respectively. Each decorator is free to
+manipulate these arguments as they please, the only requirement is that it must at one point call the runTf function of the proceeding decorator. This ensures that all
+decorators are executed, with the final one executing the actual TransceiverFunction.
+
+Currently, all TFs share the same PythonInterpreterState, meaning they share the same global and local python variable pool. Therefore, a function/variable defined in one
+TF is accessible in another. In the future, it might make sense to change this behavior.
  */
 
 #endif // TRANSCEIVER_FUNCTION_H

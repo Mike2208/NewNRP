@@ -1,0 +1,246 @@
+/*! \page cmake_project CMake Setup
+The NRP uses CMake as its installation suite. The concepts behind its organization are mainly taken from
+<a href="https://pabloariasal.github.io/2018/02/19/its-time-to-do-cmake-right/">here</a>. An additional
+tutorial on CMake can be found <a href="https://cmake.org/cmake/help/latest/guide/tutorial/index.html">
+here</a>.
+
+The following sections detail how the individual CMakeLists.txt files work.
+
+\section cmake_root_file Root CMake File
+
+The root CMakeLists.txt file lays the groundwork for the compilation and installation. It discovers the
+location of dependencies within the current file system, sets up the GTest testing environment, sets up
+Doxygen, and includes all libraries that are to be compiled/installed.
+
+See \ref cmake_root_file_explanation for additional details.
+
+
+\section engine_cmake_file Engine CMake file
+
+All CMake subdirectories follow a similar scheme. The top portion defines the library, python module, and
+executable names, and lists all relevant source files. Then, dependencies are loaded as required and header
+files containing compilation specific information are created.
+
+A library target is created and configured with the relevant source files listed above. If necessary, a
+python module and executable target will also be created.
+
+Necessary files are added to Doxygen and tests are generated using listed source files.
+
+Lastly, installation instructions are given. Note that most of these steps have been adopted from the
+link given above.
+
+An example is listed \ref engine_cmake_file_explanation "here".
+
+ */
+
+/**********************************************************************************************************/
+
+/*! \page cmake_root_file_explanation Root CMakeLists.txt
+
+\dontinclude{lineno} CMakeLists.txt
+
+First, we set the current NRP Version that will be compiled
+\skipline NRP_VERSION
+
+Use C++20 and set basic CMake options
+\skip cmake_minimum_required
+\until ##########################################
+
+Create an options for users to enable/disable testing. Also check that a suitable version of GTest is
+available. If not, download it and mark for compilation
+\skip Unit testing library
+\until ##########################################
+
+Check and find Python3 on this system
+\skip Python 3 libraries
+\until ##########################################
+
+Load Boost Python libraries
+\skip Boost Python libraries
+\until list(TRANSFORM
+
+Set the python installation directory relative to CMAKE_INSTALL_PREFIX
+\skipline PYTHON_INSTALL_DIR_REL
+
+Check that a suitable version of spdlog is available. If not, download it and mark for compilation
+\skip Log library
+\until ##########################################
+
+Check that doxygen is available. Also create a function to add doxygen directories to a global source
+list. This can be used by later subdirectories to add files/directories to the doxygen compilation
+operation
+\skip Doxygen
+\until ##########################################
+
+Add the first compilation subdirectory. This will compile a general library, with tools and utilities
+that will aid in the creation of engines as well as the final NRP
+\skip General NRP library
+\until ##########################################
+
+Add engine protocols subdirectories
+\skip NRP Communication Protocols
+\until ##########################################
+
+Add base NRP Engines subdirectories
+\skip NRP Engines
+\until ##########################################
+
+Add the NRP Simulation executable subdirectory. This will generate an executable for later use
+\skip NRP Simulation
+\until ##########################################
+
+Create a Doxygen target. This target will not be compiled on a call to `make`. It must be explicitly
+specified as `make doxygen`
+\skip Doxygen
+\until COMMENT
+ */
+
+/**********************************************************************************************************/
+
+/*! \page engine_cmake_file_explanation CMakeLists.txt library file
+\dontinclude nrp_general_library/CMakeLists.txt
+
+Setup a library's naming convention
+
+Set the library's project name. This name must be unique within all subdirectories
+\skipline PROJECT_NAME
+
+Set the header directory. This will be used later on as the installation destination for header files
+\skipline HEADER_DIRECTORY
+
+Set the namespace. Other libraries can link to this one using ${NAMESPACE_NAME}::${LIBRARY_NAME}
+\skipline NAMESPACE_NAME
+
+Set the library name. This will be the name under which the library will be installed. Note that CMake
+appends "lib" to the name if not otherwise specified, making the installed file name "lib${LIBRARY_NAME}.so".
+It will be installed under "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
+The name must be unique within all subdirectories
+\skipline LIBRARY_NAME
+
+Set the name of the python module. This module library will be installed under
+"${CMAKE_INSTALL_PREFIX}/${PYTHON_INSTALL_DIR_REL}/${PYTHON_MODULE_NAME}/${PYTHON_MODULE_NAME}.so". As with
+LIBRARY_NAME, it must be unique within all subdirectories
+\skipline PYTHON_MODULE_NAME
+
+Set the name of the executable. This executable will be installed under
+"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}". As with LIBRARY_NAME, it must be unique within all
+subdirectories
+\skipline EXECUTABLE_NAME
+
+Set the name of the testing executable. This file will not be installed, it will only be available within
+the build directory for testing. As with LIBRARY_NAME, it must be unique within all subdirectories
+\skipline TEST_NAME
+
+The following variables define export variables. They are used during installation to create cmakeConfig
+files. Usually, these variables don't require alteration.
+\skip LIB_EXPORT_NAME
+\until LIB_VERSION_NAME
+
+Initiate the current CMake project
+\skip cmake_minimum_required
+\until GNUInstallDirs
+
+List all library source files required for compilation. These will be added to ${LIBRARY_NAME}
+\skip List library
+\until )
+
+List all python module source files. They will be added to ${PYTHON_MODULE_NAME}. Should no file be listed,
+no python module is generated
+\skip List of python module
+\until )
+
+List all executable source files. They will be added to ${EXECUTABLE_NAME}. Should no file be listed,
+no executable is generated
+\skip List executable
+\until )
+
+List all testing source files. They will be added to ${TEST_NAME}. Should no file be listed, no test executable
+is generated
+\skip List testing
+\until )
+
+List all dependencies required for this library
+\skip Dependencies
+\until ##########################################
+
+Generate C headers using CMake variables. This allows compile-time specification of variables within the code,
+such as the name of the library, the name of the python module, even the install location. Note that we also
+generate a Python __init__.py file, which will be used during the installation process to make the generated
+python module loadable
+\skip Header configuration
+\until ##########################################
+
+Create a library target. This portion will generate a compilation target for the library and link all source files
+to it. In addition, we create an aliased target. The alias allows us to use include this target the same way
+regardless of whether we add it via add_subdirectory or find_package later on
+\skip NRPGeneralLibrary
+\until target_compile_options
+
+Link all library dependencies
+\skip target_link_libraries
+\until )
+
+List all include directories. Note the generator expressions `$<...:...>`. A detailed explanation can be found on
+the CMake website. Here, they change which directories will be included when the target is installed or compiled.
+During compilation, the target will only use the directories marked with `BUILD_INTERFACE`. After installation,
+the target will only use the directory marked by `INSTALL_INTERFACE`
+\skip target_include_directories
+\until )
+
+Only create a python module target if source files were listed above
+\skip NRPGeneralPythonModule
+\until if(NOT
+
+As above, create a target for the python module. Note that we directly link the above library target to the new
+module. As we are linking a target not a library, this also adds the PUBLIC include directories from above
+\until endif()
+
+Create an executable if source files were listed above and link the library target to it
+\skip Executable
+\until endif()
+
+Add source files and header directory to doxygen generation
+\skip Append
+\until add_doxygen_source
+
+Generate testing files and executables. Here, multiple targets may be necessary to test different functionality
+such as plugin loading, python module recognition, ... . However, there a ${TEST_NAME} executable should always be
+generated and tests discovered via `gtest_discover_tests`
+\skip Tests
+\until endif()
+
+Begin installation configuration. Set the CMake configuration directory
+\skip Installation
+\until INSTALL_CONFIGDIR
+
+Install library. This will install the library and export its installation location to ${LIB_EXPORT_NAME}
+\skip Install library
+\until )
+
+Install the generated target export in the CMake configuration directory. This is required to make it available
+via find_package later on
+\skip Install export target
+\until )
+
+Install headers, both static ones as well as newly generated ones
+\skip Install headers
+\until )
+
+If required, install the python module
+\skip Install python module
+\until endif()
+
+If required, install executable file
+\skip Install executable files
+\until endif()
+
+Create CMake version and config file. This is required to make the library available via find_package later on
+\skip create cmake version and config files
+\until configure_package_config_file
+\until )
+
+Install the newly generated files in the CMake config directory
+\skip Install cmake version and config files
+\until )
+ */
+

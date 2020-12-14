@@ -64,4 +64,31 @@ class PluginManager
 		std::vector<std::filesystem::path> _pluginPaths = {std::filesystem::path()};
 };
 
+/*! \page plugin_system
+The NRPSimulation executbable can load new engine types on startup. The names of additional Engine libraries can be supplied
+via a "-p" parameter, followed by a comma separated list of engines to load. This gives users the ability to add their own
+engines on startup and create new simulation configurations with them.
+
+The NRPSimulation executbable loads one instance of PluginManager on startup, and fills it with a set of predefined search directories.
+Should a user request an additional engine library be loaded, it will iterate over these locations until if finds a library file
+matching the requested string. The user can request both a relative as well as an absolute path, both will be searched.
+
+CMake is configured to load some libraries on startup. These are defines in the root CMakeLists.txt file, in the
+NRP_SIMULATION_DEFAULT_ENGINE_LAUNCHERS variable, and will not have to be addded via the "-p" start parameter.
+
+Creating C plugins is relatively straightforward. We have provided a macro to help developers create new engine libraries. The
+macro is defined in nrp_general_library/plugin_system/plugin.h as CREATE_NRP_ENGINE_LAUNCHER(...). It takes the EngineLauncher of the
+loaded Engine as parameter.
+\bold Note that one library can only include one engine!
+
+\code{.cpp}
+CREATE_NRP_ENGINE_LAUNCHER(GazeboEngineJSONNRPClient::EngineLauncher<"gazebo_json">)
+\endcode
+
+A more detailed description of \ref EngineLauncher "EngineLaunchers" can be found \ref engines "here".
+
+Once a plugin has been loaded, the NRPSimulation will add the newly loaded launcher to the running EngineLauncherManager, making it
+available for Engine creation.
+ */
+
 #endif // PLUGIN_MANAGER_H

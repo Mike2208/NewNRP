@@ -1,0 +1,52 @@
+/*! \page transceiver_functions_and_devices Transceiver Functions and Devices
+
+\section transceiver_function_usage_section Transceiver Function Usage
+TransceiverFunctions transfer data from one engine to the other. This data takes the form of \ref devices "Devices", pre-defined data structures unique to individual engines.
+As different engines may make use of different device structures, TransceiverFunctions can be used to convert data from one type to another.
+
+A TransceiverFunction is defined inside a file, which is referenced in the \ref simulation_config_section "Simulation Configuration File". The file must define one function.
+To identify it as a TransceiverFunction, it must be marked with an
+\code{.py}@TransceiverFunction(engine_name)\endcode
+decorator. This will both allow this function to be registered
+upon simulation startup as well as link it to the Engine specified by the engine_name.
+
+To request devices from engines, additional decorators can be prepended to the TF, with the form
+\code{.py}@SingleTransceiverDevice(keyword, id)\endcode
+This will configure the TF to request a device identified by `id`, and make it available as `keyword`.
+
+The TF can now operate on the received devices. The function can return an array of devices, which will then be forwarded to other engines.
+
+\bold It is recommended to only return devices that should be sent to the same Engine as the one this TransceiverFunction is linked to. Otherwise, should different engines
+run on different timesteps, there is no guarantee that the device is not received in the middle of another engine's execution. This may cause unexcpected errors.
+
+A simple example:
+\code{.py}
+# Import general NRP python module
+from NRPPythonModule import *
+
+# Request device from 'python_engine_1' and register this TF to same engine
+@SingleTransceiverDevice(keyword='device', id=DeviceIdentifier('device_name', 'python_engine_1'))
+@TransceiverFunction("python_engine_name")
+def transceiver_function(device):
+	# Create new device, link it to "rec_device" of "python_engine_2"
+	send_device = PythonDevice("rec_device", "python_engine_2")
+
+	# Set data from requested device to send_device
+	send_device.data = device.data
+
+	# Send send_device to "python_engine_2" engine
+	return [ send_device ]
+\endcode
+
+
+\section device_usage_section Device Usage
+
+TransceiverFunctions use devices to relay data between engines. Devices are simple data structures, which can contain scalar types,
+strings, as well as arrays and vectors of these elements. Only certain devices are accepted by individual engines. To discover which device types can be processed by an engine, check out
+the engine's documentation \ref nrp_engines "here". This also lists the python modules which make devices accessible from python. These modules can be investigated for the structure
+of devices.
+
+Along with the actual data, every device contains one DeviceIdentifier. Users can use its elements to send data to a desired engine, or determine the source of received data.
+It consists of three string, the device's name, its type, and the corresponding engine's name.
+
+*/

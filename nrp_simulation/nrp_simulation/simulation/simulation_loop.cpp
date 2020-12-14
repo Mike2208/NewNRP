@@ -206,12 +206,18 @@ The SimulationLoop is the class responsible for managing the execution of a simu
 On initialization, it creates a TransceiverFunctionManager to manage all user-generated TransceiverFunctions. Additionally, it runs the initialization routines of all engines.
 
 During the simulation, several components are managed by the SimulationLoop:
-- The timestep of each engine is checked, and execution is staggered accordingly
-- Devices are sent to/received from engines via their respective server/client architecture
-- Devices are stored inside a buffer of TransceiverFunctionManager. Updates are linked to engine timesteps
-- Once an engine finishes execution, all TransceiverFunctions linked to said engine will be executed. Newly acquired devices are stored inside TransceiverFunctionManager's buffer
-- The NRPClient can communicate with the SimulationLoop and request updates/changes to the simulation
-- Once a timeout has occured or the NRPClient requests a shutdown, the SimulationLoop is stopped
+- The timestep of each engine is checked, and execution is ordered accordingly
+- The loop waits for the engines with the next expected completion time. Should mulitple Engines complete at the same time, wait for all of them
+- All TransceiverFunctions linked to these engines are identified
+- The devices requested by these TFs are identified. Only those devices linked to newly completed engines are requested. For all others, use the data available in the buffer
+- Newly received devices are stored in engine-local buffers
+- Devices are retrieved from the local buffers, the linked TFs are executed
+- The TFs return arrays with devices that should be sent to engines
+- Received devices are sent to all engines
+- Should this NRP instance be running as a server, the NRPClient can now communicate with the SimulationLoop and request updates/changes to the simulation
+- A timeout is checked. Should it have occured or should the NRPClient requests a shutdown, the SimulationLoop is stopped. Otherwise, continue from the top
 
 On shutdown, each engine is issued a shutdown command to close gracefully.
+
+The entire loop is executed within one function, SimulationLoop::runLoop. Should any of the above steps fail, an exception is thrown.
  */

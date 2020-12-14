@@ -108,4 +108,40 @@ struct PropertySerializer
 		{	return PropertySerializerGeneral::template serializeObject<OBJECT, property_template_t>(std::forward<PROPERTY_TEMPLATE_T>(properties), std::move(data));	}
 };
 
+/*! \page property_serializer
+\ref PropertySerializer "PropertySerializers" perform de-/serialization actions on \ref property_template "PropertyTemplates". They can either take serialized data and create a
+TemplateProperty class from it, or vice-versa.
+
+At its core, the PropertySerializer is a template class, specialized for a unique serialization type. An example is the JSONPropertySerializer, which converts data to/from
+the nlohmann::json type.
+
+To aid developers in creating de-/serialization methods for new data types, a helper class called ObjectPropertySerializerMethods was introduced. PropertySerializers will find
+the ObjectPropertySerializerMethods template specialized for their data type, and use it to perform their de-/serialization actions. An example can be found in
+JSONPropertySerializerMethods.
+
+This is the base structure that must be specialized for a new de-/serialization data type:
+\code{.cpp}
+// Create a new ObjectPropertySerializerMethods and specialize it for the OBJECT type
+template<>
+class ObjectPropertySerializerMethods<OBJECT>
+		: public PropertySerializerGeneral
+{
+	public:
+		// Define storage type for a single element. Usually the same as OBJECT
+		using sub_object_t = OBJECT;
+
+		// Function to serialize a single property
+		template<class PROPERTY>
+		static sub_object_t serializeSingleProperty(const PROPERTY &property);
+
+		// Function to emplace a serialized property in the data buffer containing all serialized information
+		static void emplaceSingleObject(OBJECT &data, const std::string_view &name, sub_object_t singleObject);
+
+		// Deserialize a single property by extracting it from the data structure. name refers to the NAME#
+		// given to a property within the PropertyTemplate declaration
+		template<class PROPERTY>
+		static PROPERTY deserializeSingleProperty(const OBJECT &data, const std::string_view &name);
+};
+\endcode
+ */
 #endif // PROPERTY_SERIALIZER_H

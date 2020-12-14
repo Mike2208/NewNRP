@@ -160,8 +160,10 @@ set(DOXYGEN_GENERATE_LATEX YES)
 set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doxygen")
 set(DOXYGEN_EXAMPLE_PATH
 	${DOXYGEN_EXAMPLE_PATH}
+	"CMakeLists.txt"
 	"docs/examples"
-	"docs/example_engine")
+	"docs/example_engine"
+	"nrp_general_library/CMakeLists.txt")
 
 add_subdirectory("docs/example_engine" EXCLUDE_FROM_ALL)
 add_subdirectory("docs/example_json_engine" EXCLUDE_FROM_ALL)
@@ -169,9 +171,15 @@ add_subdirectory("docs/example_json_engine" EXCLUDE_FROM_ALL)
 get_property(DOXYGEN_SOURCES GLOBAL PROPERTY DOXYGEN_SOURCE_LIST)
 doxygen_add_docs(doxygen
 	${DOXYGEN_SOURCES}
+	"docs/cmake_component.dox"
+	"docs/engine_config.dox"
 	"docs/engine_types.dox"
+	"docs/getting_started.dox"
+	"docs/installation.dox"
 	"docs/main_page.dox"
+	"docs/simulation_config.dox"
 	"docs/todos.dox"
+	"docs/transceiver_functions_and_devices.dox"
 	"docs/tutorials/engine_creation.dox"
 	"docs/tutorials/grpc_engine_creation.dox"
 	"docs/tutorials/json_engine_creation.dox"

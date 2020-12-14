@@ -117,11 +117,44 @@ class Device
 
 /*! \page devices Devices
 
-Devices are data structures used for communicating with Engines. Their base class is DeviceInterface, which contains a DeviceIdentifier to identify the corresponding engine.
-All devices must be de-/serializable in a manner that makes communication with an Engine possible. Usually, a PropertyTemplate can be used to Device data in a manner that is
-easily serializable.
+\copydoc device_usage_section
 
-All currently documented Devices can be found \ref device "here".
+The Device base class is DeviceInterface, which contains the DeviceIdentifier necessary for identifying the corresponding engine. All devices must conform to the DEVICE_C concept.
+Additionally, they must be de-/serializable in a manner that makes communication with an Engine possible. See \ref device_serializer for details on implementing de-/serialization.
+
+To create new devices, developers can use the Device template as a base. It derives a DeviceInterface as well as a PropertyTemplate containing all requested properties.
+
+An example device class would be:
+\code{.cpp}
+class NewDevice
+	: public Device<NewDevice, "NewDevice", PropNames<"intValue", "stringValue">, int, std::string>
+{
+	public:
+		// Constructor. property_template_t refers to the PropertyTemplate<> base class.
+		// Note the default property values. If no property_template_t is specified, they will be used
+		NewDevice(DeviceIdentifier &&devID, property_template_t props = property_template_t(5, "empty")
+			: Device(std::move(devID), std::move(props))
+		{}
+
+		// Property Deserializer. The base Device::deserializeProperties references the DeviceSerializerMethods template specialized by DESERIALIZER_T
+		// Note the default property values. If no property_template_t is specified, they will be used. They should be the same as the ones in the constructor above
+		// Also note that this function override must only be provided if default property values should be set on instantiation
+		template<class DESERIALIZE_T>
+		static deserializeProperties(DESERIALIZE_T &&data)
+		{	return Device::deserializeProperties(std::forward<DESERIALIZE_T>(data), 5, "empty");	}
+
+		// Add functions to access property values easier
+		constexpr const int &intVal() const
+		{	return this->getPropertyByName<"intValue">();	}
+		constexpr int &intVal()
+		{	return this->getPropertyByName<"intValue">();	}
+
+		constexpr const std::string &strVal() const
+		{	return this->getPropertyByName<"stringValue">();	}
+		constexpr std::string &strVal()
+		{	return this->getPropertyByName<"stringValue">();	}
+}
+\endcode
 
  */
 

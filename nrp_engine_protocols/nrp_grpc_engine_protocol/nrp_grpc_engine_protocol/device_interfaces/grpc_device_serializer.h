@@ -61,8 +61,6 @@ template<>
 class DeviceSerializerMethods<GRPCDevice>
 {
 	public:
-		using PROP_SERIALIZER = EngineGrpc::DeviceMessage;
-
 		using prop_deserialization_t = const EngineGrpc::DeviceMessage*;
 		using deserialization_t = const EngineGrpc::DeviceMessage*;
 

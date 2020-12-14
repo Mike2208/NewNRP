@@ -77,3 +77,11 @@ BOOST_PYTHON_MODULE(GAZEBO_PYTHON_MODULE_NAME)
 
 	python_property_device_class<PhysicsLink>::create();
 }
+
+
+/*! \defgroup gazebo_devices Gazebo Devices
+ * Gazebo engines use the following devices:
+ * - PhysicsCamera: Get camera image
+ * - PhysicsJoint: Get/Set joint data
+ * - PhysicsLink: Get link data
+ */
