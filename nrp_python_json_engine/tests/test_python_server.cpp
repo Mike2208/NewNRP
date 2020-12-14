@@ -61,7 +61,7 @@ TEST(TestPythonJSONServer, TestFunc)
 	ASSERT_EQ(server.initRunFlag(), true);
 
 	// Test runStep REST call
-	const SimulationTime timeStep(1);
+	const SimulationTime timeStep(1000);
 	ASSERT_EQ(server.runLoopStep(timeStep), timeStep);
 
 	// Test getDevice REST call EngineServerGetDevicesRoute
@@ -72,6 +72,7 @@ TEST(TestPythonJSONServer, TestFunc)
 	auto resp = RestClient::post(cfg.engineServerAddress() + "/" + EngineJSONConfigConst::EngineServerGetDevicesRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), req.dump());
 	respParse = nlohmann::json::parse(resp.body);
 
+	// TODO Why return here?
 	return;
 
 	// Test Python Device data deserialization

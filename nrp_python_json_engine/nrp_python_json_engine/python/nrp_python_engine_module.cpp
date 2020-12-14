@@ -60,6 +60,10 @@ BOOST_PYTHON_MODULE(NRP_PYTHON_ENGINE_MODULE)
 	// Import General NRP Python Module
 	python::import(PYTHON_MODULE_NAME_STR);
 
+	python::class_<SimulationTime>("SimulationTime")
+		.def("count", &SimulationTime::count)
+	;
+
 	// Engine Script Class. Used by users to define script that should be executed
 	python::class_<PyEngineScriptWrapper, boost::noncopyable>("EngineScript", python::init<>())
 	        .def("initialize", &PyEngineScriptWrapper::initialize, &PyEngineScriptWrapper::defaultInitialize)

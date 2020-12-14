@@ -80,7 +80,7 @@ TEST(TestPythonExecutable, TestPython)
 	argv.push_back(serverAddr.data());
 	int argc = static_cast<int>(argv.size());
 
-	const float timeStep = 1;
+	const float timeStep = 1000; // microseconds
 
 	// Create pipe
 	PipeCommunication commCtP, commPtC;

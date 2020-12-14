@@ -30,7 +30,7 @@ class Script(EngineScript):
 
     """Simple script function"""
     def runLoop(self, timestep):
-        self._setDevice("device1", { "time" : self._time })
+        self._setDevice("device1", { "time" : self._time.count() })
         dev = self._getDevice("device1")
-        print("Engine 1 at time " + str(self._time))
+        print("Engine 1 at time " + str(self._time.count()))
         print("Device 1 data is " + str(dev))
