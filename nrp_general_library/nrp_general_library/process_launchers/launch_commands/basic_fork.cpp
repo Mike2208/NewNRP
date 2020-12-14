@@ -155,8 +155,8 @@ pid_t BasicFork::stopEngineProcess(unsigned int killWait)
 		bool pKilled = false;
 		do
 		{
-			int engineStatus;
-			if(waitpid(this->_enginePID, &engineStatus, WNOHANG | WUNTRACED) == this->_enginePID)
+			// Check if engine process has stopped
+			if(this->getProcessStatus() == ENGINE_RUNNING_STATUS::STOPPED)
 			{
 				pKilled = true;
 				break;
@@ -175,6 +175,23 @@ pid_t BasicFork::stopEngineProcess(unsigned int killWait)
 	}
 
 	return 0;
+}
+
+LaunchCommandInterface::ENGINE_RUNNING_STATUS BasicFork::getProcessStatus()
+{
+	// Check if engine was already stopped before
+	if(this->_enginePID < 0)
+		return ENGINE_RUNNING_STATUS::RUNNING;
+
+	// Check if this process received a stop notification for this child PID
+	int engineStatus;
+	if(waitpid(this->_enginePID, &engineStatus, WNOHANG | WUNTRACED) == this->_enginePID)
+	{
+		this->_enginePID = -1;
+		return ENGINE_RUNNING_STATUS::STOPPED;
+	}
+	else
+		return ENGINE_RUNNING_STATUS::RUNNING;
 }
 
 void BasicFork::appendEnvVars(const EngineConfigConst::string_vector_t &envVars)

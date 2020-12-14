@@ -136,6 +136,7 @@ EngineConfigConst::string_vector_t NestServerConfig::allEngineProcStartParams() 
 	EngineConfigConst::string_vector_t startParams;
 
 	// Add Server address
+	startParams.push_back("start");
 	startParams.push_back("-o");
 	startParams.push_back("-h"); startParams.push_back(this->nestServerHost());
 	startParams.push_back("-p"); startParams.push_back(std::to_string(this->nestServerPort()));

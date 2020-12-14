@@ -36,6 +36,12 @@ class ProcessLauncherInterface
         : public PtrTemplates<ProcessLauncherInterface>
 {
 	public:
+		// Process status options
+		using ENGINE_RUNNING_STATUS = LaunchCommandInterface::ENGINE_RUNNING_STATUS;
+		static constexpr auto UNKNOWN = LaunchCommandInterface::ENGINE_RUNNING_STATUS::UNKNOWN;
+		static constexpr auto RUNNING = LaunchCommandInterface::ENGINE_RUNNING_STATUS::RUNNING;
+		static constexpr auto STOPPED = LaunchCommandInterface::ENGINE_RUNNING_STATUS::STOPPED;
+
 		virtual ~ProcessLauncherInterface() = default;
 
 		/*!
@@ -64,6 +70,13 @@ class ProcessLauncherInterface
 		 * \return Returns child PID on sucess, negative value on error
 		 */
 		virtual pid_t stopEngineProcess(unsigned int killWait) = 0;
+
+		/*!
+		 * \brief Get the current engine process status. If status cannot be retrieved, return ENGINE_RUNNING_STATUS::UNKNOWN
+		 * \return Returns status as enum ProcessLauncherInterface::ENGINE_RUNNING_STATUS
+		 */
+		virtual ENGINE_RUNNING_STATUS getProcessStatus()
+		{	return this->_launchCmd ? this->_launchCmd->getProcessStatus() : ENGINE_RUNNING_STATUS::UNKNOWN;	}
 
 		/*!
 		 * \brief Get Launch Command. If launchEngineProcess has not yet been called, return nullptr

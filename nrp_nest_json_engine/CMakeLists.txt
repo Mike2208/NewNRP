@@ -51,19 +51,24 @@ set(TEST_SRC_FILES
 ## Dependencies
 
 # NEST Simulator
-set(NRP_NEST_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-ExternalProject_Add(nest-simulator
-	GIT_REPOSITORY https://github.com/nest/nest-simulator.git
-	GIT_TAG c354d429e60ddb35a61ad02e3a070477e5026fa8
-	GIT_PROGRESS true
+if("${NEST_BUILD_DIR}" STREQUAL "")
+	set(NEST_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/nest-simulator" CACHE INTERNAL "Nest build dir")
+endif()
+if(NOT TARGET nest-simulator)
+	set(NRP_NEST_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+	ExternalProject_Add(nest-simulator
+		GIT_REPOSITORY https://github.com/nest/nest-simulator.git
+		GIT_TAG c354d429e60ddb35a61ad02e3a070477e5026fa8
+		GIT_PROGRESS true
 
-	PREFIX ${CMAKE_CURRENT_BINARY_DIR}/nest-simulator
-	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+		PREFIX ${NEST_BUILD_DIR}
+		INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
 
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${NRP_NEST_INSTALL_PREFIX} -Dwith-mpi=ON -Dwith-python=ON
+		CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${NRP_NEST_INSTALL_PREFIX} -Dwith-mpi=ON -Dwith-python=ON
 
-	#UPDATE_COMMAND ""
-)
+		UPDATE_COMMAND ""
+	)
+endif()
 
 
 ##########################################

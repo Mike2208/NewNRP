@@ -86,6 +86,10 @@ class NestEngineServerNRPClient
 
 		bool runStepFcn(SimulationTime timestep);
 		std::string serverAddress() const;
+
+		boost::python::object _parseFcn;
+
+		std::tuple<std::string, std::string> parseName(const std::string &devName) const;
 };
 
 using NestEngineServerNRPClientLauncher = NestEngineServerNRPClient::EngineLauncher<NestServerConfig::DefEngineType>;

@@ -164,6 +164,10 @@ class NewLaunchCommand
 		// It should try to gracefully quit the engine process. Should the Engine process not have shut down after killWait seconds,
 		// forcefully shut down the process, e.g. by sending a SIGKILL command
 		pid_t stopEngineProcess(unsigned int killWait) override;
+
+		// Get the current engine process status. If status cannot be retrieved by this process launcher command,
+		// return ENGINE_RUNNING_STATUS::UNKNOWN
+		virtual ENGINE_RUNNING_STATUS getProcessStatus()
 };
 \endcode
 
