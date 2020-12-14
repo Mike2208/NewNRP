@@ -37,6 +37,7 @@ set(EXEC_SRC_FILES
 
 # List testing build files
 set(TEST_SRC_FILES
+	tests/test_nest_server.cpp
 )
 
 
@@ -44,22 +45,47 @@ set(TEST_SRC_FILES
 ## Dependencies
 
 # NEST Simulator
-# TODO: Compile nest simulator once for both nest_json_engine and nest_server_engine
-#set(NRP_NEST_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-#ExternalProject_Add(nest-simulator
-#	GIT_REPOSITORY https://github.com/nest/nest-simulator.git
-#	GIT_TAG master
-#	GIT_PROGRESS true
+if("${NEST_BUILD_DIR}" STREQUAL "")
+	set(NEST_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/nest-simulator" CACHE INTERNAL "Nest build dir")
+endif()
+if(NOT TARGET nest-simulator)
+	set(NRP_NEST_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+	ExternalProject_Add(nest-simulator
+		GIT_REPOSITORY https://github.com/nest/nest-simulator.git
+		GIT_TAG c354d429e60ddb35a61ad02e3a070477e5026fa8
+		GIT_PROGRESS true
 
-#	PREFIX ${CMAKE_CURRENT_BINARY_DIR}/nest-simulator
-#	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+		PREFIX ${NEST_BUILD_DIR}
+		INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
 
-#	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${NRP_NEST_INSTALL_PREFIX} -Dwith-mpi=ON -Dwith-python=ON
+		CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${NRP_NEST_INSTALL_PREFIX} -Dwith-mpi=ON -Dwith-python=ON
 
-#	UPDATE_COMMAND ""
-#)
+		UPDATE_COMMAND ""
+	)
+endif()
 
-find_package(Boost REQUIRED)
+
+# Workaround for uwsgi bug. Currently, the nest-server only work with uwsgi installed via pip. It fails
+# when using uwsgi installed with apt. This creates and installs a workaround installation.
+# Look at https://github.com/nest/nest-simulator/pull/1873 and https://github.com/nest/nest-simulator/issues/1872
+# for upstream status. Once the PR was merged, update the nest-simulator GIT-TAG here and in nrp_nest_json_engine/CMakeLists.txt,
+# then remove this workaround section and uncomment set(NRP_NEST_SERVER_EXECUTABLE ... in section Header Configuration right below
+## Begin workaround
+add_custom_target(nest-server-uwsgi-bin ALL sh -c
+	"sed 's/uwsgi --module nest\.server:app/ uwsgi --plugin python3 --module nest.server:app/' '${NEST_BUILD_DIR}/src/nest-simulator/extras/nest-server' > '${CMAKE_CURRENT_BINARY_DIR}/nest-server-uwsgi'"
+	DEPENDS nest-simulator
+	BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/nest-server-uwsgi"
+	VERBATIM)
+set(NRP_NEST_SERVER_EXECUTABLE "nest-server-uwsgi")
+install(
+	FILES "${CMAKE_CURRENT_BINARY_DIR}/nest-server-uwsgi"
+	DESTINATION "${CMAKE_INSTALL_BINDIR}"
+	PERMISSIONS
+		OWNER_READ OWNER_EXECUTE OWNER_WRITE
+		GROUP_READ GROUP_EXECUTE
+		WORLD_READ WORLD_EXECUTE
+)
+## End workaround
 
 
 ##########################################
@@ -68,7 +94,7 @@ find_package(Boost REQUIRED)
 # General Nest Header defines
 set(NEST_CMAKE_HEADER_CONFIG_FILE "nrp_nest_server_engine/config/cmake_constants.h.in")
 set(NRP_NEST_CMAKE_INSTALL_BINDIR "${NRP_NEST_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
-set(NRP_NEST_SERVER_EXECUTABLE "nest-server")
+#set(NRP_NEST_SERVER_EXECUTABLE "nest-server")																				Comment out after fixing above workaround
 set(NEST_CMAKE_INSTALL_PYNEST "${NEST_CMAKE_INSTALL_PREFIX}/lib/python3.6/site-packages")
 configure_file(${NEST_CMAKE_HEADER_CONFIG_FILE} "${CMAKE_CURRENT_BINARY_DIR}/include/${HEADER_DIRECTORY}/config/cmake_constants.h" @ONLY)
 

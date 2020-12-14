@@ -321,8 +321,8 @@ The tutorial can be found \ref grpc_engine_creation "here".
 
 \subsection Engine Launchers
 
-An EngineLauncher is in charge of properly launching an engine with a given ProcessLauncher and Engine Configuration. Most of the time, the routine is fairly straightforward.
-For these instances, we have provided an already configured class that can be used out-of-the-box, within any newly created Engine.
+An EngineLauncher is in charge of properly launching an engine using a given ProcessLauncher and Engine Configuration. we have provided an already prepared class that
+can be used out-of-the-box, with any new Engine.
 \code{.cpp}
 // Define the EngineLauncher.
 using NewEngineLauncher = NewEngine::EngineLauncher<NewEngineConfig::DefEngineType>;
@@ -335,6 +335,9 @@ setting an Engine's EngineType parameter to the string specified in `NewEngineCo
 \ref simulation_config "here".
 
 For details about how to create a `NewEngineConfig` class, see section \ref config.
+
+\bold Should an engine require more complex startup routines, consider overriding the EngineClient's EngineInterface::launchEngine() function. Do not modify the default
+\bold EngineLauncher, as its only purpose is to construct the Engine class and then call the above function.
  */
 
 #endif // ENGINE_INTERFACE_H

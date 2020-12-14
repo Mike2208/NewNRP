@@ -42,6 +42,8 @@ class BasicFork
 
 		pid_t stopEngineProcess(unsigned int killWait) override;
 
+		ENGINE_RUNNING_STATUS getProcessStatus() override;
+
 	private:
 		/*!
 		 * \brief PID of child process running the engine

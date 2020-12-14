@@ -24,6 +24,7 @@
 
 #include "nrp_general_library/utils/nrp_exceptions.h"
 #include "nrp_general_library/utils/restclient_setup.h"
+#include "nrp_nest_server_engine/config/cmake_constants.h"
 
 #include <boost/tokenizer.hpp>
 #include <chrono>
@@ -48,6 +49,7 @@ void NestEngineServerNRPClient::initialize()
 {
 	const auto servAddr = this->serverAddress();
 
+	// Read initFile into string
 	std::string initCode;
 	{
 		std::ifstream initFile(this->engineConfig()->nestInitFileName());
@@ -57,22 +59,69 @@ void NestEngineServerNRPClient::initialize()
 
 	try
 	{
-		auto resp = RestClient::post(servAddr + "/exec", "text/plain", initCode);
-		if(resp.code != 200)
-			throw NRPException::logCreate("Failed to execute init file \"" + this->engineConfig()->nestInitFileName() + "\"");
-
-		resp = RestClient::post(servAddr + "/api/Prepare", "text/plain", "");
-		if(resp.code != 200)
-			throw NRPException::logCreate("Failed to run nest.Prepare()");
+		this->_parseFcn = boost::python::import(NRP_NEST_PYTHON_MODULE_STR).attr("__dict__")["__fcnParse"];
 	}
-	catch(std::exception &e)
+	catch(const boost::python::error_already_set &)
 	{
-		throw NRPException::logCreate(e, "Nest Server Engine \"" + this->engineName() + "\" initialization failed");
+		NRPException::logCreate("Couldn't load param parse fcn: " + handle_pyerror());
 	}
+
+	auto timeout = SimulationTime::max();
+	if(this->engineConfigGeneral()->engineCommandTimeout() > 0.f)
+		timeout = toSimulationTime<float, std::ratio<1,1> >(this->engineConfigGeneral()->engineCommandTimeout());
+
+	// Try sending data to given address. Continue until timeout
+	const auto startTime = std::chrono::system_clock::now();
+	bool initSuccess = false;
+	do
+	{
+		// Check that process is still running
+		if(this->_process->getProcessStatus() == ProcessLauncherInterface::ENGINE_RUNNING_STATUS::STOPPED)
+			throw NRPException::logCreate("Nest Engine process stopped unexpectedly before the init file could be sent");
+
+		// Try sending and executing initFile contents
+		RestClient::Response resp;
+		try
+		{
+			resp = RestClient::post(servAddr + "/exec", "application/json", nlohmann::json({{"source", initCode}}).dump());
+		}
+		catch(std::exception &)
+		{
+			// Server unreachable
+			resp.code = 7;
+		}
+
+		// Retry if server still starting up
+		if(resp.code == 7)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			continue;
+		}
+
+		// Check received status
+		if(resp.code != 200)
+			throw NRPException::logCreate("Failed to execute init file \"" + this->engineConfig()->nestInitFileName() + "\": " + resp.body);
+		else
+		{
+			initSuccess = true;
+			break;
+		}
+	}
+	while(std::chrono::system_clock::now() - startTime > timeout);
+
+	// Check if timeout reached
+	if(!initSuccess)
+		throw NRPException::logCreate("Failed to initialize Nest server. Received no response before timeout reached");
+
+	// Run Prepare(). runLoopStep() can now use Run() for stepping
+	const auto resp = RestClient::post(servAddr + "/api/Prepare", "text/plain", "");
+	if(resp.code != 200)
+		throw NRPException::logCreate("Failed to run nest.Prepare()");
 }
 
 void NestEngineServerNRPClient::shutdown()
 {
+	// Run Cleanup() to mirror Prepare() of initialize() call
 	auto resp = RestClient::post(this->serverAddress() + "/api/Cleanup", "text/plain", "");
 	if(resp.code != 200)
 		throw NRPException::logCreate("Failed to run nest.Cleanup()");
@@ -80,6 +129,7 @@ void NestEngineServerNRPClient::shutdown()
 
 SimulationTime NestEngineServerNRPClient::getEngineTime() const
 {
+	// Get Engine Time from Nest Kernel
 	auto resp = RestClient::post(this->serverAddress() + "/api/GetKernelStatus", "application/json", "[\"time\"]");
 	if(resp.code != 200)
 		throw NRPException::logCreate("Failed to get Nest Kernel Status");
@@ -105,33 +155,6 @@ void NestEngineServerNRPClient::waitForStepCompletion(float timeOut)
 		throw NRPException::logCreate("Nest loop failed unexpectedly");
 }
 
-std::tuple<std::string, std::string> extractDeviceRequest(const std::string &devName)
-{
-	const auto cmdPos = devName.find_first_of('(');
-	if(devName.empty() || devName.back() != ')' || cmdPos >= devName.npos)
-		throw NRPException::logCreate("Invalid device Name. Misconfigured parentheses in device \"" + devName + "\"");
-
-	// Separate parameters by comma
-	boost::tokenizer<boost::escaped_list_separator<char> >params(devName.substr(cmdPos+1, devName.size()-cmdPos-2),
-	                                                             boost::escaped_list_separator<char>("\\", ",", "'\""));
-
-	// Get all parameters
-	nlohmann::json callParams = {{ "args", {}}};
-	for(const auto &p : params)
-	{
-		//Check if current param is arg or kwarg
-		const auto eqPos = p.find_first_of('=');
-		if(eqPos == p.npos)
-			callParams.push_back({p.substr(0, eqPos), p.substr(eqPos+1, p.size()-eqPos-1)});
-		else
-		{
-			callParams[0].push_back(p);
-		}
-	}
-
-	return std::make_tuple(devName.substr(0, cmdPos), callParams.dump());
-};
-
 EngineInterface::device_outputs_set_t NestEngineServerNRPClient::requestOutputDeviceCallback(const EngineInterface::device_identifiers_t &deviceIdentifiers)
 {
 	const auto serverAddr = this->serverAddress();
@@ -143,7 +166,7 @@ EngineInterface::device_outputs_set_t NestEngineServerNRPClient::requestOutputDe
 	{
 		if(devID.EngineName == this->engineName())
 		{
-			auto [ call, params ] = extractDeviceRequest(devID.Name);
+			const auto [call, params] = this->parseName(devID.Name);
 
 			auto resp = RestClient::post(serverAddr + "/api/" + call, "application/json", params);
 			if(resp.code != 200)
@@ -171,7 +194,7 @@ void NestEngineServerNRPClient::handleInputDevices(const EngineInterface::device
 			continue;
 
 		// Send command along with parameters to nest
-		auto [ call, params ] = extractDeviceRequest(inDev->name());
+		const auto [call, params] = this->parseName(inDev->name());
 
 		auto resp = RestClient::post(serverAddr + "/api/" + call, "application/json", params);
 		if(resp.code != 200)
@@ -195,4 +218,17 @@ bool NestEngineServerNRPClient::runStepFcn(SimulationTime timestep)
 std::string NestEngineServerNRPClient::serverAddress() const
 {
 	return this->engineConfig()->nestServerHost() + ":" + std::to_string(this->engineConfig()->nestServerPort());
+}
+
+std::tuple<std::string, std::string> NestEngineServerNRPClient::parseName(const std::string &devName) const
+{
+	// The Nest command to execute is stored in the DeviceIdentifier's name
+	// in the format Command(arg1, arg2, ..., kwarg1=dat1, kwarg2=dat2, ...). Extract the command
+	// and parameters, and serialize in JSON format for transmit
+	const auto cmdPos = devName.find_first_of('(');
+	if(devName.empty() || devName.back() != ')' || cmdPos >= devName.npos)
+		throw NRPException::logCreate("Invalid device Name. Misconfigured parentheses in device \"" + devName + "\"");
+
+	boost::python::str pyArgJson(this->_parseFcn(devName));
+	return std::make_tuple(devName.substr(0, cmdPos), (std::string)boost::python::extract<std::string>(pyArgJson));
 }

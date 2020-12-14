@@ -21,3 +21,42 @@
 from .@PYTHON_MODULE_NAME@ import *
 from .numpy_json_serializer import NumpyEncoder
 
+import ast
+import json
+def __fcnParse(string):
+    """Parses string and extracts function parameters"""
+    
+    def parseAst(astType):
+        if isinstance(astType, ast.Constant):
+            return astType.value
+        elif isinstance(astType, ast.List):
+            return listParse(astType)
+        elif isinstance(astType, ast.Dict):
+            return dictParse(astType)
+        else:
+            raise TypeError("Unknown AST type: " + str(astType))
+    
+    def listParse(lstAst):
+        retLst = []
+        for e in lstAst.elts:
+            retLst.append(parseAst(e))
+        return retLst
+    
+    def dictParse(dictAst):
+        retDict = {}
+        for i in range(0,len(dictAst.keys)):
+            retDict[parseAst(dictAst.keys[i])] = parseAst(dictAst.values[i])
+        return retDict
+    
+    vals = ast.parse(string)
+    args = []
+    kwargs = {}
+    
+    for param in vals.body[0].value.args:
+        args.append(parseAst(param))
+    
+    for kwarg in vals.body[0].value.keywords:
+        kwargs[kwarg.arg] = parseAst(kwarg.value)
+    
+    kwargs["args"] = args
+    return json.dumps(kwargs)

@@ -34,6 +34,16 @@ class LaunchCommandInterface
         : public PtrTemplates<LaunchCommandInterface>
 {
 	public:
+		/*!
+		 * \brief Engine Process status
+		 */
+		enum ENGINE_RUNNING_STATUS
+		{
+			UNKNOWN = -1,
+			RUNNING,
+			STOPPED
+		};
+
 		LaunchCommandInterface() = default;
 		virtual ~LaunchCommandInterface() = default;
 
@@ -61,9 +71,17 @@ class LaunchCommandInterface
 		virtual pid_t stopEngineProcess(unsigned int killWait) = 0;
 
 		/*!
+		 * \brief Get the current engine process status. If status cannot be retrieved, return ENGINE_RUNNING_STATUS::UNKNOWN
+		 * \return Returns status as enum ProcessLauncherInterface::ENGINE_RUNNING_STATUS
+		 */
+		virtual ENGINE_RUNNING_STATUS getProcessStatus()
+		{	return UNKNOWN;	}
+
+		/*!
 		 * \brief Get launch command type
 		 */
 		virtual std::string_view launchType() const = 0;
+
 };
 
 /*!
