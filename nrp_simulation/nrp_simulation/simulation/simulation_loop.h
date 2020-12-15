@@ -91,7 +91,7 @@ class SimulationLoop
 		/*!
 		 * \brief Simulated time (in seconds)
 		 */
-		SimulationTime _simTime;
+		SimulationTime _simTime = SimulationTime::zero();
 
 		/*!
 		 * \brief Initialize the TF Manager. Reads the TF Configurations from the Simulation Config, and registers the TFs
