@@ -99,6 +99,13 @@ SimulationTime NestJSONServer::runLoopStep(SimulationTime timeStep)
 
 		// Round the time step to account for NEST resolution
 
+		const auto numSteps = std::round(timeStepMsDouble / resolutionMs);
+
+		if(numSteps == 0)
+		{
+			throw NRPException::logCreate("Nest time step too small, step (ms): " + std::to_string(timeStepMsDouble) + ", resolution (ms): " + std::to_string(resolutionMs));
+		}
+
 		const double runTimeMsRounded = std::round(timeStepMsDouble / resolutionMs) * resolutionMs;
 
 		this->_pyNest["Run"](runTimeMsRounded);
