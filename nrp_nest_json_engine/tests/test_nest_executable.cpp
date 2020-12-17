@@ -81,7 +81,7 @@ TEST(TestNestExecutable, TestNest)
 	argv.push_back(serverAddr.data());
 	int argc = static_cast<int>(argv.size());
 
-	const float timeStep = 1000; // microseconds
+	SimulationTime timeStep = toSimulationTime<int, std::milli>(1);
 
 	// Create pipe
 	PipeCommunication commCtP, commPtC;
@@ -115,9 +115,9 @@ TEST(TestNestExecutable, TestNest)
 		ASSERT_EQ(rec, 2);
 
 		// Send runstep call
-		resp = RestClient::post(serverAddr + "/" + EngineJSONConfigConst::EngineServerRunLoopStepRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), nlohmann::json({{NestConfig::EngineTimeStepName.data(), timeStep}}).dump());
+		resp = RestClient::post(serverAddr + "/" + EngineJSONConfigConst::EngineServerRunLoopStepRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), nlohmann::json({{NestConfig::EngineTimeStepName.data(), timeStep.count()}}).dump());
 		auto respParse = nlohmann::json::parse(resp.body);
-		ASSERT_EQ(respParse[NestConfig::EngineTimeName.data()].get<float>(), timeStep);
+		ASSERT_EQ(respParse[NestConfig::EngineTimeName.data()].get<float>(), timeStep.count());
 
 		char send = 3;
 		ASSERT_EQ(commPtC.writeP(&send, 1, 5, 1), 1);

@@ -24,7 +24,7 @@
 
 #include <chrono>
 
-using SimulationTime = std::chrono::microseconds;
+using SimulationTime = std::chrono::nanoseconds;
 
 /*!
  * \brief Converts given value to SimulationTime object
