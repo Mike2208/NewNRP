@@ -170,11 +170,12 @@ TEST(EngineJSONServerTest, HttpRequests)
 	nlohmann::json retData = nlohmann::json::parse(resp.body);
 	ASSERT_STREQ(retData["status"].get<std::string>().data(), "success");
 
+	SimulationTime runTime = toSimulationTime<int, std::milli>(1);
 	// Run step command
 	data.clear();
-	data[EngineJSONConfigConst::EngineTimeStepName.data()] = 1;
+	data[EngineJSONConfigConst::EngineTimeStepName.data()] = runTime.count();
 	resp = RestClient::post(address + "/" + EngineJSONConfigConst::EngineServerRunLoopStepRoute.data(), EngineJSONConfigConst::EngineServerContentType.data(), data.dump());
-	ASSERT_EQ(server.curTime, SimulationTime(1));
+	ASSERT_EQ(server.curTime, runTime);
 
 	// Run get server command
 	data.clear();
