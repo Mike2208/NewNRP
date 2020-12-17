@@ -22,7 +22,6 @@
 
 #include "nrp_gazebo_devices/physics_link.h"
 
-
 const PhysicsLink::vec3_t &PhysicsLink::position() const
 {
 	return this->getPropertyByName<Position>();
@@ -61,4 +60,36 @@ const PhysicsLink::vec3_t &PhysicsLink::angVel() const
 void PhysicsLink::setAngVel(const PhysicsLink::vec3_t &angVel)
 {
 	this->getPropertyByName<AngularVelocity>() = angVel;
+}
+
+template<>
+nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PhysicsLinkConst::vec3_t &property)
+{
+	return nlohmann::json(property);
+}
+
+template<>
+PhysicsLinkConst::vec3_t JSONPropertySerializerMethods::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name)
+{
+	const auto dataIterator(data.find(name.data()));
+	if(dataIterator != data.end())
+	{
+		PhysicsLinkConst::vec3_t values;
+
+		for (size_t i = 0; i < dataIterator->size(); i++)
+		{
+			if(dataIterator->at(i).is_number())
+			{
+				values[i] = dataIterator->at(i).get<float>();
+			}
+			else
+			{
+				values[i] = NAN;
+			}
+		}
+
+		return values;
+	}
+	else
+		throw NRPExceptionMissingProperty(std::string("Couldn't find JSON attribute \"") + name.data() + "\" during deserialization");
 }

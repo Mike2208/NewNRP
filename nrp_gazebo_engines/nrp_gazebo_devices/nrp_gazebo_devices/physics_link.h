@@ -73,6 +73,12 @@ class PhysicsLink
 		void setAngVel(const vec3_t &angVel);
 };
 
+template<>
+nlohmann::json JSONPropertySerializerMethods::serializeSingleProperty(const PhysicsLinkConst::vec3_t &property);
+
+template<>
+PhysicsLinkConst::vec3_t JSONPropertySerializerMethods::deserializeSingleProperty(const nlohmann::json &data, const std::string_view &name);
+
 /*! \addtogroup gazebo_devices
  * The PhysicsJoint Device consists of the following attributes:
  * <table>
